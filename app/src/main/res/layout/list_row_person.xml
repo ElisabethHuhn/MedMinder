@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:orientation="horizontal"
+
+    android:layout_width= "match_parent"
+    android:layout_height="wrap_content"
+
+    android:focusable="true"
+    android:clickable="true"
+
+    android:paddingTop="@dimen/interum_vertical"
+
+    android:background="?android:attr/selectableItemBackground"
+    >
+    <!-- Each field needs a weight that matches the weight of the header -->
+        <!-- This layout is for a Person element within a list-->
+        <!-- ID weight = 6-->
+        <TextView
+                android:id="@+id/personID"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="6"
+                android:gravity="center"
+
+                android:layout_marginEnd="@dimen/listrow_field_separator"
+
+                android:textColor="@color/colorTextBlack"
+                android:background="@color/colorHistoryBackground"
+                />
+
+        <!-- Nickname 12 -->
+        <EditText
+            android:id="@+id/personNickNameInput"
+
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="12"
+            android:gravity="center"
+
+            android:layout_marginEnd="@dimen/listrow_field_separator"
+
+            android:inputType="text"
+
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorHistoryBackground"
+            />
+
+        <!-- Email Address 15 -->
+        <EditText
+                android:id="@+id/personEmailAddrInput"
+
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="15"
+                android:gravity="center"
+
+                android:layout_marginEnd="@dimen/listrow_field_separator"
+
+                android:inputType="textEmailAddress"
+
+                android:textColor="@color/colorTextBlack"
+                android:background="@color/colorHistoryBackground"
+                />
+
+        <!-- Text Address 15 -->
+        <EditText
+                android:id="@+id/personTextAddrInput"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="15"
+                android:gravity="center"
+
+                android:layout_marginEnd="@dimen/listrow_field_separator"
+
+                android:inputType="phone"
+                android:textColor="@color/colorTextBlack"
+                android:background="@color/colorHistoryBackground"
+
+                 />
+
+        <!-- Duration 3 -->
+        <EditText
+            android:id="@+id/personDurationInput"
+
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="3"
+            android:gravity="center"
+
+            android:layout_marginEnd="@dimen/listrow_field_separator"
+
+            android:inputType="number"
+
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorHistoryBackground"
+
+            />
+
+        <!-- Order 3 -->
+        <EditText
+            android:id="@+id/personOrderInput"
+
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:gravity="center"
+
+            android:layout_marginEnd="@dimen/listrow_field_separator"
+
+            android:inputType="number"
+
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorHistoryBackground"
+
+            />
+
+
+</LinearLayout>
+
+
+
+
+
+

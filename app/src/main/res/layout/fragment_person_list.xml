@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools=  "http://schemas.android.com/tools"
+    tools:context="com.androidchicken.medminder.MainActivityFragment"
+
+    android:layout_width= "match_parent"
+    android:layout_height="match_parent"
+
+    android:orientation="vertical"
+
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft=  "@dimen/activity_horizontal_margin"
+    android:paddingRight= "@dimen/activity_horizontal_margin"
+    android:paddingTop=   "@dimen/interum_vertical"
+
+    android:background="@color/colorScreenBackground"
+    >
+
+    <HorizontalScrollView
+        android:layout_width= "match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport= "true"
+        >
+        <!-- Allow entire screen to scroll horizontally -->
+        <LinearLayout
+            android:layout_width= "match_parent"
+            android:layout_height="match_parent"
+            android:orientation=  "vertical"
+            >
+
+            <!-- Screen Title and Column Titles -->
+            <LinearLayout
+                android:layout_width= "match_parent"
+                android:layout_height="wrap_content"
+                android:orientation=  "vertical"
+                >
+
+                <!-- Row 1: Person Screen Label -->
+                <TextView
+                        android:id="@+id/personListScreenLabel"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+
+                        android:layout_gravity="center_horizontal"
+                        android:gravity="center_horizontal"
+
+                        android:text="@string/person_list_screen_label"
+                        android:textColor="@color/colorTextBlack"
+                        android:background="@color/colorWhite"
+                        />
+
+                <!-- Row 2: Headings for the list columns -->
+                <LinearLayout
+                    android:orientation=  "horizontal"
+                    android:layout_width= "match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:focusable="false"
+                    android:clickable="false"
+
+                    android:paddingTop="@dimen/interum_vertical"
+
+                    android:background="@color/colorScreenBackground"
+                    >
+
+                    <!-- Each field needs a weight that matches the weight of the lsit -->
+                    <!-- ID 6 -->
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width= "0dp"
+                        android:layout_weight="6"
+                        android:gravity="center"
+
+                        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+                        android:text="@string/person_id_label"
+                        android:textColor="@color/colorTextBlack"
+                        android:background="@color/colorLabelBackground"
+                        />
+
+                    <!-- Nickname 12 -->
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width= "0dp"
+                        android:layout_weight="12"
+                        android:gravity="center"
+
+                        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+                        android:text="@string/person_nick_name_label"
+                        android:textColor="@color/colorTextBlack"
+                        android:background="@color/colorLabelBackground"
+                        />
+
+                    <!-- Email Address 15 -->
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width= "0dp"
+                        android:layout_weight="15"
+                        android:gravity="center"
+
+                        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+                        android:text="@string/person_email_addr_label"
+                        android:textColor="@color/colorTextBlack"
+                        android:background="@color/colorLabelBackground"
+                        />
+
+                    <!-- Text Address 15 -->
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width= "0dp"
+                        android:layout_weight="15"
+                        android:gravity="center"
+
+                        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+                        android:text="@string/person_text_addr_label"
+                        android:textColor="@color/colorTextBlack"
+                        android:background="@color/colorLabelBackground"
+
+                        />
+
+                    <!-- Duration 3 -->
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width= "0dp"
+                        android:layout_weight="3"
+                        android:gravity="center"
+
+                        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+                        android:text="@string/person_duration_label"
+                        android:textColor="@color/colorTextBlack"
+                        android:background="@color/colorLabelBackground"
+
+                        />
+
+                    <!-- Order 3 -->
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width= "0dp"
+                        android:layout_weight="3"
+                        android:gravity="center"
+
+                        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+                        android:text=      "@string/person_order_label"
+                        android:textColor= "@color/colorTextBlack"
+                        android:background="@color/colorLabelBackground"
+
+                        />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Scrolling list of persons -->
+            <ScrollView
+                android:layout_width= "match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport= "true"
+                >
+
+                <!-- RecyclerView List of Persons -->
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/personList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    >
+                </android.support.v7.widget.RecyclerView>
+
+            </ScrollView>
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+</LinearLayout>
+
+
+
+

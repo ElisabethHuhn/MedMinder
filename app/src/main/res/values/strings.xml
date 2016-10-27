@@ -1,0 +1,101 @@
+<resources>
+    <string name="app_name">MedMinder</string>
+
+    <!--      Global                  -->
+    <!--  -->
+    <string name="save_label"         >Save</string>
+    <string name="hint_label"         >Hint</string>
+    <string name="exception_no_person">No Person was in List</string>
+    <string name="no_person"          >No Persons defined</string>
+
+    <!--      Actions                  -->
+    <string name="action_settings" >Settings</string>
+    <string name="action_home"     >Home</string>
+
+    <!--      Title Bar Text                  -->
+    <string name="title_take_dose"  >Take Dose</string>
+    <string name="title_person"     >Person Profile</string>
+    <string name="title_person_list">List Persons</string>
+    <string name="title_medication" >Medication</string>
+    <string name="title_medication_list">List Medications</string>
+
+    <!--      Medication SCREEN                  -->
+    <!--  -->
+    <string name="medication_screen_label"      >Medications</string>
+    <string name="medication_brand_name_label"  >Brand Name</string>
+    <string name="medication_generic_name_label">Generic Name</string>
+    <string name="medication_for_label"         >For Person ID</string>
+    <string name="medication_nick_name_label"   >Nick Name</string>
+    <string name="medication_order_label"       >Order Name</string>
+    <string name="medication_dose_amount_label" >Dose Amount</string>
+    <string name="medication_dose_units_label"  >Dose Units</string>
+    <string name="medication_when_due_label"    >Dose Due</string>
+    <string name="medication_num_label"         ># per day</string>
+
+
+    <string name="medication_brand_name_hint"   >Enter Brand Name</string>
+    <string name="medication_generic_name_hint" >Enter Generic Name</string>
+    <string name="medication_nick_name_hint"    >Enter Nickname</string>
+    <string name="medication_for_hint"          >Enter Person ID this medication is for</string>
+    <string name="medication_order_hint"        >For Example: 5</string>
+    <string name="medication_dose_amount_hint"  >For Example: 250</string>
+    <string name="medication_dose_units_hint"   >For Example: mg</string>
+    <string name="medication_num_per_day_hint"  >For Example: 2</string>
+    <string name="medication_when_due_hint2"    >Leave blank for as needed</string>
+    <string name="medication_when_due_hint"     >For Example: 9:00am, 9:00pm</string>
+
+
+    <!--      Person SCREEN                  -->
+    <!--  -->
+    <string name="person_screen_label"      >Person Profile</string>
+    <string name="person_id_label"          >ID</string>
+    <string name="person_nick_name_label"   >Nick Name</string>
+    <string name="person_email_addr_label"  >Email Addr</string>
+    <string name="person_text_addr_label"   >Text Addr</string>
+    <string name="person_order_label"       >Order</string>
+    <string name="person_duration_label"   >Duration</string>
+    <string name="person_is_patient_label"  >is patient?</string>
+
+
+    <string name="person_nick_name_hint"   >Enter Nick Name</string>
+    <string name="person_email_addr_hint"  >Only used for notifications</string>
+    <string name="person_text_addr_hint"   >Only used for notifications</string>
+    <string name="person_order_hint"       >By Nickname</string>
+    <string name="person_duration_hint"    >For example: quarter, half, hourly</string>
+    <string name="person_is_patient_hint"  >Yes</string>
+
+    <string name="person_not_valid"        >Must have Nickname to define a Person</string>
+    <string name="person_med_long_click"   >Medication Long Click</string>
+
+    <!--      Person List SCREEN                  -->
+    <!--  -->
+    <string name="person_list_screen_label" >Person List</string>
+    <string name="patient_label"            >Make Patient</string>
+
+    <!--      Dose Taken SCREEN                  -->
+    <!--  -->
+    <string name="patient_nick_name_label"      >PERSON NOT FOUND</string>
+    <string name="patient_edit_profile_label"   >Edit Patient</string>
+    <string name="patient_add_persons_label"    >Add Persons</string>
+    <string name="show_persons_label"           >Show Person List</string>
+    <string name="select_patient_label"         >Select Person</string>
+    <string name="patient_edit_medication_label">Edit Med</string>
+    <string name="patient_medication_button_1_label">Med 1</string>
+    <string name="patient_medication_button_2_label">Med 2</string>
+    <string name="patient_medication_button_3_label">Med 3</string>
+    <string name="patient_medication_button_4_label">Med 4</string>
+    <string name="patient_medication_button_5_label">Med 5</string>
+    <string name="patient_medication_button_6_label">Med 6</string>
+    <string name="patient_medication_button_7_label">Med 7</string>
+    <string name="patient_medication_button_8_label">Med 8</string>
+    <string name="patient_medication_button_9_label">Med 9</string>
+    <string name="dose_default_date"        >00/00/0000</string>
+    <string name="dose_default_time"        >00/00 00:00</string>
+    <string name="dose_default_fill"        ></string>
+
+    <string name="patient_med_hint"  >0</string>
+
+    <string name="input_received"    >Input received</string>
+
+
+</resources>
