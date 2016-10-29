@@ -37,25 +37,28 @@
         <!-- with paddingStart, = set some space between this button and the next  -->
 
         <!-- Container for entire screen -->
-            <LinearLayout
-                android:layout_height= "match_parent"
+            <TableLayout
+                xmlns:android=  "http://schemas.android.com/apk/res/android"
+
+                android:layout_height= "wrap_content"
                 android:layout_width=  "wrap_content"
 
-                android:orientation="vertical"
+                android:layout_gravity="top|center_vertical"
+
+
                 >
                 <!-- Row 1: Dose Taken Screen Label -->
                 <!-- Patient Name and Edit Patient Button -->
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
+                <TableRow
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
 
                     >
                     <TextView
                         android:id="@+id/patientNickNameLabel"
                         android:text="@string/patient_nick_name_label"
                         android:layout_height="wrap_content"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_weight="1"
 
                         android:gravity="center"
@@ -68,7 +71,7 @@
                         style="?android:attr/buttonBarButtonStyle"
                         android:id="@+id/patientProfileButton"
                         android:text="@string/patient_edit_profile_label"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
 
                         android:gravity="center|center_vertical"
@@ -86,7 +89,7 @@
                         android:id=  "@+id/addPersonsButton"
                         android:text="@string/patient_add_persons_label"
 
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
 
                         android:gravity="center|center_vertical"
@@ -104,7 +107,7 @@
                         style="?android:attr/buttonBarButtonStyle"
                         android:id="@+id/selectPatientButton"
                         android:text="@string/select_patient_label"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
 
                         android:gravity="center|center_vertical"
@@ -122,7 +125,7 @@
                         android:id="@+id/patientSaveButton"
                         android:text="@string/save_label"
 
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
 
                         android:gravity="center|center_vertical"
@@ -136,13 +139,13 @@
                         android:textColor="@color/colorTextBlack"
                         />
 
-                </LinearLayout>
+                </TableRow>
 
                 <!-- Row 2: Medication Buttons -->
-                <LinearLayout
-                    android:id="@+id/medButtonLayout"
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
+                <TableRow
+
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_gravity="center_horizontal"
                     android:paddingTop="5dp"
                     >
@@ -232,13 +235,13 @@
                         android:textColor="@color/colorTextBlack"
                         />
 
-                </LinearLayout>
+                </TableRow>
 
                 <!-- Row 3: this Dose Taken -->
-                <LinearLayout
+                <TableRow
 
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_gravity="center_horizontal"
                     android:paddingTop="5dp"
                     >
@@ -247,7 +250,7 @@
                     <EditText
                         android:id="@+id/doseTimeInput"
                         android:layout_height="wrap_content"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_weight="4"
                         android:gravity="center"
 
@@ -265,7 +268,7 @@
                         android:id="@+id/doseMed1Input"
 
                         android:layout_height="wrap_content"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_weight="1"
                         android:gravity="center"
 
@@ -283,7 +286,7 @@
                         android:id="@+id/doseMed2Input"
 
                         android:layout_height="wrap_content"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_weight="1"
                         android:gravity="center"
 
@@ -301,7 +304,7 @@
                         android:id="@+id/doseMed3Input"
 
                         android:layout_height="wrap_content"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_weight="1"
                         android:gravity="center"
 
@@ -319,7 +322,7 @@
                         android:id="@+id/doseMed4Input"
 
                         android:layout_height="wrap_content"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_weight="1"
                         android:gravity="center"
 
@@ -337,7 +340,7 @@
                         android:id="@+id/doseMed5Input"
 
                         android:layout_height="wrap_content"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_weight="1"
                         android:gravity="center"
 
@@ -351,10 +354,10 @@
                         android:background="@color/colorInputBackground"
                         />
 
-                </LinearLayout>
+                </TableRow>
 
                 <!-- Row 4: DDose Taken History -->
-                <LinearLayout
+                <TableRow
 
                     android:layout_height="wrap_content"
                     android:layout_width= "match_parent"
@@ -369,9 +372,9 @@
                         >
                     </android.support.v7.widget.RecyclerView>
 
-                </LinearLayout>
+                </TableRow>
 
-            </LinearLayout>
+            </TableLayout>
 
 
         </HorizontalScrollView>

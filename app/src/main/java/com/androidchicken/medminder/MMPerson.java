@@ -1,6 +1,7 @@
 package com.androidchicken.medminder;
 
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 /**
  * Created by elisabethhuhn on 10/12/2016.
@@ -33,6 +34,8 @@ public class MMPerson {
     public static final String sPersonTextTag       = "PERSON_TEXT";
     public static final String sPersonDurationTag   = "PERSON_DURATION";
     public static final String sPersonOrderTag      = "PERSON_ORDER";
+
+    public static final String sPersonMedicationPositionTag = "PERSON_MED_POSITION";
 
 
     /*************************************/
@@ -67,7 +70,7 @@ public class MMPerson {
         mTextAddress  = "";
         mDuration     = DURATION_QUARTER_HOUR;
         mMedOrder     = ORDER_MEDICATION_NICKNAME;
-        mMedications  = new ArrayList<MMMedication>();
+        mMedications  = new ArrayList<>();
     }
 
 
@@ -101,7 +104,7 @@ public class MMPerson {
 
     public boolean addMedication(MMMedication medication){
         if (mMedications == null){
-            mMedications = new ArrayList<MMMedication>();
+            mMedications = new ArrayList<>();
         }
         mMedications.add(medication);
         return true;

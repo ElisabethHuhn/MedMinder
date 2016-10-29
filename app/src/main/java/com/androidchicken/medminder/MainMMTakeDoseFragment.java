@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,11 +30,8 @@ public class MainMMTakeDoseFragment extends Fragment {
     private Button mSelectPatientButton;
     private Button mSaveButton;
     private Button mEditMedicationButton;
-    private Button mMed1Button;
-    private Button mMed2Button;
-    private Button mMed3Button;
-    private Button mMed4Button;
-    private Button mMed5Button;
+    ArrayList<Button> mMedButtons = new ArrayList<>();
+
 
     private TextView mPatientNickName;
 
@@ -52,6 +50,14 @@ public class MainMMTakeDoseFragment extends Fragment {
     private MMPerson mPatient;
     private int      mPersonID;
     private ArrayList<MMMedication> mMedications;
+
+    private MMMedication mMed1;
+    private MMMedication mMed2;
+    private MMMedication mMed3;
+    private MMMedication mMed4;
+    private MMMedication mMed5;
+
+
 
 
 
@@ -128,6 +134,7 @@ public class MainMMTakeDoseFragment extends Fragment {
             //if there is a person corresponding to the patientID, put the name up on the screen
             if (mPatient != null) {
                 mPatientNickName.setText(mPatient.getNickname().toString().trim());
+
             }
         }
 
@@ -229,138 +236,187 @@ public class MainMMTakeDoseFragment extends Fragment {
             }
         });
 
-        //Medication 1 Button
-        mMed1Button = (Button) v.findViewById(R.id.patientMedication1Button);
-        mMed1Button.setText(R.string.patient_medication_button_1_label);
-        mMed1Button.setText(getMedNickname(1));
-        //the order of images here is left, top, right, bottom
-        //mMed1Button.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_cogo, 0, 0);
-        mMed1Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.patient_medication_button_1_label,
-                        Toast.LENGTH_SHORT).show();
+        //Medication Buttons
+        int last = mMedications.size();
+        int position = 0;
+        Button medButton;
+        LinearLayout layout = (LinearLayout) v.findViewById(R.id.medButtonLayout);
+        while (position < last) {
+            //Add the button to the layout
+            medButton = new Button(getActivity());
+            ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT );
+
+            medButton.setLayoutParams(lp);
+            medButton.setBackgroundColor(medButton.getContext().getResources().getColor(R.color.colorButton1Background));
+            medButton.setText(getMedNickname(position+1));
+            medButton.setTextColor(medButton.getContext().getResources().getColor(R.color.colorTextBlack));
+            layout.addView(medButton);
+
+            //save the pointer to the button
+            mMedButtons.add(medButton);
+
+        }
+
+        if (mMedButtons.size() > 0) {
+            medButton = mMedButtons.get(0);
+            if (medButton != null) {
+                //add the listeners to the button
+                medButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getActivity(),
+                                R.string.patient_medication_button_1_label,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+                medButton.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+
+                        Toast.makeText(getActivity(),
+                                R.string.person_med_long_click,
+                                Toast.LENGTH_SHORT).show();
+
+                        return true;
+                    }
+                });
             }
-        });
-        mMed1Button.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
+        }
 
-                Toast.makeText(getActivity(),
-                        R.string.person_med_long_click,
-                        Toast.LENGTH_SHORT).show();
-                return true;
+        if (mMedButtons.size() > 1) {
+            medButton = mMedButtons.get(1);
+            if (medButton != null) {
+                //add the listeners to the button
+                medButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getActivity(),
+                                R.string.patient_medication_button_2_label,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+                medButton.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+
+                        Toast.makeText(getActivity(),
+                                R.string.person_med_long_click,
+                                Toast.LENGTH_SHORT).show();
+
+                        return true;
+                    }
+                });
             }
-        });
+        }
 
-        //Medication 2 Button
-        mMed2Button = (Button) v.findViewById(R.id.patientMedication2Button);
-        mMed2Button.setText(R.string.patient_medication_button_2_label);
-        mMed2Button.setText(getMedNickname(2));
-        //the order of images here is left, top, right, bottom
-        //mMed2Button.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_cogo, 0, 0);
-        mMed2Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.patient_medication_button_2_label,
-                        Toast.LENGTH_SHORT).show();
+        if (mMedButtons.size() > 2) {
+            medButton = mMedButtons.get(1);
+            if (medButton != null) {
+                //add the listeners to the button
+                medButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getActivity(),
+                                R.string.patient_medication_button_2_label,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+                medButton.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
 
+                        Toast.makeText(getActivity(),
+                                R.string.person_med_long_click,
+                                Toast.LENGTH_SHORT).show();
 
+                        return true;
+                    }
+                });
             }
-        });
-        mMed2Button.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
+        }
 
-                Toast.makeText(getActivity(),
-                        R.string.person_med_long_click,
-                        Toast.LENGTH_SHORT).show();
-                return true;
+        if (mMedButtons.size() >= 3) {
+            medButton = mMedButtons.get(2);
+            if (medButton != null) {
+                //add the listeners to the button
+                medButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getActivity(),
+                                R.string.patient_medication_button_3_label,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+                medButton.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+
+                        Toast.makeText(getActivity(),
+                                R.string.person_med_long_click,
+                                Toast.LENGTH_SHORT).show();
+
+                        return true;
+                    }
+                });
             }
-        });
+        }
 
+        if (mMedButtons.size() >= 4) {
+            medButton = mMedButtons.get(3);
+            if (medButton != null) {
+                //add the listeners to the button
+                medButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getActivity(),
+                                R.string.patient_medication_button_4_label,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+                medButton.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
 
-        //Medication 3 Button
-        mMed3Button = (Button) v.findViewById(R.id.patientMedication3Button);
-        mMed3Button.setText(R.string.patient_medication_button_3_label);
-        mMed3Button.setText(getMedNickname(3));
-        //the order of images here is left, top, right, bottom
-        //mMed3Button.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_cogo, 0, 0);
-        mMed3Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.patient_medication_button_3_label,
-                        Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(),
+                                R.string.person_med_long_click,
+                                Toast.LENGTH_SHORT).show();
 
-
+                        return true;
+                    }
+                });
             }
-        });
-        mMed3Button.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
+        }
 
-                Toast.makeText(getActivity(),
-                        R.string.person_med_long_click,
-                        Toast.LENGTH_SHORT).show();
-                return true;
+        if (mMedButtons.size() >= 5) {
+            medButton = mMedButtons.get(4);
+            if (medButton != null) {
+                //add the listeners to the button
+                medButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getActivity(),
+                                R.string.patient_medication_button_5_label,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+                medButton.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+
+                        Toast.makeText(getActivity(),
+                                R.string.person_med_long_click,
+                                Toast.LENGTH_SHORT).show();
+
+                        return true;
+                    }
+                });
             }
-        });
-
-        //Medication 4 Button
-        mMed4Button = (Button) v.findViewById(R.id.patientMedication4Button);
-        mMed4Button.setText(R.string.patient_medication_button_4_label);
-        mMed4Button.setText(getMedNickname(4));
-        //the order of images here is left, top, right, bottom
-        //mMed4Button.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_cogo, 0, 0);
-        mMed4Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.patient_medication_button_4_label,
-                        Toast.LENGTH_SHORT).show();
+        }
 
 
-            }
-        });
-        mMed4Button.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
 
-                Toast.makeText(getActivity(),
-                        R.string.person_med_long_click,
-                        Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
-
-
-        //Medication 5 Button
-        mMed5Button = (Button) v.findViewById(R.id.patientMedication5Button);
-        mMed5Button.setText(R.string.patient_medication_button_5_label);
-        mMed5Button.setText(getMedNickname(5));
-        //the order of images here is left, top, right, bottom
-        //mMed5Button.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_cogo, 0, 0);
-        mMed5Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.patient_medication_button_5_label,
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-        mMed5Button.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-
-                Toast.makeText(getActivity(),
-                        R.string.person_med_long_click,
-                        Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
 
         //Patient Nick Name
         mPatientNickName = (TextView) v.findViewById(R.id.patientNickNameLabel);

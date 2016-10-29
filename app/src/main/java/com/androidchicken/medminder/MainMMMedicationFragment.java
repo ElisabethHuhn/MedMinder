@@ -30,12 +30,72 @@ public class MainMMMedicationFragment extends Fragment {
     private EditText mMedicationDoseDueWhenInput;
     private EditText mMedicationDoseNumInput;
 
-    //Medication being input
+    //Medication being input from the UI
     private MMMedication mMedication = (MMMedication) new MMMedication();
+    
+    private MMPerson mPerson;
+    private int      mPersonID;
+    
+    private int      mPosition;
+
+    /***********************************************/
+    /*          Static Methods                     */
+    /***********************************************/
 
 
+    //need to pass a medication into the fragment
+    public static MainMMMedicationFragment newInstance(int personID, int position){
+        //create a bundle to hold the arguments
+        Bundle args = new Bundle();
+
+        //It will be some work to make all of the data model serializable
+        //so for now, just pass the person values
+        args.putInt         (MMPerson.sPersonIDTag,personID);
+        args.putInt         (MMPerson.sPersonMedicationPositionTag, position);
+
+        MainMMMedicationFragment fragment = new MainMMMedicationFragment();
+
+        fragment.setArguments(args);
+        
+        return fragment;
+    }
+
+    /***********************************************/
+    /*          Constructor                        */
+    /***********************************************/
     public MainMMMedicationFragment() {
     }
+
+
+    /***********************************************/
+    /*          Lifecycle Methods                  */
+    /***********************************************/
+
+
+    //pull the arguments out of the fragment bundle and store in the member variables
+    //In this case, prepopulate the personID this screen refers to
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+
+        super.onCreate(savedInstanceState);
+
+        Bundle args = getArguments();
+
+        if (args != null) {
+            mPersonID = args.getInt(MMPerson.sPersonIDTag);
+            mPosition = args.getInt(MMPerson.sPersonMedicationPositionTag);
+            
+            MMPersonManager personManager = MMPersonManager.getInstance();
+
+            //If personID can't be found in the list, mPatient will be null
+            mPerson = personManager.getPerson(mPersonID);
+
+            // TODO: 10/27/2016 get the medication from the person. person might be null, as might medication 
+
+        }
+
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
