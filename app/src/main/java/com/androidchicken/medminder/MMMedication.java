@@ -64,17 +64,17 @@ public class MMMedication {
     /*************************************/
 
     //Generic instance with no attributes
-    public MMMedication() {  mMedicationID = MMUtilities.getUniqueID();  }
-
-
-    public MMMedication(CharSequence brandName, int amount, CharSequence units) {
+    public MMMedication() {
         mMedicationID = MMUtilities.getUniqueID();
-        mBrandName    = brandName;
-        mMedicationNickname = brandName;
-        mDoseAmount   = amount;
-        mDoseUnits    = units;
-        mNum = 1;
-
+        mForPersonID  = -1;
+        mBrandName    = "Brand Name";
+        mGenericName  = "Generic Name";
+        mMedicationNickname = "Nick Name";
+        mOrder         = 0;
+        mDoseAmount   = 1;
+        mDoseUnits    = "Mg";
+        mWhenDue      = "Quarterly";
+        mNum          = 1;
     }
 
 

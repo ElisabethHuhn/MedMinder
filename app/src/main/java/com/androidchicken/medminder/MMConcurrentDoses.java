@@ -40,12 +40,20 @@ public class MMConcurrentDoses {
     /*************************************/
     /*         CONSTRUCTOR               */
     /*************************************/
+    public MMConcurrentDoses() {
+        mConcurrentDoseID = MMUtilities.getUniqueID();
+        mForPerson    = 0;
+        mIsStartOfDay = false;
+        mStartTime    = 0;
+        mDoses        = new ArrayList<>();
+    }
+
     public MMConcurrentDoses(int forPerson, boolean isStartOfDay, int startTime) {
         mConcurrentDoseID = MMUtilities.getUniqueID();
         mForPerson    = forPerson;
         mIsStartOfDay = isStartOfDay;
         mStartTime    = startTime;
-        mDoses        = new ArrayList<MMDose>();
+        mDoses        = new ArrayList<>();
     }
 
     /*************************************/
@@ -71,7 +79,7 @@ public class MMConcurrentDoses {
     /*************************************/
     public boolean addDose(MMDose dose){
         if (mDoses == null){
-            mDoses = new ArrayList<MMDose>();
+            mDoses = new ArrayList<>();
         }
         mDoses.add(dose);
         return true;

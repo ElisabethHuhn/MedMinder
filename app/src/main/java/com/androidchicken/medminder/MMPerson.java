@@ -73,6 +73,16 @@ public class MMPerson {
         mMedications  = new ArrayList<>();
     }
 
+    public MMPerson( ) {
+        mPersonID     = MMUtilities.getUniqueID();
+        mNickname     = "Nickname";
+        mEmailAddress = "";
+        mTextAddress  = "";
+        mDuration     = DURATION_QUARTER_HOUR;
+        mMedOrder     = ORDER_MEDICATION_NICKNAME;
+        mMedications  = new ArrayList<>();
+    }
+
 
     /*************************************/
     /*    Member setter/getter Methods   */

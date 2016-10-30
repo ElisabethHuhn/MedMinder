@@ -49,16 +49,106 @@
                 <TextView
                     android:text="@string/medication_screen_label"
                     android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="50"
 
                     android:textSize="20sp"
                     android:textColor="@color/colorTextBlack"
                     android:background="@color/colorTitleBackground"
                     />
+                <TextView
+                    android:id="@+id/medicationForPerson"
+                    android:text="@string/medication_for_label"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="30"
+                    android:gravity="center"
+
+                    android:enabled="false"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorTitleBackground"
+                    />
+            </TableRow>
+
+            <!-- Row 2: Medication For Person, which the user may not change -->
+            <TableRow
+
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="10dp"
+                >
+                <TextView
+                    android:labelFor="@+id/medicationForInput"
+                    android:text="@string/medication_for_label"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="30"
+                    android:gravity="end"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorLabelBackground"
+                    />
+                <EditText
+                    android:id="@id/medicationForInput"
+
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="70"
+
+                    android:hint="@string/medication_for_hint"
+                    android:enabled="false"
+
+                    android:inputType="text"
+                    android:imeOptions="flagNoExtractUi"
+                    android:layout_marginEnd="16dp"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorInputBackground"
+                    />
 
             </TableRow>
 
-            <!-- Row 2: Medication Brand Name -->
+            <!-- Row 3: Medication Nick Name -->
+            <TableRow
+
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="10dp"
+            >
+            <TextView
+                android:labelFor="@+id/medicationNickNameInput"
+                android:text="@string/medication_nick_name_label"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="30"
+                android:gravity="end"
+
+                android:textColor="@color/colorTextBlack"
+                android:background="@color/colorLabelBackground"
+                />
+            <EditText
+                android:id="@id/medicationNickNameInput"
+
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="70"
+
+                android:hint="@string/medication_nick_name_hint"
+
+                android:inputType="text"
+                android:imeOptions="flagNoExtractUi"
+                android:layout_marginEnd="16dp"
+
+                android:textColor="@color/colorTextBlack"
+                android:background="@color/colorInputBackground"
+                />
+
+        </TableRow>
+
+            <!-- Row 4: Medication Brand Name -->
             <TableRow
 
                 android:layout_height="wrap_content"
@@ -96,7 +186,7 @@
 
             </TableRow>
 
-            <!-- Row 3: Medication Generic Name -->
+            <!-- Row 5: Medication Generic Name -->
             <TableRow
 
                 android:layout_height="wrap_content"
@@ -133,83 +223,7 @@
 
             </TableRow>
 
-            <!-- Row 4: Medication Nick Name -->
-            <TableRow
-
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
-                >
-                <TextView
-                    android:labelFor="@+id/medicationNickNameInput"
-                    android:text="@string/medication_nick_name_label"
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_weight="30"
-                    android:gravity="end"
-
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorLabelBackground"
-                    />
-                <EditText
-                    android:id="@id/medicationNickNameInput"
-
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_weight="70"
-
-                    android:hint="@string/medication_nick_name_hint"
-
-                    android:inputType="text"
-                    android:imeOptions="flagNoExtractUi"
-                    android:layout_marginEnd="16dp"
-
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorInputBackground"
-                    />
-
-            </TableRow>
-
-            <!-- Row 5: Medication For Person -->
-            <TableRow
-
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:layout_gravity="center_horizontal"
-            android:paddingTop="10dp"
-            >
-            <TextView
-                android:labelFor="@+id/medicationForInput"
-                android:text="@string/medication_for_label"
-                android:layout_height="wrap_content"
-                android:layout_width="0dp"
-                android:layout_weight="30"
-                android:gravity="end"
-
-                android:textColor="@color/colorTextBlack"
-                android:background="@color/colorLabelBackground"
-                />
-            <EditText
-                android:id="@id/medicationForInput"
-
-                android:layout_height="wrap_content"
-                android:layout_width="0dp"
-                android:layout_weight="70"
-
-                android:hint="@string/medication_for_hint"
-
-                android:inputType="text"
-                android:imeOptions="flagNoExtractUi"
-                android:layout_marginEnd="16dp"
-
-                android:textColor="@color/colorTextBlack"
-                android:background="@color/colorInputBackground"
-                />
-
-        </TableRow>
-
-            <!-- Row 6: Medication Order -->
+              <!-- Row 6: Medication Order -->
             <TableRow
 
                 android:layout_height="wrap_content"

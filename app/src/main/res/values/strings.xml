@@ -79,7 +79,7 @@
     <string name="patient_add_persons_label"    >Add Persons</string>
     <string name="show_persons_label"           >Show Person List</string>
     <string name="select_patient_label"         >Select Person</string>
-    <string name="patient_edit_medication_label">Edit Med</string>
+    <string name="patient_add_medication_label">Add Med</string>
     <string name="patient_medication_button_1_label">Med 1</string>
     <string name="patient_medication_button_2_label">Med 2</string>
     <string name="patient_medication_button_3_label">Med 3</string>
@@ -91,7 +91,7 @@
     <string name="patient_medication_button_9_label">Med 9</string>
     <string name="dose_default_date"        >00/00/0000</string>
     <string name="dose_default_time"        >00/00 00:00</string>
-    <string name="dose_default_fill"        ></string>
+
 
     <string name="patient_med_hint"  >0</string>
 

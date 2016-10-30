@@ -96,7 +96,7 @@ public class MainMMPersonFragment extends Fragment {
         wireWidgets(v);
 
         //If we had any arguments passed, update the screen with them
-        updateScreenWithPerson();
+        initializeUI();
 
         //set the title bar subtitle
         ((MainActivity) getActivity()).setMMSubtitle(R.string.title_person);
@@ -200,14 +200,16 @@ public class MainMMPersonFragment extends Fragment {
 
     }
 
-    private void updateScreenWithPerson(){
-        if (mPerson != null) {
-            mPersonNickNameInput. setText(mPerson.getNickname().toString().trim());
-            mPersonEmailAddrInput.setText(mPerson.getEmailAddress().toString().trim());
-            mPersonTextAddrInput. setText(mPerson.getTextAddress().toString().trim());
-            mPersonOrderInput.    setText(String.valueOf(mPerson.getMedOrder()).trim());
-            mPersonDurationInput. setText(String.valueOf(mPerson.getDuration()).trim());
+    private void initializeUI(){
+        if (mPerson == null) {
+            mPerson =  new MMPerson();
         }
+        mPersonNickNameInput. setText(mPerson.getNickname().toString().trim());
+        mPersonEmailAddrInput.setText(mPerson.getEmailAddress().toString().trim());
+        mPersonTextAddrInput. setText(mPerson.getTextAddress().toString().trim());
+        mPersonOrderInput.    setText(String.valueOf(mPerson.getMedOrder()).trim());
+        mPersonDurationInput. setText(String.valueOf(mPerson.getDuration()).trim());
+
 
     }
 
@@ -223,30 +225,27 @@ public class MainMMPersonFragment extends Fragment {
 
         //strings are set to "" in the constructor, so the empty case can be ignored
         String temp = mPersonEmailAddrInput.getText().toString().trim();
-        if (!((temp == null) || (temp.isEmpty()))){
+        if (!(temp.isEmpty())){
             person.setEmailAddress(temp);
         }
 
         temp = mPersonTextAddrInput.getText().toString().trim();
-        if (!((temp == null) || (temp.isEmpty()))){
+        if (!(temp.isEmpty())){
             person.setTextAddress(temp);
         }
 
-        temp = mPersonDurationInput.getText().toString().trim();
+
+        //int's are set to 0 in the constructor (and of course everywhere) so ignore
         boolean digitsOnly = TextUtils.isDigitsOnly(mPersonDurationInput.getText());
         int inputLength = mPersonDurationInput.getText().toString().trim().length();
         if ((digitsOnly) && (inputLength != 0)){
             person.setDuration(Integer.valueOf(mPersonDurationInput.getText().toString()));
-        } else {
-            person.setDuration(Integer.valueOf(0));
         }
 
         digitsOnly = TextUtils.isDigitsOnly(mPersonOrderInput.getText());
         inputLength = mPersonOrderInput.getText().toString().trim().length();
         if ((digitsOnly)&& (inputLength != 0)){
             person.setMedOrder(Integer.valueOf(mPersonOrderInput.getText().toString()));
-        } else {
-            person.setMedOrder(Integer.valueOf(0));
         }
 
         //done in constructor

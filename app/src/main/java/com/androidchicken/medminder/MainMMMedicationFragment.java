@@ -8,7 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 
 /**
@@ -20,6 +23,7 @@ public class MainMMMedicationFragment extends Fragment {
 
     private Button   mMedicationSaveButton;
 
+    private TextView mMedicationForPerson;
     private EditText mMedicationBrandNameInput;
     private EditText mMedicationGenericNameInput;
     private EditText mMedicationNickNameInput;
@@ -31,12 +35,16 @@ public class MainMMMedicationFragment extends Fragment {
     private EditText mMedicationDoseNumInput;
 
     //Medication being input from the UI
-    private MMMedication mMedication = (MMMedication) new MMMedication();
-    
+    private MMMedication            mMedication = (MMMedication) new MMMedication();
+    private ArrayList<MMMedication> mMedications;
+
     private MMPerson mPerson;
     private int      mPersonID;
     
     private int      mPosition;
+
+    private boolean  mIsInMedications = true;
+    MMMedication     mPersonMedication;
 
     /***********************************************/
     /*          Static Methods                     */
@@ -44,6 +52,8 @@ public class MainMMMedicationFragment extends Fragment {
 
 
     //need to pass a medication into the fragment
+    //position is the index of the medication in the person list
+    //-1 indicates add new medication
     public static MainMMMedicationFragment newInstance(int personID, int position){
         //create a bundle to hold the arguments
         Bundle args = new Bundle();
@@ -89,8 +99,25 @@ public class MainMMMedicationFragment extends Fragment {
 
             //If personID can't be found in the list, mPatient will be null
             mPerson = personManager.getPerson(mPersonID);
+            if (mPerson == null){
+                //this is a horrible error and we need to throw an exception
+                throw new RuntimeException("Must have Person to create medication");
+            }
+            mMedications = mPerson.getMedications();
+            if (mMedications == null){
+                throw new RuntimeException("Person must have a Medications list at this point");
+            }
 
-            // TODO: 10/27/2016 get the medication from the person. person might be null, as might medication 
+            //flag assumes the medication is already there, but if not......
+            if ((mPosition == -1) || (mMedications.size() < mPosition)) {
+                //just create a new medication and add it
+                mIsInMedications = false;
+                mPersonMedication = new MMMedication();
+            } else {
+                mPersonMedication = mPerson.getMedications().get(mPosition);
+            }
+
+
 
         }
 
@@ -107,16 +134,19 @@ public class MainMMMedicationFragment extends Fragment {
         //Wire up the UI widgets so they can handle events later
         wireWidgets(v);
 
+        initializeUI();
+
         //set the title bar subtitle
         ((MainActivity) getActivity()).setMMSubtitle(R.string.title_medication);
-
-
 
         return v;
     }
 
     private void wireWidgets(View v){
 
+        //Patient Nick Name
+        mMedicationForPerson = (TextView) v.findViewById(R.id.medicationForPerson);
+        //There are no events associated with this field
 
         mMedicationSaveButton = (Button) v.findViewById(R.id.medicationSaveButton);
         mMedicationSaveButton.setOnClickListener(new View.OnClickListener() {
@@ -126,10 +156,11 @@ public class MainMMMedicationFragment extends Fragment {
                         R.string.save_label,
                         Toast.LENGTH_SHORT).show();
                 //Save the Medication to the Medication Manager
+                saveMedication();
 
                 //switch to home screen
                 // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToHomeScreen();
+                ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
             }
 
         });
@@ -267,8 +298,40 @@ public class MainMMMedicationFragment extends Fragment {
                 return false;
             }
         });
+    }
 
+    private void initializeUI(){
+        if (mPerson == null) throw new RuntimeException("There has to be a Person to add a Medication");
 
+        mMedicationForPerson.       setText(mPerson.getNickname().toString().trim());
+        mMedicationForInput.        setText(Integer.valueOf(mPerson.getPersonID()).toString().trim());
 
+        mMedicationBrandNameInput.  setText(mPersonMedication.getBrandName().toString().trim());
+        mMedicationGenericNameInput.setText(mPersonMedication.getGenericName().toString().trim());
+        mMedicationNickNameInput.   setText(mPersonMedication.getMedicationNickname().toString().trim());
+        mMedicationDoseAmountInput. setText(Integer.valueOf(mPersonMedication.getDoseAmount()).toString().trim());
+        mMedicationDoseUnitsInput.  setText(mPersonMedication.getDoseUnits().toString().trim());
+        mMedicationDoseDueWhenInput.setText(mPersonMedication.getWhenDue().toString().trim());
+        mMedicationDoseNumInput.    setText(Integer.valueOf(mPersonMedication.getNum()).toString().trim());
+        mMedicationOrderInput.      setText(Integer.valueOf(mPersonMedication.getOrder()).toString().trim());
+
+    }
+
+    private void saveMedication(){
+        //Person medication is the medication in the Person's medication list
+        //update it with values from this screen
+        if (mPersonMedication == null) throw new RuntimeException("Medication Missing");
+        mPersonMedication.setMedicationNickname(mMedicationNickNameInput.   getText().toString().trim());
+        mPersonMedication.setBrandName         (mMedicationBrandNameInput.  getText().toString().trim());
+        mPersonMedication.setGenericName       (mMedicationGenericNameInput.getText().toString().trim());
+        mPersonMedication.setDoseUnits         (mMedicationDoseUnitsInput.  getText().toString().trim());
+        mPersonMedication.setWhenDue           (mMedicationDoseDueWhenInput.getText().toString().trim());
+        mPersonMedication.setOrder             (Integer.valueOf(mMedicationOrderInput.     getText().toString().trim()));
+        mPersonMedication.setDoseAmount        (Integer.valueOf(mMedicationDoseAmountInput.getText().toString().trim()));
+        mPersonMedication.setNum               (Integer.valueOf(mMedicationDoseNumInput.   getText().toString().trim()));
+
+        if (!mIsInMedications){
+            mMedications.add(mPersonMedication);
+        }
     }
 }

@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
             }
         });
 
@@ -165,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
             fm.popBackStackImmediate();
         }
 
-        Fragment fragment    = new MainMMTakeDoseFragment().newInstance(personID);
+        Fragment fragment    = MainMMTakeDoseFragment.newInstance(personID);
         String   tag         = sHomeTag;
         int      title       = R.string.title_take_dose;
 
@@ -213,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
             fm.popBackStackImmediate();
         }
 
-        Fragment fragment    = new MainMMPersonFragment().newInstance(personID);;
+        Fragment fragment    = MainMMPersonFragment.newInstance(personID);
         String   tag         = sPersonTag;
         int      title       = R.string.title_person;
 
@@ -254,6 +255,52 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Fragment fragment    = new MainMMMedicationFragment();
+        String   tag         = sMedicationTag;
+        int      title       = R.string.title_medication;
+
+        switchScreen(fragment, tag);
+        setMMSubtitle(title);
+    }
+
+    /****
+     * Method to switch fragment to Medication screen
+     * EMH 10/17/16
+     */
+    public void switchToMedicationScreen(int personID){
+        //replace the fragment with the Home UI
+
+        //Need the Fragment Manager to do the swap for us
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+
+        //clear the back stack
+        while (fm.getBackStackEntryCount() > 0){
+            fm.popBackStackImmediate();
+        }
+
+        Fragment fragment    = MainMMMedicationFragment.newInstance(personID, -1);
+        String   tag         = sMedicationTag;
+        int      title       = R.string.title_medication;
+
+        switchScreen(fragment, tag);
+        setMMSubtitle(title);
+    }
+
+    /****
+     * Method to switch fragment to Medication screen
+     * EMH 10/17/16
+     */
+    public void switchToMedicationScreen(int personID, int position){
+        //replace the fragment with the Home UI
+
+        //Need the Fragment Manager to do the swap for us
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+
+        //clear the back stack
+        while (fm.getBackStackEntryCount() > 0){
+            fm.popBackStackImmediate();
+        }
+
+        Fragment fragment    = MainMMMedicationFragment.newInstance(personID, position);
         String   tag         = sMedicationTag;
         int      title       = R.string.title_medication;
 

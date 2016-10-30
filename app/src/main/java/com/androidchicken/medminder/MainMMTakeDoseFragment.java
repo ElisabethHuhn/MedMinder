@@ -1,11 +1,16 @@
 package com.androidchicken.medminder;
 
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -31,11 +36,13 @@ public class MainMMTakeDoseFragment extends Fragment {
     private Button mSaveButton;
     private Button mEditMedicationButton;
     ArrayList<Button> mMedButtons = new ArrayList<>();
+    ArrayList<EditText> mMedEdits = new ArrayList<>();
 
 
     private TextView mPatientNickName;
 
     private EditText mTimeInput;
+
     private EditText mMed1Input;
     private EditText mMed2Input;
     private EditText mMed3Input;
@@ -51,11 +58,7 @@ public class MainMMTakeDoseFragment extends Fragment {
     private int      mPersonID;
     private ArrayList<MMMedication> mMedications;
 
-    private MMMedication mMed1;
-    private MMMedication mMed2;
-    private MMMedication mMed3;
-    private MMMedication mMed4;
-    private MMMedication mMed5;
+
 
 
 
@@ -109,6 +112,10 @@ public class MainMMTakeDoseFragment extends Fragment {
 
             //If personID can't be found in the list, mPatient will be null
             mPatient = personManager.getPerson(mPersonID);
+            if (mPatient != null) {
+                mMedications = mPatient.getMedications();
+            }
+
         }
 
     }
@@ -129,14 +136,9 @@ public class MainMMTakeDoseFragment extends Fragment {
         //set the title bar subtitle
         ((MainActivity) getActivity()).setMMSubtitle(R.string.title_take_dose);
 
-        //determine if a person is yet associated with the fragment
-        if (mPersonID != 0){
-            //if there is a person corresponding to the patientID, put the name up on the screen
-            if (mPatient != null) {
-                mPatientNickName.setText(mPatient.getNickname().toString().trim());
+        initializeUI();
 
-            }
-        }
+
 
         return v;
     }
@@ -215,49 +217,162 @@ public class MainMMTakeDoseFragment extends Fragment {
                 Toast.makeText(getActivity(),
                         R.string.save_label,
                         Toast.LENGTH_SHORT).show();
-                
+
+                saveDose();
             }
         });
 
         //Edit Medication Button
         mEditMedicationButton = (Button) v.findViewById(R.id.patientEditMedicationButton);
-        mEditMedicationButton.setText(R.string.patient_edit_medication_label);
+        mEditMedicationButton.setText(R.string.patient_add_medication_label);
         //the order of images here is left, top, right, bottom
         //mEditMedicationButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_stakeout, 0, 0);
         mEditMedicationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(),
-                        R.string.patient_edit_medication_label,
+                        R.string.patient_add_medication_label,
                         Toast.LENGTH_SHORT).show();
                 //switch to medication screen
                 // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToMedicationScreen();
+                ((MainActivity) getActivity()).switchToMedicationScreen(mPatient.getPersonID());
             }
         });
 
         //Medication Buttons
-        int last = mMedications.size();
-        int position = 0;
-        Button medButton;
-        LinearLayout layout = (LinearLayout) v.findViewById(R.id.medButtonLayout);
-        while (position < last) {
-            //Add the button to the layout
-            medButton = new Button(getActivity());
-            ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT );
+        if (mMedications != null) {
 
-            medButton.setLayoutParams(lp);
-            medButton.setBackgroundColor(medButton.getContext().getResources().getColor(R.color.colorButton1Background));
-            medButton.setText(getMedNickname(position+1));
-            medButton.setTextColor(medButton.getContext().getResources().getColor(R.color.colorTextBlack));
-            layout.addView(medButton);
+            int last       = mMedications.size();
+            int position   = 0;
 
-            //save the pointer to the button
-            mMedButtons.add(medButton);
+            //convert pixels to dp
+            int sizeInDp   = 10; //padding between buttons
+            float scale    = getResources().getDisplayMetrics().density;
+            int dpAsPixels = (int) (sizeInDp*scale + 0.5f);
 
+
+            while (position < last) {
+                addButton(v, last, position, dpAsPixels);
+                position++;
+            }
+
+            addbuttonListeners();
+
+        }//if (sMedications != null)
+
+
+
+
+        //Patient Nick Name
+        mPatientNickName = (TextView) v.findViewById(R.id.patientNickNameLabel);
+        //There are no events associated with this field
+
+        //Time input for this dose
+        //There is no label for this field
+        mTimeInput = (EditText) v.findViewById(R.id.doseTimeInput);
+        mTimeInput.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Toast.makeText(getActivity(),
+                        R.string.input_received,
+                        Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
+
+
+
+    }
+
+    private String getMedNickname(int position){
+
+        MMMedication medication;
+
+        String nickName;
+        position = position-1;
+
+        if (mPatient != null){
+            mMedications = mPatient.getMedications();
+            if (mMedications != null) {
+                if (position < mMedications.size()){
+                    medication = mMedications.get(position);
+                    if (medication != null){
+                        nickName = medication.getMedicationNickname().toString().trim();
+                        return nickName;
+                    }
+                }
+            }
         }
+        return "Med"+ String.valueOf(position+1);
+    }
+
+    private void addButton(View v, int last, int position, int padding){
+        Button medButton;
+        EditText edtView;
+
+        //
+        //Add the button to the button layout
+        //
+        LinearLayout layout = (LinearLayout) v.findViewById(R.id.medButtonLayout);
+
+        medButton = new Button(getActivity());
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,//width
+                ViewGroup.LayoutParams.WRAP_CONTENT);//height
+        lp.weight = 1f;
+        lp.setMarginEnd(padding);
+
+        medButton.setLayoutParams(lp);
+        medButton.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorButton1Background));
+
+
+        medButton.setPadding(0,0,padding,0);
+        medButton.setText(getMedNickname(position + 1));
+        medButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
+        layout.addView(medButton);
+
+        //save the pointer to the button
+        mMedButtons.add(medButton);
+
+
+        //
+        //add EditText to the dose layout
+        //
+        layout = (LinearLayout) v.findViewById(R.id.medInputLayout);
+        lp = new LinearLayout.LayoutParams(
+                0,//width
+                ViewGroup.LayoutParams.WRAP_CONTENT);//height
+        lp.weight = 1f;
+        //lp.gravity = Gravity.CENTER;
+        lp.setMarginEnd(padding);
+
+        edtView = new EditText(getActivity());
+        edtView.setHint("0");
+        edtView.setInputType(InputType.TYPE_CLASS_TEXT);
+        edtView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        edtView.setLayoutParams(lp);
+        edtView.setPadding(0,0,padding,0);
+        edtView.setGravity(Gravity.CENTER);
+        edtView.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
+        edtView.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
+
+        //add listener
+        edtView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Toast.makeText(getActivity(),
+                        R.string.input_received,
+                        Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
+
+        layout.addView(edtView);
+
+    }
+
+    private void addbuttonListeners(){
+        Button medButton;
 
         if (mMedButtons.size() > 0) {
             medButton = mMedButtons.get(0);
@@ -415,112 +530,19 @@ public class MainMMTakeDoseFragment extends Fragment {
             }
         }
 
-
-
-
-        //Patient Nick Name
-        mPatientNickName = (TextView) v.findViewById(R.id.patientNickNameLabel);
-        //There are no events associated with this field
-
-        //Time input for this dose
-        //There is no label for this field
-        mTimeInput = (EditText) v.findViewById(R.id.doseTimeInput);
-        mTimeInput.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getActivity(),
-                        R.string.input_received,
-                        Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
-        //Medication 1 input for this dose
-        //There is no label for this field
-        mMed1Input = (EditText) v.findViewById(R.id.doseMed1Input);
-        mMed1Input.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getActivity(),
-                        R.string.input_received,
-                        Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
-        //Medication 2 input for this dose
-        //There is no label for this field
-        mMed2Input = (EditText) v.findViewById(R.id.doseMed2Input);
-        mMed2Input.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getActivity(),
-                        R.string.input_received,
-                        Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
-        //Medication 3 input for this dose
-        //There is no label for this field
-        mMed3Input = (EditText) v.findViewById(R.id.doseMed3Input);
-        mMed3Input.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getActivity(),
-                        R.string.input_received,
-                        Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
-        //Medication 4 input for this dose
-        //There is no label for this field
-        mMed4Input = (EditText) v.findViewById(R.id.doseMed4Input);
-        mMed4Input.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getActivity(),
-                        R.string.input_received,
-                        Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
-        //Medication 5 input for this dose
-        //There is no label for this field
-        mMed5Input = (EditText) v.findViewById(R.id.doseMed5Input);
-        mMed5Input.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getActivity(),
-                        R.string.input_received,
-                        Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
     }
 
-    private String getMedNickname(int position){
-
-        MMMedication medication;
-
-        String nickName;
-        position = position-1;
-
-        if (mPatient != null){
-            mMedications = mPatient.getMedications();
-            if (mMedications != null) {
-                if (position < mMedications.size()){
-                    medication = mMedications.get(position);
-                    if (medication != null){
-                        nickName = medication.getMedicationNickname().toString().trim();
-                        return nickName;
-                    }
-                }
+    private void initializeUI(){
+        //determine if a person is yet associated with the fragment
+        if (mPersonID != 0){
+            //if there is a person corresponding to the patientID, put the name up on the screen
+            if (mPatient != null) {
+                mPatientNickName.setText(mPatient.getNickname().toString().trim());
             }
         }
-        return "Med"+ String.valueOf(position+1);
+    }
+
+    private void saveDose(){
+        int temp;
     }
 }

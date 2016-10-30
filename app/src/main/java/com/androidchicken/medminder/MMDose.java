@@ -37,6 +37,15 @@ public class MMDose {
     /*************************************/
     /*         CONSTRUCTOR               */
     /*************************************/
+    public MMDose() {
+        mDoseID         = MMUtilities.getUniqueID();
+        mOfMedicationID = 0;
+        mForPersonID    = 0;
+        mContainedInConcurrentDosesID = 0;
+        mTimeTaken      = 0;
+        mAmountTaken    = 0;
+    }
+
     public MMDose(int ofMedicationID,
                   int forPersonID,
                   int containedInConcurrentDosesID,
