@@ -1,5 +1,7 @@
 package com.androidchicken.medminder;
 
+import android.content.ContentValues;
+
 import java.util.ArrayList;
 
 import static com.androidchicken.medminder.MMPersonManager.PERSON_NOT_FOUND;
@@ -155,5 +157,19 @@ public class MMConcurrentDoseManager {
         // TODO: 10/18/2016 update the concurrentDose already in the DB
     }
 
+    /********************************************/
+    /********* Public Member Methods    *********/
+    /********************************************/
+
+
+    public ContentValues getConcurrentDoseCV(MMConcurrentDoses concurrentDose){
+        ContentValues values = new ContentValues();
+        values.put(MMSqliteOpenHelper.CONCURRENT_DOSE_ID,             concurrentDose.getConcurrentDoseID());
+        values.put(MMSqliteOpenHelper.CONCURRENT_DOSE_FOR_PERSON_ID,  concurrentDose.getForPerson());
+        values.put(MMSqliteOpenHelper.CONCURRENT_DOSE_IS_START_OF_DAY,concurrentDose.isStartOfDay());
+        values.put(MMSqliteOpenHelper.CONCURRENT_DOSE_START_TIME,     concurrentDose.getStartTime());
+
+        return values;
+    }
 
 }

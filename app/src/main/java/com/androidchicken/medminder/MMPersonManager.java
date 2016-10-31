@@ -1,5 +1,7 @@
 package com.androidchicken.medminder;
 
+import android.content.ContentValues;
+
 import java.util.ArrayList;
 
 /**
@@ -162,6 +164,23 @@ public class MMPersonManager {
         listPerson.setDuration    (newPerson.getDuration());
         listPerson.setMedOrder    (newPerson.getMedOrder());
         // TODO: 10/18/2016 update the person already in the DB
+    }
+
+
+    /********************************************/
+    /********* Public Member Methods    *********/
+    /********************************************/
+
+    public ContentValues getPersonCV(MMPerson person){
+        ContentValues values = new ContentValues();
+        values.put(MMSqliteOpenHelper.PERSON_ID,       person.getPersonID());
+        values.put(MMSqliteOpenHelper.PERSON_NICKNAME, person.getNickname().toString());
+        values.put(MMSqliteOpenHelper.PERSON_EMAIL,    person.getEmailAddress().toString());
+        values.put(MMSqliteOpenHelper.PERSON_TEXT,     person.getNickname().toString());
+        values.put(MMSqliteOpenHelper.PERSON_DURATION, person.getDuration());
+        values.put(MMSqliteOpenHelper.PERSON_ORDER,    person.getMedOrder());
+
+        return values;
     }
 
 

@@ -1,5 +1,7 @@
 package com.androidchicken.medminder;
 
+import android.content.ContentValues;
+
 import java.util.ArrayList;
 
 /**
@@ -95,11 +97,11 @@ public class MMMedicationManager {
             listMedication.setBrandName         (newMedication.getBrandName());
             listMedication.setGenericName       (newMedication.getGenericName());
             listMedication.setMedicationNickname(newMedication.getMedicationNickname());
-            listMedication.setOrder             (Integer.valueOf(newMedication.getOrder()));
-            listMedication.setDoseAmount        (Integer.valueOf(newMedication.getDoseAmount()));
+            listMedication.setOrder             (newMedication.getOrder());
+            listMedication.setDoseAmount        (newMedication.getDoseAmount());
             listMedication.setDoseUnits         (newMedication.getDoseUnits());
             listMedication.setWhenDue           (newMedication.getWhenDue());
-            listMedication.setNum               (Integer.valueOf(newMedication.getNum()));
+            listMedication.setNum               (newMedication.getNum());
 
             // TODO: 10/18/2016 Update the medication in the DB
         }
@@ -176,4 +178,24 @@ public class MMMedicationManager {
     }
 
 
+    /********************************************/
+    /********* Public Member Methods   *********/
+    /********************************************/
+
+
+    public ContentValues getMedicationCV(MMMedication medication){
+        ContentValues values = new ContentValues();
+        values.put(MMSqliteOpenHelper.MEDICATION_ID,            medication.getMedicationID());
+        values.put(MMSqliteOpenHelper.MEDICATION_FOR_PERSON_ID, medication.getForPersonID());
+        values.put(MMSqliteOpenHelper.MEDICATION_BRAND_NAME,    medication.getBrandName().toString());
+        values.put(MMSqliteOpenHelper.MEDICATION_GENERIC_NAME,  medication.getGenericName().toString());
+        values.put(MMSqliteOpenHelper.MEDICATION_NICK_NAME,     medication.getMedicationNickname().toString());
+        values.put(MMSqliteOpenHelper.MEDICATION_ORDER,         medication.getOrder());
+        values.put(MMSqliteOpenHelper.MEDICATION_DOSE_AMOUNT,   medication.getDoseAmount());
+        values.put(MMSqliteOpenHelper.MEDICATION_DOSE_UNITS,    medication.getDoseUnits().toString());
+        values.put(MMSqliteOpenHelper.MEDICATION_WHEN_DUE,      medication.getWhenDue().toString());
+        values.put(MMSqliteOpenHelper.MEDICATION_NUMBER_PER_DAY,medication.getNum());
+
+        return values;
+    }
 }

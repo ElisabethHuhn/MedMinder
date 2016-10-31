@@ -97,5 +97,11 @@
 
     <string name="input_received"    >Input received</string>
 
+    <!-- exception messages -->
+    <!-- database exceptions -->
+    <string name="no_context_eException"    >Can not create database without a context</string>
+    <string name="not_initialized_exception">Attempt to access the database before it has been initialized</string>
+    <string name="not_opened_exception"     >Attempt to access the database before it has been opened</string>
+
 
 </resources>

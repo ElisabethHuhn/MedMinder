@@ -70,7 +70,7 @@ public class MMMedication {
         mBrandName    = "Brand Name";
         mGenericName  = "Generic Name";
         mMedicationNickname = "Nick Name";
-        mOrder         = 0;
+        mOrder        = 0;
         mDoseAmount   = 1;
         mDoseUnits    = "Mg";
         mWhenDue      = "Quarterly";
