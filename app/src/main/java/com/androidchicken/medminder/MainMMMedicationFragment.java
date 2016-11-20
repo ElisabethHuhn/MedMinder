@@ -321,6 +321,8 @@ public class MainMMMedicationFragment extends Fragment {
         //Person medication is the medication in the Person's medication list
         //update it with values from this screen
         if (mPersonMedication == null) throw new RuntimeException("Medication Missing");
+        //Set the medication as belonging to the person
+        mPersonMedication.setForPersonID(mPersonID);
         mPersonMedication.setMedicationNickname(mMedicationNickNameInput.   getText().toString().trim());
         mPersonMedication.setBrandName         (mMedicationBrandNameInput.  getText().toString().trim());
         mPersonMedication.setGenericName       (mMedicationGenericNameInput.getText().toString().trim());
@@ -331,7 +333,18 @@ public class MainMMMedicationFragment extends Fragment {
         mPersonMedication.setNum               (Integer.valueOf(mMedicationDoseNumInput.   getText().toString().trim()));
 
         if (!mIsInMedications){
-            mMedications.add(mPersonMedication);
+            //If this flag is false, then need to add the medication to the person
+            //AND add it to the DB
+            MMMedicationManager medicationManager = MMMedicationManager.getInstance();
+            //Add the medication to the person, and to the DB (the third parameter = true)
+            if (!medicationManager.addToPerson(mPerson, mPersonMedication, true)){
+
+                Toast.makeText(getActivity(),
+                        R.string.exception_medication_not_added,
+                        Toast.LENGTH_SHORT).show();
+
+            }
+            //mMedications.add(mPersonMedication);
         }
     }
 }

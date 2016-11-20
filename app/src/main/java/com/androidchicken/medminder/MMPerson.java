@@ -64,31 +64,41 @@ public class MMPerson {
     /*         CONSTRUCTOR               */
     /*************************************/
     public MMPerson( CharSequence nickname) {
-        mPersonID     = MMUtilities.getUniqueID();
+        initializeDefaultVariables();
         mNickname     = nickname;
-        mEmailAddress = "";
-        mTextAddress  = "";
-        mDuration     = DURATION_QUARTER_HOUR;
-        mMedOrder     = ORDER_MEDICATION_NICKNAME;
-        mMedications  = new ArrayList<>();
     }
 
     public MMPerson( ) {
+        initializeDefaultVariables();
         mPersonID     = MMUtilities.getUniqueID();
-        mNickname     = "Nickname";
-        mEmailAddress = "";
-        mTextAddress  = "";
-        mDuration     = DURATION_QUARTER_HOUR;
-        mMedOrder     = ORDER_MEDICATION_NICKNAME;
-        mMedications  = new ArrayList<>();
     }
 
+/*
+    private void initializeDefaultVariables(){
+        mPersonID     = MMUtilities.getUniqueID();
+        mNickname     = "Nickname";
+        mEmailAddress = "Email@gmail.com";
+        mTextAddress  = "6783587040";
+        mDuration     = DURATION_QUARTER_HOUR;
+        mMedOrder     = ORDER_MEDICATION_GENERIC;
+        mMedications  = new ArrayList<>();
+    }
+*/
+private void initializeDefaultVariables(){
+    mPersonID     = MMUtilities.getUniqueID();
+    mNickname     = "1";
+    mEmailAddress = "2";
+    mTextAddress  = "3";
+    mDuration     = 4;
+    mMedOrder     = 5;
+    mMedications  = new ArrayList<>();
+}
 
     /*************************************/
     /*    Member setter/getter Methods   */
     /*************************************/
-    public int          getPersonID() {  return mPersonID; }
-    //          can not setPersonID, this is done automatically when created
+    public int  getPersonID()            {  return mPersonID; }
+    public void setPersonID(int personID){ mPersonID = personID;}
 
     public CharSequence getNickname()                      { return mNickname;  }
     public void         setNickname(CharSequence nickname) { mNickname = nickname; }
@@ -112,12 +122,6 @@ public class MMPerson {
     /*          Member Methods           */
     /*************************************/
 
-    public boolean addMedication(MMMedication medication){
-        if (mMedications == null){
-            mMedications = new ArrayList<>();
-        }
-        mMedications.add(medication);
-        return true;
-    }
+
 
 }

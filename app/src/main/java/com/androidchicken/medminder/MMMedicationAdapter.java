@@ -9,7 +9,7 @@ import android.widget.EditText;
 import java.util.List;
 
 /**
- * Created by elisabethhuhn on 10/19/2016.
+ * Created by Elisabeth Huhn on 10/19/2016.
  *
  * Serves as a liason between a list RecyclerView and the MedicationManager
  */
@@ -61,7 +61,7 @@ public class MMMedicationAdapter extends RecyclerView.Adapter<MMMedicationAdapte
     }
 
     public void removeMedication(int personID, int position) {
-        //This list is used locally as well as in the medication container,
+        //This list actually lives on the Person object
         //The list is "owned" by the MedicationManager,
         // so call it to remove the item from the list
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();

@@ -9,7 +9,7 @@ import android.widget.TextView;
 import java.util.List;
 
 /**
- * Created by elisabethhuhn on 10/19/2016.
+ * Created by Elisabeth Huhn on 10/19/2016.
  *
  * Serves as a liason between a list RecyclerView and the PersonManager
  */

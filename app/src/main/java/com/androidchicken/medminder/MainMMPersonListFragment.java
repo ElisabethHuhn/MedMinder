@@ -16,7 +16,9 @@ import android.widget.Toast;
 import java.util.List;
 
 /**
- * Created by elisabethhuhn on 10/19/2016.
+ * Created by Elisabeth Huhn on 10/19/2016.
+ *
+ * Defines a fragment whose main purpose is to provide a list of Persons to the UI
  */
 
 public class MainMMPersonListFragment extends Fragment {
@@ -60,24 +62,41 @@ public class MainMMPersonListFragment extends Fragment {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
 
-        /*
-         * The steps for doing recycler view in onCreateView() of a fragment are:
-         * 1) inflate the .xml
-         *
-         * the special recycler view stuff is:
-         * 2) get and store a reference to the recycler view widget that you created in xml
-         * 3) create and assign a layout manager to the recycler view
-         * 4) assure that there is data for the recycler view to show.
-         * 5) use the data to create and set an adapter in the recycler view
-         * 6) create and set an item animator (if desired)
-         * 7) create and set a line item decorator
-         * 8) add event listeners to the recycler view
-         *
-         * 9) return the view
-         */
-            //1) Inflate the layout for this fragment
             View v = inflater.inflate(R.layout.fragment_person_list, container, false);
             v.setTag(TAG);
+
+            initializeRecyclerView(v);
+
+
+            //set the title bar subtitle
+            ((MainActivity) getActivity()).setMMSubtitle(R.string.title_person_list);
+
+
+            //9) return the view
+            return v;
+        }
+
+
+
+        private void initializeRecyclerView(View v){
+            /*
+             * The steps for doing recycler view in onCreateView() of a fragment are:
+             * 1) inflate the .xml
+             *
+             * the special recycler view stuff is:
+             * 2) get and store a reference to the recycler view widget that you created in xml
+             * 3) create and assign a layout manager to the recycler view
+             * 4) assure that there is data for the recycler view to show.
+             * 5) use the data to create and set an adapter in the recycler view
+             * 6) create and set an item animator (if desired)
+             * 7) create and set a line item decorator
+             * 8) add event listeners to the recycler view
+             *
+             * 9) return the view
+             */
+            //1) Inflate the layout for this fragment
+            //      done in the caller
+
 
             //2) find and remember the RecyclerView
             mRecyclerView = (RecyclerView) v.findViewById(R.id.personList);
@@ -106,8 +125,8 @@ public class MainMMPersonListFragment extends Fragment {
 
             //7) create and add the item decorator
             mRecyclerView.addItemDecoration(new DividerItemDecoration(
-                                                                    getActivity(),
-                                                                    LinearLayoutManager.VERTICAL));
+                    getActivity(),
+                    LinearLayoutManager.VERTICAL));
 
 
             //8) add event listeners to the recycler view
@@ -125,13 +144,9 @@ public class MainMMPersonListFragment extends Fragment {
                         }
                     }));
 
-            //set the title bar subtitle
-            ((MainActivity) getActivity()).setMMSubtitle(R.string.title_person_list);
-
-
-            //9) return the view
-            return v;
         }
+
+
 
         /**********************************************************/
         //      Utility Functions used in handling events         //

@@ -5,8 +5,12 @@
     <!--  -->
     <string name="save_label"         >Save</string>
     <string name="hint_label"         >Hint</string>
+    <string name="cancle_label"       >Cancel</string>
     <string name="exception_no_person">No Person was in List</string>
+    <string name="exception_medication_not_added">Could not add medication</string>
     <string name="no_person"          >No Persons defined</string>
+    <string name="spacer"             >This line is a spacer</string>
+    <string name="list_label"         >Title</string>
 
     <!--      Actions                  -->
     <string name="action_settings" >Settings</string>
@@ -41,7 +45,7 @@
     <string name="medication_dose_amount_hint"  >For Example: 250</string>
     <string name="medication_dose_units_hint"   >For Example: mg</string>
     <string name="medication_num_per_day_hint"  >For Example: 2</string>
-    <string name="medication_when_due_hint2"    >Leave blank for as needed</string>
+    <string name="medication_when_due_hint2"    >Leave When Due blank for as needed</string>
     <string name="medication_when_due_hint"     >For Example: 9:00am, 9:00pm</string>
 
 

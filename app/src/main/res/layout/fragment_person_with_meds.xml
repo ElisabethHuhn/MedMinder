@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools=  "http://schemas.android.com/tools"
+    tools:context="com.androidchicken.medminder.MainActivityFragment"
+
+    android:id=   "@+id/content_main"
+
+    android:baselineAligned="false"
+    android:layout_width=   "match_parent"
+    android:layout_height=  "match_parent"
+
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft=  "@dimen/activity_horizontal_margin"
+    android:paddingRight= "@dimen/activity_horizontal_margin"
+    android:paddingTop=   "@dimen/activity_vertical_margin"
+
+    android:background="@color/colorScreenBackground"
+    >
+
+    <HorizontalScrollView
+        android:layout_width= "match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport= "true"
+        >
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="top|center_vertical"
+
+
+                >
+
+                <!-- This layout is for creating a new Person -->
+                <!--  -->
+
+
+                <!-- with layout_width  = 0dp, ignore the content width, for horiz orient  -->
+                <!-- with layout_height = 0dp, ignore the content height, vert orient      -->
+                <!-- with layout_weight = 1, distribute width/height between views equally -->
+                <!-- with gravity       = center, center text within button                -->
+                <!-- with layout_gravity=start, place button on left of the row            -->
+                <!-- with background,   = set button color to gray, grayer, grayest        -->
+                <!-- with paddingStart, = set some space between this button and the next  -->
+
+                <!-- Container for entire screen -->
+
+                <!-- Row 1: Person Screen Label -->
+                <TableRow
+                    android:layout_height="wrap_content"
+                    android:layout_width ="match_parent"
+                    android:paddingTop="10dp"
+                    android:gravity="start"
+                    >
+                    <TextView
+                        android:text="@string/person_screen_label"
+                        android:layout_height="wrap_content"
+                        android:layout_width ="wrap_content"
+
+                        android:textSize="20sp"
+                        android:textColor="@color/colorTextBlack"
+                        android:background="@color/colorTitleBackground"
+                        />
+
+                </TableRow>
+
+                <!-- Row 2: Person Nick Name -->
+                <include android:id     = "@+id/personNickName" layout = "@layout/element_edit_label_input" />
+
+                <!-- Row 3: Person Email Address -->
+                <include android:id="@+id/personEmailAddr" layout="@layout/element_edit_label_input"/>
+
+                <!-- Row 4: Person Text Address -->
+                <include android:id="@+id/personTextAddr" layout="@layout/element_edit_label_input"/>
+
+
+                <!-- Row 5: Person Duration -->
+                <include android:id="@+id/personDuration" layout="@layout/element_edit_label_input"/>
+
+                <!-- Row 6: Person Order -->
+                <include android:id="@+id/personOrder" layout="@layout/element_edit_label_input"/>
+
+
+                <!-- Row 7: Save Person Button -->
+                <TableRow
+
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:paddingTop="10dp"
+                    >
+
+                    <!-- View Project Settings -->
+                    <Button
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:id="@+id/personSaveButton"
+                        android:text="@string/save_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:gravity="start|center_vertical"
+                        android:layout_gravity="start"
+
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="4dp"
+
+                        android:background="@color/colorButton1Background"
+                        android:textColor="@color/colorTextBlack"
+                        />
+
+                </TableRow>
+
+            </TableLayout>
+
+            <!-- Title row and list of Medications taken by the person -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                >
+                <include android:id="@+id/medicationTitleRow" layout="@layout/list_row_medication"/>
+
+
+                <!-- Medications taken by the person -->
+                <LinearLayout
+
+                    android:layout_width=   "match_parent"
+                    android:layout_height=  "match_parent"
+
+                    android:paddingTop=    "10dp"
+                    >
+                    <!-- RecyclerView of Medications -->
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/medicationList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        >
+                    </android.support.v7.widget.RecyclerView>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+    </ScrollView>
+
+
+
+
+
+

@@ -178,45 +178,7 @@
 
                 </TableRow>
 
-                <!-- Row 5: Person Order -->
-                <TableRow
-
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:layout_gravity="center_horizontal"
-                    android:paddingTop="10dp"
-                    >
-                    <TextView
-                        android:labelFor="@+id/personOrderInput"
-                        android:text="@string/person_order_label"
-                        android:layout_height="wrap_content"
-                        android:layout_width="0dp"
-                        android:layout_weight="30"
-                        android:gravity="end"
-
-                        android:textColor="@color/colorTextBlack"
-                        android:background="@color/colorLabelBackground"
-                        />
-                    <EditText
-                        android:id="@id/personOrderInput"
-
-                        android:layout_height="wrap_content"
-                        android:layout_width="0dp"
-                        android:layout_weight="70"
-
-                        android:hint="@string/person_order_hint"
-
-                        android:inputType="text"
-                        android:imeOptions="flagNoExtractUi"
-                        android:layout_marginEnd="16dp"
-
-                        android:textColor="@color/colorTextBlack"
-                        android:background="@color/colorInputBackground"
-                        />
-
-                </TableRow>
-
-                <!-- Row 6: Person Duration -->
+                <!-- Row 5: Person Duration -->
                 <TableRow
 
                 android:layout_height="wrap_content"
@@ -254,6 +216,44 @@
 
             </TableRow>
 
+                <!-- Row 6: Person Order -->
+                <TableRow
+
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:paddingTop="10dp"
+                    >
+                    <TextView
+                        android:labelFor="@+id/personOrderInput"
+                        android:text="@string/person_order_label"
+                        android:layout_height="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="30"
+                        android:gravity="end"
+
+                        android:textColor="@color/colorTextBlack"
+                        android:background="@color/colorLabelBackground"
+                        />
+                    <EditText
+                        android:id="@id/personOrderInput"
+
+                        android:layout_height="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="70"
+
+                        android:hint="@string/person_order_hint"
+
+                        android:inputType="text"
+                        android:imeOptions="flagNoExtractUi"
+                        android:layout_marginEnd="16dp"
+
+                        android:textColor="@color/colorTextBlack"
+                        android:background="@color/colorInputBackground"
+                        />
+
+                </TableRow>
+
 
                 <!-- Row 7: Save Person Button -->
                 <TableRow
@@ -265,6 +265,7 @@
                     >
 
                     <!-- View Project Settings -->
+
                     <Button
                         style="?android:attr/buttonBarButtonStyle"
                         android:id="@+id/personSaveButton"
@@ -287,7 +288,10 @@
 
             </TableLayout>
 
-        </HorizontalScrollView>
+
+
+
+    </HorizontalScrollView>
 
     </ScrollView>
 

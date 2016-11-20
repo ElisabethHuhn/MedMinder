@@ -23,5 +23,6 @@
     <color name="colorButton2Background">#dcdcdc</color>
     <color name="colorTitleBackground"  >#6497b1</color>
     <color name="colorHistoryBackground">#f5f5f5</color>
+    <color name="colorHistoryLabelBackground">#dcdcdc</color>
 
 </resources>

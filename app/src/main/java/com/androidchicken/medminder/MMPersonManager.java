@@ -1,11 +1,12 @@
 package com.androidchicken.medminder;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 
 import java.util.ArrayList;
 
 /**
- * Created by elisabethhuhn on 10/17/2016.
+ * Created by Elisabeth Huhn on 10/17/2016.
  *
  * The class in charge of maintaining the set of instances of Person
  *  both in-memory and in the DB
@@ -47,11 +48,8 @@ public class MMPersonManager {
 
         mPersonList = new ArrayList<>();
 
-        //This is where we would read the list from the database
-        // TODO: 10/17/2016   get the list of projects from the DB
+        //The DB isn't read until the first time a person is accessed
 
-        // TODO: 10/17/2016 create dummy person data if none exists
-        //but for now, just make up some data
     }
 
     /************************************/
@@ -60,67 +58,117 @@ public class MMPersonManager {
 
 
     /*******************************************/
-    /********* Public Member Methods   *********/
+    /********* CRUD Methods            *********/
     /*******************************************/
 
-    //Return the list of all Persons
-    public ArrayList<MMPerson> getPersonList() {
-        return mPersonList;
-    }
 
+    //******************  CREATE *******************************************
 
     //This routine not only adds to the in memory list, but also to the DB
     public void add(MMPerson newPerson){
+
+        if (mPersonList == null){
+            mPersonList = new ArrayList<>();
+        }
+
+        //determine whether the person already exists in the list
+        int position = getPersonPosition(newPerson.getPersonID());
+        if (position == PERSON_NOT_FOUND) {
+            addPerson (newPerson, true);
+        } else {
+            updatePerson (newPerson, position, true);
+        }
+
+    }//end public add()
+
+    //This routine ONLY adds to in memory list. It's coming from the DB
+    public void addFromDB(MMPerson newPerson){
         //determine if already in list
         if (mPersonList == null){
             mPersonList = new ArrayList<>();
         }
 
-        int position = 0;
-
-        //determine whether the person already exists
-        position = getPersonPosition(newPerson.getPersonID());
+         //determine whether the person already exists
+        int position = getPersonPosition(newPerson.getPersonID());
         if (position == PERSON_NOT_FOUND) {
-            addPerson (newPerson);
+            addPerson (newPerson, false);
+            //Need to check if any medications exist in the DB for this person
+            MMMedicationManager medicationManager = MMMedicationManager.getInstance();
+            medicationManager.getMedicationsFromDB(newPerson);
         } else {
-            updatePerson (newPerson, position);
+            updatePerson (newPerson, position, false);
         }
     }//end public add()
 
 
-    //This routine not only replaces in the in memory list, but also in the DB
-    public void update(MMPerson person){
-        //The update functionality already exists in add
-        //    as a Person can only appear once
-        add(person);
-    }//end public add()
+    //The routine that actually adds the instance to in memory list and
+    // potentially (third boolean parameter) to the DB
+    private void addPerson(MMPerson newPerson, boolean addToDBToo){
+        mPersonList.add(newPerson);
 
-    //This routine not only removes from the in-memory list, but also from the DB
-    public boolean removePerson(int position) {
-        if (position > mPersonList.size()) {
-            //Can't remove a position that the list isn't long enough for
-            return false;
+        if (addToDBToo){
+
+            MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+            databaseManager.addPerson(newPerson);
+
+            //also have to deal with any Medications on the person
+            //add any medications to the DB
+            //The ASSUMPTION is that if it didn't exist in memory, it doesn't exist in the DB
+            //This is perhaps a risky assumption.......
+            // TODO: 11/2/2016 Determine if add person assumption is too risky
+
+            ArrayList<MMMedication> medications = newPerson.getMedications();
+            if (medications != null){
+                for (int position = 0; position < medications.size(); position++) {
+                    databaseManager.addMedication(medications.get(position));
+                }
+
+            }
         }
 
-        mPersonList.remove(position);
-        return true;
-    }//end public remove position
+    }
 
 
+
+    //******************  READ *******************************************
+
+    //Return the list of all Persons
+    public ArrayList<MMPerson> getPersonList() {
+        if (mPersonList == null){
+            mPersonList = new ArrayList<>();
+        }
+        if (mPersonList.size() == 0){
+            //get the Persons from the DB
+            MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+            databaseManager.getAllPersons();
+        }
+        return mPersonList;
+    }
 
 
     //Return the person instance that matches the argument personID
-    //returns null if the person is not in the list
-    public MMPerson getPerson(int personID){
+    //returns null if the person is not in the list or in the DB
+    public MMPerson getPerson(int personID)  {
         int atPosition = getPersonPosition(personID);
 
-        if (atPosition == PERSON_NOT_FOUND) return null;
+        if (atPosition == PERSON_NOT_FOUND) {
+
+            //attempt to read the DB before giving up
+            MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+            MMPerson person = databaseManager.getPerson(personID);
+            if (person != null) {
+                //if a matching person was in the DB, add it to RAM
+                mPersonList.add(person);
+                //and go get the medications for this person
+                MMMedicationManager medicationManager = MMMedicationManager.getInstance();
+                medicationManager.getMedicationsFromDB(person);
+            }
+            return person;
+        }
         return (mPersonList.get(atPosition));
     }
 
-    /********************************************/
-    /********* Private Member Methods   *********/
-    /********************************************/
+
 
     //returns the position of the person instance that matches the argument personEmailAddr
     //returns constant = PERSON_NOT_FOUND if the person is not in the list
@@ -146,42 +194,135 @@ public class MMPersonManager {
 
 
 
-    //The routine that actually adds the instance both to in memory list and to DB
-    private void addPerson(MMPerson newPerson){
-        mPersonList.add(newPerson);
-        // TODO: 10/18/2016 add the person to the DB
-    }
+    //******************  UPDATE *******************************************
+
+
+    //This routine not only replaces in the in memory list, but also in the DB
+    public void update(MMPerson person){
+        //The update functionality already exists in add
+        //    as a Person can only appear once
+        add(person);
+    }//end public add()
+
+
+    //This routine  only replaces in the in memory list
+    public void updateFromDB(MMPerson person){
+        //The update functionality already exists in add
+        //    as a Person can only appear once
+        addFromDB(person);
+    }//end public add()
 
 
 
-    private void updatePerson(MMPerson newPerson, int atPosition){
+    private void updatePerson(MMPerson newPerson, int atPosition, boolean addToDBToo){
         MMPerson listPerson = mPersonList.get(atPosition);
 
         //update the list instance with the attributes from the new person being added
-        listPerson.setNickname    (newPerson.getNickname());
-        listPerson.setEmailAddress(newPerson.getEmailAddress());
-        listPerson.setTextAddress (newPerson.getTextAddress());
-        listPerson.setDuration    (newPerson.getDuration());
-        listPerson.setMedOrder    (newPerson.getMedOrder());
-        // TODO: 10/18/2016 update the person already in the DB
+        //        don't copy the ID
+        copyPersonAttributes (newPerson, listPerson, false);
+
+        if (addToDBToo) {
+            // update the person already in the DB
+            MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+            databaseManager.updatePerson(newPerson);
+
+            //also have to deal with any Medications on the person
+            //add any medications to the DB
+            //The ASSUMPTION is that if it didn't exist in memory, it doesn't exist in the DB
+            //This is perhaps a risky assumption.......
+            // TODO: 11/2/2016 Determine if add person assumption is too risky
+
+            ArrayList<MMMedication> medications = newPerson.getMedications();
+            if (medications != null){
+                for (int position = 0; position < medications.size(); position++) {
+                    databaseManager.updateMedication(medications.get(position));
+                }
+
+            }
+
+        }
     }
 
 
+
+    //******************  DELETE *******************************************
+
+
+    //This routine not only removes from the in-memory list, but also from the DB
+    public boolean removePerson(int position) {
+        if (position > mPersonList.size()) {
+            //Can't remove a position that the list isn't long enough for
+            return false;
+        }
+
+        mPersonList.remove(position);
+        return true;
+    }//end public remove position
+
+
+
+
+
     /********************************************/
-    /********* Public Member Methods    *********/
+    /********* Private Member Methods   *********/
     /********************************************/
 
-    public ContentValues getPersonCV(MMPerson person){
+
+    /********************************************/
+    /********* Translation Utility Methods  *****/
+    /********************************************/
+
+    public void copyPersonAttributes(MMPerson fromPerson, MMPerson toPerson, boolean copyID){
+        if (copyID){
+            toPerson.setPersonID(fromPerson.getPersonID());
+        }
+        toPerson.setNickname    (fromPerson.getNickname());
+        toPerson.setEmailAddress(fromPerson.getEmailAddress());
+        toPerson.setTextAddress (fromPerson.getTextAddress());
+        toPerson.setDuration    (fromPerson.getDuration());
+        toPerson.setMedOrder    (fromPerson.getMedOrder());
+
+    }
+
+    //returns the ContentValues object needed to add/update the person to/in the DB
+    public ContentValues getCVFromPerson(MMPerson person){
         ContentValues values = new ContentValues();
         values.put(MMSqliteOpenHelper.PERSON_ID,       person.getPersonID());
         values.put(MMSqliteOpenHelper.PERSON_NICKNAME, person.getNickname().toString());
         values.put(MMSqliteOpenHelper.PERSON_EMAIL,    person.getEmailAddress().toString());
-        values.put(MMSqliteOpenHelper.PERSON_TEXT,     person.getNickname().toString());
+        values.put(MMSqliteOpenHelper.PERSON_TEXT,     person.getTextAddress().toString());
         values.put(MMSqliteOpenHelper.PERSON_DURATION, person.getDuration());
         values.put(MMSqliteOpenHelper.PERSON_ORDER,    person.getMedOrder());
 
         return values;
     }
 
+
+    //returns the MMPerson characterized by the position within the Cursor
+    //returns null if the position is larger than the size of the Cursor
+    //NOTE    this routine does NOT add the person to the list maintained by this PersonManager
+    //        The caller of this routine is responsible for that.
+    //        This is only a translation utility
+    //WARNING As the app is not multi-threaded, this routine is not synchronized.
+    //        If the app becomes multi-threaded, this routine must be made thread safe
+    //WARNING The cursor is NOT closed by this routine. It assumes the caller will close the
+    //         cursor when it is done with it
+    public MMPerson getPersonFromCursor(Cursor cursor, int position){
+
+        int last = cursor.getCount();
+        if (position >= last) return null;
+
+        MMPerson person = new MMPerson(); //filled with defaults
+
+        cursor.moveToPosition(position);
+        person.setPersonID    (cursor.getInt   (cursor.getColumnIndex(MMSqliteOpenHelper.PERSON_ID)));
+        person.setNickname    (cursor.getString(cursor.getColumnIndex(MMSqliteOpenHelper.PERSON_NICKNAME)));
+        person.setEmailAddress(cursor.getString(cursor.getColumnIndex(MMSqliteOpenHelper.PERSON_EMAIL)));
+        person.setTextAddress (cursor.getString(cursor.getColumnIndex(MMSqliteOpenHelper.PERSON_TEXT)));
+        person.setDuration    (cursor.getInt   (cursor.getColumnIndex(MMSqliteOpenHelper.PERSON_DURATION)));
+        person.setMedOrder    (cursor.getInt   (cursor.getColumnIndex(MMSqliteOpenHelper.PERSON_ORDER)));
+
+        return person;
+    }
 
 }

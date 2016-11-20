@@ -46,9 +46,9 @@
                 <!-- Row 1: Dose Taken Screen Label -->
                 <!-- Patient Name and Edit Patient Button -->
                 <LinearLayout
-                    android:orientation="horizontal"
                     android:layout_height="match_parent"
-                    android:layout_width="match_parent"
+                    android:layout_width ="match_parent"
+                    android:orientation="horizontal"
 
                     >
                     <TextView
@@ -170,7 +170,7 @@
                 <!-- Row 3: this Dose Taken -->
                 <LinearLayout
                     android:id="@+id/medInputLayout"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_width="match_parent"
                     android:layout_gravity="center_horizontal"
                     android:paddingTop="5dp"

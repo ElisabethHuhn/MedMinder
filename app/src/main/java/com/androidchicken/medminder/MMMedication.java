@@ -3,7 +3,7 @@ package com.androidchicken.medminder;
 /**
  * Created by elisabethhuhn on 10/12/2016.
  *
- * This medication object is acutally a combination of three
+ * This medication object is actually a combination of three
  * very simple objects. They have been combined to make the app simpler.
  * This medication object represents a medication taken by a single person.
  * It redundantly defines the medication if it is taken by another person.
@@ -60,11 +60,18 @@ public class MMMedication {
 
     /*************************************/
     /*         CONSTRUCTORS              */
-
     /*************************************/
 
     //Generic instance with no attributes
     public MMMedication() {
+        initializeDefaultVariables();
+        mMedicationID = MMUtilities.getUniqueID();
+
+    }
+
+
+/*
+    private void initializeDefaultVariables(){
         mMedicationID = MMUtilities.getUniqueID();
         mForPersonID  = -1;
         mBrandName    = "Brand Name";
@@ -76,13 +83,26 @@ public class MMMedication {
         mWhenDue      = "Quarterly";
         mNum          = 1;
     }
+*/
+    private void initializeDefaultVariables(){
+        mMedicationID = MMUtilities.getUniqueID();
+        mForPersonID  = -1;
+        mBrandName    = "6 ";
+        mGenericName  = "7";
+        mMedicationNickname = "Nick ";
+        mOrder        = 8;
+        mDoseAmount   = 9;
+        mDoseUnits    = "10";
+        mWhenDue      = "11";
+        mNum          = 12;
+    }
 
 
     /*************************************/
     /*    Member setter/getter Methods   */
     /*************************************/
-    public int          getMedicationID()  {  return mMedicationID; }
-    //          can not setMedicationID, this is done automatically when created
+    public int  getMedicationID()                 {  return mMedicationID; }
+    public void setMedicationID(int medicationID) { mMedicationID = medicationID; }
 
     public CharSequence getBrandName()                       {  return mBrandName;   }
     public void         setBrandName(CharSequence brandName) { mBrandName = brandName; }

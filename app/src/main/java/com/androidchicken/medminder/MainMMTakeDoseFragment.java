@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -24,6 +25,8 @@ import java.util.ArrayList;
  * A placeholder fragment containing a simple view.
  */
 public class MainMMTakeDoseFragment extends Fragment {
+
+    private static final String TAG = "MainMMTakeDoseFragment";
 
     /***********************************************/
     /*          UI Widgets                         */
@@ -103,6 +106,17 @@ public class MainMMTakeDoseFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
+
+        //Initialize the DB if necessary
+
+        try {
+            MMDatabaseManager databaseManager = MMDatabaseManager.getInstance(getActivity());
+        }catch (Exception e) {
+            Log.e(TAG,Log.getStackTraceString(e));
+        }
+
+
+
 
         Bundle args = getArguments();
 
