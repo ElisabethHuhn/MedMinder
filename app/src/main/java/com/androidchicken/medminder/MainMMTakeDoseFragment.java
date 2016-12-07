@@ -1,6 +1,5 @@
 package com.androidchicken.medminder;
 
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -232,7 +231,7 @@ public class MainMMTakeDoseFragment extends Fragment {
                         R.string.save_label,
                         Toast.LENGTH_SHORT).show();
 
-                saveDose();
+                onSave();
             }
         });
 
@@ -266,7 +265,7 @@ public class MainMMTakeDoseFragment extends Fragment {
 
 
             while (position < last) {
-                addButton(v, last, position, dpAsPixels);
+                addMedButtonToView(v, last, position, dpAsPixels);
                 position++;
             }
 
@@ -320,7 +319,7 @@ public class MainMMTakeDoseFragment extends Fragment {
         return "Med"+ String.valueOf(position+1);
     }
 
-    private void addButton(View v, int last, int position, int padding){
+    private void addMedButtonToView(View v, int last, int position, int padding){
         Button medButton;
         EditText edtView;
 
@@ -556,7 +555,7 @@ public class MainMMTakeDoseFragment extends Fragment {
         }
     }
 
-    private void saveDose(){
+    private void onSave(){
         int temp;
     }
 }

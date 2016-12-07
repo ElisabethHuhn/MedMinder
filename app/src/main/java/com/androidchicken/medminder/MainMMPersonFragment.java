@@ -212,7 +212,7 @@ public class MainMMPersonFragment extends Fragment {
                         R.string.save_label,
                         Toast.LENGTH_SHORT).show();
 
-                savePerson();
+                onSave();
 
                 //switch to home screen with the person as a patient
                 int personID;
@@ -409,7 +409,7 @@ public class MainMMPersonFragment extends Fragment {
 
 
 
-    private void savePerson(){
+    private void onSave(){
         CharSequence nickname = mPersonNickNameInput.getText();
         if (nickname == null){
             Toast.makeText(getActivity(),
