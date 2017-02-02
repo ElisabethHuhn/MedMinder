@@ -1,6 +1,7 @@
 package com.androidchicken.medminder;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 
 import java.util.ArrayList;
 
@@ -169,17 +170,60 @@ public class MMDoseManager {
 
 
 
-    public ContentValues getDoseCV(MMDose dose){
+    public ContentValues getCVFromDose(MMDose dose){
         ContentValues values = new ContentValues();
         values.put(MMSqliteOpenHelper.DOSE_ID,                           dose.getDoseID());
         values.put(MMSqliteOpenHelper.DOSE_OF_MEDICATION_ID,             dose.getOfMedicationID());
         values.put(MMSqliteOpenHelper.DOSE_FOR_PERSON_ID,                dose.getForPersonID());
         values.put(MMSqliteOpenHelper.DOSE_CONTAINED_IN_CONCURRENT_DOSE, dose.getContainedInConcurrentDosesID());
+        values.put(MMSqliteOpenHelper.DOSE_POSITION_WITHIN_CONCURRENT_DOSE,dose.getPositionWithinConcDose());
         values.put(MMSqliteOpenHelper.DOSE_TIME_TAKEN,                   dose.getTimeTaken());
         values.put(MMSqliteOpenHelper.DOSE_AMOUNT_TAKEN,                 dose.getAmountTaken());
 
         return values;
     }
 
+
+
+
+    //returns the Dose characterized by the position within the Cursor
+    //returns null if the position is larger than the size of the Cursor
+    //NOTE    this routine does NOT add the Dose to the list maintained by this DoseManager
+    //        The caller of this routine is responsible for that.
+    //        This is only a translation utility
+    //WARNING As the app is not multi-threaded, this routine is not synchronized.
+    //        If the app becomes multi-threaded, this routine must be made thread safe
+    //WARNING The cursor is NOT closed by this routine. It assumes the caller will close the
+    //         cursor when it is done with it
+    public MMDose getDoseFromCursor(Cursor cursor, int position){
+
+        int last = cursor.getCount();
+        if (position >= last) return null;
+
+        MMDose dose = new MMDose(); //filled with defaults
+
+        cursor.moveToPosition(position);
+        dose.setDoseID
+                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_ID)));
+        dose.setForPersonID
+                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_FOR_PERSON_ID)));
+
+        dose.setOfMedicationID
+                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_OF_MEDICATION_ID)));
+
+        dose.setContainedInConcurrentDosesID
+                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_CONTAINED_IN_CONCURRENT_DOSE)));
+
+        dose.setPositionWithinConcDose
+                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_POSITION_WITHIN_CONCURRENT_DOSE)));
+
+        dose.setTimeTaken
+                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_TIME_TAKEN)));
+
+        dose.setAmountTaken
+                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_AMOUNT_TAKEN)));
+
+        return dose;
+    }
 
 }

@@ -1,16 +1,25 @@
 package com.androidchicken.medminder;
 
+
+import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -18,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 
 /**
@@ -36,7 +46,7 @@ public class MainMMTakeDoseFragment extends Fragment {
     private Button mAddPersonsButton;
     private Button mSelectPatientButton;
     private Button mSaveButton;
-    private Button mEditMedicationButton;
+    private Button mAddMedicationButton;
     ArrayList<Button> mMedButtons = new ArrayList<>();
     ArrayList<EditText> mMedEdits = new ArrayList<>();
 
@@ -51,6 +61,15 @@ public class MainMMTakeDoseFragment extends Fragment {
     private EditText mMed4Input;
     private EditText mMed5Input;
 
+    private Cursor                  mConcurrentDoseCursor;
+    private RecyclerView            mRecyclerView;
+    private MMConcurrentDoseAdapter mAdapter;
+
+    private MMConcurrentDose            mSelectedConcurrentDose;
+    private MMConcurrentDose            mLastSelectedConcurrentDose;
+    private int                         mSelectedPosition;
+
+
 
 
     /***********************************************/
@@ -58,7 +77,7 @@ public class MainMMTakeDoseFragment extends Fragment {
     /***********************************************/
     private MMPerson mPatient;
     private int      mPersonID;
-    private ArrayList<MMMedication> mMedications;
+    //private ArrayList<MMMedication> mMedications;
 
 
 
@@ -114,9 +133,6 @@ public class MainMMTakeDoseFragment extends Fragment {
             Log.e(TAG,Log.getStackTraceString(e));
         }
 
-
-
-
         Bundle args = getArguments();
 
         if (args != null) {
@@ -125,9 +141,11 @@ public class MainMMTakeDoseFragment extends Fragment {
 
             //If personID can't be found in the list, mPatient will be null
             mPatient = personManager.getPerson(mPersonID);
+            /*
             if (mPatient != null) {
                 mMedications = mPatient.getMedications();
             }
+            */
 
         }
 
@@ -135,25 +153,35 @@ public class MainMMTakeDoseFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
                              Bundle savedInstanceState) {
 
         //Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_dose_taken, container, false);
 
-
-
         //Wire up the UI widgets so they can handle events later
         wireWidgets(v);
 
-        //set the title bar subtitle
-        ((MainActivity) getActivity()).setMMSubtitle(R.string.title_take_dose);
+        initializeRecyclerView(v);
 
         initializeUI();
 
-
+        if (mTimeInput != null) {
+            // TODO: 1/27/2017 Need to have an EditView that already exists
+            InputMethodManager mgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            mgr.hideSoftInputFromWindow(mTimeInput.getWindowToken(), 0);
+        }
 
         return v;
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+
+        //set the title bar subtitle
+        ((MainActivity) getActivity()).setMMSubtitle(R.string.title_take_dose);
     }
 
     /***********************************************/
@@ -184,7 +212,7 @@ public class MainMMTakeDoseFragment extends Fragment {
 
             }
         });
-
+/*
         //Add Persons Button
         mAddPersonsButton = (Button) v.findViewById(R.id.addPersonsButton);
         mAddPersonsButton.setText(R.string.patient_add_persons_label);
@@ -201,17 +229,17 @@ public class MainMMTakeDoseFragment extends Fragment {
                 ((MainActivity) getActivity()).switchToPersonScreen();
             }
         });
-
+*/
         //Show Persons Button
         mSelectPatientButton = (Button) v.findViewById(R.id.selectPatientButton);
-        mSelectPatientButton.setText(R.string.show_persons_label);
+        mSelectPatientButton.setText(R.string.select_patient_label);
         //the order of images here is left, top, right, bottom
         // mPatientProfileButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
         mSelectPatientButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(),
-                        R.string.show_persons_label,
+                        R.string.select_patient_label,
                         Toast.LENGTH_SHORT).show();
                 //switch to person screen
                 // But the switching happens on the container Activity
@@ -227,20 +255,23 @@ public class MainMMTakeDoseFragment extends Fragment {
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mPatient == null)return;
                 Toast.makeText(getActivity(),
                         R.string.save_label,
                         Toast.LENGTH_SHORT).show();
 
                 onSave();
+                ((MainActivity) getActivity()).switchToHomeScreen(mPatient.getPersonID());
+
             }
         });
-
-        //Edit Medication Button
-        mEditMedicationButton = (Button) v.findViewById(R.id.patientEditMedicationButton);
-        mEditMedicationButton.setText(R.string.patient_add_medication_label);
+/*
+        //Add Medication Button
+        mAddMedicationButton = (Button) v.findViewById(R.id.patientAddMedicationButton);
+        mAddMedicationButton.setText(R.string.patient_add_medication_label);
         //the order of images here is left, top, right, bottom
-        //mEditMedicationButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_stakeout, 0, 0);
-        mEditMedicationButton.setOnClickListener(new View.OnClickListener() {
+        //mAddMedicationButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_stakeout, 0, 0);
+        mAddMedicationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(),
@@ -251,27 +282,25 @@ public class MainMMTakeDoseFragment extends Fragment {
                 ((MainActivity) getActivity()).switchToMedicationScreen(mPatient.getPersonID());
             }
         });
-
+*/
         //Medication Buttons
-        if (mMedications != null) {
-
-            int last       = mMedications.size();
-            int position   = 0;
-
-            //convert pixels to dp
-            int sizeInDp   = 10; //padding between buttons
-            float scale    = getResources().getDisplayMetrics().density;
-            int dpAsPixels = (int) (sizeInDp*scale + 0.5f);
+        if (mPatient != null) {
+            int last = mPatient.getMedications().size();
+            if (last > 0) {
+                //convert pixels to dp
+                int sizeInDp = 10; //padding between buttons
 
 
-            while (position < last) {
-                addMedButtonToView(v, last, position, dpAsPixels);
-                position++;
+                addDateTimeFieldsToView(v, sizeInDp);
+
+                int position = 0;
+
+                    while (position < last) {
+                    addMedButtonToView(v, position, sizeInDp);
+                    position++;
+                }
             }
-
-            addbuttonListeners();
-
-        }//if (sMedications != null)
+        }
 
 
 
@@ -280,9 +309,134 @@ public class MainMMTakeDoseFragment extends Fragment {
         mPatientNickName = (TextView) v.findViewById(R.id.patientNickNameLabel);
         //There are no events associated with this field
 
+    }
+
+
+    private void initializeRecyclerView(View v){
+            /*
+             * The steps for doing recycler view in onCreateView() of a fragment are:
+             * 1) inflate the .xml
+             *
+             * the special recycler view stuff is:
+             * 2) get and store a reference to the recycler view widget that you created in xml
+             * 3) create and assign a layout manager to the recycler view
+             * 4) assure that there is data for the recycler view to show.
+             * 5) use the data to create and set an adapter in the recycler view
+             * 6) create and set an item animator (if desired)
+             * 7) create and set a line item decorator
+             * 8) add event listeners to the recycler view
+             *
+             * 9) return the view
+             */
+        //1) Inflate the layout for this fragment
+        //      done in the caller
+
+
+        //2) find and remember the RecyclerView
+        mRecyclerView = (RecyclerView) v.findViewById(R.id.doseHistoryList);
+
+        //3) create and assign a layout manager to the recycler view
+        //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
+        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        //4) Get the list of ConcurrentDose Instances from the ConcurrentDoseManager
+
+        //      get the singleton list container
+        MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
+        //      then go get our list of concurrentDoses
+        mConcurrentDoseCursor = concurrentDoseManager.getAllConcurrentDosesCursor(mPersonID);
+
+        //5) Use the data to Create and set out concurrentDose Adapter
+        //     even though we're giving the Adapter the list,
+        //     Adapter uses the ConcurrentDoseManager to maintain the list and
+        //     the items in the list.
+        mAdapter = new MMConcurrentDoseAdapter(mConcurrentDoseCursor);
+        if (mPatient != null){
+            int numbMeds = mPatient.getMedications().size();
+            mAdapter.setAdapterContext(getActivity(), mPatient.getPersonID(), numbMeds);
+        }
+        mRecyclerView.setAdapter(mAdapter);
+
+        //6) create and set the itemAnimator
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        //7) create and add the item decorator
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+                                                                   DividerItemDecoration.VERTICAL));
+ /*
+           mRecyclerView.addItemDecoration(new DividerItemDecoration(
+                getActivity(),
+                LinearLayoutManager.VERTICAL));
+*/
+
+        //8) add event listeners to the recycler view
+        mRecyclerView.addOnItemTouchListener(
+            new RecyclerTouchListener(getActivity(), mRecyclerView, new ClickListener() {
+
+                @Override
+                public void onClick(View view, int position) {
+                    onSelect(position);
+                }
+
+                @Override
+                public void onLongClick(View view, int position) {
+
+                }
+            }));
+
+    }
+
+
+
+    private String getMedNickname(int position){
+
+        MMMedication medication;
+
+        String nickName;
+        position = position-1;
+
+        if (mPatient != null){
+            int last =  mPatient.getMedications().size();
+            if (mPatient.getMedications() != null) {
+                if (position < last){
+                    medication = mPatient.getMedications().get(position);
+                    if (medication != null){
+                        nickName = medication.getMedicationNickname().toString().trim();
+                        return nickName;
+                    }
+                }
+            }
+        }
+        return "Med"+ String.valueOf(position+1);
+    }
+
+    private void addDateTimeFieldsToView(View v, int sizeInDp){
+
+        int padding = MMUtilities.convertPixelsToDp(getActivity(), sizeInDp);
+
+        LinearLayout layout = (LinearLayout) v.findViewById(R.id.medInputLayout);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                0,//width
+                ViewGroup.LayoutParams.WRAP_CONTENT);//height
+        lp.weight = 4f;
+        //lp.gravity = Gravity.CENTER;//set below too
+        lp.setMarginEnd(padding);
+
+        EditText edtView = new EditText(getActivity());
+        edtView.setHint(R.string.dose_default_time);
+        edtView.setInputType(InputType.TYPE_CLASS_TEXT);
+        edtView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        edtView.setLayoutParams(lp);
+        edtView.setPadding(0,0,padding,0);
+        edtView.setGravity(Gravity.CENTER);
+        edtView.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
+        edtView.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
+
+
         //Time input for this dose
         //There is no label for this field
-        mTimeInput = (EditText) v.findViewById(R.id.doseTimeInput);
+        mTimeInput = edtView;
         mTimeInput.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -294,34 +448,16 @@ public class MainMMTakeDoseFragment extends Fragment {
         });
 
 
+        layout.addView(edtView);
 
     }
 
-    private String getMedNickname(int position){
-
-        MMMedication medication;
-
-        String nickName;
-        position = position-1;
-
-        if (mPatient != null){
-            mMedications = mPatient.getMedications();
-            if (mMedications != null) {
-                if (position < mMedications.size()){
-                    medication = mMedications.get(position);
-                    if (medication != null){
-                        nickName = medication.getMedicationNickname().toString().trim();
-                        return nickName;
-                    }
-                }
-            }
-        }
-        return "Med"+ String.valueOf(position+1);
-    }
-
-    private void addMedButtonToView(View v, int last, int position, int padding){
+    private Button addMedButtonToView(View v, int position, int sizeInDp){
         Button medButton;
         EditText edtView;
+
+        int padding = MMUtilities.convertPixelsToDp(getActivity(), sizeInDp);
+
 
         //
         //Add the button to the button layout
@@ -338,11 +474,12 @@ public class MainMMTakeDoseFragment extends Fragment {
         medButton.setLayoutParams(lp);
         medButton.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorButton1Background));
 
-
         medButton.setPadding(0,0,padding,0);
         medButton.setText(getMedNickname(position + 1));
         medButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
         layout.addView(medButton);
+
+        addMedButtonListener(medButton);
 
         //save the pointer to the button
         mMedButtons.add(medButton);
@@ -382,164 +519,70 @@ public class MainMMTakeDoseFragment extends Fragment {
 
         layout.addView(edtView);
 
+        mMedEdits.add(edtView);
+
+        return medButton;
+
     }
 
-    private void addbuttonListeners(){
-        Button medButton;
+    private void addMedButtonListener(Button medButton){
 
-        if (mMedButtons.size() > 0) {
-            medButton = mMedButtons.get(0);
-            if (medButton != null) {
-                //add the listeners to the button
-                medButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(getActivity(),
-                                R.string.patient_medication_button_1_label,
-                                Toast.LENGTH_SHORT).show();
+
+        if (medButton == null) return;
+
+        //add the listeners to the button
+        medButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int last = mMedButtons.size();
+                int position = 0;
+                Button medButton;
+                while (position < last){
+                    medButton = mMedButtons.get(position);
+                    if (medButton == v){
+                        CharSequence msg = getString(R.string.patient_medication_button) +
+                                " "+ String.valueOf(position+1);
+                        Toast.makeText(getActivity(),msg, Toast.LENGTH_SHORT).show();
+
+                        showDose(position);
+                        return;
                     }
-                });
-                medButton.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-
-                        Toast.makeText(getActivity(),
-                                R.string.person_med_long_click,
-                                Toast.LENGTH_SHORT).show();
-
-                        return true;
-                    }
-                });
+                    position++;
+                }
+                Toast.makeText(getActivity(),
+                        R.string.patient_no_med_but,
+                        Toast.LENGTH_SHORT).show();
             }
-        }
+        });
+        medButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
 
-        if (mMedButtons.size() > 1) {
-            medButton = mMedButtons.get(1);
-            if (medButton != null) {
-                //add the listeners to the button
-                medButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(getActivity(),
-                                R.string.patient_medication_button_2_label,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-                medButton.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
+                Toast.makeText(getActivity(),
+                        R.string.person_med_long_click,
+                        Toast.LENGTH_SHORT).show();
 
-                        Toast.makeText(getActivity(),
-                                R.string.person_med_long_click,
-                                Toast.LENGTH_SHORT).show();
-
-                        return true;
-                    }
-                });
+                return true;
             }
-        }
+        });
 
-        if (mMedButtons.size() > 2) {
-            medButton = mMedButtons.get(1);
-            if (medButton != null) {
-                //add the listeners to the button
-                medButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(getActivity(),
-                                R.string.patient_medication_button_2_label,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-                medButton.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
+    }
 
-                        Toast.makeText(getActivity(),
-                                R.string.person_med_long_click,
-                                Toast.LENGTH_SHORT).show();
+    private void showDose(int position){
+        if (mPatient != null) {
+            //get the medication
+            MMMedication medication = mPatient.getMedications().get(position);
 
-                        return true;
-                    }
-                });
-            }
-        }
+            if (medication != null) {
+                //and the dose
+                int dose = medication.getDoseAmount();
+                //and the EditText field
+                EditText medField = mMedEdits.get(position);
 
-        if (mMedButtons.size() >= 3) {
-            medButton = mMedButtons.get(2);
-            if (medButton != null) {
-                //add the listeners to the button
-                medButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(getActivity(),
-                                R.string.patient_medication_button_3_label,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-                medButton.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-
-                        Toast.makeText(getActivity(),
-                                R.string.person_med_long_click,
-                                Toast.LENGTH_SHORT).show();
-
-                        return true;
-                    }
-                });
-            }
-        }
-
-        if (mMedButtons.size() >= 4) {
-            medButton = mMedButtons.get(3);
-            if (medButton != null) {
-                //add the listeners to the button
-                medButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(getActivity(),
-                                R.string.patient_medication_button_4_label,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-                medButton.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-
-                        Toast.makeText(getActivity(),
-                                R.string.person_med_long_click,
-                                Toast.LENGTH_SHORT).show();
-
-                        return true;
-                    }
-                });
-            }
-        }
-
-        if (mMedButtons.size() >= 5) {
-            medButton = mMedButtons.get(4);
-            if (medButton != null) {
-                //add the listeners to the button
-                medButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(getActivity(),
-                                R.string.patient_medication_button_5_label,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-                medButton.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-
-                        Toast.makeText(getActivity(),
-                                R.string.person_med_long_click,
-                                Toast.LENGTH_SHORT).show();
-
-                        return true;
-                    }
-                });
+                if (medField != null){
+                    //show the user
+                    medField.setText(String.valueOf(dose));
+                }
             }
         }
 
@@ -555,7 +598,128 @@ public class MainMMTakeDoseFragment extends Fragment {
         }
     }
 
-    private void onSave(){
-        int temp;
+    private boolean onSave(){
+
+        //Creates in memory structure to save all the doses taken concurrently
+        if (mPatient == null)return false;
+        boolean isStartOfDay = false;
+        Calendar c = Calendar.getInstance();
+        int seconds = c.get(Calendar.SECOND);
+
+        MMConcurrentDose concurrentDoses = new MMConcurrentDose(mPatient.getPersonID(),
+                                                                  isStartOfDay,
+                                                                  seconds);
+        ArrayList<MMDose> doses = new ArrayList<>();
+        concurrentDoses.setDoses(doses);
+
+        ArrayList<MMMedication> medications = mPatient.getMedications();
+
+        int last = medications.size();
+        int position = 0;
+        int amtTaken;
+        String amtTakenString;
+        while (position < last){
+            amtTakenString = mMedEdits.get(position).getText().toString().trim();
+            if (!amtTakenString.isEmpty()) {
+                amtTaken = Integer.valueOf(amtTakenString);
+                if (amtTaken > 0) {
+                    MMDose dose = new MMDose(
+                            medications.get(position).getMedicationID(),
+                            mPatient.getPersonID(),
+                            concurrentDoses.getConcurrentDoseID(),
+                            position,
+                            seconds,
+                            amtTaken);
+                    doses.add(dose);
+                }
+            }
+            position++;
+        }
+
+        MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
+        return concurrentDoseManager.add(concurrentDoses);
+
+
     }
+
+
+
+    /**********************************************************/
+    //      Utility Functions used in handling events         //
+    /**********************************************************/
+
+    //called from onClick(), executed when a person is selected
+    private void onSelect(int position){
+        //todo need to update selection visually
+        mSelectedPosition = position;
+        // TODO: 10/3/2016 Need to query list in Manager or Adapter, not locally
+        MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
+        mSelectedConcurrentDose =
+                concurrentDoseManager.getConcurrentDoseFromCursor(mConcurrentDoseCursor,position);
+
+        Toast.makeText(getActivity().getApplicationContext(),
+                "Position " + String.valueOf(position) + " is selected!",
+                Toast.LENGTH_SHORT).show();
+
+
+    }
+
+
+    //Add some code to improve the recycler view
+    //Here is the interface for event handlers for Click and LongClick
+    public interface ClickListener {
+        void onClick(View view, int position);
+
+        void onLongClick(View view, int position);
+    }
+
+    public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
+
+        private GestureDetector gestureDetector;
+        private MainMMTakeDoseFragment.ClickListener clickListener;
+
+        public RecyclerTouchListener(Context context,
+                                     final RecyclerView recyclerView,
+                                     final MainMMTakeDoseFragment.ClickListener clickListener) {
+
+            this.clickListener = clickListener;
+            gestureDetector = new GestureDetector(context,
+                    new GestureDetector.SimpleOnGestureListener() {
+
+                        @Override
+                        public boolean onSingleTapUp(MotionEvent e) {
+                            return true;
+                        }
+
+                        @Override
+                        public void onLongPress(MotionEvent e) {
+                            View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
+                            if (child != null && clickListener != null) {
+                                clickListener.onLongClick(child, recyclerView.getChildLayoutPosition(child));
+                            }
+                        }
+                    });
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            View child = rv.findChildViewUnder(e.getX(), e.getY());
+            if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
+                clickListener.onClick(child, rv.getChildLayoutPosition(child));
+            }
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+        }
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+        }
+    }
+
+
 }

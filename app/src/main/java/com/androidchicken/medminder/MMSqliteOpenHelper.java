@@ -6,8 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import java.util.ArrayList;
-
 /**
  * Created by Elisabeth Huhn on 7/9/2016.
  * This class makes all the actual calls to the DB
@@ -135,6 +133,8 @@ public class MMSqliteOpenHelper extends SQLiteOpenHelper {
     public static final String DOSE_FOR_PERSON_ID    = "dose_for_person_id";
     public static final String DOSE_CONTAINED_IN_CONCURRENT_DOSE
                                                      = "dose_contained_in_concurrent_dose";
+    public static final String DOSE_POSITION_WITHIN_CONCURRENT_DOSE
+                                                     = "dose_position";
     public static final String DOSE_TIME_TAKEN       = "dose_time_taken";
     public static final String DOSE_AMOUNT_TAKEN     = "dose_amount_taken";
 
@@ -148,6 +148,8 @@ public class MMSqliteOpenHelper extends SQLiteOpenHelper {
             DOSE_OF_MEDICATION_ID             + " INTEGER, " +
             DOSE_FOR_PERSON_ID                + " INTEGER, " +
             DOSE_CONTAINED_IN_CONCURRENT_DOSE + " INTEGER, " +
+            DOSE_POSITION_WITHIN_CONCURRENT_DOSE
+                                              + " INTEGER, " +
             DOSE_TIME_TAKEN                   + " INTEGER, " +
             DOSE_AMOUNT_TAKEN                 + " INTEGER, " +
             KEY_CREATED_AT                    + " INTEGER"   + ")";
@@ -242,12 +244,12 @@ public class MMSqliteOpenHelper extends SQLiteOpenHelper {
 
 
     //****************************** Create ****************************
-    public void add(SQLiteDatabase db,
+    public long add(SQLiteDatabase db,
                     String   table,
                     String   nullColumnHack,
                     ContentValues  values){
         // Inserting Rows
-        db.insert(table, null, values);
+        return db.insert(table, null, values);
         //db.close(); //never close the db instance. Just leave the connection open
     }
 

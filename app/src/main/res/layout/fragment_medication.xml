@@ -67,7 +67,7 @@
                     android:enabled="false"
 
                     android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorTitleBackground"
+                    android:background="@color/colorWhite"
                     />
             </TableRow>
 

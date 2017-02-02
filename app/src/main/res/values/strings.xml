@@ -78,12 +78,14 @@
 
     <!--      Dose Taken SCREEN                  -->
     <!--  -->
-    <string name="patient_nick_name_label"      >PERSON NOT FOUND</string>
+    <string name="patient_nick_name_label"      >PATIENT NOT FOUND</string>
+    <string name="patient_title"                >Patient</string>
     <string name="patient_edit_profile_label"   >Edit Patient</string>
     <string name="patient_add_persons_label"    >Add Persons</string>
-    <string name="show_persons_label"           >Show Person List</string>
-    <string name="select_patient_label"         >Select Person</string>
+    <string name="select_patient_label"         >Select Patient</string>
     <string name="patient_add_medication_label">Add Med</string>
+    <string name="patient_medication_button"    >Med</string>
+    <string name="patient_no_med_but"              >No Med Button Pushed</string>
     <string name="patient_medication_button_1_label">Med 1</string>
     <string name="patient_medication_button_2_label">Med 2</string>
     <string name="patient_medication_button_3_label">Med 3</string>

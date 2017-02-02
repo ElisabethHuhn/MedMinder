@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * for example: all doses taken within a given quarter hour
  */
 
-public class MMConcurrentDoses {
+public class MMConcurrentDose {
     /*************************************/
     /*    Static (class) Constants       */
     /*************************************/
@@ -40,7 +40,7 @@ public class MMConcurrentDoses {
     /*************************************/
     /*         CONSTRUCTOR               */
     /*************************************/
-    public MMConcurrentDoses() {
+    public MMConcurrentDose() {
         mConcurrentDoseID = MMUtilities.getUniqueID();
         mForPerson    = 0;
         mIsStartOfDay = false;
@@ -48,7 +48,7 @@ public class MMConcurrentDoses {
         mDoses        = new ArrayList<>();
     }
 
-    public MMConcurrentDoses(int forPerson, boolean isStartOfDay, int startTime) {
+    public MMConcurrentDose(int forPerson, boolean isStartOfDay, int startTime) {
         mConcurrentDoseID = MMUtilities.getUniqueID();
         mForPerson    = forPerson;
         mIsStartOfDay = isStartOfDay;
@@ -59,8 +59,9 @@ public class MMConcurrentDoses {
     /*************************************/
     /*    Member setter/getter Methods   */
     /*************************************/
-    //getter only
     public int getConcurrentDoseID() { return mConcurrentDoseID;  }
+    public void setConcurrentDoseID(int concurrentDoseID){mConcurrentDoseID = concurrentDoseID;}
+
 
     public int  getForPerson()              { return mForPerson;  }
     public void setForPerson(int forPerson) {  mForPerson = forPerson;   }

@@ -64,7 +64,7 @@ public class MMPersonManager {
 
     //******************  CREATE *******************************************
 
-    //This routine not only adds to the in memory list, but also to the DB
+    //This routine is called from the UI fragment and adds to memory then to the DB
     public void add(MMPerson newPerson){
 
         if (mPersonList == null){
@@ -81,7 +81,7 @@ public class MMPersonManager {
 
     }//end public add()
 
-    //This routine ONLY adds to in memory list. It's coming from the DB
+    //This routine is called from the DB manager when adding to memory from the DB
     public void addFromDB(MMPerson newPerson){
         //determine if already in list
         if (mPersonList == null){
@@ -103,13 +103,14 @@ public class MMPersonManager {
 
     //The routine that actually adds the instance to in memory list and
     // potentially (third boolean parameter) to the DB
-    private void addPerson(MMPerson newPerson, boolean addToDBToo){
-        mPersonList.add(newPerson);
+    private boolean addPerson(MMPerson newPerson, boolean addToDBToo){
+        boolean returnCode = true;
+        returnCode = mPersonList.add(newPerson);
 
-        if (addToDBToo){
+        if (returnCode && addToDBToo){
 
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-            databaseManager.addPerson(newPerson);
+            returnCode = databaseManager.addPerson(newPerson);
 
             //also have to deal with any Medications on the person
             //add any medications to the DB
@@ -118,13 +119,19 @@ public class MMPersonManager {
             // TODO: 11/2/2016 Determine if add person assumption is too risky
 
             ArrayList<MMMedication> medications = newPerson.getMedications();
-            if (medications != null){
-                for (int position = 0; position < medications.size(); position++) {
-                    databaseManager.addMedication(medications.get(position));
+            if ((medications != null) && (returnCode = true)){
+                int position = 0;
+                int last = medications.size();
+                while (position < last) {
+                    returnCode = databaseManager.addMedication(medications.get(position));
+                    //// TODO: 1/25/2017 unfortunately if false, the DB is now corrupted 
+                    if (returnCode = false)return false;
+                    position++;
                 }
 
             }
         }
+        return returnCode;
 
     }
 
@@ -224,7 +231,8 @@ public class MMPersonManager {
         if (addToDBToo) {
             // update the person already in the DB
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-            databaseManager.updatePerson(newPerson);
+            // TODO: 2/2/2017 need to check return code on update
+            int returnCode = databaseManager.updatePerson(newPerson);
 
             //also have to deal with any Medications on the person
             //add any medications to the DB

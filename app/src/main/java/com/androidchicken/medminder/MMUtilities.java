@@ -1,5 +1,7 @@
 package com.androidchicken.medminder;
 
+import android.content.Context;
+
 /**
  * Created by elisabethhuhn on 10/12/2016.
  *
@@ -30,6 +32,16 @@ public class MMUtilities {
     public static int getUniqueID(){
         return (int) (System.currentTimeMillis() & 0xfffffff);
     }
+
+
+    //convert pixels to dp
+    public static int convertPixelsToDp(Context context, int sizeInDp) {
+        //int sizeInDp = 10; //padding between buttons
+        float scale = context.getResources().getDisplayMetrics().density;
+        int dpAsPixels = (int) (sizeInDp * scale + 0.5f);
+        return dpAsPixels;
+    }
+
 
     /*************************************/
     /*         CONSTRUCTOR               */

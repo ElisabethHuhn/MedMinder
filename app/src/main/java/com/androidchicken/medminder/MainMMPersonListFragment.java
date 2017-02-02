@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
@@ -11,9 +12,10 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by Elisabeth Huhn on 10/19/2016.
@@ -29,7 +31,8 @@ public class MainMMPersonListFragment extends Fragment {
          *  although in the mockup, most will be statically defined in the xml
          */
 
-        private List<MMPerson>  mPersonList ;
+        private Button          mAddPersonsButton;
+        private ArrayList<MMPerson> mPersonList ;
         private RecyclerView    mRecyclerView;
         private MMPersonAdapter mAdapter;
 
@@ -65,6 +68,8 @@ public class MainMMPersonListFragment extends Fragment {
             View v = inflater.inflate(R.layout.fragment_person_list, container, false);
             v.setTag(TAG);
 
+            wireWidgets(v);
+
             initializeRecyclerView(v);
 
 
@@ -77,6 +82,23 @@ public class MainMMPersonListFragment extends Fragment {
         }
 
 
+        private void wireWidgets(View v){
+
+            //Add Persons Button
+            mAddPersonsButton = (Button) v.findViewById(R.id.addPersonsButton);
+            mAddPersonsButton.setText(R.string.patient_add_persons_label);
+            mAddPersonsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getActivity(),
+                            R.string.patient_add_persons_label,
+                            Toast.LENGTH_SHORT).show();
+                    //switch to person screen
+                    // But the switching happens on the container Activity
+                    ((MainActivity) getActivity()).switchToPersonScreen();
+                }
+            });
+        }
 
         private void initializeRecyclerView(View v){
             /*
@@ -124,25 +146,28 @@ public class MainMMPersonListFragment extends Fragment {
             mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
             //7) create and add the item decorator
+            mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+                                                                   DividerItemDecoration.VERTICAL));
+/*
             mRecyclerView.addItemDecoration(new DividerItemDecoration(
-                    getActivity(),
-                    LinearLayoutManager.VERTICAL));
-
+                                                                    getActivity(),
+                                                                    LinearLayoutManager.VERTICAL));
+*/
 
             //8) add event listeners to the recycler view
             mRecyclerView.addOnItemTouchListener(
-                    new RecyclerTouchListener(getActivity(), mRecyclerView, new ClickListener() {
+                new RecyclerTouchListener(getActivity(), mRecyclerView, new ClickListener() {
 
-                        @Override
-                        public void onClick(View view, int position) {
-                            onSelect(position);
-                        }
+                    @Override
+                    public void onClick(View view, int position) {
+                        onSelect(position);
+                    }
 
-                        @Override
-                        public void onLongClick(View view, int position) {
+                    @Override
+                    public void onLongClick(View view, int position) {
 
-                        }
-                    }));
+                    }
+                }));
 
         }
 

@@ -19,34 +19,57 @@
     >
     <!-- Allow entire screen to scroll horizontally -->
     <LinearLayout
-        android:layout_width= "wrap_content"
+        android:layout_width= "match_parent"
         android:layout_height="match_parent"
         android:orientation=  "vertical"
         >
 
-        <!-- Screen Title and Column Titles -->
+        <!-- Screen Label and Add Person Button -->
         <LinearLayout
-            android:layout_width= "match_parent"
+        android:layout_width= "match_parent"
+        android:layout_height="wrap_content"
+        android:orientation=  "horizontal"
+        >
+        <!-- Row: Person Screen Label -->
+        <TextView
+            android:id="@+id/personListScreenLabel"
             android:layout_height="wrap_content"
-            android:orientation=  "vertical"
-            >
+            android:layout_width="0dp"
 
-            <!-- Row 1: Person Screen Label -->
-            <TextView
-                    android:id="@+id/personListScreenLabel"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
+            android:layout_weight="3"
 
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center_horizontal"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_gravity="start"
 
-                    android:text="@string/person_list_screen_label"
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorWhite"
-                    />
+            android:text="@string/person_list_screen_label"
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorWhite"
+            />
 
-            <!-- Row 2: Headings for the list columns -->
-            <LinearLayout
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:id=  "@+id/addPersonsButton"
+            android:text="@string/patient_add_persons_label"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_weight="6"
+
+            android:layout_gravity="end"
+
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="4dp"
+
+            android:background="@color/colorButton2Background"
+            android:textColor="@color/colorTextBlack"
+            />
+
+        </LinearLayout>
+
+
+        <!-- Row: Headings for the list columns -->
+        <LinearLayout
                 android:orientation=  "horizontal"
                 android:layout_width= "match_parent"
                 android:layout_height="wrap_content"
@@ -149,11 +172,9 @@
 
             </LinearLayout>
 
-        </LinearLayout>
-
         <!-- Scrolling list of persons -->
         <ScrollView
-            android:layout_width= "match_parent"
+            android:layout_width= "wrap_content"
             android:layout_height="match_parent"
             android:fillViewport= "true"
             >

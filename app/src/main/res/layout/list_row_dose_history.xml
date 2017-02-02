@@ -2,6 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
 
+    android:id="@+id/doseHistoryLine"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -20,7 +21,7 @@
         android:id="@+id/doseDateLabel"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="3"
         android:gravity="center"
 
         android:text="@string/dose_default_date"
@@ -28,6 +29,7 @@
 
         android:background="@color/colorGrayest"
         />
+
     <!-- Time -->
     <EditText
         android:id="@+id/doseTimeInput"
@@ -45,95 +47,7 @@
         android:textColor="@color/colorTextBlack"
         android:background="@color/colorHistoryBackground"
         />
-    <!-- Medication 1 -->
-    <EditText
-        android:id="@+id/doseMed1Input"
 
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
 
-        android:hint="@string/patient_med_hint"
-
-        android:inputType="text"
-        android:imeOptions="flagNoExtractUi"
-        android:layout_marginEnd="1dp"
-
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorHistoryBackground"
-        />
-    <!-- Medication 2 -->
-    <EditText
-        android:id="@+id/doseMed2Input"
-
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-
-        android:hint="@string/patient_med_hint"
-
-        android:inputType="text"
-        android:imeOptions="flagNoExtractUi"
-        android:layout_marginEnd="1dp"
-
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorHistoryBackground"
-        />
-    <!-- Medication 3 -->
-    <EditText
-        android:id="@+id/doseMed3Input"
-
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-
-        android:hint="@string/patient_med_hint"
-
-        android:inputType="text"
-        android:imeOptions="flagNoExtractUi"
-        android:layout_marginEnd="1dp"
-
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorHistoryBackground"
-        />
-    <!-- Medication 4 -->
-    <EditText
-        android:id="@+id/doseMed4Input"
-
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-
-        android:hint="@string/patient_med_hint"
-
-        android:inputType="text"
-        android:imeOptions="flagNoExtractUi"
-        android:layout_marginEnd="1dp"
-
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorHistoryBackground"
-        />
-    <!-- Medication 5 -->
-    <EditText
-        android:id="@+id/doseMed5Input"
-
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-
-        android:hint="@string/patient_med_hint"
-
-        android:inputType="text"
-        android:imeOptions="flagNoExtractUi"
-        android:layout_marginEnd="1dp"
-
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorHistoryBackground"
-        />
 
 </LinearLayout>

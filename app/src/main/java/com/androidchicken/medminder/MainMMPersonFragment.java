@@ -4,9 +4,11 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -28,7 +30,7 @@ public class MainMMPersonFragment extends Fragment {
 
     //main area of screen fragment
     private Button   mSaveButton;
-    private Button   mCancleButton;
+    private Button   mAddMedButton;
 
     private EditText mPersonNickNameInput;
     private EditText mPersonEmailAddrInput;
@@ -115,6 +117,7 @@ public class MainMMPersonFragment extends Fragment {
 
         //Wire up the UI widgets so they can handle events later
         wireWidgets(v);
+        wireListWidgets(v);
 
         //If we had any arguments passed, update the screen with them
         initializeUI();
@@ -173,10 +176,12 @@ public class MainMMPersonFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         //7) create and add the item decorator
-        recyclerView.addItemDecoration(new DividerItemDecoration(
-                getActivity(),
-                LinearLayoutManager.VERTICAL));
-
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+                                                                 DividerItemDecoration.VERTICAL));
+/*
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+                                                                 LinearLayoutManager.VERTICAL));
+*/
 
         //8) add event listeners to the recycler view
         recyclerView.addOnItemTouchListener(
@@ -229,25 +234,27 @@ public class MainMMPersonFragment extends Fragment {
             }
         });
 
-/*
-        //cancle Button
-        mCancleButton = (Button) v.findViewById(R.id.personCancleButton);
-        mCancleButton.setText(R.string.cancle_label);
-        //the order of images here is left, top, right, bottom
-        //mCancleButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
-        mCancleButton.setOnClickListener(new View.OnClickListener() {
+
+        //add Button
+        mAddMedButton = (Button) v.findViewById(R.id.personAddMedicationButton);
+        mAddMedButton.setText(R.string.patient_add_medication_label);
+        mAddMedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mPersonID == 0)return;
+
                 Toast.makeText(getActivity(),
-                        R.string.cancle_label,
+                        R.string.patient_add_medication_label,
                         Toast.LENGTH_SHORT).show();
 
-                //for now, punt
+                //switch to medication screen
+                // But the switching happens on the container Activity
+                ((MainActivity) getActivity()).switchToMedicationScreen(mPersonID);
 
             }
         });
 
-*/
+
 
         field_container = v.findViewById(R.id.personNickName);
         label = (TextView)(field_container.findViewById(R.id.fieldLabel));
@@ -274,6 +281,7 @@ public class MainMMPersonFragment extends Fragment {
 
         mPersonEmailAddrInput = (EditText) (field_container.findViewById(R.id.fieldInput));
         //mPersonEmailAddrInput.setHint(R.string.person_email_addr_hint);
+        mPersonEmailAddrInput.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
 
         mPersonEmailAddrInput.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -292,6 +300,7 @@ public class MainMMPersonFragment extends Fragment {
         label.setText(R.string.person_text_addr_label);
 
         mPersonTextAddrInput = (EditText)(field_container.findViewById(R.id.fieldInput));
+        mPersonTextAddrInput.setInputType(InputType.TYPE_CLASS_PHONE);
         //mPersonTextAddrInput.setHint(R.string.person_text_addr_hint);
         mPersonTextAddrInput.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -339,9 +348,6 @@ public class MainMMPersonFragment extends Fragment {
                 return false;
             }
         });
-
-        wireListWidgets(v);
-
 
     }
 
@@ -417,7 +423,7 @@ public class MainMMPersonFragment extends Fragment {
                     Toast.LENGTH_SHORT).show();
             return;
         }
-        //If this person already exists, we do not want to create a new one
+        //If this person already exists, we do NOT want to create a new Person object
         MMPerson person;
         if (mPersonID == 0) {
             person = new MMPerson(nickname);
@@ -457,6 +463,7 @@ public class MainMMPersonFragment extends Fragment {
         // person.setMedications(new ArrayList<MMMedication>());
 
         //so add/update the person to/in permanent storage
+        //This adds/updates any medications that are recorded on the Person to the DB
         MMPersonManager personManager = MMPersonManager.getInstance();
         personManager.add(person);
         mPerson = person;

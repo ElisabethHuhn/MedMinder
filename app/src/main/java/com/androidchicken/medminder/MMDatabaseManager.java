@@ -23,6 +23,7 @@ import static com.androidchicken.medminder.MMSqliteOpenHelper.TABLE_PERSON;
 public class MMDatabaseManager {
 
     private static final String TAG = "MMDatabaseManager";
+    private static final long   sDB_ERROR_CODE = -1;
 
 
     /************************************************/
@@ -187,9 +188,15 @@ public class MMDatabaseManager {
     //public int getPersonCount() {}
 
     //******************************    Create    ***********************
-    public void addPerson(MMPerson person){
+    public boolean addPerson(MMPerson person){
+        long returnCode = 0;
         MMPersonManager personManager = MMPersonManager.getInstance();
-        mDatabaseHelper.add(mDatabase, TABLE_PERSON, null, personManager.getCVFromPerson(person));
+        returnCode = mDatabaseHelper.add(mDatabase,
+                                         TABLE_PERSON,
+                                         null,
+                                         personManager.getCVFromPerson(person));
+        if (returnCode == sDB_ERROR_CODE)return false;
+        return true;
     }
 
 
@@ -294,7 +301,7 @@ public class MMDatabaseManager {
     }
 
     //*********************************     Delete    ***************************
-    //The return code inidcates how many rows affected
+    //The return code indicates how many rows affected
     public int removePerson(int personID){
 
         return mDatabaseHelper.remove(
@@ -327,12 +334,15 @@ public class MMDatabaseManager {
     //public int getMedicationCount() {}
 
     //******************************    Create    ***********************
-    public void addMedication(MMMedication medication){
+    public boolean addMedication(MMMedication medication){
+        long returnCode = 0;
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-        mDatabaseHelper.add(mDatabase,
-                            TABLE_MEDICATION,
-                            null,
-                            medicationManager.getMedicationCV(medication));
+        returnCode = mDatabaseHelper.add(mDatabase,
+                                        TABLE_MEDICATION,
+                                        null,
+                                        medicationManager.getMedicationCV(medication));
+        if (returnCode == sDB_ERROR_CODE)return false;
+        return true;
     }
 
 
@@ -470,19 +480,64 @@ public class MMDatabaseManager {
         return new ArrayList<>();
     }
 
+
+    public ArrayList<MMDose> getDosesForCD(MMConcurrentDose concurrentDose){
+
+        ArrayList<MMDose> doses = new ArrayList<>();
+
+        //get the dose row from the DB
+        Cursor cursor = mDatabaseHelper.getObject(
+                mDatabase,     //the db to access
+                TABLE_DOSE,   //table name
+                null,          //get the whole dose
+                getDosesWhereClause(concurrentDose.getConcurrentDoseID()), //where clause
+                null, null, null, null);//args, group, row grouping, order
+
+        //create Dose objects from the Cursor object
+        MMDoseManager doseManager = MMDoseManager.getInstance();
+
+        int position = 0;
+        int last = cursor.getCount();
+        MMDose dose;
+
+        while (position < last) {
+            //translate the cursor into a dose object
+            dose = doseManager.getDoseFromCursor(cursor, position);
+            if (dose != null) {
+                //add the dose object to the list
+                doses.add(dose);
+            }
+            position++;
+        }
+        cursor.close();
+        return doses;
+    }
+
     public MMDose getDose(int doseID){
         return new MMDose();
     }
 
-    public void addDose(MMDose dose){
+
+    public boolean addDose(MMDose dose){
+        long returnCode = 0;
         MMDoseManager doseManager = MMDoseManager.getInstance();
-        mDatabaseHelper.add(mDatabase, TABLE_DOSE, null, doseManager.getDoseCV(dose));
+        returnCode = mDatabaseHelper.add(mDatabase, TABLE_DOSE, null, doseManager.getCVFromDose(dose));
+        if (returnCode == sDB_ERROR_CODE)return false;
+        return true;
     }
 
-    public void updateDose(MMDose dose){}
+    public int updateDose(MMDose dose){return 0;}
 
-    public void removeDose(MMDose dose){}
+    public int removeDose(MMDose dose){return 0;}
 
+    /************************************************/
+    /*        Dose specific CRUD  utility         */
+    /************************************************/
+    //This gets a single medication
+    private String getDosesWhereClause(int concurrentDoseID){
+        return MMSqliteOpenHelper.DOSE_CONTAINED_IN_CONCURRENT_DOSE + " = '" +
+                                        String.valueOf(concurrentDoseID) + "'";
+    }
 
 
     /************************************************/
@@ -490,25 +545,47 @@ public class MMDatabaseManager {
     /************************************************/
 
     //CRUD routines for a ConcurrentDose
-    //STUBS for now
-    public ArrayList<MMConcurrentDoses> getAllConcurrentDoses(){
-        return new ArrayList<>();
+
+    public Cursor getAllConcurrentDosesCursor(int personID){
+        Cursor cursor = mDatabaseHelper.getObject(  mDatabase,
+                                                    TABLE_CONCURRENT_DOSE,
+                                                    null,    //get the whole object
+                                                    getConcurrentDosesWhereClause(personID),
+                                                    null, null, null, null);
+
+        return cursor;
+
     }
 
-    public MMConcurrentDoses getConcurrentDose(int concurrentDoseID){
-        return new MMConcurrentDoses();
+    public MMConcurrentDose getConcurrentDose(int concurrentDoseID){
+        return new MMConcurrentDose();
     }
 
-    public void addConcurrentDose(MMConcurrentDoses concurrentDose){
+    public boolean addConcurrentDose(MMConcurrentDose concurrentDose){
+        long returnCode = 0;
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
-        mDatabaseHelper.add(mDatabase, TABLE_CONCURRENT_DOSE, null, concurrentDoseManager.getConcurrentDoseCV(concurrentDose));
+        mDatabaseHelper.add(mDatabase,
+                            TABLE_CONCURRENT_DOSE,
+                            null,
+                            concurrentDoseManager.getCVFromConcurrentDose(concurrentDose));
+        if (returnCode == sDB_ERROR_CODE)return false;
+        return true;
     }
 
-    public void updateConcurrentDose(MMConcurrentDoses concurrentDose){}
+    public int updateConcurrentDose(MMConcurrentDose concurrentDose){return 0;}
 
-    public void removeConcurrentDose(int concurrentDoseID){}
+    public int removeConcurrentDose(int concurrentDoseID){return 0;}
 
 
+
+    /************************************************/
+    /*    Concurrent Dose specific CRUD  utility    */
+    /************************************************/
+    //This gets a single medication
+    private String getConcurrentDosesWhereClause(int personID){
+        return MMSqliteOpenHelper.CONCURRENT_DOSE_FOR_PERSON_ID + " = '" +
+                                                                    String.valueOf(personID) + "'";
+    }
 
 
 
