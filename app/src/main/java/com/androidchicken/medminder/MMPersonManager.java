@@ -138,6 +138,13 @@ public class MMPersonManager {
 
 
     //******************  READ *******************************************
+    //return the cursor containing all the Concurrent Doses in the DB
+    //that pertain to this personID
+    public Cursor getAllPersonsCursor (){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        return databaseManager.getAllPersonsCursor();
+    }
+
 
     //Return the list of all Persons
     public ArrayList<MMPerson> getPersonList() {
@@ -226,6 +233,7 @@ public class MMPersonManager {
 
         //update the list instance with the attributes from the new person being added
         //        don't copy the ID
+        // TODO: 2/21/2017 need deep copy here, not shallow copy 
         copyPersonAttributes (newPerson, listPerson, false);
 
         if (addToDBToo) {
@@ -267,6 +275,13 @@ public class MMPersonManager {
         return true;
     }//end public remove position
 
+    public boolean removePersonFromDB(int personID){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        long returnCode = databaseManager.removePerson(personID);
+        if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return false;
+        return true;
+    }
+
 
 
 
@@ -287,20 +302,16 @@ public class MMPersonManager {
         toPerson.setNickname    (fromPerson.getNickname());
         toPerson.setEmailAddress(fromPerson.getEmailAddress());
         toPerson.setTextAddress (fromPerson.getTextAddress());
-        toPerson.setDuration    (fromPerson.getDuration());
-        toPerson.setMedOrder    (fromPerson.getMedOrder());
 
     }
 
     //returns the ContentValues object needed to add/update the person to/in the DB
     public ContentValues getCVFromPerson(MMPerson person){
         ContentValues values = new ContentValues();
-        values.put(MMSqliteOpenHelper.PERSON_ID,       person.getPersonID());
-        values.put(MMSqliteOpenHelper.PERSON_NICKNAME, person.getNickname().toString());
-        values.put(MMSqliteOpenHelper.PERSON_EMAIL,    person.getEmailAddress().toString());
-        values.put(MMSqliteOpenHelper.PERSON_TEXT,     person.getTextAddress().toString());
-        values.put(MMSqliteOpenHelper.PERSON_DURATION, person.getDuration());
-        values.put(MMSqliteOpenHelper.PERSON_ORDER,    person.getMedOrder());
+        values.put(MMDataBaseSqlHelper.PERSON_ID,       person.getPersonID());
+        values.put(MMDataBaseSqlHelper.PERSON_NICKNAME, person.getNickname().toString());
+        values.put(MMDataBaseSqlHelper.PERSON_EMAIL,    person.getEmailAddress().toString());
+        values.put(MMDataBaseSqlHelper.PERSON_TEXT,     person.getTextAddress().toString());
 
         return values;
     }
@@ -323,12 +334,14 @@ public class MMPersonManager {
         MMPerson person = new MMPerson(); //filled with defaults
 
         cursor.moveToPosition(position);
-        person.setPersonID    (cursor.getInt   (cursor.getColumnIndex(MMSqliteOpenHelper.PERSON_ID)));
-        person.setNickname    (cursor.getString(cursor.getColumnIndex(MMSqliteOpenHelper.PERSON_NICKNAME)));
-        person.setEmailAddress(cursor.getString(cursor.getColumnIndex(MMSqliteOpenHelper.PERSON_EMAIL)));
-        person.setTextAddress (cursor.getString(cursor.getColumnIndex(MMSqliteOpenHelper.PERSON_TEXT)));
-        person.setDuration    (cursor.getInt   (cursor.getColumnIndex(MMSqliteOpenHelper.PERSON_DURATION)));
-        person.setMedOrder    (cursor.getInt   (cursor.getColumnIndex(MMSqliteOpenHelper.PERSON_ORDER)));
+        person.setPersonID
+                (cursor.getInt   (cursor.getColumnIndex(MMDataBaseSqlHelper.PERSON_ID)));
+        person.setNickname
+                (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.PERSON_NICKNAME)));
+        person.setEmailAddress
+                (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.PERSON_EMAIL)));
+        person.setTextAddress
+                (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.PERSON_TEXT)));
 
         return person;
     }

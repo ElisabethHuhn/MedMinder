@@ -4,12 +4,12 @@
     <!--      Global                  -->
     <!--  -->
     <string name="save_label"         >Save</string>
+    <string name="exit_label"         >Exit</string>
     <string name="hint_label"         >Hint</string>
     <string name="cancle_label"       >Cancel</string>
     <string name="exception_no_person">No Person was in List</string>
     <string name="exception_medication_not_added">Could not add medication</string>
-    <string name="no_person"          >No Persons defined</string>
-    <string name="spacer"             >This line is a spacer</string>
+    <string name="exportHistoryLabel" >Export</string>
     <string name="list_label"         >Title</string>
 
     <!--      Actions                  -->
@@ -22,20 +22,24 @@
     <string name="title_person_list">List Persons</string>
     <string name="title_medication" >Medication</string>
     <string name="title_medication_list">List Medications</string>
+    <string name="title_export_history" >Export History</string>
 
     <!--      Medication SCREEN                  -->
     <!--  -->
     <string name="medication_screen_label"      >Medications</string>
+    <string name="medication_nick_name_label"   >Nick Name</string>
     <string name="medication_brand_name_label"  >Brand Name</string>
     <string name="medication_generic_name_label">Generic Name</string>
-    <string name="medication_for_label"         >For Person ID</string>
-    <string name="medication_nick_name_label"   >Nick Name</string>
-    <string name="medication_order_label"       >Order Name</string>
-    <string name="medication_dose_amount_label" >Dose Amount</string>
-    <string name="medication_dose_units_label"  >Dose Units</string>
-    <string name="medication_when_due_label"    >Dose Due</string>
+    <string name="medication_for_label"         >Person ID</string>
+
+    <string name="medication_dose_strategy_label">Strategy</string>
+    <string name="medication_dose_amount_label" >Amount</string>
+    <string name="medication_dose_units_label"  >Units</string>
     <string name="medication_num_label"         ># per day</string>
 
+    <string name="medication_add_schedule"      >Add Schedule</string>
+    <string name="medication_update_schedule"   >Update Schedule</string>
+    <string name="medication_maintain_schedule" >Maintain Schedule</string>
 
     <string name="medication_brand_name_hint"   >Enter Brand Name</string>
     <string name="medication_generic_name_hint" >Enter Generic Name</string>
@@ -46,7 +50,7 @@
     <string name="medication_dose_units_hint"   >For Example: mg</string>
     <string name="medication_num_per_day_hint"  >For Example: 2</string>
     <string name="medication_when_due_hint2"    >Leave When Due blank for as needed</string>
-    <string name="medication_when_due_hint"     >For Example: 9:00am, 9:00pm</string>
+    <string name="medication_when_due_hint"     >1 = on schedule, 2 = as needed</string>
 
 
     <!--      Person SCREEN                  -->
@@ -59,6 +63,7 @@
     <string name="person_order_label"       >Order</string>
     <string name="person_duration_label"   >Duration</string>
     <string name="person_is_patient_label"  >is patient?</string>
+    <string name="person_save_first"        >Save before adding medications</string>
 
 
     <string name="person_nick_name_hint"   >Enter Nick Name</string>
@@ -74,7 +79,7 @@
     <!--      Person List SCREEN                  -->
     <!--  -->
     <string name="person_list_screen_label" >Person List</string>
-    <string name="patient_label"            >Make Patient</string>
+
 
     <!--      Dose Taken SCREEN                  -->
     <!--  -->
@@ -85,25 +90,33 @@
     <string name="select_patient_label"         >Select Patient</string>
     <string name="patient_add_medication_label">Add Med</string>
     <string name="patient_medication_button"    >Med</string>
-    <string name="patient_no_med_but"              >No Med Button Pushed</string>
-    <string name="patient_medication_button_1_label">Med 1</string>
-    <string name="patient_medication_button_2_label">Med 2</string>
-    <string name="patient_medication_button_3_label">Med 3</string>
-    <string name="patient_medication_button_4_label">Med 4</string>
-    <string name="patient_medication_button_5_label">Med 5</string>
-    <string name="patient_medication_button_6_label">Med 6</string>
-    <string name="patient_medication_button_7_label">Med 7</string>
-    <string name="patient_medication_button_8_label">Med 8</string>
-    <string name="patient_medication_button_9_label">Med 9</string>
-    <string name="dose_default_date"        >00/00/0000</string>
-    <string name="dose_default_time"        >00/00 00:00</string>
-
-
-    <string name="patient_med_hint"  >0</string>
+    <string name="patient_no_med_but"           >No Med Button Pushed</string>
+    <string name="dose_default_date"            >00/00/0000</string>
+    <string name="dose_default_time"            >00/00 00:00</string>
 
     <string name="input_received"    >Input received</string>
 
+
+    <!--      Export SCREEN                  -->
+    <!--  -->
+    <string name="start_date"       >Start Date:</string>
+    <string name="end_date"         >End Date:</string>
+    <string name="directory_path"   >Directory Path:</string>
+    <string name="sub_directory"    >Sub-Directory:</string>
+    <string name="filename_suffix"  >File Name Suffix:</string>
+    <string name="suffix_hint"      >Appended if file name exists</string>
+    <string name="error_writing_file">ERROR writing file. Data not saved</string>
+
+
+
+
+
     <!-- exception messages -->
+    <string name="person_does_not_exist"   >Person does not exist. ID = </string>
+    <string name="no_person"               >There has to be a Person to add a Medication</string>
+    <string name="no_persons_defined">No persons defined</string>
+
+
     <!-- database exceptions -->
     <string name="no_context_eException"    >Can not create database without a context</string>
     <string name="not_initialized_exception">Attempt to access the database before it has been initialized</string>

@@ -21,13 +21,13 @@ public class MMDose {
     /*************************************/
     /*    Member (instance) Variables    */
     /*************************************/
-    private int mDoseID;
-    private int mOfMedicationID;
-    private int mForPersonID;
-    private int mContainedInConcurrentDoseID;
-    private int mPositionWithinConcDose;
-    private int mTimeTaken;   //milliseconds since Jan1, 1970;
-    private int mAmountTaken; //default can be overridden
+    private int  mDoseID;
+    private int  mOfMedicationID;
+    private int  mForPersonID;
+    private int  mContainedInConcurrentDoseID;
+    private int  mPositionWithinConcDose;
+    private long mTimeTaken;   //milliseconds since Jan1, 1970;
+    private int  mAmountTaken; //default can be overridden
 
 
     /*************************************/
@@ -48,12 +48,12 @@ public class MMDose {
         mAmountTaken    = 0;
     }
 
-    public MMDose(int ofMedicationID,
-                  int forPersonID,
-                  int containedInConcurrentDosesID,
-                  int positionWithinConcDose,
-                  int timeTaken,
-                  int amountTaken) {
+    public MMDose(int  ofMedicationID,
+                  int  forPersonID,
+                  int  containedInConcurrentDosesID,
+                  int  positionWithinConcDose,
+                  long timeTaken,
+                  int  amountTaken) {
         mDoseID         = MMUtilities.getUniqueID();
         mOfMedicationID = ofMedicationID;
         mForPersonID    = forPersonID;
@@ -84,8 +84,8 @@ public class MMDose {
     public int  getPositionWithinConcDose() {return mPositionWithinConcDose;}
     public void setPositionWithinConcDose(int position) {mPositionWithinConcDose = position;}
 
-    public int  getTimeTaken()               { return mTimeTaken;  }
-    public void setTimeTaken(int timeTaken) {mTimeTaken = timeTaken;   }
+    public long getTimeTaken()               { return mTimeTaken;  }
+    public void setTimeTaken(long timeTaken) {mTimeTaken = timeTaken;   }
 
     public int  getAmountTaken()                {return mAmountTaken;   }
     public void setAmountTaken(int amountTaken) {  mAmountTaken = amountTaken;  }
@@ -94,5 +94,29 @@ public class MMDose {
     /*          Member Methods           */
     /*************************************/
 
+    public String cdfHeaders(){
+        return
+                "DoseID, "           +
+                "MedicationID, "     +
+                "PersonID, "         +
+                "ConcurrentDoseID, " +
+                "Position, "         +
+                "TimeTaken, "        +
+                "AmountTaken"        +
+                System.getProperty("line.separator");
+
+    }
+
+    //Convert point to comma delimited file for exchange
+    public String convertToCDF() {
+        return String.valueOf(this.getDoseID())          + ", " +
+               String.valueOf(this.getOfMedicationID())  + ", " +
+               String.valueOf(this.getForPersonID())     + ", " +
+               String.valueOf(this.getContainedInConcurrentDosesID()) + ", " +
+               String.valueOf(this.getPositionWithinConcDose() )      + ", " +
+               String.valueOf(this.getTimeTaken())       + ", " +
+               String.valueOf(this.getAmountTaken())     +
+               System.getProperty("line.separator");
+    }
 
 }

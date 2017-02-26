@@ -63,7 +63,7 @@ public class MMConcurrentDoseManager {
 
 
     /*******************************************/
-    /********* CRUD Methods   *********/
+    /*********     CRUD Methods        *********/
     /*******************************************/
 
     //This routine not only adds from the UI. Adds the in memory objects to this managers list,
@@ -108,6 +108,14 @@ public class MMConcurrentDoseManager {
             mConcurrentDosesList.remove(position);
         }
     }//end remove
+
+
+    public boolean removeConcurrentDoesFromDB(int concurrentDoseID){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        long returnCode = databaseManager.removeConcurrentDose(concurrentDoseID);
+        if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return false;
+        return true;
+    }
 
 
     //find the concurrentDose instance that matches the argument concurrentDoseEmailAddr
@@ -201,12 +209,12 @@ public class MMConcurrentDoseManager {
 
     public ContentValues getCVFromConcurrentDose(MMConcurrentDose concurrentDose){
         ContentValues values = new ContentValues();
-        values.put(MMSqliteOpenHelper.CONCURRENT_DOSE_ID,             concurrentDose.getConcurrentDoseID());
-        values.put(MMSqliteOpenHelper.CONCURRENT_DOSE_FOR_PERSON_ID,  concurrentDose.getForPerson());
+        values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_ID,             concurrentDose.getConcurrentDoseID());
+        values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_FOR_PERSON_ID,  concurrentDose.getForPerson());
         int startOfDay = 0; //false
         if (concurrentDose.isStartOfDay())startOfDay = 1;
-        values.put(MMSqliteOpenHelper.CONCURRENT_DOSE_IS_START_OF_DAY,startOfDay);
-        values.put(MMSqliteOpenHelper.CONCURRENT_DOSE_START_TIME,     concurrentDose.getStartTime());
+        values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_IS_START_OF_DAY,startOfDay);
+        values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_START_TIME,     concurrentDose.getStartTime());
 
         return values;
     }
@@ -228,21 +236,21 @@ public class MMConcurrentDoseManager {
         MMConcurrentDose concurrentDoses = new MMConcurrentDose(); //filled with defaults
 
         cursor.moveToPosition(position);
-        String tempIndexString = MMSqliteOpenHelper.CONCURRENT_DOSE_ID;
+        String tempIndexString = MMDataBaseSqlHelper.CONCURRENT_DOSE_ID;
         int tempColumnIndex = cursor.getColumnIndex(tempIndexString);
         int tempID = cursor.getInt(tempColumnIndex);
         concurrentDoses.setConcurrentDoseID(tempID);
         concurrentDoses.setForPerson
-                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.CONCURRENT_DOSE_FOR_PERSON_ID)));
+                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.CONCURRENT_DOSE_FOR_PERSON_ID)));
 
         int startOfDay =
-                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.CONCURRENT_DOSE_IS_START_OF_DAY)));
+                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.CONCURRENT_DOSE_IS_START_OF_DAY)));
         boolean isStartOfDay = true;
         if (startOfDay < 1)isStartOfDay = false;
         concurrentDoses.setStartOfDay(isStartOfDay);
 
         concurrentDoses.setStartTime
-                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.CONCURRENT_DOSE_START_TIME)));
+                (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.CONCURRENT_DOSE_START_TIME)));
 
         concurrentDoses.setDoses(new ArrayList<MMDose>());
 

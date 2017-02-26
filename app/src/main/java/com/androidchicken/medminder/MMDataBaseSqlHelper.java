@@ -13,7 +13,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * can be managed by the DB Manager.
  * But if it touches the DB directly, this class does it
  */
-public class MMSqliteOpenHelper extends SQLiteOpenHelper {
+public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     //logcat Tag
     private static final String TAG = "MMSqliteOpenHelper";
 
@@ -38,7 +38,7 @@ public class MMSqliteOpenHelper extends SQLiteOpenHelper {
     /*****    Person Table     ***************************/
     /*****************************************************/
 
-    //Table Names
+    //Table Name
     public static final String TABLE_PERSON          = "Person";
 
       //Person Column Names
@@ -70,16 +70,15 @@ public class MMSqliteOpenHelper extends SQLiteOpenHelper {
     public static final String TABLE_MEDICATION      = "Medication";
 
     // Column Names
-    public static final String MEDICATION_ID             = "medication_id";
-    public static final String MEDICATION_FOR_PERSON_ID  = "medication_for_person_id";
-    public static final String MEDICATION_BRAND_NAME     = "medication_brand_name";
-    public static final String MEDICATION_GENERIC_NAME   = "medication_generic_name";
-    public static final String MEDICATION_NICK_NAME      = "medication_nick_name";
-    public static final String MEDICATION_ORDER          = "medication_order";
-    public static final String MEDICATION_DOSE_AMOUNT    = "medication_dose_amount";
-    public static final String MEDICATION_DOSE_UNITS     = "medication_dose_units";
-    public static final String MEDICATION_WHEN_DUE       = "medication_when_due";
-    public static final String MEDICATION_NUMBER_PER_DAY = "medication_number_per_day";
+    public static final String MEDICATION_ID             = "med_id";
+    public static final String MEDICATION_FOR_PERSON_ID  = "med_for_person_id";
+    public static final String MEDICATION_BRAND_NAME     = "med_brand_name";
+    public static final String MEDICATION_GENERIC_NAME   = "med_generic_name";
+    public static final String MEDICATION_NICK_NAME      = "med_nick_name";
+    public static final String MEDICATION_DOSE_STRATEGY  = "med_dose_strategy";
+    public static final String MEDICATION_DOSE_AMOUNT    = "med_dose_amount";
+    public static final String MEDICATION_DOSE_UNITS     = "med_dose_units";
+    public static final String MEDICATION_DOSE_NUM_PER_DAY = "med_number_per_day";
 
 
     //create  table
@@ -90,11 +89,10 @@ public class MMSqliteOpenHelper extends SQLiteOpenHelper {
             MEDICATION_BRAND_NAME     + " TEXT, "     +
             MEDICATION_GENERIC_NAME   + " TEXT, "     +
             MEDICATION_NICK_NAME      + " TEXT, "     +
-            MEDICATION_ORDER          + " INTEGER, "  +
+            MEDICATION_DOSE_STRATEGY  + " INTEGER, "  +
             MEDICATION_DOSE_AMOUNT    + " INTEGER, "  +
             MEDICATION_DOSE_UNITS     + " INTEGER, "  +
-            MEDICATION_WHEN_DUE       + " TEXT, "     +
-            MEDICATION_NUMBER_PER_DAY + " INTEGER, "  +
+            MEDICATION_DOSE_NUM_PER_DAY + " INTEGER, "  +
             KEY_CREATED_AT            + " INTEGER "  + ")";
 
     /*****************************************************/
@@ -104,10 +102,10 @@ public class MMSqliteOpenHelper extends SQLiteOpenHelper {
     public static final String TABLE_CONCURRENT_DOSE = "ConcurrentDose";
 
     // Column Names
-    public static final String CONCURRENT_DOSE_ID              = "concurrent_dose_id";
-    public static final String CONCURRENT_DOSE_FOR_PERSON_ID   = "concurrent_dose_for_person_id";
-    public static final String CONCURRENT_DOSE_IS_START_OF_DAY = "concurrent_dose_is_start_of_day";
-    public static final String CONCURRENT_DOSE_START_TIME      = "concurrent_dose_start_time";
+    public static final String CONCURRENT_DOSE_ID              = "conc_dose_id";
+    public static final String CONCURRENT_DOSE_FOR_PERSON_ID   = "conc_dose_for_person_id";
+    public static final String CONCURRENT_DOSE_IS_START_OF_DAY = "conc_dose_is_start_of_day";
+    public static final String CONCURRENT_DOSE_START_TIME      = "conc_dose_start_time";
 
 
 
@@ -129,7 +127,7 @@ public class MMSqliteOpenHelper extends SQLiteOpenHelper {
 
     //Dose Column Names
     public static final String DOSE_ID               = "dose_id";
-    public static final String DOSE_OF_MEDICATION_ID = "dose_of_medication_id";
+    public static final String DOSE_OF_MEDICATION_ID = "dose_of_med_id";
     public static final String DOSE_FOR_PERSON_ID    = "dose_for_person_id";
     public static final String DOSE_CONTAINED_IN_CONCURRENT_DOSE
                                                      = "dose_contained_in_concurrent_dose";
@@ -154,6 +152,31 @@ public class MMSqliteOpenHelper extends SQLiteOpenHelper {
             DOSE_AMOUNT_TAKEN                 + " INTEGER, " +
             KEY_CREATED_AT                    + " INTEGER"   + ")";
 
+
+
+    /*****************************************************/
+    /*****    Schedule Medication Table    ***************/
+    /*****************************************************/
+    //Table Name
+    public static final String TABLE_SCHED_MED            = "SchedMed";
+
+    //Dose Column Names
+    public static final String SCHED_MED_ID               = "sched_med_id";
+    public static final String SCHED_MED_OF_MEDICATION_ID = "sched_med_of_med_id";
+    public static final String SCHED_MED_FOR_PERSON_ID    = "sched_med_for_person_id";
+    public static final String SCHED_MED_TIME_DUE         = "sched_med_time_due";
+
+
+    //create sched_med table
+    private static final String CREATE_TABLE_SCHED_MED = "CREATE TABLE " + TABLE_SCHED_MED +"(" +
+            KEY_ID                      + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            SCHED_MED_ID                + " INTEGER, " +
+            SCHED_MED_OF_MEDICATION_ID  + " INTEGER, " +
+            SCHED_MED_FOR_PERSON_ID     + " INTEGER, " +
+            SCHED_MED_TIME_DUE          + " INTEGER, " +
+            KEY_CREATED_AT              + " INTEGER"   + ")";
+
+
     /*****************************************************/
     /*****************************************************/
     /*****************************************************/
@@ -169,7 +192,7 @@ public class MMSqliteOpenHelper extends SQLiteOpenHelper {
     /*****************************************************/
 
     //This should be called with the APPLICATION context
-    public MMSqliteOpenHelper(Context context){
+    public MMDataBaseSqlHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
         this.mContext = context;
@@ -196,6 +219,7 @@ public class MMSqliteOpenHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_MEDICATION);
         db.execSQL(CREATE_TABLE_CONCURRENT_DOSE);
         db.execSQL(CREATE_TABLE_DOSE);
+        db.execSQL(CREATE_TABLE_SCHED_MED);
     }
 
     /******************
@@ -222,6 +246,7 @@ public class MMSqliteOpenHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEDICATION);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DOSE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONCURRENT_DOSE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SCHED_MED);
 
         //Create new tables
         onCreate(db);

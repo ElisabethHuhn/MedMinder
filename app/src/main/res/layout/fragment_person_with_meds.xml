@@ -125,51 +125,42 @@
             <include android:id="@+id/personTextAddr" layout="@layout/element_edit_label_input"/>
 
 
-            <!-- Row 5: Person Duration -->
-            <include android:id="@+id/personDuration" layout="@layout/element_edit_label_input"/>
-
-            <!-- Row 6: Person Order -->
-            <include android:id="@+id/personOrder" layout="@layout/element_edit_label_input"/>
-
 
         </TableLayout>
 
         <HorizontalScrollView
             android:layout_width= "match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:fillViewport= "true"
             >
             <!-- Title row and list of Medications taken by the person -->
             <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            >
-            <include android:id="@+id/medicationTitleRow" layout="@layout/list_row_medication"/>
-
-
-            <!-- Medications taken by the person -->
-            <LinearLayout
-
-                android:layout_width=   "match_parent"
-                android:layout_height=  "match_parent"
-
-                android:paddingTop=    "10dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
                 >
-                <!-- RecyclerView of Medications -->
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/medicationList"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                <include android:id="@+id/medicationTitleRow" layout="@layout/list_row_medication"/>
+
+
+                <!-- Medications taken by the person -->
+                <LinearLayout
+
+                    android:layout_width=   "match_parent"
+                    android:layout_height=  "match_parent"
+
+                    android:paddingTop=    "10dp"
                     >
-                </android.support.v7.widget.RecyclerView>
+                    <!-- RecyclerView of Medications -->
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/medicationList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        >
+                    </android.support.v7.widget.RecyclerView>
+
+                </LinearLayout>
 
             </LinearLayout>
-
-
-
-
-        </LinearLayout>
 
         </HorizontalScrollView>
     </LinearLayout>

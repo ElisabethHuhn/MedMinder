@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:id="@+id/schedMedLine"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusable="true"
+    android:clickable="true"
+
+    android:paddingTop="@dimen/interum_vertical"
+
+    android:background="?android:attr/selectableItemBackground"
+
+    >
+
+    <!-- This layout is for a Schedule Medication element within a list-->
+
+    <!-- Medication Nick Name -->
+    <EditText
+            android:id="@+id/medicationNickNameOutput"
+
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="5"
+
+            android:layout_marginEnd="@dimen/listrow_field_separator"
+
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorHistoryBackground"
+            />
+
+    <!-- Medication For Person -->
+    <EditText
+        android:id="@+id/medicationForPersonOutput"
+
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="5"
+
+        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorHistoryBackground"
+        />
+
+    <!-- The times the medication is actually due will be added programmatically -->
+
+    <!-- Time to take Medication -->
+    <EditText
+        android:id="@+id/scheduleTimeOutput"
+
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="5"
+
+        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorHistoryBackground"
+        />
+
+
+</LinearLayout>

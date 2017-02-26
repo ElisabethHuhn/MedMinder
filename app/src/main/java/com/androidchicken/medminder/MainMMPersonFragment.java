@@ -1,6 +1,7 @@
 package com.androidchicken.medminder;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -9,7 +10,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
-import android.text.TextUtils;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -19,8 +19,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.List;
 
 
 /**
@@ -35,17 +33,10 @@ public class MainMMPersonFragment extends Fragment {
     private EditText mPersonNickNameInput;
     private EditText mPersonEmailAddrInput;
     private EditText mPersonTextAddrInput;
-    private EditText mPersonOrderInput;
-    private EditText mPersonDurationInput;
 
-
-    private MMPerson mPerson;
+    
     private int      mPersonID;
-    private List<MMMedication> mMedicationList ;
 
-
-    private MMMedication mSelectedMedication;
-    private int          mSelectedPosition;
 
     /***********************************************/
     /*          Static Methods                     */
@@ -92,11 +83,10 @@ public class MainMMPersonFragment extends Fragment {
         if (args != null) {
             //initialize the DB, providing it with a context if necessarary
             MMDatabaseManager.getInstance(getActivity());
+
+            //Get the ID of the person passed to this screen
             mPersonID = args.getInt(MMPerson.sPersonIDTag);
             MMPersonManager personManager = MMPersonManager.getInstance();
-
-            //If personID can't be found in the list, mPatient will be null
-            mPerson = personManager.getPerson(mPersonID);
 
         }
 
@@ -111,13 +101,13 @@ public class MainMMPersonFragment extends Fragment {
         //Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_person_with_meds, container, false);
 
-        if (mPerson != null) {
+        if (mPersonID != 0) {
             initializeRecyclerView(v);
         }
 
         //Wire up the UI widgets so they can handle events later
         wireWidgets(v);
-        wireListWidgets(v);
+        wireListTitleWidgets(v);
 
         //If we had any arguments passed, update the screen with them
         initializeUI();
@@ -146,7 +136,7 @@ public class MainMMPersonFragment extends Fragment {
              * 9) return the view
              */
         RecyclerView recyclerView;
-        MMMedicationAdapter adapter;
+        MMMedicationCursorAdapter adapter;
 
         //1) Inflate the layout for this fragment
         //      done in the caller
@@ -161,7 +151,8 @@ public class MainMMPersonFragment extends Fragment {
         recyclerView.setLayoutManager(mLayoutManager);
 
         //4) Get the list of Medication Instances from the Person
-        mMedicationList = mPerson.getMedications();
+        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
+        Cursor cursor = medicationManager.getAllMedicationsCursor(mPersonID);
 
         //5) Use the data to Create and set out medication Adapter
         //     even though we're giving the Adapter the list,
@@ -169,7 +160,10 @@ public class MainMMPersonFragment extends Fragment {
         //     the items in the list.
         //     The medication manager is smart enough to go find the person,
         //       then find the medication list, and maintain it from there
-        adapter = new MMMedicationAdapter(mMedicationList);
+
+
+        adapter = new MMMedicationCursorAdapter(cursor);
+        adapter.setAdapterContext(mPersonID);
         recyclerView.setAdapter(adapter);
 
         //6) create and set the itemAnimator
@@ -199,8 +193,6 @@ public class MainMMPersonFragment extends Fragment {
 
     }
 
-
-
     private void wireWidgets(View v){
         View field_container;
         TextView label;
@@ -217,19 +209,12 @@ public class MainMMPersonFragment extends Fragment {
                         R.string.save_label,
                         Toast.LENGTH_SHORT).show();
 
+
+               // if (mPersonID == 0)return;
                 onSave();
 
                 //switch to home screen with the person as a patient
-                int personID;
-                if (mPerson != null) {
-                    personID = mPerson.getPersonID();
-                    if (personID != 0) {
-                        // But the switching happens on the container Activity
-                        ((MainActivity) getActivity()).switchToHomeScreen(personID);
-                    }
-                }
-
-                //if here, person wasn't defined properly. Just keep trying
+                ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
 
             }
         });
@@ -241,12 +226,15 @@ public class MainMMPersonFragment extends Fragment {
         mAddMedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPersonID == 0)return;
+                if (mPersonID == 0){
+                    MMUtilities.errorHandler(getActivity(), R.string.person_save_first);
+                    return;
+                }
+
 
                 Toast.makeText(getActivity(),
                         R.string.patient_add_medication_label,
                         Toast.LENGTH_SHORT).show();
-
                 //switch to medication screen
                 // But the switching happens on the container Activity
                 ((MainActivity) getActivity()).switchToMedicationScreen(mPersonID);
@@ -266,9 +254,6 @@ public class MainMMPersonFragment extends Fragment {
         mPersonNickNameInput.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getActivity(),
-                        R.string.input_received,
-                        Toast.LENGTH_SHORT).show();
 
                 return false;
             }
@@ -286,9 +271,7 @@ public class MainMMPersonFragment extends Fragment {
         mPersonEmailAddrInput.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getActivity(),
-                        R.string.input_received,
-                        Toast.LENGTH_SHORT).show();
+
                 return false;
             }
         });
@@ -305,62 +288,27 @@ public class MainMMPersonFragment extends Fragment {
         mPersonTextAddrInput.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getActivity(),
-                        R.string.input_received,
-                        Toast.LENGTH_SHORT).show();
+
                 return false;
             }
         });
 
-
-
-        field_container = v.findViewById(R.id.personOrder);
-        label = (TextView)(field_container.findViewById(R.id.fieldLabel));
-        label.setText(R.string.person_order_label);
-
-        mPersonOrderInput = (EditText) (field_container.findViewById(R.id.fieldInput));
-        //mPersonOrderInput.setHint(R.string.person_order_hint);
-         mPersonOrderInput.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getActivity(),
-                        R.string.input_received,
-                        Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
-
-
-        field_container = v.findViewById(R.id.personDuration);
-        label = (TextView)(field_container.findViewById(R.id.fieldLabel));
-        label.setText(R.string.person_duration_label);
-
-        mPersonDurationInput = (EditText)(field_container.findViewById(R.id.fieldInput));
-        //mPersonDurationInput.setHint(R.string.person_duration_hint);
-
-        mPersonDurationInput.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getActivity(),
-                        R.string.input_received,
-                        Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
 
     }
 
-
-
-    private void wireListWidgets(View v){
+    private void wireListTitleWidgets(View v){
         View field_container;
         TextView label;
 
         MainActivity myActivity = (MainActivity)getActivity();
 
-        //set lup the labels for the medication list
+        //set up the labels for the medication list
         field_container = v.findViewById(R.id.medicationTitleRow);
+
+        label = (EditText) (field_container.findViewById(R.id.medicationNickNameInput));
+        label.setText(R.string.medication_nick_name_label);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
         label = (EditText) (field_container.findViewById(R.id.medicationBrandNameInput));
         label.setText(R.string.medication_brand_name_label);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
@@ -369,16 +317,12 @@ public class MainMMPersonFragment extends Fragment {
         label.setText(R.string.medication_generic_name_label);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
-        label = (EditText) (field_container.findViewById(R.id.medicationNickNameInput));
-        label.setText(R.string.medication_nick_name_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-        label = (EditText) (field_container.findViewById(R.id.medicationForInput));
+        label = (EditText) (field_container.findViewById(R.id.medicationForPersonInput));
         label.setText(R.string.medication_for_label);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
-        label = (EditText) (field_container.findViewById(R.id.medicationOrderInput));
-        label.setText(R.string.medication_order_label);
+        label = (EditText) (field_container.findViewById(R.id.medicationDoseStrategyInput));
+        label.setText(R.string.medication_dose_strategy_label);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.medicationDoseAmountInput));
@@ -393,44 +337,47 @@ public class MainMMPersonFragment extends Fragment {
         label.setText(R.string.medication_num_label);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
-        label = (EditText) (field_container.findViewById(R.id.medicationDoseDueWhenInput));
-        label.setText(R.string.medication_when_due_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
     }
-
-
 
     private void initializeUI() {
-        if (mPerson == null) {
-            mPerson = new MMPerson();
+        MMPerson person = null;
+        if (mPersonID == 0) {
+            //just create a temporary person object without an id
+            person = new MMPerson(mPersonID);
+        } else {
+            MMPersonManager personManager = MMPersonManager.getInstance();
+            person = personManager.getPerson(mPersonID);
+            if (person == null){
+                String message = getString(R.string.person_does_not_exist) + mPersonID;
+                MMUtilities.errorHandler(getActivity(), message);
+                // TODO: 2/21/2017 How should this error be handled???
+                mPersonID = 0;
+                person = new MMPerson(mPersonID);
+            }
         }
-        mPersonNickNameInput .setText(mPerson.getNickname()    .toString().trim());
-        mPersonEmailAddrInput.setText(mPerson.getEmailAddress().toString().trim());
-        mPersonTextAddrInput .setText(mPerson.getTextAddress() .toString().trim());
-        mPersonOrderInput    .setText(String.valueOf(mPerson.getMedOrder()).trim());
-        mPersonDurationInput .setText(String.valueOf(mPerson.getDuration()).trim());
+
+
+        mPersonNickNameInput .setText(person.getNickname()    .toString().trim());
+        mPersonEmailAddrInput.setText(person.getEmailAddress().toString().trim());
+        mPersonTextAddrInput .setText(person.getTextAddress() .toString().trim());
     }
-
-
-
 
     private void onSave(){
         CharSequence nickname = mPersonNickNameInput.getText();
         if (nickname == null){
-            Toast.makeText(getActivity(),
-                    R.string.person_not_valid,
-                    Toast.LENGTH_SHORT).show();
+            MMUtilities.errorHandler(getActivity(), R.string.person_not_valid);
             return;
         }
         //If this person already exists, we do NOT want to create a new Person object
         MMPerson person;
         if (mPersonID == 0) {
             person = new MMPerson(nickname);
+            mPersonID = person.getPersonID();
         } else {
             MMPersonManager personManager = MMPersonManager.getInstance();
             person = personManager.getPerson(mPersonID);
         }
+        person.setNickname(nickname);
 
         //strings are set to "" in the constructor, so the empty case can be ignored
         //but do need to know if legal input has been made
@@ -444,21 +391,6 @@ public class MainMMPersonFragment extends Fragment {
             person.setTextAddress(temp);
         }
 
-
-        //int's are set to 0 in the constructor (and of course everywhere) so ignore
-        //However, need to check that only ints have been input by user
-        boolean digitsOnly = TextUtils.isDigitsOnly(mPersonDurationInput.getText());
-        int inputLength = mPersonDurationInput.getText().toString().trim().length();
-        if ((digitsOnly) && (inputLength != 0)){
-            person.setDuration(Integer.valueOf(mPersonDurationInput.getText().toString()));
-        }
-
-        digitsOnly = TextUtils.isDigitsOnly(mPersonOrderInput.getText());
-        inputLength = mPersonOrderInput.getText().toString().trim().length();
-        if ((digitsOnly)&& (inputLength != 0)){
-            person.setMedOrder(Integer.valueOf(mPersonOrderInput.getText().toString()));
-        }
-
         //done in constructor
         // person.setMedications(new ArrayList<MMMedication>());
 
@@ -466,7 +398,6 @@ public class MainMMPersonFragment extends Fragment {
         //This adds/updates any medications that are recorded on the Person to the DB
         MMPersonManager personManager = MMPersonManager.getInstance();
         personManager.add(person);
-        mPerson = person;
 
     }
 
@@ -474,19 +405,21 @@ public class MainMMPersonFragment extends Fragment {
     //      Utility Functions used in handling events         //
     /**********************************************************/
 
-    //called from onClick(), executed when a person is selected
+    //called from onClick(), executed when a medication is selected
     private void onSelect(int position){
         //todo need to update selection visually
-        mSelectedPosition = position;
+/*
+The medication list is maintained on the person object, not locally here
+
         // TODO: 10/3/2016 Need to query list in Person Manager or Adapter, not locally
-        mSelectedMedication = mMedicationList.get(position);
+        MMMedication selectedMedication = mMedicationList.get(position);
 
         Toast.makeText(getActivity().getApplicationContext(),
-                mSelectedMedication.getMedicationNickname() + " is selected!",
+                selectedMedication.getMedicationNickname() + " is selected!",
                 Toast.LENGTH_SHORT).show();
-
+*/
         //But, don't know if this makes sense in the flow of things
-        ((MainActivity) getActivity()).switchToMedicationScreen(mPersonID, mSelectedPosition);
+        ((MainActivity) getActivity()).switchToMedicationScreen(mPersonID, position);
     }
 
 

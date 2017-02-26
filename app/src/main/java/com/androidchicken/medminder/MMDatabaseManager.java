@@ -7,10 +7,12 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-import static com.androidchicken.medminder.MMSqliteOpenHelper.TABLE_CONCURRENT_DOSE;
-import static com.androidchicken.medminder.MMSqliteOpenHelper.TABLE_DOSE;
-import static com.androidchicken.medminder.MMSqliteOpenHelper.TABLE_MEDICATION;
-import static com.androidchicken.medminder.MMSqliteOpenHelper.TABLE_PERSON;
+import static com.androidchicken.medminder.MMDataBaseSqlHelper.TABLE_CONCURRENT_DOSE;
+import static com.androidchicken.medminder.MMDataBaseSqlHelper.TABLE_DOSE;
+import static com.androidchicken.medminder.MMDataBaseSqlHelper.TABLE_MEDICATION;
+import static com.androidchicken.medminder.MMDataBaseSqlHelper.TABLE_PERSON;
+import static com.androidchicken.medminder.MMDataBaseSqlHelper.TABLE_SCHED_MED;
+
 
 /**
  * Created by Elisabeth Huhn on 5/18/2016.
@@ -23,7 +25,7 @@ import static com.androidchicken.medminder.MMSqliteOpenHelper.TABLE_PERSON;
 public class MMDatabaseManager {
 
     private static final String TAG = "MMDatabaseManager";
-    private static final long   sDB_ERROR_CODE = -1;
+    public static final long   sDB_ERROR_CODE = -1;
 
 
     /************************************************/
@@ -41,7 +43,7 @@ public class MMDatabaseManager {
     /************************************************/
     /*         Instance variables                   */
     /************************************************/
-    private        MMSqliteOpenHelper mDatabaseHelper;
+    private MMDataBaseSqlHelper mDatabaseHelper;
     private        SQLiteDatabase     mDatabase;
 
 
@@ -50,11 +52,11 @@ public class MMDatabaseManager {
     /************************************************/
 
     //mDatabaseHelper
-    public void setDatabaseHelper(MMSqliteOpenHelper mDatabaseHelper) {
+    public void setDatabaseHelper(MMDataBaseSqlHelper mDatabaseHelper) {
         this.mDatabaseHelper = mDatabaseHelper;
     }
     //Return null if the field has not yet been initialized
-    public synchronized MMSqliteOpenHelper getDatabaseHelper()  {
+    public synchronized MMDataBaseSqlHelper getDatabaseHelper()  {
         return mDatabaseHelper;
     }
 
@@ -115,7 +117,7 @@ public class MMDatabaseManager {
                 //create and store it's singleton connection to the database
                 //The helper is the database connection
                 //It's a singleton to keep the app thread safe
-                sManagerInstance.setDatabaseHelper(new MMSqliteOpenHelper(context));
+                sManagerInstance.setDatabaseHelper(new MMDataBaseSqlHelper(context));
 
                 //Now that we have the connection, create the database as well
                 sManagerInstance.setDatabase (sManagerInstance.getDatabaseHelper().getWritableDatabase());
@@ -129,7 +131,7 @@ public class MMDatabaseManager {
             if (context == null) throw new RuntimeException(sNoContextException);
 
             //all the constructor does is save the context
-            sManagerInstance.setDatabaseHelper( new MMSqliteOpenHelper(context));
+            sManagerInstance.setDatabaseHelper( new MMDataBaseSqlHelper(context));
             //opening the database will create the tables if they do not
             //  already exist. It will also force an upgrade if the system
             //  detects a new version of the DB since the last time it was opened
@@ -201,6 +203,17 @@ public class MMDatabaseManager {
 
 
     //***********************  Read **********************************
+
+    public Cursor getAllPersonsCursor(){
+        Cursor cursor = mDatabaseHelper.getObject(  mDatabase,
+                                                    TABLE_PERSON,
+                                                    null,    //get the whole object
+                                                    null,
+                                                    null, null, null, null);
+        return cursor;
+    }
+
+
     //Reads the Persons into memory
     //Returns the number of persons read in
     public int getAllPersons(){
@@ -272,21 +285,6 @@ public class MMDatabaseManager {
     //********************************    Update   *************************
 
 
-
-    public  int updatePerson(int  personID) {
-
-        MMPersonManager personManager = MMPersonManager.getInstance();
-        MMPerson        person        = personManager.getPerson(personID);
-
-        return mDatabaseHelper.update(
-                mDatabase,
-                TABLE_PERSON,
-                personManager.getCVFromPerson(person),
-                getPersonWhereClause(personID),
-                null);  //values that replace ? in where clause
-
-    }
-
     public  int updatePerson(MMPerson person) {
         MMPersonManager personManager = MMPersonManager.getInstance();
         int             personID      = person.getPersonID();
@@ -304,11 +302,10 @@ public class MMDatabaseManager {
     //The return code indicates how many rows affected
     public int removePerson(int personID){
 
-        return mDatabaseHelper.remove(
-                mDatabase,
-                TABLE_PERSON,
-                getPersonWhereClause(personID),
-                null);  //values that replace ? in where clause
+        return mDatabaseHelper.remove(  mDatabase,
+                                        TABLE_PERSON,
+                                        getPersonWhereClause(personID),
+                                        null);  //values that replace ? in where clause
     }
 
 
@@ -316,7 +313,7 @@ public class MMDatabaseManager {
     /*        Person specific CRUD  utility         */
     /************************************************/
     private String getPersonWhereClause(int personID){
-        return MMSqliteOpenHelper.PERSON_ID + " = " + String.valueOf(personID);
+        return MMDataBaseSqlHelper.PERSON_ID + " = " + String.valueOf(personID);
     }
 
 
@@ -336,38 +333,45 @@ public class MMDatabaseManager {
     //******************************    Create    ***********************
     public boolean addMedication(MMMedication medication){
         long returnCode = 0;
+
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
         returnCode = mDatabaseHelper.add(mDatabase,
                                         TABLE_MEDICATION,
                                         null,
-                                        medicationManager.getMedicationCV(medication));
+                                        medicationManager.getCVFromMedication(medication));
         if (returnCode == sDB_ERROR_CODE)return false;
+
+        ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
+
+        int last = schedules.size();
+        int position = 0;
+        while (position < last){
+            MMScheduleMedication scheduleMed  = (MMScheduleMedication)schedules.get(position);
+            if (!addSchedMed(scheduleMed))return false;
+            position++;
+        }
+
         return true;
     }
 
 
     //***********************  Read **********************************
+
+    public Cursor getAllMedicationsCursor(int personID){
+        Cursor cursor = mDatabaseHelper.getObject(  mDatabase,
+                                                    TABLE_MEDICATION,
+                                                    null,    //get the whole object
+                                                    getMedicationWhereClause(personID),
+                                                    null, null, null, null);
+        return cursor;
+    }
+
     //Reads the Medications linked to this person into memory
     //Returns the number of medications read in
     public int getAllMedications(int personID){
         if (personID == 0) return 0;
 
-        Cursor cursor = mDatabaseHelper.getObject(  mDatabase,
-                TABLE_MEDICATION,
-                null,    //get all columns of the medication
-                getMedicationWhereClause(personID),    //get only those medication linked to this person.
-                null, null, null, null);
-
-        //get the medication row from the DB
-        /********************************
-         Cursor query (String table, //Table Name
-         String[] columns,   //Columns to return, null for all columns
-         String where_clause,
-         String[] selectionArgs, //replaces ? in the where_clause with these arguments
-         String groupBy, //null meanas no grouping
-         String having,   //row grouping
-         String orderBy)  //null means the default sort order
-         *********************************/
+        Cursor cursor = getAllMedicationsCursor(personID);
 
         //create a medication object from the Cursor object
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
@@ -419,6 +423,22 @@ public class MMDatabaseManager {
     }
 
 
+    //NOTE this routine does NOT add the medication to the Person where
+    public MMMedication getMedication(int medicationID){
+
+        //get the medication row from the DB
+        Cursor cursor = mDatabaseHelper.getObject(
+                mDatabase,     //the db to access
+                TABLE_MEDICATION,  //table name
+                null,          //get the whole medication
+                getMedicationWhereClause(medicationID), //where clause
+                null, null, null, null);//args, group, row grouping, order
+
+        //create a medication object from the Cursor object
+        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
+        return medicationManager.getMedicationFromCursor(cursor, 0);//get the first row in the cursor
+    }
+
 
     //********************************    Update   *************************
 
@@ -429,23 +449,21 @@ public class MMDatabaseManager {
         return mDatabaseHelper.update(
                 mDatabase,
                 TABLE_MEDICATION,
-                medicationManager.getMedicationCV(medication),
+                medicationManager.getCVFromMedication(medication),
                 getMedicationWhereClause(medication.getMedicationID(), medication.getForPersonID()),
                 null);  //values that replace ? in where clause
-
     }
 
 
 
     //*********************************     Delete    ***************************
     //The return code indicates how many rows affected
-    public int removeMedication(int medicationID, int personID){
+    public int removeMedication(int medicationID){
 
-        return mDatabaseHelper.remove(
-                mDatabase,
-                TABLE_MEDICATION,
-                getMedicationWhereClause(medicationID, personID),
-                null);  //values that replace ? in where clause
+        return mDatabaseHelper.remove(  mDatabase,
+                                        TABLE_MEDICATION,
+                                        getMedicationWhereClause(medicationID),
+                                        null);  //values that replace ? in where clause
     }
 
 
@@ -455,16 +473,16 @@ public class MMDatabaseManager {
     //This gets a single medication
     private String getMedicationWhereClause(int medicationID, int personID){
 
-        return  MMSqliteOpenHelper.MEDICATION_ID + " = '" +
+        return  MMDataBaseSqlHelper.MEDICATION_ID + " = '" +
                 String.valueOf(medicationID) +"' AND " +
-                MMSqliteOpenHelper.MEDICATION_FOR_PERSON_ID + " = '" +
+                MMDataBaseSqlHelper.MEDICATION_FOR_PERSON_ID + " = '" +
                 String.valueOf(personID) + "'";
     }
 
     //This gets all medications linked to this person
     private String getMedicationWhereClause(int personID){
 
-        return MMSqliteOpenHelper.MEDICATION_FOR_PERSON_ID + " = '" + String.valueOf(personID) + "'";
+        return MMDataBaseSqlHelper.MEDICATION_FOR_PERSON_ID + " = '" + String.valueOf(personID) + "'";
     }
 
 
@@ -475,10 +493,6 @@ public class MMDatabaseManager {
 
 
     //CRUD routines for a Dose
-    //STUBS for now
-    public ArrayList<MMDose> getAllDoses(){
-        return new ArrayList<>();
-    }
 
 
     public ArrayList<MMDose> getDosesForCD(MMConcurrentDose concurrentDose){
@@ -513,10 +527,6 @@ public class MMDatabaseManager {
         return doses;
     }
 
-    public MMDose getDose(int doseID){
-        return new MMDose();
-    }
-
 
     public boolean addDose(MMDose dose){
         long returnCode = 0;
@@ -526,16 +536,13 @@ public class MMDatabaseManager {
         return true;
     }
 
-    public int updateDose(MMDose dose){return 0;}
-
-    public int removeDose(MMDose dose){return 0;}
 
     /************************************************/
     /*        Dose specific CRUD  utility         */
     /************************************************/
     //This gets a single medication
     private String getDosesWhereClause(int concurrentDoseID){
-        return MMSqliteOpenHelper.DOSE_CONTAINED_IN_CONCURRENT_DOSE + " = '" +
+        return MMDataBaseSqlHelper.DOSE_CONTAINED_IN_CONCURRENT_DOSE + " = '" +
                                         String.valueOf(concurrentDoseID) + "'";
     }
 
@@ -554,12 +561,8 @@ public class MMDatabaseManager {
                                                     null, null, null, null);
 
         return cursor;
-
     }
 
-    public MMConcurrentDose getConcurrentDose(int concurrentDoseID){
-        return new MMConcurrentDose();
-    }
 
     public boolean addConcurrentDose(MMConcurrentDose concurrentDose){
         long returnCode = 0;
@@ -572,23 +575,121 @@ public class MMDatabaseManager {
         return true;
     }
 
-    public int updateConcurrentDose(MMConcurrentDose concurrentDose){return 0;}
 
-    public int removeConcurrentDose(int concurrentDoseID){return 0;}
+    //The return code indicates how many rows affected
+    public int removeConcurrentDose(int concurrentDoseID){
+
+        return mDatabaseHelper.remove(  mDatabase,
+                TABLE_CONCURRENT_DOSE,
+                getConcurrentDosesIDWhereClause(concurrentDoseID),
+                null);  //values that replace ? in where clause
+    }
 
 
 
     /************************************************/
     /*    Concurrent Dose specific CRUD  utility    */
     /************************************************/
-    //This gets a single medication
+
     private String getConcurrentDosesWhereClause(int personID){
-        return MMSqliteOpenHelper.CONCURRENT_DOSE_FOR_PERSON_ID + " = '" +
+        return MMDataBaseSqlHelper.CONCURRENT_DOSE_FOR_PERSON_ID + " = '" +
                                                                     String.valueOf(personID) + "'";
     }
 
 
+    private String getConcurrentDosesIDWhereClause(int concurrentDoseID){
+        return MMDataBaseSqlHelper.CONCURRENT_DOSE_ID + " = '" +
+                                                            String.valueOf(concurrentDoseID) + "'";
+    }
 
+
+    /************************************************/
+    /*     Schedule Medications CRUD methods        */
+    /************************************************/
+
+    //CRUD routines for a Schedule Medication
+
+    public Cursor getAllSchedMedsCursor(int medicationID){
+        Cursor cursor = mDatabaseHelper.getObject(  mDatabase,
+                                                    TABLE_SCHED_MED,
+                                                    null,    //get the whole object
+                                                    getSchedMedWhereClause(medicationID),
+                                                    null, null, null, null);
+
+        return cursor;
+
+    }
+
+    public ArrayList<MMScheduleMedication> getTimesForSM(int medicationID){
+        ArrayList<MMScheduleMedication> times = new ArrayList<>();
+
+        Cursor cursor = getAllSchedMedsCursor(medicationID);
+        if (cursor != null) {
+            MMScheduleMedication scheduleMedication;
+            MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+            int last = cursor.getCount();
+            int position = 0;
+            while (position < last){
+                scheduleMedication = schedMedManager.getScheduleMedicationFromCursor(cursor, position);
+                times.add(scheduleMedication);
+                position++;
+            }
+        }
+        return times;
+    }
+
+
+
+    public boolean addSchedMed(MMScheduleMedication schedMed){
+        long returnCode = 0;
+        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+        mDatabaseHelper.add(mDatabase,
+                            TABLE_SCHED_MED,
+                            null,
+                            schedMedManager.getCVFromScheduleMedication(schedMed));
+        if (returnCode == sDB_ERROR_CODE)return false;
+        return true;
+    }
+
+
+
+    public boolean updateSchedMed(MMScheduleMedication schedMed){
+        long returnCode = 0;
+        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+        returnCode = mDatabaseHelper.update(mDatabase,
+                                            TABLE_SCHED_MED,
+                                            schedMedManager.getCVFromScheduleMedication(schedMed),
+                                            getSchedMedIDWhereClause(schedMed.getSchedMedID()),
+                                            null);
+        if (returnCode == sDB_ERROR_CODE)return false;
+        return true;
+    }
+
+
+
+    //The return code indicates how many rows affected
+    public int removeSchedMed(int schedMedID){
+        return mDatabaseHelper.remove(  mDatabase,
+                                        TABLE_SCHED_MED,
+                                        getSchedMedIDWhereClause(schedMedID),
+                                        null);  //values that replace ? in where clause
+    }
+
+
+
+    /************************************************/
+    /*    Concurrent Dose specific CRUD  utility    */
+    /************************************************/
+
+    private String getSchedMedWhereClause(int medicationID){
+        return MMDataBaseSqlHelper.SCHED_MED_OF_MEDICATION_ID + " = '" +
+                                                                String.valueOf(medicationID) + "'";
+    }
+
+
+    private String getSchedMedIDWhereClause(int schedMedID){
+        return MMDataBaseSqlHelper.SCHED_MED_ID + " = '" + String.valueOf(schedMedID) + "'";
+    }
 
     /************************************************/
     /*         Static inner classes                 */

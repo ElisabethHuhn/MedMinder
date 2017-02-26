@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String sPersonTag      = "PERSON";
     private static final String sPersonListTag  = "PERSON_LIST";
     private static final String sMedicationTag  = "MEDICATION";
+    private static final String sExportTag      = "EXPORT";
 
 
     @Override
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         if (fragment == null) {
             //when we first create the activity,
             // the fragment needs to be the home screen
-            fragment = new MainMMTakeDoseFragment();
+            fragment = new MainMMHomeFragment();
             fm.beginTransaction()
                     .add(R.id.fragment_container, fragment)
                     .commit();
@@ -141,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             fm.popBackStackImmediate();
         }
 
-        Fragment fragment    = new MainMMTakeDoseFragment();
+        Fragment fragment    = new MainMMHomeFragment();
         String   tag         = sHomeTag;
         int      title       = R.string.title_take_dose;
 
@@ -149,12 +150,6 @@ public class MainActivity extends AppCompatActivity {
         setMMSubtitle(title);
     }
 
-
-    /****
-     * Method to switch fragment to home screen
-     * Overloaded with Person to display as patient
-     * EMH 10/17/16
-     */
     public void switchToHomeScreen(int personID){
         //replace the fragment with the Home UI
 
@@ -166,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
             fm.popBackStackImmediate();
         }
 
-        Fragment fragment    = MainMMTakeDoseFragment.newInstance(personID);
+        Fragment fragment    = MainMMHomeFragment.newInstance(personID);
         String   tag         = sHomeTag;
         int      title       = R.string.title_take_dose;
 
@@ -198,11 +193,6 @@ public class MainActivity extends AppCompatActivity {
         setMMSubtitle(title);
     }
 
-
-    /****
-     * Method to switch fragment to Edit Person Profile screen
-     * EMH 10/17/16
-     */
     public void switchToPersonScreen(int personID){
         //replace the fragment with the Home UI
 
@@ -223,7 +213,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     /****
      * Method to switch fragment to List Persons screen
      * EMH 10/17/16
@@ -238,6 +227,8 @@ public class MainActivity extends AppCompatActivity {
         switchScreen(fragment, tag);
         setMMSubtitle(title);
     }
+
+
 
     /****
      * Method to switch fragment to Medication screen
@@ -262,10 +253,6 @@ public class MainActivity extends AppCompatActivity {
         setMMSubtitle(title);
     }
 
-    /****
-     * Method to switch fragment to Medication screen
-     * EMH 10/17/16
-     */
     public void switchToMedicationScreen(int personID){
         //replace the fragment with the Home UI
 
@@ -285,10 +272,6 @@ public class MainActivity extends AppCompatActivity {
         setMMSubtitle(title);
     }
 
-    /****
-     * Method to switch fragment to Medication screen
-     * EMH 10/17/16
-     */
     public void switchToMedicationScreen(int personID, int position){
         //replace the fragment with the Home UI
 
@@ -303,6 +286,45 @@ public class MainActivity extends AppCompatActivity {
         Fragment fragment    = MainMMMedicationFragment.newInstance(personID, position);
         String   tag         = sMedicationTag;
         int      title       = R.string.title_medication;
+
+        switchScreen(fragment, tag);
+        setMMSubtitle(title);
+    }
+
+    /****
+     * Method to switch fragment to Export screen
+     * EMH 2/4/17
+     */
+    public void switchToExportScreen(){
+
+        //Need the Fragment Manager to do the swap for us
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+
+        //clear the back stack
+        while (fm.getBackStackEntryCount() > 0){
+            fm.popBackStackImmediate();
+        }
+
+        Fragment fragment    = new MainExportHistoryFragment();
+        String   tag         = sExportTag;
+        int      title       = R.string.title_export_history;
+
+        switchScreen(fragment, tag);
+        setMMSubtitle(title);
+    }
+
+    public void switchToExportScreen(int personID){
+        //Need the Fragment Manager to do the swap for us
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+
+        //clear the back stack
+        while (fm.getBackStackEntryCount() > 0){
+            fm.popBackStackImmediate();
+        }
+
+        Fragment fragment    = MainExportHistoryFragment.newInstance(personID);
+        String   tag         = sExportTag;
+        int      title       = R.string.title_export_history;
 
         switchScreen(fragment, tag);
         setMMSubtitle(title);

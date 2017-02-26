@@ -18,21 +18,17 @@
 
     >
 
-    <!-- This layout is for creating a new Medication -->
-
-
-    <!-- with layout_width  = 0dp, ignore the content width, for horiz orient  -->
-    <!-- with layout_height = 0dp, ignore the content height, vert orient      -->
-    <!-- with layout_weight = 1, distribute width/height between views equally -->
-    <!-- with gravity       = center, center text within button                -->
-    <!-- with layout_gravity=start, place button on left of the row            -->
-    <!-- with background,   = set button color to gray, grayer, grayest        -->
-    <!-- with paddingStart, = set some space between this button and the next  -->
+    <!-- This layout is for maintaining a Medication -->
 
     <!-- Container for entire screen -->
-    <TableLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
 
+        <!-- Medication Attributes -->
+        <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="top|center_vertical"
@@ -80,7 +76,7 @@
                 android:paddingTop="10dp"
                 >
                 <TextView
-                    android:labelFor="@+id/medicationForInput"
+                    android:labelFor="@+id/medicationForPersonInput"
                     android:text="@string/medication_for_label"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
@@ -91,7 +87,7 @@
                     android:background="@color/colorLabelBackground"
                     />
                 <EditText
-                    android:id="@id/medicationForInput"
+                    android:id="@id/medicationForPersonInput"
 
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
@@ -202,6 +198,7 @@
                     android:layout_weight="30"
                     android:gravity="end"
 
+                    android:textColor="@color/colorTextBlack"
                     android:background="@color/colorLabelBackground"
                     />
                 <EditText
@@ -223,43 +220,8 @@
 
             </TableRow>
 
-              <!-- Row 6: Medication Order -->
-            <TableRow
+            <!-- Row 6:  -->
 
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
-                >
-                <TextView
-                    android:labelFor="@+id/medicationOrderInput"
-                    android:text="@string/medication_order_label"
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_weight="30"
-                    android:gravity="end"
-
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorLabelBackground"
-                    />
-                <EditText
-                    android:id="@id/medicationOrderInput"
-
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_weight="70"
-
-                    android:hint="@string/medication_order_hint"
-
-                    android:inputType="text"
-                    android:imeOptions="flagNoExtractUi"
-                    android:layout_marginEnd="16dp"
-
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorInputBackground"
-                    />
-
-            </TableRow>
 
             <!-- Row 7: Dose Amount -->
             <TableRow
@@ -374,7 +336,7 @@
 
         </TableRow>
 
-            <!-- Row 10: Medication When Due -->
+            <!-- Row 10: Medication Strategy -->
             <TableRow
 
                 android:layout_height="wrap_content"
@@ -383,8 +345,8 @@
                 android:paddingTop="10dp"
                 >
                 <TextView
-                    android:labelFor="@+id/medicationDoseDueWhenInput"
-                    android:text="@string/medication_when_due_label"
+                    android:labelFor="@+id/medicationDoseStrategyInput"
+                    android:text="@string/medication_dose_strategy_label"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
                     android:layout_weight="30"
@@ -394,7 +356,7 @@
                     android:background="@color/colorLabelBackground"
                     />
                 <EditText
-                    android:id="@id/medicationDoseDueWhenInput"
+                    android:id="@id/medicationDoseStrategyInput"
 
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
@@ -435,7 +397,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="70"
 
-                    android:hint="@string/medication_when_due_hint2"
+                    android:hint="@string/medication_when_due_hint"
 
                     android:layout_marginEnd="16dp"
 
@@ -445,36 +407,72 @@
 
             </TableRow>
 
-            <!-- Row 12: Save Medication Button -->
-            <TableRow
-
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
-                >
-
-                <!-- View Project Settings -->
-                <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:id="@+id/medicationSaveButton"
-                    android:text="@string/save_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-
-                    android:gravity="center|center_vertical"
-                    android:layout_gravity="start"
-                    android:layout_weight="1"
-
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"
-
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorButton1Background"
-                    />
-
-            </TableRow>
-
         </TableLayout>
+
+        <!-- Schedule Times -->
+        <LinearLayout
+
+            android:layout_height="wrap_content"
+            android:layout_width= "match_parent"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop=    "10dp"
+            >
+            <!-- RecyclerView of History -->
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/scheduleList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+            </android.support.v7.widget.RecyclerView>
+
+        </LinearLayout>
+
+        <!-- Buttons Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <!-- Save Button -->
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:id="@+id/medicationSaveButton"
+                android:text="@string/save_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:gravity="center|center_vertical"
+                android:layout_gravity="start"
+                android:layout_weight="1"
+
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="4dp"
+
+                android:textColor="@color/colorTextBlack"
+                android:background="@color/colorButton1Background"
+                />
+
+            <!-- Add Schedule Button -->
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:id="@+id/medicationAddScheduleButton"
+                android:text="@string/medication_add_schedule"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:gravity="center|center_vertical"
+                android:layout_gravity="start"
+                android:layout_weight="1"
+
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="8dp"
+
+                android:textColor="@color/colorTextBlack"
+                android:background="@color/colorButton1Background"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </ScrollView>

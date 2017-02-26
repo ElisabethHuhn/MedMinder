@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by Elisabeth Huhn on 10/19/2016.
  *
- * Serves as a liason between a list RecyclerView and the PersonManager
+ * Serves as a liaison between a list RecyclerView and the PersonManager
  */
 
 public class MMPersonAdapter extends RecyclerView.Adapter<MMPersonAdapter.MyViewHolder>{
@@ -25,7 +25,7 @@ public class MMPersonAdapter extends RecyclerView.Adapter<MMPersonAdapter.MyView
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView personID;
         public TextView personNickName, personEmailAddr, personTextAddr;
-        public TextView personOrder,    personDuration;
+
 
         public MyViewHolder(View v) {
             super(v);
@@ -34,10 +34,6 @@ public class MMPersonAdapter extends RecyclerView.Adapter<MMPersonAdapter.MyView
             personNickName  = (TextView) v.findViewById(R.id.personNickNameInput);
             personEmailAddr = (TextView) v.findViewById(R.id.personEmailAddrInput);
             personTextAddr  = (TextView) v.findViewById(R.id.personTextAddrInput);
-            personOrder     = (TextView) v.findViewById(R.id.personOrderInput);
-            personDuration  = (TextView) v.findViewById(R.id.personDurationInput);
-
-
         }
 
     } //end inner class MyViewHolder
@@ -85,16 +81,13 @@ public class MMPersonAdapter extends RecyclerView.Adapter<MMPersonAdapter.MyView
             holder.personNickName. setText(person.getNickname());
             holder.personEmailAddr.setText(person.getEmailAddress());
             holder.personTextAddr. setText(person.getTextAddress());
-            holder.personOrder.    setText(String.valueOf(person.getMedOrder()).trim());
-            holder.personDuration. setText(String.valueOf(person.getDuration()).trim());
 
         } else {
             holder.personID.       setText("0");
-            holder.personNickName. setText("No persons defined");
+            holder.personNickName. setText(R.string.no_persons_defined);
             holder.personEmailAddr.setText("");
             holder.personTextAddr. setText("");
-            holder.personOrder.    setText("0");
-            holder.personDuration. setText("");
+
         }
 
     }

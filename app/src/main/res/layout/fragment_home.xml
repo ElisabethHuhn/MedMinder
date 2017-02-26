@@ -80,7 +80,7 @@
 
             </LinearLayout>
 
-            <!-- Save Button, Edit Patient -->
+            <!-- Save Button, Edit Patient, Select Patient, Export History -->
             <LinearLayout
                 android:layout_height="match_parent"
                 android:layout_width ="match_parent"
@@ -88,7 +88,7 @@
 
                 >
 
-                <!-- Save, Edit Patient, Select Patient -->
+                <!-- Save Button -->
                 <Button
                     style="?android:attr/buttonBarButtonStyle"
                     android:id="@+id/patientSaveButton"
@@ -102,30 +102,13 @@
                     android:layout_weight="10"
 
                     android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginEnd="2dp"
 
                     android:background="@color/colorButton1Background"
                     android:textColor="@color/colorTextBlack"
                     />
 
-                <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:id="@+id/patientProfileButton"
-                    android:text="@string/patient_edit_profile_label"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-
-                    android:gravity="center|center_vertical"
-                    android:layout_gravity="start"
-                    android:layout_weight="10"
-
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"
-
-                    android:background="@color/colorButton2Background"
-                    android:textColor="@color/colorTextBlack"
-                    />
-
+                <!-- Select Patient Button -->
                 <Button
                     style="?android:attr/buttonBarButtonStyle"
                     android:id="@+id/selectPatientButton"
@@ -137,8 +120,46 @@
                     android:layout_gravity="start"
                     android:layout_weight="10"
 
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+
+                    android:background="@color/colorButton2Background"
+                    android:textColor="@color/colorTextBlack"
+                    />
+
+                <!-- Edit Patient Button -->
+                <Button
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:id="@+id/patientProfileButton"
+                    android:text="@string/patient_edit_profile_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center|center_vertical"
+                    android:layout_gravity="start"
+                    android:layout_weight="10"
+
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+
+                    android:background="@color/colorButton2Background"
+                    android:textColor="@color/colorTextBlack"
+                    />
+
+                <!-- Export History Button -->
+                <Button
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:id="@+id/exportHistoryButton"
+                    android:text="@string/exportHistoryLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center|center_vertical"
+                    android:layout_gravity="start"
+                    android:layout_weight="10"
+
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="8dp"
 
                     android:background="@color/colorButton2Background"
                     android:textColor="@color/colorTextBlack"

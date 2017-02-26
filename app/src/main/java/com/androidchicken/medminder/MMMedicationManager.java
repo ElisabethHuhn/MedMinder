@@ -161,6 +161,12 @@ public class MMMedicationManager {
 
 
     //***********************  READ **************************************
+    //return the cursor containing all the Concurrent Doses in the DB
+    //that pertain to this personID
+    public Cursor getAllMedicationsCursor (int personID){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        return databaseManager.getAllMedicationsCursor(personID);
+    }
 
     public int getMedicationsFromDB(MMPerson person){
         int personID = person.getPersonID();
@@ -168,6 +174,16 @@ public class MMMedicationManager {
         //get all medications in the DB that are linked to this Person
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllMedications(personID);
+    }
+
+    public MMMedication getMedicationFromID(int personID, int medicationID){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        return databaseManager.getMedication(medicationID, personID);
+    }
+
+    public MMMedication getMedicationFromID(int medicationID){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        return databaseManager.getMedication(medicationID);
     }
 
     //***********************  UPDATE **************************************
@@ -222,10 +238,18 @@ public class MMMedicationManager {
             //ask the databaseManager to remove it from the DB as well
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
             // TODO: 11/5/2016 removePoint returns int of the # removed. May want to adjust this returnCode based on it
-            databaseManager.removeMedication(medication.getMedicationID(), medication.getForPersonID());
+            databaseManager.removeMedication(medication.getMedicationID());
         }
         return returnCode;
     }//end public remove position
+
+
+    public boolean removeMedicationFromDB(int medicationID){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        long returnCode = databaseManager.removeMedication(medicationID);
+        if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return false;
+        return true;
+    }
 
 
 
@@ -266,6 +290,7 @@ public class MMMedicationManager {
                                          MMMedication toMedication,
                                          boolean copyID) {
 
+        //Note this doesn't copy the Person ID on purpose
 
         if (copyID) {
             toMedication.setMedicationID(fromMedication.getMedicationID());
@@ -273,11 +298,10 @@ public class MMMedicationManager {
         toMedication.setBrandName(fromMedication.getBrandName());
         toMedication.setGenericName(fromMedication.getGenericName());
         toMedication.setMedicationNickname(fromMedication.getMedicationNickname());
-        toMedication.setOrder(fromMedication.getOrder());
+        toMedication.setDoseStrategy(fromMedication.getDoseStrategy());
         toMedication.setDoseAmount(fromMedication.getDoseAmount());
         toMedication.setDoseUnits(fromMedication.getDoseUnits());
-        toMedication.setWhenDue(fromMedication.getWhenDue());
-        toMedication.setNum(fromMedication.getNum());
+        toMedication.setDoseNumPerDay(fromMedication.getDoseNumPerDay());
 
     }
 
@@ -285,18 +309,17 @@ public class MMMedicationManager {
     /********************************************/
     /****  Translation utility Methods   ********/
     /********************************************/
-    public ContentValues getMedicationCV(MMMedication medication){
+    public ContentValues getCVFromMedication(MMMedication medication){
         ContentValues values = new ContentValues();
-        values.put(MMSqliteOpenHelper.MEDICATION_ID,            medication.getMedicationID());
-        values.put(MMSqliteOpenHelper.MEDICATION_FOR_PERSON_ID, medication.getForPersonID());
-        values.put(MMSqliteOpenHelper.MEDICATION_BRAND_NAME,    medication.getBrandName().toString());
-        values.put(MMSqliteOpenHelper.MEDICATION_GENERIC_NAME,  medication.getGenericName().toString());
-        values.put(MMSqliteOpenHelper.MEDICATION_NICK_NAME,     medication.getMedicationNickname().toString());
-        values.put(MMSqliteOpenHelper.MEDICATION_ORDER,         medication.getOrder());
-        values.put(MMSqliteOpenHelper.MEDICATION_DOSE_AMOUNT,   medication.getDoseAmount());
-        values.put(MMSqliteOpenHelper.MEDICATION_DOSE_UNITS,    medication.getDoseUnits().toString());
-        values.put(MMSqliteOpenHelper.MEDICATION_WHEN_DUE,      medication.getWhenDue().toString());
-        values.put(MMSqliteOpenHelper.MEDICATION_NUMBER_PER_DAY,medication.getNum());
+        values.put(MMDataBaseSqlHelper.MEDICATION_ID,            medication.getMedicationID());
+        values.put(MMDataBaseSqlHelper.MEDICATION_FOR_PERSON_ID, medication.getForPersonID());
+        values.put(MMDataBaseSqlHelper.MEDICATION_BRAND_NAME,    medication.getBrandName().toString());
+        values.put(MMDataBaseSqlHelper.MEDICATION_GENERIC_NAME,  medication.getGenericName().toString());
+        values.put(MMDataBaseSqlHelper.MEDICATION_NICK_NAME,     medication.getMedicationNickname().toString());
+        values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_STRATEGY, medication.getDoseStrategy());
+        values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_AMOUNT,   medication.getDoseAmount());
+        values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_UNITS,    medication.getDoseUnits().toString());
+        values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_NUM_PER_DAY,medication.getDoseNumPerDay());
 
         return values;
     }
@@ -318,16 +341,24 @@ public class MMMedicationManager {
         MMMedication medication = new MMMedication(); //filled with defaults
 
         cursor.moveToPosition(position);
-        medication.setMedicationID      (cursor.getInt   (cursor.getColumnIndex(MMSqliteOpenHelper.MEDICATION_ID)));
-        medication.setForPersonID       (cursor.getInt   (cursor.getColumnIndex(MMSqliteOpenHelper.MEDICATION_FOR_PERSON_ID)));
-        medication.setBrandName         (cursor.getString(cursor.getColumnIndex(MMSqliteOpenHelper.MEDICATION_BRAND_NAME)));
-        medication.setGenericName       (cursor.getString(cursor.getColumnIndex(MMSqliteOpenHelper.MEDICATION_GENERIC_NAME)));
-        medication.setMedicationNickname(cursor.getString(cursor.getColumnIndex(MMSqliteOpenHelper.MEDICATION_NICK_NAME)));
-        medication.setOrder             (cursor.getInt   (cursor.getColumnIndex(MMSqliteOpenHelper.MEDICATION_ORDER)));
-        medication.setDoseAmount        (cursor.getInt   (cursor.getColumnIndex(MMSqliteOpenHelper.MEDICATION_DOSE_AMOUNT)));
-        medication.setDoseUnits         (cursor.getString(cursor.getColumnIndex(MMSqliteOpenHelper.MEDICATION_DOSE_UNITS)));
-        medication.setWhenDue           (cursor.getString(cursor.getColumnIndex(MMSqliteOpenHelper.MEDICATION_WHEN_DUE)));
-        medication.setNum               (cursor.getInt   (cursor.getColumnIndex(MMSqliteOpenHelper.MEDICATION_NUMBER_PER_DAY)));
+        medication.setMedicationID
+                (cursor.getInt   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_ID)));
+        medication.setForPersonID
+                (cursor.getInt   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_FOR_PERSON_ID)));
+        medication.setBrandName
+                (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_BRAND_NAME)));
+        medication.setGenericName
+                (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_GENERIC_NAME)));
+        medication.setMedicationNickname
+                (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_NICK_NAME)));
+        medication.setDoseStrategy
+                (cursor.getInt   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_STRATEGY)));
+        medication.setDoseAmount
+                (cursor.getInt   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_AMOUNT)));
+        medication.setDoseUnits
+                (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_UNITS)));
+        medication.setDoseNumPerDay
+                (cursor.getInt   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_NUM_PER_DAY)));
 
         return medication;
     }

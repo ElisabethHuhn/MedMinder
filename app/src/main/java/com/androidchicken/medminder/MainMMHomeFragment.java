@@ -18,8 +18,11 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -33,20 +36,22 @@ import java.util.Calendar;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainMMTakeDoseFragment extends Fragment {
+public class MainMMHomeFragment extends Fragment {
 
     private static final String TAG = "MainMMTakeDoseFragment";
+    private static final int HALF_SECOND = 500;
 
     /***********************************************/
     /*          UI Widgets                         */
     /***********************************************/
 
     //main area of screen fragment
-    private Button mPatientProfileButton;
-    private Button mAddPersonsButton;
+    private Button mEditPatientButton;
+    //private Button mAddPersonsButton;
     private Button mSelectPatientButton;
     private Button mSaveButton;
-    private Button mAddMedicationButton;
+    private Button mExportHistoryButton;
+    //private Button mAddMedicationButton;
     ArrayList<Button> mMedButtons = new ArrayList<>();
     ArrayList<EditText> mMedEdits = new ArrayList<>();
 
@@ -55,43 +60,24 @@ public class MainMMTakeDoseFragment extends Fragment {
 
     private EditText mTimeInput;
 
-    private EditText mMed1Input;
-    private EditText mMed2Input;
-    private EditText mMed3Input;
-    private EditText mMed4Input;
-    private EditText mMed5Input;
-
     private Cursor                  mConcurrentDoseCursor;
     private RecyclerView            mRecyclerView;
-    private MMConcurrentDoseAdapter mAdapter;
-
-    private MMConcurrentDose            mSelectedConcurrentDose;
-    private MMConcurrentDose            mLastSelectedConcurrentDose;
-    private int                         mSelectedPosition;
-
+    private MMConcurrentDoseCursorAdapter mAdapter;
 
 
 
     /***********************************************/
     /*          Member Variables                   */
     /***********************************************/
-    private MMPerson mPatient;
     private int      mPersonID;
-    //private ArrayList<MMMedication> mMedications;
-
-
-
-
 
 
 
     /***********************************************/
     /*          Static Methods                     */
     /***********************************************/
-
-
     //need to pass a person into the fragment
-    public static MainMMTakeDoseFragment newInstance(int personID){
+    public static MainMMHomeFragment newInstance(int personID){
         //create a bundle to hold the arguments
         Bundle args = new Bundle();
 
@@ -99,7 +85,7 @@ public class MainMMTakeDoseFragment extends Fragment {
         //so for now, just pass the person values
         args.putInt         (MMPerson.sPersonIDTag,personID);
 
-        MainMMTakeDoseFragment fragment = new MainMMTakeDoseFragment();
+        MainMMHomeFragment fragment = new MainMMHomeFragment();
 
         fragment.setArguments(args);
         return fragment;
@@ -109,9 +95,7 @@ public class MainMMTakeDoseFragment extends Fragment {
     /***********************************************/
     /*          Constructor                        */
     /***********************************************/
-
-    //
-    public MainMMTakeDoseFragment() {
+    public MainMMHomeFragment() {
     }
 
     /***********************************************/
@@ -126,7 +110,6 @@ public class MainMMTakeDoseFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         //Initialize the DB if necessary
-
         try {
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance(getActivity());
         }catch (Exception e) {
@@ -137,16 +120,6 @@ public class MainMMTakeDoseFragment extends Fragment {
 
         if (args != null) {
             mPersonID = args.getInt(MMPerson.sPersonIDTag);
-            MMPersonManager personManager = MMPersonManager.getInstance();
-
-            //If personID can't be found in the list, mPatient will be null
-            mPatient = personManager.getPerson(mPersonID);
-            /*
-            if (mPatient != null) {
-                mMedications = mPatient.getMedications();
-            }
-            */
-
         }
 
     }
@@ -158,20 +131,17 @@ public class MainMMTakeDoseFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         //Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_dose_taken, container, false);
+        View v = inflater.inflate(R.layout.fragment_home, container, false);
 
         //Wire up the UI widgets so they can handle events later
         wireWidgets(v);
-
         initializeRecyclerView(v);
-
         initializeUI();
 
-        if (mTimeInput != null) {
-            // TODO: 1/27/2017 Need to have an EditView that already exists
-            InputMethodManager mgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            mgr.hideSoftInputFromWindow(mTimeInput.getWindowToken(), 0);
-        }
+        //start the medButton animation
+        startMedButtonBlink();
+
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         return v;
     }
@@ -188,14 +158,14 @@ public class MainMMTakeDoseFragment extends Fragment {
     /*          Member Methods                     */
     /***********************************************/
 
-    private void wireWidgets(View v){
+    private void   wireWidgets(View v){
 
         //Patient Profile Button
-        mPatientProfileButton = (Button) v.findViewById(R.id.patientProfileButton);
-        mPatientProfileButton.setText(R.string.patient_edit_profile_label);
+        mEditPatientButton = (Button) v.findViewById(R.id.patientProfileButton);
+        mEditPatientButton.setText(R.string.patient_edit_profile_label);
         //the order of images here is left, top, right, bottom
-        // mPatientProfileButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
-        mPatientProfileButton.setOnClickListener(new View.OnClickListener() {
+        // mEditPatientButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
+        mEditPatientButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(),
@@ -212,6 +182,30 @@ public class MainMMTakeDoseFragment extends Fragment {
 
             }
         });
+
+        //Export History Button
+        mExportHistoryButton = (Button) v.findViewById(R.id.exportHistoryButton);
+        mExportHistoryButton.setText(R.string.exportHistoryLabel);
+        //the order of images here is left, top, right, bottom
+        // mExportHistoryButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
+        mExportHistoryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(),
+                        R.string.exportHistoryLabel,
+                        Toast.LENGTH_SHORT).show();
+                //switch to home screen
+                // But the switching happens on the container Activity
+                if (mPersonID == 0) {
+                    ((MainActivity) getActivity()).switchToExportScreen();
+                } else {
+                    //pre-populate
+                    ((MainActivity) getActivity()).switchToExportScreen(mPersonID);
+                }
+
+            }
+        });
+
 /*
         //Add Persons Button
         mAddPersonsButton = (Button) v.findViewById(R.id.addPersonsButton);
@@ -234,7 +228,7 @@ public class MainMMTakeDoseFragment extends Fragment {
         mSelectPatientButton = (Button) v.findViewById(R.id.selectPatientButton);
         mSelectPatientButton.setText(R.string.select_patient_label);
         //the order of images here is left, top, right, bottom
-        // mPatientProfileButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
+        // mSelectPatientButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
         mSelectPatientButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -255,13 +249,13 @@ public class MainMMTakeDoseFragment extends Fragment {
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPatient == null)return;
+                if (mPersonID == 0)return;
                 Toast.makeText(getActivity(),
                         R.string.save_label,
                         Toast.LENGTH_SHORT).show();
 
                 onSave();
-                ((MainActivity) getActivity()).switchToHomeScreen(mPatient.getPersonID());
+                ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
 
             }
         });
@@ -284,26 +278,28 @@ public class MainMMTakeDoseFragment extends Fragment {
         });
 */
         //Medication Buttons
-        if (mPatient != null) {
-            int last = mPatient.getMedications().size();
-            if (last > 0) {
-                //convert pixels to dp
-                int sizeInDp = 10; //padding between buttons
+        if (mPersonID != 0){
 
+            MMPerson person = MMUtilities.getPerson(mPersonID);
 
-                addDateTimeFieldsToView(v, sizeInDp);
+            if (person != null) {
 
-                int position = 0;
+                int last = person.getMedications().size();
+                if (last > 0) {
+                    //convert pixels to dp
+                    int sizeInDp = 10; //padding between buttons
+
+                    addDateTimeFieldsToView(v, sizeInDp);
+
+                    int position = 0;
 
                     while (position < last) {
-                    addMedButtonToView(v, position, sizeInDp);
-                    position++;
+                        addMedButtonToView(v, position, sizeInDp);
+                        position++;
+                    }
                 }
             }
         }
-
-
-
 
         //Patient Nick Name
         mPatientNickName = (TextView) v.findViewById(R.id.patientNickNameLabel);
@@ -311,8 +307,7 @@ public class MainMMTakeDoseFragment extends Fragment {
 
     }
 
-
-    private void initializeRecyclerView(View v){
+    private void   initializeRecyclerView(View v){
             /*
              * The steps for doing recycler view in onCreateView() of a fragment are:
              * 1) inflate the .xml
@@ -351,10 +346,16 @@ public class MainMMTakeDoseFragment extends Fragment {
         //     even though we're giving the Adapter the list,
         //     Adapter uses the ConcurrentDoseManager to maintain the list and
         //     the items in the list.
-        mAdapter = new MMConcurrentDoseAdapter(mConcurrentDoseCursor);
-        if (mPatient != null){
-            int numbMeds = mPatient.getMedications().size();
-            mAdapter.setAdapterContext(getActivity(), mPatient.getPersonID(), numbMeds);
+        mAdapter = new MMConcurrentDoseCursorAdapter(mConcurrentDoseCursor);
+        if (mPersonID != 0){
+
+            MMPerson person = MMUtilities.getPerson(mPersonID);
+
+            if (person != null) {
+                // TODO: 2/22/2017 Perhaps need to bail on list here if null
+                int numbMeds = person.getMedications().size();
+                mAdapter.setAdapterContext(getActivity(), mPersonID, numbMeds);
+            }
         }
         mRecyclerView.setAdapter(mAdapter);
 
@@ -387,8 +388,6 @@ public class MainMMTakeDoseFragment extends Fragment {
 
     }
 
-
-
     private String getMedNickname(int position){
 
         MMMedication medication;
@@ -396,14 +395,20 @@ public class MainMMTakeDoseFragment extends Fragment {
         String nickName;
         position = position-1;
 
-        if (mPatient != null){
-            int last =  mPatient.getMedications().size();
-            if (mPatient.getMedications() != null) {
-                if (position < last){
-                    medication = mPatient.getMedications().get(position);
-                    if (medication != null){
-                        nickName = medication.getMedicationNickname().toString().trim();
-                        return nickName;
+        if (mPersonID != 0){
+            MMPerson person = MMUtilities.getPerson(mPersonID);
+
+            if (person != null) {
+
+                int last = person.getMedications().size();
+
+                if (last > 0) {
+                    if (position < last) {
+                        medication = person.getMedications().get(position);
+                        if (medication != null) {
+                            nickName = medication.getMedicationNickname().toString().trim();
+                            return nickName;
+                        }
                     }
                 }
             }
@@ -411,7 +416,7 @@ public class MainMMTakeDoseFragment extends Fragment {
         return "Med"+ String.valueOf(position+1);
     }
 
-    private void addDateTimeFieldsToView(View v, int sizeInDp){
+    private void   addDateTimeFieldsToView(View v, int sizeInDp){
 
         int padding = MMUtilities.convertPixelsToDp(getActivity(), sizeInDp);
 
@@ -423,32 +428,33 @@ public class MainMMTakeDoseFragment extends Fragment {
         //lp.gravity = Gravity.CENTER;//set below too
         lp.setMarginEnd(padding);
 
-        EditText edtView = new EditText(getActivity());
-        edtView.setHint(R.string.dose_default_time);
-        edtView.setInputType(InputType.TYPE_CLASS_TEXT);
-        edtView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-        edtView.setLayoutParams(lp);
-        edtView.setPadding(0,0,padding,0);
-        edtView.setGravity(Gravity.CENTER);
-        edtView.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
-        edtView.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
+        EditText mTimeInput = new EditText(getActivity());
+        mTimeInput.setHint(R.string.dose_default_time);
+        mTimeInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        mTimeInput.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        mTimeInput.setLayoutParams(lp);
+        mTimeInput.setPadding(0,0,padding,0);
+        mTimeInput.setGravity(Gravity.CENTER);
+        mTimeInput.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
+        mTimeInput.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
 
 
         //Time input for this dose
         //There is no label for this field
-        mTimeInput = edtView;
         mTimeInput.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getActivity(),
+               /* Toast.makeText(getActivity(),
                         R.string.input_received,
                         Toast.LENGTH_SHORT).show();
+               */
                 return false;
             }
         });
 
+        mTimeInput.setText(MMUtilities.getDateTimeString());
 
-        layout.addView(edtView);
+        layout.addView(mTimeInput);
 
     }
 
@@ -457,7 +463,6 @@ public class MainMMTakeDoseFragment extends Fragment {
         EditText edtView;
 
         int padding = MMUtilities.convertPixelsToDp(getActivity(), sizeInDp);
-
 
         //
         //Add the button to the button layout
@@ -510,9 +515,7 @@ public class MainMMTakeDoseFragment extends Fragment {
         edtView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getActivity(),
-                        R.string.input_received,
-                        Toast.LENGTH_SHORT).show();
+
                 return false;
             }
         });
@@ -525,8 +528,7 @@ public class MainMMTakeDoseFragment extends Fragment {
 
     }
 
-    private void addMedButtonListener(Button medButton){
-
+    private void   addMedButtonListener(Button medButton){
 
         if (medButton == null) return;
 
@@ -540,18 +542,22 @@ public class MainMMTakeDoseFragment extends Fragment {
                 while (position < last){
                     medButton = mMedButtons.get(position);
                     if (medButton == v){
+
+                        //stop the blinking
+                        medButton.clearAnimation();
+
                         CharSequence msg = getString(R.string.patient_medication_button) +
                                 " "+ String.valueOf(position+1);
                         Toast.makeText(getActivity(),msg, Toast.LENGTH_SHORT).show();
 
+                        //Show the amount taken
                         showDose(position);
                         return;
                     }
                     position++;
                 }
-                Toast.makeText(getActivity(),
-                        R.string.patient_no_med_but,
-                        Toast.LENGTH_SHORT).show();
+                MMUtilities.errorHandler(getActivity(), R.string.patient_no_med_but);
+
             }
         });
         medButton.setOnLongClickListener(new View.OnLongClickListener() {
@@ -568,32 +574,73 @@ public class MainMMTakeDoseFragment extends Fragment {
 
     }
 
-    private void showDose(int position){
-        if (mPatient != null) {
-            //get the medication
-            MMMedication medication = mPatient.getMedications().get(position);
+    private void   startMedButtonBlink(){
+        //if (true)return;
+        if (mPersonID == 0)return;
 
-            if (medication != null) {
-                //and the dose
-                int dose = medication.getDoseAmount();
-                //and the EditText field
-                EditText medField = mMedEdits.get(position);
+        if (mMedButtons == null){
+            mMedButtons = new ArrayList<Button>();
+        }
 
-                if (medField != null){
-                    //show the user
-                    medField.setText(String.valueOf(dose));
+        int last = mMedButtons.size();
+        int position = 0;
+        Button medButton;
+        while (position < last){
+            medButton = mMedButtons.get(position);
+            if (position == 1)animateButton(medButton);
+            position++;
+        }
+    }
+
+    private void   animateButton(Button medButton){
+        // Change alpha from fully visible to invisible
+        final Animation animation = new AlphaAnimation(1.0f, 0.0f);
+
+        // duration - half a second
+        animation.setDuration(HALF_SECOND);
+        // do not alter animation rate
+        animation.setInterpolator(new LinearInterpolator());
+        // Repeat animation infinitely
+        animation.setRepeatCount(Animation.INFINITE);
+        // Reverse animation at the end so the button will fade back in
+        animation.setRepeatMode(Animation.REVERSE);
+
+        medButton.startAnimation(animation);
+    }
+
+    private void   showDose(int position){
+        if (mPersonID != 0){
+            MMPerson person = MMUtilities.getPerson(mPersonID);
+
+            if (person != null) {
+
+                //get the medication
+                MMMedication medication = person.getMedications().get(position);
+
+                if (medication != null) {
+                    //and the dose
+                    int dose = medication.getDoseAmount();
+                    //and the EditText field
+                    EditText medField = mMedEdits.get(position);
+
+                    if (medField != null) {
+                        //show the user
+                        medField.setText(String.valueOf(dose));
+                    }
                 }
             }
         }
 
     }
 
-    private void initializeUI(){
+    private void   initializeUI(){
         //determine if a person is yet associated with the fragment
         if (mPersonID != 0){
             //if there is a person corresponding to the patientID, put the name up on the screen
-            if (mPatient != null) {
-                mPatientNickName.setText(mPatient.getNickname().toString().trim());
+            MMPerson person = MMUtilities.getPerson(mPersonID);
+
+            if (person != null) {
+                mPatientNickName.setText(person.getNickname().toString().trim());
             }
         }
     }
@@ -601,31 +648,36 @@ public class MainMMTakeDoseFragment extends Fragment {
     private boolean onSave(){
 
         //Creates in memory structure to save all the doses taken concurrently
-        if (mPatient == null)return false;
+        if (mPersonID == 0)return false;
+
+        MMPerson person = MMUtilities.getPerson(mPersonID);
+
+        if (person == null) return false;
+
         boolean isStartOfDay = false;
         Calendar c = Calendar.getInstance();
-        int seconds = c.get(Calendar.SECOND);
+        long seconds = c.getTimeInMillis();     // = c.get(Calendar.SECOND);
 
-        MMConcurrentDose concurrentDoses = new MMConcurrentDose(mPatient.getPersonID(),
-                                                                  isStartOfDay,
-                                                                  seconds);
+
+        MMConcurrentDose concurrentDoses = new MMConcurrentDose(mPersonID,
+                                                                isStartOfDay,
+                                                                seconds);
         ArrayList<MMDose> doses = new ArrayList<>();
         concurrentDoses.setDoses(doses);
 
-        ArrayList<MMMedication> medications = mPatient.getMedications();
+        ArrayList<MMMedication> medications = person.getMedications();
 
         int last = medications.size();
         int position = 0;
         int amtTaken;
         String amtTakenString;
-        while (position < last){
+        while (position < last) {
             amtTakenString = mMedEdits.get(position).getText().toString().trim();
             if (!amtTakenString.isEmpty()) {
                 amtTaken = Integer.valueOf(amtTakenString);
                 if (amtTaken > 0) {
-                    MMDose dose = new MMDose(
-                            medications.get(position).getMedicationID(),
-                            mPatient.getPersonID(),
+                    MMDose dose = new MMDose(medications.get(position).getMedicationID(),
+                            mPersonID,
                             concurrentDoses.getConcurrentDoseID(),
                             position,
                             seconds,
@@ -640,6 +692,7 @@ public class MainMMTakeDoseFragment extends Fragment {
         return concurrentDoseManager.add(concurrentDoses);
 
 
+
     }
 
 
@@ -648,16 +701,13 @@ public class MainMMTakeDoseFragment extends Fragment {
     //      Utility Functions used in handling events         //
     /**********************************************************/
 
-    //called from onClick(), executed when a person is selected
+    //called from onClick(), executed when a concurrent dose is selected from list
     private void onSelect(int position){
         //todo need to update selection visually
-        mSelectedPosition = position;
-        // TODO: 10/3/2016 Need to query list in Manager or Adapter, not locally
-        MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
-        mSelectedConcurrentDose =
-                concurrentDoseManager.getConcurrentDoseFromCursor(mConcurrentDoseCursor,position);
 
-        Toast.makeText(getActivity().getApplicationContext(),
+        // TODO: 10/3/2016 Need to query list in Manager or Adapter, not locally
+
+        Toast.makeText(getActivity(),
                 "Position " + String.valueOf(position) + " is selected!",
                 Toast.LENGTH_SHORT).show();
 
@@ -676,11 +726,11 @@ public class MainMMTakeDoseFragment extends Fragment {
     public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
         private GestureDetector gestureDetector;
-        private MainMMTakeDoseFragment.ClickListener clickListener;
+        private MainMMHomeFragment.ClickListener clickListener;
 
         public RecyclerTouchListener(Context context,
                                      final RecyclerView recyclerView,
-                                     final MainMMTakeDoseFragment.ClickListener clickListener) {
+                                     final MainMMHomeFragment.ClickListener clickListener) {
 
             this.clickListener = clickListener;
             gestureDetector = new GestureDetector(context,

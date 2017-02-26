@@ -25,8 +25,8 @@ public class MMMedicationAdapter extends RecyclerView.Adapter<MMMedicationAdapte
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public EditText medicationBrandName, medicationGenericName, medicationNickName;
         public EditText medicationForPersonID;
-        public EditText medicationOrder, medicationDoseAmt,   medicationDoseUnits;
-        public EditText medicationWhenDue, medicationNum;
+        public EditText medicationDoseAmt,   medicationDoseUnits;
+        public EditText medicationDoseStrategy, medicationDoseNum;
 
         public MyViewHolder(View v) {
             super(v);
@@ -34,12 +34,12 @@ public class MMMedicationAdapter extends RecyclerView.Adapter<MMMedicationAdapte
             medicationBrandName    = (EditText) v.findViewById(R.id.medicationBrandNameInput);
             medicationGenericName  = (EditText) v.findViewById(R.id.medicationGenericNameInput);
             medicationNickName     = (EditText) v.findViewById(R.id.medicationNickNameInput);
-            medicationForPersonID  = (EditText) v.findViewById(R.id.medicationForInput);
-            medicationOrder        = (EditText) v.findViewById(R.id.medicationOrderInput);
+            medicationForPersonID  = (EditText) v.findViewById(R.id.medicationForPersonInput);
+            medicationDoseStrategy = (EditText) v.findViewById(R.id.medicationDoseStrategyInput);
             medicationDoseUnits    = (EditText) v.findViewById(R.id.medicationDoseUnitsInput);
             medicationDoseAmt      = (EditText) v.findViewById(R.id.medicationDoseAmountInput);
-            medicationNum          = (EditText) v.findViewById(R.id.medicationDoseNumInput);
-            medicationWhenDue      = (EditText) v.findViewById(R.id.medicationDoseDueWhenInput);
+            medicationDoseNum = (EditText) v.findViewById(R.id.medicationDoseNumInput);
+
 
 
         }
@@ -89,22 +89,21 @@ public class MMMedicationAdapter extends RecyclerView.Adapter<MMMedicationAdapte
             holder.medicationGenericName.setText(medication.getGenericName().toString().trim());
             holder.medicationNickName.   setText(medication.getMedicationNickname().toString().trim());
             holder.medicationForPersonID.setText(String.valueOf(medication.getForPersonID()).trim());
-            holder.medicationOrder.      setText(String.valueOf(medication.getOrder()).trim());
+            holder.medicationDoseStrategy.setText(String.valueOf(medication.getDoseStrategy()).trim());
             holder.medicationDoseAmt.    setText(String.valueOf(medication.getDoseAmount()).trim());
             holder.medicationDoseUnits.  setText(medication.getDoseUnits().toString().trim());
-            holder.medicationNum.        setText(String.valueOf(medication.getNum()).trim());
-            holder.medicationWhenDue.    setText(medication.getWhenDue().toString().trim());
+            holder.medicationDoseNum.        setText(String.valueOf(medication.getDoseNumPerDay()).trim());
+
 
         } else {
             holder.medicationBrandName.  setText("");
             holder.medicationGenericName.setText("");
             holder.medicationNickName.   setText("");
             holder.medicationForPersonID.setText("");
-            holder.medicationOrder.      setText("0");
+            holder.medicationDoseStrategy.setText("0");
             holder.medicationDoseAmt.    setText("");
             holder.medicationDoseUnits.  setText("0");
-            holder.medicationNum.        setText("0");
-            holder.medicationWhenDue.    setText("");
+            holder.medicationDoseNum.    setText("0");
         }
 
     }

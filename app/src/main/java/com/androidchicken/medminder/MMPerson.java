@@ -1,7 +1,6 @@
 package com.androidchicken.medminder;
 
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 /**
  * Created by elisabethhuhn on 10/12/2016.
@@ -26,14 +25,15 @@ public class MMPerson {
     public static final int ORDER_MEDICATION_BY_SETTING = 4;
 
 
-    //Tags for fragment arguments
+    //Tags for attributes
     public static final String sPersonTag           = "PERSON_OBJECT";
     public static final String sPersonNicknameTag   = "PERSON_NAME";
     public static final String sPersonIDTag         = "PERSON_ID";
     public static final String sPersonEmailTag      = "PERSON_EMAIL";
     public static final String sPersonTextTag       = "PERSON_TEXT";
-    public static final String sPersonDurationTag   = "PERSON_DURATION";
-    public static final String sPersonOrderTag      = "PERSON_ORDER";
+
+    public static final int TEMP_PERSON = -1;
+
 
     public static final String sPersonMedicationPositionTag = "PERSON_MED_POSITION";
 
@@ -50,8 +50,6 @@ public class MMPerson {
     private CharSequence mNickname;
     private CharSequence mEmailAddress;
     private CharSequence mTextAddress;
-    private int          mDuration = DURATION_QUARTER_HOUR;
-    private int          mMedOrder = ORDER_MEDICATION_NICKNAME;
     private ArrayList<MMMedication> mMedications;
 
 
@@ -73,26 +71,30 @@ public class MMPerson {
         mPersonID     = MMUtilities.getUniqueID();
     }
 
-/*
+    public MMPerson( int tempPerson) {
+        initializeDefaultVariables();
+    }
+
+
+
     private void initializeDefaultVariables(){
         mPersonID     = MMUtilities.getUniqueID();
         mNickname     = "Nickname";
         mEmailAddress = "Email@gmail.com";
         mTextAddress  = "6783587040";
-        mDuration     = DURATION_QUARTER_HOUR;
-        mMedOrder     = ORDER_MEDICATION_GENERIC;
+        mMedications  = new ArrayList<>();
+    }
+
+/*
+    private void initializeDefaultVariables(){
+        mPersonID     = MMUtilities.getUniqueID();
+        mNickname     = "1";
+        mEmailAddress = "2";
+        mTextAddress  = "3";
         mMedications  = new ArrayList<>();
     }
 */
-private void initializeDefaultVariables(){
-    mPersonID     = MMUtilities.getUniqueID();
-    mNickname     = "1";
-    mEmailAddress = "2";
-    mTextAddress  = "3";
-    mDuration     = 4;
-    mMedOrder     = 5;
-    mMedications  = new ArrayList<>();
-}
+
 
     /*************************************/
     /*    Member setter/getter Methods   */
@@ -109,11 +111,6 @@ private void initializeDefaultVariables(){
     public CharSequence getTextAddress()                         { return mTextAddress;  }
     public void         setTextAddress(CharSequence textAddress) { mTextAddress = textAddress; }
 
-    public int  getDuration()              { return mDuration; }
-    public void setDuration(int duration)  { mDuration = duration; }
-
-    public int  getMedOrder()              {return mMedOrder; }
-    public void setMedOrder(int medOrder)  { mMedOrder = medOrder; }
 
     public ArrayList<MMMedication> getMedications()                 { return mMedications; }
     public void setMedications(ArrayList<MMMedication> medications) { mMedications = medications; }
@@ -122,6 +119,26 @@ private void initializeDefaultVariables(){
     /*          Member Methods           */
     /*************************************/
 
+
+    public String cdfHeaders(){
+        String msg =
+            "PersonID, "      +
+            "Nickname, "      +
+            "EmailAddress, "  +
+            "TextAddress, "   +
+            "MedOrder  "      +
+            System.getProperty("line.separator");
+        return msg;
+    }
+
+    //Convert point to comma delimited file for exchange
+    public String convertToCDF() {
+        return String.valueOf(this.getPersonID())      + ", " +
+                String.valueOf(this.getNickname())     + ", " +
+                String.valueOf(this.getEmailAddress()) + ", " +
+                String.valueOf(this.getTextAddress())  +
+                System.getProperty("line.separator");
+    }
 
 
 }

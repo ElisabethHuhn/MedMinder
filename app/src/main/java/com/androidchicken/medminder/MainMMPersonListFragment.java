@@ -18,7 +18,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 /**
- * Created by Elisabeth Huhn on 10/19/2016.
+ * Created by Elisabeth Huhn on 2/14/17, adpated from MMPersonAdapter
  *
  * Defines a fragment whose main purpose is to provide a list of Persons to the UI
  */
@@ -184,7 +184,7 @@ public class MainMMPersonListFragment extends Fragment {
             // TODO: 10/3/2016 Need to query list in Person Manager or Adapter, not locally 
             mSelectedPerson = mPersonList.get(position);
 
-            Toast.makeText(getActivity().getApplicationContext(),
+            Toast.makeText(getActivity(),
                     mSelectedPerson.getNickname() + " is selected!",
                     Toast.LENGTH_SHORT).show();
 

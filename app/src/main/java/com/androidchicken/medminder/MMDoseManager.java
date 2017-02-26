@@ -172,13 +172,15 @@ public class MMDoseManager {
 
     public ContentValues getCVFromDose(MMDose dose){
         ContentValues values = new ContentValues();
-        values.put(MMSqliteOpenHelper.DOSE_ID,                           dose.getDoseID());
-        values.put(MMSqliteOpenHelper.DOSE_OF_MEDICATION_ID,             dose.getOfMedicationID());
-        values.put(MMSqliteOpenHelper.DOSE_FOR_PERSON_ID,                dose.getForPersonID());
-        values.put(MMSqliteOpenHelper.DOSE_CONTAINED_IN_CONCURRENT_DOSE, dose.getContainedInConcurrentDosesID());
-        values.put(MMSqliteOpenHelper.DOSE_POSITION_WITHIN_CONCURRENT_DOSE,dose.getPositionWithinConcDose());
-        values.put(MMSqliteOpenHelper.DOSE_TIME_TAKEN,                   dose.getTimeTaken());
-        values.put(MMSqliteOpenHelper.DOSE_AMOUNT_TAKEN,                 dose.getAmountTaken());
+        values.put(MMDataBaseSqlHelper.DOSE_ID,              dose.getDoseID());
+        values.put(MMDataBaseSqlHelper.DOSE_OF_MEDICATION_ID,dose.getOfMedicationID());
+        values.put(MMDataBaseSqlHelper.DOSE_FOR_PERSON_ID,   dose.getForPersonID());
+        values.put(MMDataBaseSqlHelper.DOSE_CONTAINED_IN_CONCURRENT_DOSE,
+                                                            dose.getContainedInConcurrentDosesID());
+        values.put(MMDataBaseSqlHelper.DOSE_POSITION_WITHIN_CONCURRENT_DOSE,
+                                                            dose.getPositionWithinConcDose());
+        values.put(MMDataBaseSqlHelper.DOSE_TIME_TAKEN,      dose.getTimeTaken());
+        values.put(MMDataBaseSqlHelper.DOSE_AMOUNT_TAKEN,    dose.getAmountTaken());
 
         return values;
     }
@@ -204,24 +206,24 @@ public class MMDoseManager {
 
         cursor.moveToPosition(position);
         dose.setDoseID
-                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_ID)));
+                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.DOSE_ID)));
         dose.setForPersonID
-                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_FOR_PERSON_ID)));
+                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.DOSE_FOR_PERSON_ID)));
 
         dose.setOfMedicationID
-                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_OF_MEDICATION_ID)));
+                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.DOSE_OF_MEDICATION_ID)));
 
         dose.setContainedInConcurrentDosesID
-                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_CONTAINED_IN_CONCURRENT_DOSE)));
+                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.DOSE_CONTAINED_IN_CONCURRENT_DOSE)));
 
         dose.setPositionWithinConcDose
-                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_POSITION_WITHIN_CONCURRENT_DOSE)));
+                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.DOSE_POSITION_WITHIN_CONCURRENT_DOSE)));
 
         dose.setTimeTaken
-                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_TIME_TAKEN)));
+                (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.DOSE_TIME_TAKEN)));
 
         dose.setAmountTaken
-                (cursor.getInt(cursor.getColumnIndex(MMSqliteOpenHelper.DOSE_AMOUNT_TAKEN)));
+                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.DOSE_AMOUNT_TAKEN)));
 
         return dose;
     }

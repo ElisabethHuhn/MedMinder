@@ -1,5 +1,7 @@
 package com.androidchicken.medminder;
 
+import java.util.ArrayList;
+
 /**
  * Created by elisabethhuhn on 10/12/2016.
  *
@@ -47,11 +49,12 @@ public class MMMedication {
     private CharSequence mGenericName;
     private CharSequence mMedicationNickname;
     private int          mForPersonID;
-    private int          mOrder;
+    private int          mDoseStrategy;
     private int          mDoseAmount;
     private CharSequence mDoseUnits;
-    private CharSequence mWhenDue;
-    private int          mNum;
+    private int          mDoseNumPerDay;
+
+    private ArrayList<MMScheduleMedication> mSchedules;
 
     /*************************************/
     /*         Static Methods            */
@@ -70,39 +73,40 @@ public class MMMedication {
     }
 
 
-/*
+
     private void initializeDefaultVariables(){
         mMedicationID = MMUtilities.getUniqueID();
         mForPersonID  = -1;
         mBrandName    = "Brand Name";
         mGenericName  = "Generic Name";
-        mMedicationNickname = "Nick Name";
-        mOrder        = 0;
+        mMedicationNickname = "Med Nick Name";
+        mDoseStrategy = 1;//scheduled
         mDoseAmount   = 1;
         mDoseUnits    = "Mg";
-        mWhenDue      = "Quarterly";
-        mNum          = 1;
+        mDoseNumPerDay = 1;
+
+        mSchedules = new ArrayList<MMScheduleMedication> ();
     }
-*/
+/*
     private void initializeDefaultVariables(){
         mMedicationID = MMUtilities.getUniqueID();
         mForPersonID  = -1;
         mBrandName    = "6 ";
         mGenericName  = "7";
         mMedicationNickname = "Nick ";
-        mOrder        = 8;
+        mDoseStrategy = 8;
         mDoseAmount   = 9;
         mDoseUnits    = "10";
         mWhenDue      = "11";
-        mNum          = 12;
+        mDoseNumPerDay = 12;
     }
-
+*/
 
     /*************************************/
     /*    Member setter/getter Methods   */
     /*************************************/
-    public int  getMedicationID()                 {  return mMedicationID; }
-    public void setMedicationID(int medicationID) { mMedicationID = medicationID; }
+    public int          getMedicationID()                 {  return mMedicationID; }
+    public void         setMedicationID(int medicationID) { mMedicationID = medicationID; }
 
     public CharSequence getBrandName()                       {  return mBrandName;   }
     public void         setBrandName(CharSequence brandName) { mBrandName = brandName; }
@@ -114,26 +118,58 @@ public class MMMedication {
     public void         setMedicationNickname(CharSequence medicationNickname) {
                                                   mMedicationNickname = medicationNickname; }
 
-    public int  getForPersonID()                { return mForPersonID; }
-    public void setForPersonID(int forPersonID) {  mForPersonID = forPersonID; }
+    public int          getForPersonID()                { return mForPersonID; }
+    public void         setForPersonID(int forPersonID) {  mForPersonID = forPersonID; }
 
-    public int  getOrder()          {  return mOrder;  }
-    public void setOrder(int order) {  mOrder = order;  }
+    public int          getDoseStrategy()          {  return mDoseStrategy;  }
+    public void         setDoseStrategy(int doseStrategy) {  mDoseStrategy = doseStrategy;  }
 
-    public int  getDoseAmount()               { return mDoseAmount; }
-    public void setDoseAmount(int doseAmount) { mDoseAmount = doseAmount;  }
+    public int          getDoseAmount()               { return mDoseAmount; }
+    public void         setDoseAmount(int doseAmount) { mDoseAmount = doseAmount;  }
 
     public CharSequence getDoseUnits()                       { return mDoseUnits; }
     public void         setDoseUnits(CharSequence doseUnits) { mDoseUnits = doseUnits; }
 
-    public CharSequence getWhenDue()             {return mWhenDue; }
-    public void setWhenDue(CharSequence whenDue) {mWhenDue = whenDue; }
+    public int          getDoseNumPerDay()         { return mDoseNumPerDay;   }
+    public void         setDoseNumPerDay(int doseNumPerDay) { mDoseNumPerDay = doseNumPerDay; }
 
-    public int getNum()         { return mNum;   }
-    public void setNum(int num) { mNum = num; }
+    public ArrayList<MMScheduleMedication> getSchedules(){return mSchedules;}
+    public void     setSchedules(ArrayList<MMScheduleMedication> schedules){mSchedules = schedules;}
 
     /*************************************/
     /*          Member Methods           */
     /*************************************/
+
+    public String cdfHeaders(){
+        String msg =
+                "MedicationID, "  +
+                "BrandName, "     +
+                "GenericName, "   +
+                "Nickname, "      +
+                "PersonID, "      +
+                "Order, "         +
+                "DoseAmount, "    +
+                "DoseUnits"       +
+                "NumPerDay "      +
+                System.getProperty("line.separator");
+        return msg;
+    }
+
+    //Convert point to comma delimited file for exchange
+    public String convertToCDF() {
+        return  String.valueOf(this.getMedicationID())        + ", " +
+                String.valueOf(this.getBrandName())           + ", " +
+                String.valueOf(this.getGenericName())         + ", " +
+                String.valueOf(this.getMedicationNickname() ) + ", " +
+                String.valueOf(this.getForPersonID())         + ", " +
+                String.valueOf(this.getDoseStrategy())               + ", " +
+                String.valueOf(this.getDoseAmount())          + ", " +
+                String.valueOf(this.getDoseUnits())           + ", " +
+                String.valueOf(this.getDoseNumPerDay()            +
+                        // TODO: 2/18/2017 list schedules
+                "Show schedule times too" +
+                System.getProperty("line.separator"));
+    }
+
 
 }
