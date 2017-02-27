@@ -635,6 +635,7 @@ public class MMDatabaseManager {
                 position++;
             }
         }
+        cursor.close();
         return times;
     }
 

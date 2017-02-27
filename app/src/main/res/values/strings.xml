@@ -31,6 +31,7 @@
     <string name="medication_brand_name_label"  >Brand Name</string>
     <string name="medication_generic_name_label">Generic Name</string>
     <string name="medication_for_label"         >Person ID</string>
+    <string name="medication_for_name"           >Person Name</string>
 
     <string name="medication_dose_strategy_label">Strategy</string>
     <string name="medication_dose_amount_label" >Amount</string>
@@ -40,6 +41,7 @@
     <string name="medication_add_schedule"      >Add Schedule</string>
     <string name="medication_update_schedule"   >Update Schedule</string>
     <string name="medication_maintain_schedule" >Maintain Schedule</string>
+    <string name="medication_save_first"        >Save before adding schedule</string>
 
     <string name="medication_brand_name_hint"   >Enter Brand Name</string>
     <string name="medication_generic_name_hint" >Enter Generic Name</string>

@@ -82,7 +82,7 @@ public class MMPerson {
         mNickname     = "Nickname";
         mEmailAddress = "Email@gmail.com";
         mTextAddress  = "6783587040";
-        mMedications  = new ArrayList<>();
+        mMedications  = null;
     }
 
 /*
@@ -112,7 +112,12 @@ public class MMPerson {
     public void         setTextAddress(CharSequence textAddress) { mTextAddress = textAddress; }
 
 
-    public ArrayList<MMMedication> getMedications()                 { return mMedications; }
+    public ArrayList<MMMedication> getMedications(){
+        if (mMedications != null)return mMedications;
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        mMedications = databaseManager.getTimesForSM(mMedicationID);
+        return mMedications;
+    }
     public void setMedications(ArrayList<MMMedication> medications) { mMedications = medications; }
 
     /*************************************/

@@ -76,16 +76,16 @@ public class MMMedication {
 
     private void initializeDefaultVariables(){
         mMedicationID = MMUtilities.getUniqueID();
-        mForPersonID  = -1;
-        mBrandName    = "Brand Name";
-        mGenericName  = "Generic Name";
-        mMedicationNickname = "Med Nick Name";
-        mDoseStrategy = 1;//scheduled
-        mDoseAmount   = 1;
-        mDoseUnits    = "Mg";
-        mDoseNumPerDay = 1;
+        mForPersonID  = getDefaultForPersonID();
+        mBrandName    = getDefaultBrandName();
+        mGenericName  = getDefaultGenericName();
+        mMedicationNickname = getDefaultMedicationNickname();
+        mDoseStrategy = getDefaultDoseStrategy();//scheduled
+        mDoseAmount   = getDefaultDoseAmount();
+        mDoseUnits    = getDefaultDoseUnits();
+        mDoseNumPerDay= getDefaultDoseNumPerDay();
 
-        mSchedules = new ArrayList<MMScheduleMedication> ();
+        mSchedules    = getDefaultSchedules();
     }
 /*
     private void initializeDefaultVariables(){
@@ -133,8 +133,37 @@ public class MMMedication {
     public int          getDoseNumPerDay()         { return mDoseNumPerDay;   }
     public void         setDoseNumPerDay(int doseNumPerDay) { mDoseNumPerDay = doseNumPerDay; }
 
-    public ArrayList<MMScheduleMedication> getSchedules(){return mSchedules;}
+    public ArrayList<MMScheduleMedication> getSchedules(){
+        if (mSchedules != null)return mSchedules;
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        mSchedules = databaseManager.getTimesForSM(mMedicationID);
+        return mSchedules;
+    }
     public void     setSchedules(ArrayList<MMScheduleMedication> schedules){mSchedules = schedules;}
+
+    /*************************************/
+    /*    Default Attribute Values       */
+    /*************************************/
+    public static int          getDefaultMedicationID()       {  return -1; }
+
+    public static CharSequence getDefaultBrandName()          {  return "Brand Name";   }
+
+    public static CharSequence getDefaultGenericName()        {  return "Generic Name";    }
+
+    public static CharSequence getDefaultMedicationNickname() {return "Med Nick Name"; }
+
+    public static int          getDefaultForPersonID()         { return -1; }
+
+    public static int          getDefaultDoseStrategy()        {  return 1;  }
+
+    public static int          getDefaultDoseAmount()          { return 1; }
+
+    public static CharSequence getDefaultDoseUnits()           { return "mg"; }
+
+    public static int          getDefaultDoseNumPerDay()         { return 1;   }
+
+    public static ArrayList<MMScheduleMedication> getDefaultSchedules(){
+        return new ArrayList<MMScheduleMedication>();}
 
     /*************************************/
     /*          Member Methods           */

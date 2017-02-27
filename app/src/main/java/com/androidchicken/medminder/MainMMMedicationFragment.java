@@ -22,8 +22,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import static com.androidchicken.medminder.R.id.personID;
-
 
 /**
  * The main UI screen for maintaining (CRUD) a Medication
@@ -159,17 +157,25 @@ public class MainMMMedicationFragment extends Fragment {
 
         mMedicationAddScheduleButton = (Button) v.findViewById(R.id.medicationAddScheduleButton);
         MMMedication medication = getMedicationInstance(mPersonID, mPosition);
-        ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
-        int schedSize = 0;
-        if (schedules != null) {
-            schedSize = schedules.size();
-        }
-        if (schedSize > 0){
-            mMedicationAddScheduleButton.setText(R.string.medication_update_schedule);
+        if (medication != null){
+            ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
+            int schedSize = 0;
+            if (schedules != null) {
+                schedSize = schedules.size();
+            }
+            if (schedSize > 0){
+                mMedicationAddScheduleButton.setText(R.string.medication_update_schedule);
+            }
         }
         mMedicationAddScheduleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mPosition < 0 ){
+                    Toast.makeText(getActivity(),
+                            R.string.medication_save_first,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Toast.makeText(getActivity(),
                         R.string.medication_maintain_schedule,
                         Toast.LENGTH_SHORT).show();
@@ -334,10 +340,6 @@ public class MainMMMedicationFragment extends Fragment {
 
     private void initializeUI(){
         if (mPersonID == 0) throw new RuntimeException(getString(R.string.no_person));
-        MMMedication medication = getMedicationInstance(mPersonID, mPosition);
-
-        if (medication == null) throw new RuntimeException("Medication Missing");
-
         MMPerson person = MMUtilities.getPerson(mPersonID);
 
         CharSequence nickname;
@@ -346,19 +348,31 @@ public class MainMMMedicationFragment extends Fragment {
         } else {
             nickname = person.getNickname().toString().trim();
         }
-
         mMedicationForPerson.       setText(nickname);
         mMedicationForInput.        setText(Integer.valueOf(mPersonID).toString().trim());
 
-        mMedicationBrandNameInput.  setText(medication.getBrandName().toString().trim());
-        mMedicationGenericNameInput.setText(medication.getGenericName().toString().trim());
-        mMedicationNickNameInput.   setText(medication.getMedicationNickname().toString().trim());
+        MMMedication medication = getMedicationInstance(mPersonID, mPosition);
 
-        mMedicationDoseStrategyInput.setText(Integer.valueOf(medication.getDoseStrategy()).toString().trim());
-        mMedicationDoseAmountInput. setText(Integer.valueOf(medication.getDoseAmount()).toString().trim());
-        mMedicationDoseUnitsInput.  setText(medication.getDoseUnits().toString().trim());
-        mMedicationDoseNumInput.    setText(Integer.valueOf(medication.getDoseNumPerDay()).toString().trim());
+        if (medication == null) {
+            mMedicationBrandNameInput.  setText(MMMedication.getDefaultBrandName().toString().trim());
+            mMedicationGenericNameInput.setText(MMMedication.getDefaultGenericName().toString().trim());
+            mMedicationNickNameInput.   setText(MMMedication.getDefaultMedicationNickname().toString().trim());
 
+            mMedicationDoseStrategyInput.setText(Integer.valueOf(MMMedication.getDefaultDoseStrategy()).toString().trim());
+            mMedicationDoseAmountInput. setText(Integer.valueOf(MMMedication.getDefaultDoseAmount()).toString().trim());
+            mMedicationDoseUnitsInput.  setText(MMMedication.getDefaultDoseUnits().toString().trim());
+            mMedicationDoseNumInput.    setText(Integer.valueOf(MMMedication.getDefaultDoseNumPerDay()).toString().trim());
+
+        } else {
+            mMedicationBrandNameInput.setText(medication.getBrandName().toString().trim());
+            mMedicationGenericNameInput.setText(medication.getGenericName().toString().trim());
+            mMedicationNickNameInput.setText(medication.getMedicationNickname().toString().trim());
+
+            mMedicationDoseStrategyInput.setText(Integer.valueOf(medication.getDoseStrategy()).toString().trim());
+            mMedicationDoseAmountInput.setText(Integer.valueOf(medication.getDoseAmount()).toString().trim());
+            mMedicationDoseUnitsInput.setText(medication.getDoseUnits().toString().trim());
+            mMedicationDoseNumInput.setText(Integer.valueOf(medication.getDoseNumPerDay()).toString().trim());
+        }
     }
 
     private void onSave(){
@@ -366,7 +380,10 @@ public class MainMMMedicationFragment extends Fragment {
         //update it with values from this screen
         MMMedication medication = getMedicationInstance(mPersonID, mPosition);
 
-        if (medication == null) throw new RuntimeException("Medication Missing");
+        if (medication == null) {
+            medication = new MMMedication();
+            medication.setForPersonID(mPersonID);
+        }
         //Set the medication as belonging to the person
         medication.setForPersonID(mPersonID);
         medication.setMedicationNickname(mMedicationNickNameInput.   getText().toString().trim());
@@ -395,17 +412,20 @@ public class MainMMMedicationFragment extends Fragment {
         //add the scheduleMedications to the DB as well
         MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
         ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
-        MMScheduleMedication scheduleMedication;
-        boolean returnCode;
-        if ((schedules != null) && (schedules.size() > 0)){
-            int last = schedules.size();
-            int position = 0;
-            while (position < last){
-                scheduleMedication = schedules.get(position);
-                returnCode = schedMedManager.addScheduleMedication(scheduleMedication);
-                if (!returnCode){
-                    returnCode = schedMedManager.updateScheduleMedication(scheduleMedication);
-                    // TODO: 2/26/2017 what if db update fails totally??? 
+        if (schedules != null) {
+            MMScheduleMedication scheduleMedication;
+            boolean returnCode;
+            if ((schedules != null) && (schedules.size() > 0)) {
+                int last = schedules.size();
+                int position = 0;
+                while (position < last) {
+                    scheduleMedication = schedules.get(position);
+                    returnCode = schedMedManager.addScheduleMedication(scheduleMedication);
+                    if (!returnCode) {
+                        returnCode = schedMedManager.updateScheduleMedication(scheduleMedication);
+                        // TODO: 2/26/2017 what if db update fails totally???
+                    }
+                    position++;
                 }
             }
         }
@@ -515,6 +535,7 @@ public class MainMMMedicationFragment extends Fragment {
         //If personID can't be found in the list, person will be null
         MMPerson person = MMUtilities.getPerson(mPersonID);
         if (person == null)return null;
+        if (position < 0)return null; //means we are adding the medication
 
         ArrayList<MMMedication> medications = person.getMedications();
         if (medications == null){
@@ -534,7 +555,7 @@ public class MainMMMedicationFragment extends Fragment {
     }
 
     private boolean isInMedications(MMMedication medication){
-        ArrayList<MMMedication> medications = getMedications(personID);
+        ArrayList<MMMedication> medications = getMedications(mPersonID);
         return medications.contains(medication);
     }
 

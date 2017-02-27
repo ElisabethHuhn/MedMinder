@@ -6,7 +6,7 @@
     android:id="@+id/content_main"
 
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
 
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft=  "@dimen/activity_horizontal_margin"
@@ -52,22 +52,51 @@
                     android:textColor="@color/colorTextBlack"
                     android:background="@color/colorTitleBackground"
                     />
+
+            </TableRow>
+
+            <!-- Row 2: Medication For PersonName, which the user may not change -->
+            <TableRow
+
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="10dp"
+                >
                 <TextView
-                    android:id="@+id/medicationForPerson"
-                    android:text="@string/medication_for_label"
+                    android:labelFor="@+id/medicationForPerson"
+                    android:text="@string/medication_for_name"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
                     android:layout_weight="30"
-                    android:gravity="center"
+                    android:gravity="end"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorLabelBackground"
+                    />
+
+
+                <EditText
+                    android:id="@id/medicationForPerson"
+                    android:text="@string/medication_for_label"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="70"
+
 
                     android:enabled="false"
 
+                    android:inputType="text"
+                    android:imeOptions="flagNoExtractUi"
+                    android:layout_marginEnd="16dp"
+
                     android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorWhite"
+                    android:background="@color/colorGray"
                     />
+
             </TableRow>
 
-            <!-- Row 2: Medication For Person, which the user may not change -->
+            <!-- Row 3: Medication For PersonID, which the user may not change -->
             <TableRow
 
                 android:layout_height="wrap_content"
@@ -101,12 +130,12 @@
                     android:layout_marginEnd="16dp"
 
                     android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorInputBackground"
+                    android:background="@color/colorGray"
                     />
 
             </TableRow>
 
-            <!-- Row 3: Medication Nick Name -->
+            <!-- Row 4: Medication Nick Name -->
             <TableRow
 
             android:layout_height="wrap_content"
@@ -144,7 +173,7 @@
 
         </TableRow>
 
-            <!-- Row 4: Medication Brand Name -->
+            <!-- Row 5: Medication Brand Name -->
             <TableRow
 
                 android:layout_height="wrap_content"
@@ -182,7 +211,7 @@
 
             </TableRow>
 
-            <!-- Row 5: Medication Generic Name -->
+            <!-- Row 6: Medication Generic Name -->
             <TableRow
 
                 android:layout_height="wrap_content"
@@ -219,9 +248,6 @@
                     />
 
             </TableRow>
-
-            <!-- Row 6:  -->
-
 
             <!-- Row 7: Dose Amount -->
             <TableRow
