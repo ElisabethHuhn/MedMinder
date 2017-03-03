@@ -28,22 +28,25 @@
         <LinearLayout
         android:layout_width= "match_parent"
         android:layout_height="wrap_content"
-        android:orientation=  "horizontal"
+        android:orientation=  "vertical"
         >
         <!-- Row: Person Screen Label -->
         <TextView
             android:id="@+id/personListScreenLabel"
             android:layout_height="wrap_content"
-            android:layout_width="0dp"
-
-            android:layout_weight="3"
+            android:layout_width="wrap_content"
 
             android:gravity="center_vertical|center_horizontal"
-            android:layout_gravity="start"
+            android:layout_gravity="center"
+
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp"
 
             android:text="@string/person_list_screen_label"
+            android:textSize="20sp"
             android:textColor="@color/colorTextBlack"
-            android:background="@color/colorWhite"
+            android:background="@color/colorTitleBackground"
             />
 
         <Button
@@ -51,17 +54,19 @@
             android:id=  "@+id/addPersonsButton"
             android:text="@string/patient_add_persons_label"
 
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
-            android:layout_weight="6"
+            android:layout_gravity="center"
 
-            android:layout_gravity="end"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp"
 
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="4dp"
+            android:layout_marginEnd="8dp"
 
-            android:background="@color/colorButton2Background"
+            android:background="@color/colorButton1Background"
             android:textColor="@color/colorTextBlack"
             />
 
@@ -69,108 +74,9 @@
 
 
         <!-- Row: Headings for the list columns -->
-        <LinearLayout
-                android:orientation=  "horizontal"
-                android:layout_width= "match_parent"
-                android:layout_height="wrap_content"
+        <include android:id="@+id/personTitleRow" layout="@layout/list_row_person"/>
 
-                android:focusable="false"
-                android:clickable="false"
 
-                android:paddingTop="@dimen/interum_vertical"
-
-                android:background="@color/colorScreenBackground"
-                >
-
-                <!-- Each field needs a weight that matches the weight of the lsit -->
-                <!-- ID 6 -->
-                <TextView
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="6"
-                    android:gravity="center"
-
-                    android:layout_marginEnd="@dimen/listrow_field_separator"
-
-                    android:text="@string/person_id_label"
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorLabelBackground"
-                    />
-
-                <!-- Nickname 12 -->
-                <TextView
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="12"
-                    android:gravity="center"
-
-                    android:layout_marginEnd="@dimen/listrow_field_separator"
-
-                    android:text="@string/person_nick_name_label"
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorLabelBackground"
-                    />
-
-                <!-- Email Address 15 -->
-                <TextView
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="15"
-                    android:gravity="center"
-
-                    android:layout_marginEnd="@dimen/listrow_field_separator"
-
-                    android:text="@string/person_email_addr_label"
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorLabelBackground"
-                    />
-
-                <!-- Text Address 15 -->
-                <TextView
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="15"
-                    android:gravity="center"
-
-                    android:layout_marginEnd="@dimen/listrow_field_separator"
-
-                    android:text="@string/person_text_addr_label"
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorLabelBackground"
-
-                    />
-
-                <!-- Duration 3 -->
-                <TextView
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="3"
-                    android:gravity="center"
-
-                    android:layout_marginEnd="@dimen/listrow_field_separator"
-
-                    android:text="@string/person_duration_label"
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorLabelBackground"
-
-                    />
-
-                <!-- Order 3 -->
-                <TextView
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="3"
-                    android:gravity="center"
-
-                    android:layout_marginEnd="@dimen/listrow_field_separator"
-
-                    android:text=      "@string/person_order_label"
-                    android:textColor= "@color/colorTextBlack"
-                    android:background="@color/colorLabelBackground"
-
-                    />
-
-            </LinearLayout>
 
         <!-- Scrolling list of persons -->
         <ScrollView

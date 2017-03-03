@@ -104,8 +104,8 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
 
     }
 
-    //This isn't going to work with a cursor, its going to have to be removed from the DB
-    // TODO: 1/27/2017 fix removeItem in the CursorAdapter ConcurrentDoses
+    //remove doesn't work directly for a cursor,
+    // must remove from the DB, then re-create the cursor
     public void removeItem(int position) {
         if (mConcurrentDoseCursor == null)return;
 
@@ -118,13 +118,19 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
         //remove the concurrent dose from the DB
         concurrentDoseManager.removeConcurrentDoesFromDB(concurrentDose.getConcurrentDoseID());
 
+       mConcurrentDoseCursor = reinitializeCursor();
+    }
+
+    public Cursor reinitializeCursor(){
+        MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
         //Create a new Cursor with the current contents of DB
         mConcurrentDoseCursor = concurrentDoseManager.getAllConcurrentDosesCursor(mPersonID);
 
         //Tell the RecyclerView to update the User Display
         notifyDataSetChanged();
 
-       //notifyItemRangeChanged(position, getItemCount());
+        //notifyItemRangeChanged(position, getItemCount());
+        return mConcurrentDoseCursor;
     }
 
     @Override

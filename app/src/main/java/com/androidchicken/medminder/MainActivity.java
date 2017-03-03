@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         if (fragment == null) {
             //when we first create the activity,
             // the fragment needs to be the home screen
-            fragment = new MainMMHomeFragment();
+            fragment = new MMHomeFragment();
             fm.beginTransaction()
                     .add(R.id.fragment_container, fragment)
                     .commit();
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             fm.popBackStackImmediate();
         }
 
-        Fragment fragment    = new MainMMHomeFragment();
+        Fragment fragment    = new MMHomeFragment();
         String   tag         = sHomeTag;
         int      title       = R.string.title_take_dose;
 
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
             fm.popBackStackImmediate();
         }
 
-        Fragment fragment    = MainMMHomeFragment.newInstance(personID);
+        Fragment fragment    = MMHomeFragment.newInstance(personID);
         String   tag         = sHomeTag;
         int      title       = R.string.title_take_dose;
 
@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             fm.popBackStackImmediate();
         }
 
-        Fragment fragment    = new MainMMPersonFragment();
+        Fragment fragment    = new MMPersonFragment();
         String   tag         = sPersonTag;
         int      title       = R.string.title_person;
 
@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
             fm.popBackStackImmediate();
         }
 
-        Fragment fragment    = MainMMPersonFragment.newInstance(personID);
+        Fragment fragment    = MMPersonFragment.newInstance(personID);
         String   tag         = sPersonTag;
         int      title       = R.string.title_person;
 
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
     public void switchToPersonListScreen(){
         //replace the fragment with the list of persons already defined
 
-        Fragment fragment    = new MainMMPersonListFragment();
+        Fragment fragment    = new MMPersonListFragment();
         String   tag         = sPersonListTag;
         int      title       = R.string.title_person_list;
 
@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
             fm.popBackStackImmediate();
         }
 
-        Fragment fragment    = new MainMMMedicationFragment();
+        Fragment fragment    = new MMMedicationFragment();
         String   tag         = sMedicationTag;
         int      title       = R.string.title_medication;
 
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
             fm.popBackStackImmediate();
         }
 
-        Fragment fragment    = MainMMMedicationFragment.newInstance(personID, -1);
+        Fragment fragment    = MMMedicationFragment.newInstance(personID, -1);
         String   tag         = sMedicationTag;
         int      title       = R.string.title_medication;
 
@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
             fm.popBackStackImmediate();
         }
 
-        Fragment fragment    = MainMMMedicationFragment.newInstance(personID, position);
+        Fragment fragment    = MMMedicationFragment.newInstance(personID, position);
         String   tag         = sMedicationTag;
         int      title       = R.string.title_medication;
 

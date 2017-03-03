@@ -65,50 +65,6 @@ public class MMMedicationManager {
 
     //***********************  CREATE **************************************
 
-    //A medication that is from the DB needs to be incorporated into memory version
-    public boolean addFromDB(MMMedication medication){
-        if (medication == null) return false;
-
-        int personID = medication.getForPersonID();
-        if (personID == 0) return false; //there is no person
-
-        //We have a medication from the DB, now add it to it's person
-        MMPersonManager personManager = MMPersonManager.getInstance();
-        MMPerson person = personManager.getPerson(personID);
-
-        //check if the medication already exists on the person
-        //    private int findMedicationPosition(ArrayList<MMMedication> medicationList, int medicationID)
-        ArrayList<MMMedication> medications = person.getMedications();
-        if (medications == null) {
-            medications = new ArrayList<>();
-            person.setMedications(medications);
-        }
-
-        int position = findMedicationPosition(medications, medication.getMedicationID());
-        if (position == MEDICATION_NOT_FOUND) {
-            //So the medication was in the DB, but not in memory
-            //just add it to the person array
-            medications.add(medication);
-        } else {
-            //It existed in memory AND in the db
-            /*
-            // TODO: 11/3/2016 Check that the assumption that the db version is more up to date is valid
-            MMMedication toMedication = medications.get(position);
-            if (toMedication == null) return false; //This shouldn't happen, we just checked it
-            copyMedicationAttributes(medication, toMedication, true );//copy the ID as well
-            */
-            // TODO: 11/4/2016 What we really need to do is throw an exception!!! 
-            String message = "Database is corrupt! In memory different from DB. Person = "+ 
-                              person.getNickname() +
-                             " for medication "+medication.getMedicationNickname();
-
-            throw new RuntimeException(message);
-            // TODO: 11/4/2016 But should the exception be a fatal one????
-        }
-        return true;
-
-    }
-
     //This routine not only adds to the in memory list,
     // but has an argument, that if true,  also adds to the DB
     //returns FALSE if for any reason the medication can not be added
@@ -126,7 +82,7 @@ public class MMMedicationManager {
         //determine if the medication already is associated with this person
         ArrayList<MMMedication> medicationList = person.getMedications();
 
-        //Assert that the person has a medications list
+        //If this is the first, the list will be empty
         if (medicationList == null){
             medicationList = new ArrayList<>();
             person.setMedications(medicationList);
@@ -139,22 +95,15 @@ public class MMMedicationManager {
         int atPosition = findMedicationPosition(medicationList, newMedication.getMedicationID());
         if (atPosition == MEDICATION_NOT_FOUND){//The medication does not already exist. Add it
             medicationList.add(newMedication);
-            if (addToDB) {
-                //  Add the medication to the DB
-                databaseManager.addMedication(newMedication);
-            }
-        } else { //The medication does exist, Update it
-            MMMedication listMedication = medicationList.get(atPosition);
-
-            //update the list instance with the attributes from the new medication being added
-            //copy the medication attributes, but not the ID
-            copyMedicationAttributes(newMedication, listMedication, false);
-
-            if (addToDB) {
-                //Update the medication in the DB
-                databaseManager.updateMedication(newMedication);
-            }
+        } else {
+            //The medication does exist, replace the instance already in the list with this instance
+            medicationList.set(atPosition, newMedication);
         }
+        if (addToDB) {
+            //  Add or update the medication to/in the DB
+            databaseManager.addMedication(newMedication);
+        }
+
 
         return true;
     }
@@ -168,7 +117,7 @@ public class MMMedicationManager {
         return databaseManager.getAllMedicationsCursor(personID);
     }
 
-    public int getMedicationsFromDB(MMPerson person){
+    public ArrayList<MMMedication> getMedicationsFromDB(MMPerson person){
         int personID = person.getPersonID();
 
         //get all medications in the DB that are linked to this Person
@@ -176,10 +125,7 @@ public class MMMedicationManager {
         return databaseManager.getAllMedications(personID);
     }
 
-    public MMMedication getMedicationFromID(int personID, int medicationID){
-        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        return databaseManager.getMedication(medicationID, personID);
-    }
+
 
     public MMMedication getMedicationFromID(int medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
@@ -187,14 +133,6 @@ public class MMMedicationManager {
     }
 
     //***********************  UPDATE **************************************
-
-    //This routine not only replaces in the in memory list, but also in the DB
-    public void update(MMPerson person, MMMedication medication){
-        //The update functionality already exists in add
-        //    as a Medication can only appear once
-        //The third parameter indicates whether to affect DB
-        addToPerson(person, medication, true);
-    }//end public add()
 
 
     //***********************  DELETE **************************************
@@ -338,7 +276,7 @@ public class MMMedicationManager {
         int last = cursor.getCount();
         if (position >= last) return null;
 
-        MMMedication medication = new MMMedication(); //filled with defaults
+        MMMedication medication = new MMMedication(0); //filled with defaults, no ID is assigned
 
         cursor.moveToPosition(position);
         medication.setMedicationID

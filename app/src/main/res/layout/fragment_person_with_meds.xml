@@ -21,7 +21,7 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         >
 
@@ -29,23 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="top|center_vertical"
-
-
             >
-
-            <!-- This layout is for creating a new Person -->
-            <!--  -->
-
-
-            <!-- with layout_width  = 0dp, ignore the content width, for horiz orient  -->
-            <!-- with layout_height = 0dp, ignore the content height, vert orient      -->
-            <!-- with layout_weight = 1, distribute width/height between views equally -->
-            <!-- with gravity       = center, center text within button                -->
-            <!-- with layout_gravity=start, place button on left of the row            -->
-            <!-- with background,   = set button color to gray, grayer, grayest        -->
-            <!-- with paddingStart, = set some space between this button and the next  -->
-
-            <!-- Container for entire screen -->
 
             <!-- Row 1: Person Screen Label -->
             <TableRow
@@ -67,8 +51,7 @@
 
             </TableRow>
 
-
-            <!-- Row 7: Add Medication, Save Person Buttons -->
+            <!-- Row 2: Buttons  (Exit, Save, Add) -->
             <TableRow
 
                 android:layout_height="wrap_content"
@@ -76,11 +59,11 @@
                 android:layout_gravity="center_horizontal"
                 android:paddingTop="10dp"
                 >
-                <!-- Add Medication  -->
+                 <!-- Exit Person -->
                 <Button
                     style="?android:attr/buttonBarButtonStyle"
-                    android:id="@+id/personAddMedicationButton"
-                    android:text="@string/patient_add_medication_label"
+                    android:id="@+id/personExitButton"
+                    android:text="@string/exit_label"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
 
@@ -89,7 +72,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="4dp"
 
-                    android:background="@color/colorButton2Background"
+                    android:background="@color/colorButton1Background"
                     android:textColor="@color/colorTextBlack"
                     />
 
@@ -103,10 +86,25 @@
 
                     android:layout_weight="4"
 
-                    android:layout_gravity="start"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+
+                    android:background="@color/colorButton1Background"
+                    android:textColor="@color/colorTextBlack"
+                    />
+
+                <!-- Add Medication  -->
+                <Button
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:id="@+id/personAddMedicationButton"
+                    android:text="@string/patient_add_medication_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:layout_weight="4"
 
                     android:layout_marginStart="4dp"
-                    android:layout_marginEnd="10dp"
+                    android:layout_marginEnd="8dp"
 
                     android:background="@color/colorButton1Background"
                     android:textColor="@color/colorTextBlack"
@@ -114,17 +112,14 @@
 
             </TableRow>
 
-
-            <!-- Row 2: Person Nick Name -->
+            <!-- Row 3: Person Nick Name -->
             <include android:id= "@+id/personNickName" layout = "@layout/element_edit_label_input"/>
 
-            <!-- Row 3: Person Email Address -->
+            <!-- Row 4: Person Email Address -->
             <include android:id="@+id/personEmailAddr" layout="@layout/element_edit_label_input"/>
 
-            <!-- Row 4: Person Text Address -->
+            <!-- Row 5: Person Text Address -->
             <include android:id="@+id/personTextAddr" layout="@layout/element_edit_label_input"/>
-
-
 
         </TableLayout>
 
@@ -135,7 +130,7 @@
             >
             <!-- Title row and list of Medications taken by the person -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 >

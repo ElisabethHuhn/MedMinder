@@ -30,7 +30,7 @@ public class MMPersonAdapter extends RecyclerView.Adapter<MMPersonAdapter.MyView
         public MyViewHolder(View v) {
             super(v);
 
-            personID        = (TextView) v.findViewById(R.id.personID);
+            personID        = (TextView) v.findViewById(R.id.personMainID);
             personNickName  = (TextView) v.findViewById(R.id.personNickNameInput);
             personEmailAddr = (TextView) v.findViewById(R.id.personEmailAddrInput);
             personTextAddr  = (TextView) v.findViewById(R.id.personTextAddrInput);

@@ -39,13 +39,12 @@ public class MMDose {
     /*         CONSTRUCTOR               */
     /*************************************/
     public MMDose() {
-        mDoseID         = MMUtilities.getUniqueID();
-        mOfMedicationID = 0;
-        mForPersonID    = 0;
-        mContainedInConcurrentDoseID = 0;
-        mPositionWithinConcDose = 0;
-        mTimeTaken      = 0;
-        mAmountTaken    = 0;
+        initializeVariables();
+    }
+
+    public MMDose(int tempID){
+        initializeVariables();
+        mDoseID = tempID;
     }
 
     public MMDose(int  ofMedicationID,
@@ -61,6 +60,18 @@ public class MMDose {
         mPositionWithinConcDose      = positionWithinConcDose;
         mTimeTaken      = timeTaken;
         mAmountTaken    = amountTaken;
+    }
+
+
+    private void initializeVariables(){
+        mDoseID         = MMUtilities.getUniqueID();
+        mOfMedicationID = 0;
+        mForPersonID    = 0;
+        mContainedInConcurrentDoseID = 0;
+        mPositionWithinConcDose = 0;
+        mTimeTaken      = 0;
+        mAmountTaken    = 0;
+
     }
 
     /*************************************/

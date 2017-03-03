@@ -24,9 +24,10 @@ import android.widget.Toast;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainMMPersonFragment extends Fragment {
+public class MMPersonFragment extends Fragment {
 
-    //main area of screen fragment
+    //Screen Widgets
+    private Button   mExitButton;
     private Button   mSaveButton;
     private Button   mAddMedButton;
 
@@ -44,7 +45,7 @@ public class MainMMPersonFragment extends Fragment {
 
 
     //need to pass a person into the fragment
-    public static MainMMPersonFragment newInstance(int personID){
+    public static MMPersonFragment newInstance(int personID){
         //create a bundle to hold the arguments
         Bundle args = new Bundle();
 
@@ -52,7 +53,7 @@ public class MainMMPersonFragment extends Fragment {
         //so for now, just pass the person values
         args.putInt         (MMPerson.sPersonIDTag,personID);
 
-        MainMMPersonFragment fragment = new MainMMPersonFragment();
+        MMPersonFragment fragment = new MMPersonFragment();
 
         fragment.setArguments(args);
         return fragment;
@@ -63,7 +64,7 @@ public class MainMMPersonFragment extends Fragment {
     /***********************************************/
 
     //
-    public MainMMPersonFragment() {
+    public MMPersonFragment() {
     }
 
     /***********************************************/
@@ -120,30 +121,28 @@ public class MainMMPersonFragment extends Fragment {
 
 
     private void initializeRecyclerView(View v){
-            /*
-             * The steps for doing recycler view in onCreateView() of a fragment are:
-             * 1) inflate the .xml
-             *
-             * the special recycler view stuff is:
-             * 2) get and store a reference to the recycler view widget that you created in xml
-             * 3) create and assign a layout manager to the recycler view
-             * 4) assure that there is data for the recycler view to show.
-             * 5) use the data to create and set an adapter in the recycler view
-             * 6) create and set an item animator (if desired)
-             * 7) create and set a line item decorator
-             * 8) add event listeners to the recycler view
-             *
-             * 9) return the view
-             */
-        RecyclerView recyclerView;
-        MMMedicationCursorAdapter adapter;
+        /*
+         * The steps for doing recycler view in onCreateView() of a fragment are:
+         * 1) inflate the .xml
+         *
+         * the special recycler view stuff is:
+         * 2) get and store a reference to the recycler view widget that you created in xml
+         * 3) create and assign a layout manager to the recycler view
+         * 4) assure that there is data for the recycler view to show.
+         * 5) use the data to create and set an adapter in the recycler view
+         * 6) create and set an item animator (if desired)
+         * 7) create and set a line item decorator
+         * 8) add event listeners to the recycler view
+         *
+         * 9) return the view
+         */
 
         //1) Inflate the layout for this fragment
         //      done in the caller
 
 
         //2) find and remember the RecyclerView
-        recyclerView = (RecyclerView) v.findViewById(R.id.medicationList);
+        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.medicationList);
 
         //3) create and assign a layout manager to the recycler view
         //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
@@ -162,7 +161,7 @@ public class MainMMPersonFragment extends Fragment {
         //       then find the medication list, and maintain it from there
 
 
-        adapter = new MMMedicationCursorAdapter(cursor);
+        MMMedicationCursorAdapter adapter = new MMMedicationCursorAdapter(cursor);
         adapter.setAdapterContext(mPersonID);
         recyclerView.setAdapter(adapter);
 
@@ -179,7 +178,7 @@ public class MainMMPersonFragment extends Fragment {
 
         //8) add event listeners to the recycler view
         recyclerView.addOnItemTouchListener(
-                new RecyclerTouchListener(getActivity(), recyclerView, new MainMMPersonListFragment.ClickListener() {
+                new RecyclerTouchListener(getActivity(), recyclerView, new MMPersonListFragment.ClickListener() {
                     @Override
                     public void onClick(View view, int position) {
                         onSelect(position);
@@ -189,7 +188,8 @@ public class MainMMPersonFragment extends Fragment {
                     public void onLongClick(View view, int position) {
 
                     }
-                }));
+                })
+        );
 
     }
 
@@ -197,7 +197,28 @@ public class MainMMPersonFragment extends Fragment {
         View field_container;
         TextView label;
 
-        //save Button
+        //Exit Button
+        mExitButton = (Button) v.findViewById(R.id.personExitButton);
+        mExitButton.setText(R.string.exit_label);
+        //the order of images here is left, top, right, bottom
+        //mExitButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
+        mExitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(),
+                        R.string.exit_label,
+                        Toast.LENGTH_SHORT).show();
+
+                //onExit();
+
+                //switch to home screen with the person as a patient
+                ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
+
+            }
+        });
+
+
+        //Save Button
         mSaveButton = (Button) v.findViewById(R.id.personSaveButton);
         mSaveButton.setText(R.string.save_label);
         //the order of images here is left, top, right, bottom
@@ -209,12 +230,7 @@ public class MainMMPersonFragment extends Fragment {
                         R.string.save_label,
                         Toast.LENGTH_SHORT).show();
 
-
-               // if (mPersonID == 0)return;
                 onSave();
-
-                //switch to home screen with the person as a patient
-                ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
 
             }
         });
@@ -223,14 +239,14 @@ public class MainMMPersonFragment extends Fragment {
         //add Button
         mAddMedButton = (Button) v.findViewById(R.id.personAddMedicationButton);
         mAddMedButton.setText(R.string.patient_add_medication_label);
+        //only enable the Add button after the person has been created
+        if (mPersonID == 0){
+            MMUtilities.enableButton(getActivity(), mAddMedButton, MMUtilities.BUTTON_DISABLE);
+            Toast.makeText(getActivity(), R.string.person_save_first, Toast.LENGTH_SHORT).show();
+        }
         mAddMedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPersonID == 0){
-                    MMUtilities.errorHandler(getActivity(), R.string.person_save_first);
-                    return;
-                }
-
 
                 Toast.makeText(getActivity(),
                         R.string.patient_add_medication_label,
@@ -371,8 +387,8 @@ public class MainMMPersonFragment extends Fragment {
         //If this person already exists, we do NOT want to create a new Person object
         MMPerson person;
         if (mPersonID == 0) {
+            //but the ID isn't assigned until the DB save
             person = new MMPerson(nickname);
-            mPersonID = person.getPersonID();
         } else {
             MMPersonManager personManager = MMPersonManager.getInstance();
             person = personManager.getPerson(mPersonID);
@@ -397,8 +413,27 @@ public class MainMMPersonFragment extends Fragment {
         //so add/update the person to/in permanent storage
         //This adds/updates any medications that are recorded on the Person to the DB
         MMPersonManager personManager = MMPersonManager.getInstance();
-        personManager.add(person);
+        if (personManager.add(person)) {
+            Toast.makeText(getActivity(), R.string.save_successful, Toast.LENGTH_SHORT).show();
+            MMUtilities.enableButton(getActivity(), mAddMedButton, MMUtilities.BUTTON_ENABLE);
 
+        }
+        //if the person is newly created, the ID is assigned on DB add
+        mPersonID = person.getPersonID();
+
+
+        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.medicationList);
+        MMMedicationCursorAdapter adapter = (MMMedicationCursorAdapter) recyclerView.getAdapter();
+
+        if (adapter != null) {
+            //because the adapter exists, initializeRecyclerView() has already run
+            //so all we need to reinitialize is the adapter
+            adapter.setAdapterContext(mPersonID);
+            adapter.reinitializeCursor();
+        } else {
+            //we did not have a medication earlier so the entire recyclerView never got initialized
+            initializeRecyclerView(getView());
+        }
     }
 
     /**********************************************************/
@@ -434,11 +469,11 @@ The medication list is maintained on the person object, not locally here
     public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
         private GestureDetector gestureDetector;
-        private MainMMPersonListFragment.ClickListener clickListener;
+        private MMPersonListFragment.ClickListener clickListener;
 
         public RecyclerTouchListener(Context context,
                                      final RecyclerView recyclerView,
-                                     final MainMMPersonListFragment.ClickListener clickListener) {
+                                     final MMPersonListFragment.ClickListener clickListener) {
 
             this.clickListener = clickListener;
             gestureDetector = new GestureDetector(context,

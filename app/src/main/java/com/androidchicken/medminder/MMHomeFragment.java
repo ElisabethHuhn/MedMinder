@@ -23,6 +23,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -36,7 +37,7 @@ import java.util.Calendar;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainMMHomeFragment extends Fragment {
+public class MMHomeFragment extends Fragment {
 
     private static final String TAG = "MainMMTakeDoseFragment";
     private static final int HALF_SECOND = 500;
@@ -77,7 +78,7 @@ public class MainMMHomeFragment extends Fragment {
     /*          Static Methods                     */
     /***********************************************/
     //need to pass a person into the fragment
-    public static MainMMHomeFragment newInstance(int personID){
+    public static MMHomeFragment newInstance(int personID){
         //create a bundle to hold the arguments
         Bundle args = new Bundle();
 
@@ -85,7 +86,7 @@ public class MainMMHomeFragment extends Fragment {
         //so for now, just pass the person values
         args.putInt         (MMPerson.sPersonIDTag,personID);
 
-        MainMMHomeFragment fragment = new MainMMHomeFragment();
+        MMHomeFragment fragment = new MMHomeFragment();
 
         fragment.setArguments(args);
         return fragment;
@@ -95,7 +96,7 @@ public class MainMMHomeFragment extends Fragment {
     /***********************************************/
     /*          Constructor                        */
     /***********************************************/
-    public MainMMHomeFragment() {
+    public MMHomeFragment() {
     }
 
     /***********************************************/
@@ -137,6 +138,15 @@ public class MainMMHomeFragment extends Fragment {
         wireWidgets(v);
         initializeRecyclerView(v);
         initializeUI();
+
+        //hide the soft keyboard
+        // Check if no view has focus:
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm =
+                    (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
 
         //start the medButton animation
         startMedButtonBlink();
@@ -654,14 +664,10 @@ public class MainMMHomeFragment extends Fragment {
 
         if (person == null) return false;
 
-        boolean isStartOfDay = false;
         Calendar c = Calendar.getInstance();
         long seconds = c.getTimeInMillis();     // = c.get(Calendar.SECOND);
 
-
-        MMConcurrentDose concurrentDoses = new MMConcurrentDose(mPersonID,
-                                                                isStartOfDay,
-                                                                seconds);
+        MMConcurrentDose concurrentDoses = new MMConcurrentDose(mPersonID, seconds);
         ArrayList<MMDose> doses = new ArrayList<>();
         concurrentDoses.setDoses(doses);
 
@@ -677,11 +683,11 @@ public class MainMMHomeFragment extends Fragment {
                 amtTaken = Integer.valueOf(amtTakenString);
                 if (amtTaken > 0) {
                     MMDose dose = new MMDose(medications.get(position).getMedicationID(),
-                            mPersonID,
-                            concurrentDoses.getConcurrentDoseID(),
-                            position,
-                            seconds,
-                            amtTaken);
+                                             mPersonID,
+                                             concurrentDoses.getConcurrentDoseID(),
+                                             position,
+                                             seconds,
+                                             amtTaken);
                     doses.add(dose);
                 }
             }
@@ -690,8 +696,6 @@ public class MainMMHomeFragment extends Fragment {
 
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
         return concurrentDoseManager.add(concurrentDoses);
-
-
 
     }
 
@@ -726,11 +730,11 @@ public class MainMMHomeFragment extends Fragment {
     public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
         private GestureDetector gestureDetector;
-        private MainMMHomeFragment.ClickListener clickListener;
+        private MMHomeFragment.ClickListener clickListener;
 
         public RecyclerTouchListener(Context context,
                                      final RecyclerView recyclerView,
-                                     final MainMMHomeFragment.ClickListener clickListener) {
+                                     final MMHomeFragment.ClickListener clickListener) {
 
             this.clickListener = clickListener;
             gestureDetector = new GestureDetector(context,

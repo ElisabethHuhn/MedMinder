@@ -68,8 +68,11 @@ public class MMMedication {
     //Generic instance with no attributes
     public MMMedication() {
         initializeDefaultVariables();
-        mMedicationID = MMUtilities.getUniqueID();
+    }
 
+    public MMMedication(int tempMedID){
+        initializeDefaultVariables();
+        mMedicationID = tempMedID;
     }
 
 
@@ -134,12 +137,20 @@ public class MMMedication {
     public void         setDoseNumPerDay(int doseNumPerDay) { mDoseNumPerDay = doseNumPerDay; }
 
     public ArrayList<MMScheduleMedication> getSchedules(){
-        if (mSchedules != null)return mSchedules;
-        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        mSchedules = databaseManager.getTimesForSM(mMedicationID);
+        if (!isSchedulesChanged()) {
+            MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+            mSchedules = databaseManager.getAllSchedMeds(mMedicationID);
+        }
         return mSchedules;
     }
     public void     setSchedules(ArrayList<MMScheduleMedication> schedules){mSchedules = schedules;}
+    public boolean isSchedulesChanged() {
+        if ((mSchedules == null) ||
+            (mSchedules.size() == 0)) {
+            return false;
+        }
+        return true;
+    }
 
     /*************************************/
     /*    Default Attribute Values       */

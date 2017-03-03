@@ -21,7 +21,6 @@ public class MMConcurrentDose {
 
     private int               mConcurrentDoseID;
     private int               mForPerson;
-    private boolean           mIsStartOfDay;
     private long              mStartTime;
     private ArrayList<MMDose> mDoses;
 
@@ -41,18 +40,25 @@ public class MMConcurrentDose {
     /*         CONSTRUCTOR               */
     /*************************************/
     public MMConcurrentDose() {
+        initializeVariables();
+    }
+
+    public MMConcurrentDose(int forPerson,  long startTime) {
         mConcurrentDoseID = MMUtilities.getUniqueID();
-        mForPerson    = 0;
-        mIsStartOfDay = false;
-        mStartTime    = 0;
+        mForPerson    = forPerson;
+        mStartTime    = startTime;
         mDoses        = new ArrayList<>();
     }
 
-    public MMConcurrentDose(int forPerson, boolean isStartOfDay, long startTime) {
+    public MMConcurrentDose(int tempID){
+        initializeVariables();
+        mConcurrentDoseID = tempID;
+    }
+
+    private void initializeVariables(){
         mConcurrentDoseID = MMUtilities.getUniqueID();
-        mForPerson    = forPerson;
-        mIsStartOfDay = isStartOfDay;
-        mStartTime    = startTime;
+        mForPerson    = 0;
+        mStartTime    = 0;
         mDoses        = new ArrayList<>();
     }
 
@@ -62,18 +68,24 @@ public class MMConcurrentDose {
     public int getConcurrentDoseID() { return mConcurrentDoseID;  }
     public void setConcurrentDoseID(int concurrentDoseID){mConcurrentDoseID = concurrentDoseID;}
 
-
     public int  getForPerson()              { return mForPerson;  }
     public void setForPerson(int forPerson) {  mForPerson = forPerson;   }
-
-    public boolean isStartOfDay()                    {  return mIsStartOfDay;  }
-    public void    setStartOfDay(boolean startOfDay) {  mIsStartOfDay = startOfDay; }
 
     public long getStartTime()              { return mStartTime;  }
     public void setStartTime(long startTime) { mStartTime = startTime; }
 
-    public ArrayList<MMDose> getDoses()                        { return mDoses; }
+    public ArrayList<MMDose> getDoses()                        {
+        if (!isDosesChanged()) {
+            MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+            mDoses = databaseManager.getAllDoses(mConcurrentDoseID);
+        }
+        return mDoses;
+    }
     public void              setDoses(ArrayList<MMDose> doses) { mDoses = doses; }
+    public boolean isDosesChanged(){
+        if ((mDoses == null) || (mDoses.size() == 0))return false;
+        return true;
+    }
 
     /*************************************/
     /*          Member Methods           */
@@ -92,7 +104,6 @@ public class MMConcurrentDose {
         String msg =
                     "ConcurrentDoseID, " +
                     "PersonID, "         +
-                    "IsStartOfDay, "     +
                     "Time"               ;
 
         //Names of the possible medications that this patient takes
@@ -118,7 +129,6 @@ public class MMConcurrentDose {
         String msg =
                        String.valueOf(this.getConcurrentDoseID()) + ", " +
                        String.valueOf( this.getForPerson())       + ", " +
-                       String.valueOf( this.isStartOfDay())       + ", " +
                        MMUtilities.getDateTimeString(getStartTime())     ;
 
         //concatenate dose values

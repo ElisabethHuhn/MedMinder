@@ -7,8 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import static com.androidchicken.medminder.R.id.personID;
-
 /**
  * Created by Elisabeth Huhn on 2/24/2017, adapted from MMMedicationAdapter
  * Uses a Cursor with rows from the DB rather than an ArrayList of objects from memory
@@ -56,24 +54,35 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
         return new MyViewHolder(itemView);
     }
 
-    public void removeMedication(int personID, int position) {
+    public void removeMedication(int position) {
         if (mMedicationCursor == null)return;
+        // TODO: 3/3/2017 the adapter has not been initialized if mPersonID = 0 
+        if (mPersonID == 0)return;
 
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
 
         //get the row indicated which is the person to be removed
-        MMMedication medication = medicationManager.getMedicationFromCursor(mMedicationCursor, position);
+        MMMedication medication = 
+                medicationManager.getMedicationFromCursor(mMedicationCursor, position);
         if (medication == null)return;
 
         //remove the medication from the DB
         medicationManager.removeMedicationFromDB(medication.getMedicationID());
 
+        mMedicationCursor = reinitializeCursor();
+    }
+
+    public Cursor reinitializeCursor(){
+        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
         //Create a new Cursor with the current contents of DB
-        mMedicationCursor = medicationManager.getAllMedicationsCursor(personID);
+        if (mPersonID == 0) return null;
+        mMedicationCursor = medicationManager.getAllMedicationsCursor(mPersonID);
 
         //Tell the RecyclerView to update the User Display
         notifyDataSetChanged();;
         //notifyItemRangeChanged(position, getItemCount());
+        
+        return mMedicationCursor;
     }
 
     @Override
@@ -82,8 +91,8 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
 
         if (mMedicationCursor == null ) {
 
-            if (personID == 0) return;
-            mMedicationCursor = medicationManager.getAllMedicationsCursor(personID);
+            if (mPersonID == 0) return;
+            mMedicationCursor = medicationManager.getAllMedicationsCursor(mPersonID);
             if (mMedicationCursor == null) {
                 holder.medicationBrandName.setText("");
                 holder.medicationGenericName.setText("");

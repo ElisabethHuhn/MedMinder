@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import static com.androidchicken.medminder.MMDatabaseManager.sDB_ERROR_CODE;
+
 /**
  * Created by Elisabeth Huhn on 7/9/2016.
  * This class makes all the actual calls to the DB
@@ -104,7 +106,6 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     // Column Names
     public static final String CONCURRENT_DOSE_ID              = "conc_dose_id";
     public static final String CONCURRENT_DOSE_FOR_PERSON_ID   = "conc_dose_for_person_id";
-    public static final String CONCURRENT_DOSE_IS_START_OF_DAY = "conc_dose_is_start_of_day";
     public static final String CONCURRENT_DOSE_START_TIME      = "conc_dose_start_time";
 
 
@@ -114,7 +115,6 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
             KEY_ID                          + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             CONCURRENT_DOSE_ID              + " INTEGER, " +
             CONCURRENT_DOSE_FOR_PERSON_ID   + " INTEGER, " +
-            CONCURRENT_DOSE_IS_START_OF_DAY + " INTEGER, " + //Boolean 0=false, 1 = true
             CONCURRENT_DOSE_START_TIME      + " INTEGER, " +
             KEY_CREATED_AT                  + " INTEGER " + ")";
 
@@ -255,7 +255,6 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     @Override
     public void onOpen(SQLiteDatabase db){
         super.onOpen(db);
-        String temp = "";
     }
 
 
@@ -269,13 +268,53 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
 
 
     //****************************** Create ****************************
-    public long add(SQLiteDatabase db,
-                    String   table,
-                    String   nullColumnHack,
-                    ContentValues  values){
-        // Inserting Rows
-        return db.insert(table, null, values);
+
+    /****************************************
+     * Add is actually a complex function.
+     * Add checks whether the object already exists within the DB.
+     * If it does, the row is updated with the new values.
+     * Else, the object is inserted into the DB, returning the new ID
+     *   (which is unique within the table).
+     *   The function then re-updates the row with the new ID.
+     *
+     * @param db            - The database to be updated
+     * @param table         - The table within the database
+     * @param values        - A content values structure describing the row
+     * @param where_clause  - Uniquely describes the row to be updated
+     * @param id_key        - The key of the ID column within the row
+     * @return              - A success/failure boolean indicating status of the update/insert
+     */
+    public boolean add( SQLiteDatabase db,
+                        String         table,
+                        ContentValues  values,          //Column names and new values
+                        String         where_clause,
+                        String         id_key){//null updates all rows
+
+        long returnCode = 0;
+        //determine whether object is already in DB
+        Cursor cursor = getObject(  db,
+                                    table,
+                                    null,    //get the whole object
+                                    where_clause,
+                                    null, null, null, null);
+        if (cursor.getCount() > 0){
+            //need to update
+            returnCode = db.update(table, values, where_clause, null);
+
+        } else {
+            //need to insert
+            returnCode = db.insert(table, null, values);
+            if (returnCode == sDB_ERROR_CODE)return false;
+
+            //update the object with the new ID
+            int id_value = (int) values.get(id_key);
+            values.put(id_key, returnCode);
+            returnCode = db.update(table, values, where_clause, null);
+        }
+
         //db.close(); //never close the db instance. Just leave the connection open
+        if (returnCode == sDB_ERROR_CODE)return false;
+        return true;
     }
 
     //**************************** READ *******************************
@@ -301,16 +340,7 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
 
 
     //********************* UPDATE *************************
-    //returns the number of rows affected
-    public int update (SQLiteDatabase  db,
-                        String         table,
-                        ContentValues  cv,          //Column names and new values
-                        String         where_clause,//null updates all rows
-                        String[]       where_args ){ //values that replace ? in where clause
-        //update(String table, ContentValues values, String whereClause, String[] whereArgs)
-        //Any ? in the where_clause are replaced with arguments
-        return (db.update(table, cv, where_clause, where_args));
-    }
+    //use add, it attempts an insert. If that fails, it tries an update
 
 
     //***************** DELETE ***************************************

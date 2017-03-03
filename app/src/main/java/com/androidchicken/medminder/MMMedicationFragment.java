@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,15 +23,21 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import static com.androidchicken.medminder.MMUtilities.BUTTON_ENABLE;
+
 
 /**
  * The main UI screen for maintaining (CRUD) a Medication
  */
-public class MainMMMedicationFragment extends Fragment {
+public class MMMedicationFragment extends Fragment {
+
+    private static final int SET_SCHEDULE_FOR_MEDICATION = 1;
+    private static final int AS_NEEDED                   = 2;
 
     /***********************************************/
     /*        UI Widget Views                      */
     /***********************************************/
+    private Button   mMedicationExitButton;
     private Button   mMedicationSaveButton;
     private Button   mMedicationAddScheduleButton;
 
@@ -66,7 +73,7 @@ public class MainMMMedicationFragment extends Fragment {
     //need to pass a medication into the fragment
     //position is the index of the medication in the person list
     //-1 indicates add new medication
-    public static MainMMMedicationFragment newInstance(int personID, int position){
+    public static MMMedicationFragment newInstance(int personID, int position){
         //create a bundle to hold the arguments
         Bundle args = new Bundle();
 
@@ -75,7 +82,7 @@ public class MainMMMedicationFragment extends Fragment {
         args.putInt         (MMPerson.sPersonIDTag,personID);
         args.putInt         (MMPerson.sPersonMedicationPositionTag, position);
 
-        MainMMMedicationFragment fragment = new MainMMMedicationFragment();
+        MMMedicationFragment fragment = new MMMedicationFragment();
 
         fragment.setArguments(args);
         
@@ -85,7 +92,7 @@ public class MainMMMedicationFragment extends Fragment {
     /***********************************************/
     /*          Constructor                        */
     /***********************************************/
-    public MainMMMedicationFragment() {
+    public MMMedicationFragment() {
     }
 
 
@@ -121,6 +128,7 @@ public class MainMMMedicationFragment extends Fragment {
 
         //Wire up the UI widgets so they can handle events later
         wireWidgets(v);
+        wireListTitleWidgets(v);
         initializeRecyclerView(v);
         initializeUI();
 
@@ -136,6 +144,24 @@ public class MainMMMedicationFragment extends Fragment {
         mMedicationForPerson = (TextView) v.findViewById(R.id.medicationForPerson);
         //There are no events associated with this field
 
+        mMedicationExitButton = (Button) v.findViewById(R.id.medicationExitButton);
+        mMedicationExitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(),
+                        R.string.exit_label,
+                        Toast.LENGTH_SHORT).show();
+                //Exit the Medication to the Medication Manager
+                //onExit();
+
+                //switch to home screen
+                // But the switching happens on the container Activity
+                ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
+            }
+
+        });
+
+
         mMedicationSaveButton = (Button) v.findViewById(R.id.medicationSaveButton);
         mMedicationSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,36 +172,30 @@ public class MainMMMedicationFragment extends Fragment {
                 //Save the Medication to the Medication Manager
                 onSave();
 
-                //switch to home screen
-                // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
             }
 
         });
 
 
-
         mMedicationAddScheduleButton = (Button) v.findViewById(R.id.medicationAddScheduleButton);
         MMMedication medication = getMedicationInstance(mPersonID, mPosition);
         if (medication != null){
-            ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
-            int schedSize = 0;
-            if (schedules != null) {
-                schedSize = schedules.size();
-            }
-            if (schedSize > 0){
+            //have the button say the correct thing
+            if (medication.isSchedulesChanged()){
                 mMedicationAddScheduleButton.setText(R.string.medication_update_schedule);
             }
+        } else {
+            //don't enable button until the medication is actually created
+            MMUtilities.enableButton(getActivity(),
+                                     mMedicationAddScheduleButton,
+                                     MMUtilities.BUTTON_DISABLE);
+
+            Toast.makeText(getActivity(), R.string.medication_save_first, Toast.LENGTH_SHORT).show();
         }
         mMedicationAddScheduleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPosition < 0 ){
-                    Toast.makeText(getActivity(),
-                            R.string.medication_save_first,
-                            Toast.LENGTH_SHORT).show();
-                    return;
-                }
+
                 Toast.makeText(getActivity(),
                         R.string.medication_maintain_schedule,
                         Toast.LENGTH_SHORT).show();
@@ -224,6 +244,35 @@ public class MainMMMedicationFragment extends Fragment {
         });
 
 
+        mMedicationDoseStrategyInput = (EditText) v.findViewById(R.id.medicationDoseStrategyInput);
+        mMedicationDoseStrategyInput.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+
+                return false;
+            }
+        });
+        mMedicationDoseStrategyInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if (!hasFocus){
+                    //Strategy just lost focus
+                    int strategy =
+                            Integer.valueOf(mMedicationDoseStrategyInput.getText().toString().trim());
+                    if (strategy == SET_SCHEDULE_FOR_MEDICATION){
+                        MMMedication medication = getMedicationInstance(mPersonID, mPosition);
+                        if (medication != null){
+                            MMUtilities.enableButton(getActivity(),
+                                                     mMedicationAddScheduleButton,
+                                                     BUTTON_ENABLE);
+
+                        }
+                    }
+                }
+            }
+        });
+
         mMedicationDoseAmountInput = (EditText) v.findViewById(R.id.medicationDoseAmountInput);
         mMedicationDoseAmountInput.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -255,17 +304,32 @@ public class MainMMMedicationFragment extends Fragment {
         });
 
 
-        mMedicationDoseStrategyInput = (EditText) v.findViewById(R.id.medicationDoseStrategyInput);
-        mMedicationDoseStrategyInput.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-
-                return false;
-            }
-        });
-
     }
+
+
+    private void wireListTitleWidgets(View v){
+        View field_container;
+        TextView label;
+
+        MainActivity myActivity = (MainActivity)getActivity();
+
+        //set up the labels for the medication list
+        field_container = v.findViewById(R.id.schedMedTitleRow);
+
+        label = (TextView) (field_container.findViewById(R.id.medicationNickNameOutput));
+        label.setText(R.string.medication_nick_name_label);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
+        label = (EditText) (field_container.findViewById(R.id.medicationForPersonOutput));
+        label.setText(R.string.medication_for_label);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
+        label = (EditText) (field_container.findViewById(R.id.scheduleTimeOutput));
+        label.setText(R.string.medication_dose_time);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+    }
+
+
 
     private void   initializeRecyclerView(View v){
             /*
@@ -321,9 +385,9 @@ public class MainMMMedicationFragment extends Fragment {
 
         //8) add event listeners to the recycler view
         recyclerView.addOnItemTouchListener(
-                        new MainMMHomeFragment.RecyclerTouchListener(getActivity(),
+                        new MMHomeFragment.RecyclerTouchListener(getActivity(),
                         recyclerView,
-                        new MainMMHomeFragment.ClickListener() {
+                        new MMHomeFragment.ClickListener() {
 
                     @Override
                     public void onClick(View view, int position) {
@@ -368,10 +432,13 @@ public class MainMMMedicationFragment extends Fragment {
             mMedicationGenericNameInput.setText(medication.getGenericName().toString().trim());
             mMedicationNickNameInput.setText(medication.getMedicationNickname().toString().trim());
 
-            mMedicationDoseStrategyInput.setText(Integer.valueOf(medication.getDoseStrategy()).toString().trim());
-            mMedicationDoseAmountInput.setText(Integer.valueOf(medication.getDoseAmount()).toString().trim());
+            mMedicationDoseStrategyInput.
+                    setText(Integer.valueOf(medication.getDoseStrategy()).toString().trim());
+            mMedicationDoseAmountInput.
+                    setText(Integer.valueOf(medication.getDoseAmount()).toString().trim());
             mMedicationDoseUnitsInput.setText(medication.getDoseUnits().toString().trim());
-            mMedicationDoseNumInput.setText(Integer.valueOf(medication.getDoseNumPerDay()).toString().trim());
+            mMedicationDoseNumInput.
+                    setText(Integer.valueOf(medication.getDoseNumPerDay()).toString().trim());
         }
     }
 
@@ -381,51 +448,65 @@ public class MainMMMedicationFragment extends Fragment {
         MMMedication medication = getMedicationInstance(mPersonID, mPosition);
 
         if (medication == null) {
-            medication = new MMMedication();
+            //we are creating this medication for the first time
+            medication = new MMMedication(0);
             medication.setForPersonID(mPersonID);
         }
         //Set the medication as belonging to the person
-        medication.setForPersonID(mPersonID);
+        medication.setForPersonID       (mPersonID);
         medication.setMedicationNickname(mMedicationNickNameInput.   getText().toString().trim());
         medication.setBrandName         (mMedicationBrandNameInput.  getText().toString().trim());
         medication.setGenericName       (mMedicationGenericNameInput.getText().toString().trim());
-        medication.setDoseStrategy(Integer.valueOf(mMedicationDoseStrategyInput.getText().toString().trim()));
+        medication.setDoseStrategy (
+                Integer.valueOf(mMedicationDoseStrategyInput.getText().toString().trim()));
         medication.setDoseUnits         (mMedicationDoseUnitsInput.  getText().toString().trim());
-        medication.setDoseAmount  (Integer.valueOf(mMedicationDoseAmountInput.getText().toString().trim()));
-        medication.setDoseNumPerDay(Integer.valueOf(mMedicationDoseNumInput.   getText().toString().trim()));
+        medication.setDoseAmount   (
+                Integer.valueOf(mMedicationDoseAmountInput.getText().toString().trim()));
+        medication.setDoseNumPerDay(
+                Integer.valueOf(mMedicationDoseNumInput.   getText().toString().trim()));
 
-        if (!isInMedications(medication)){
-            //If this flag is false, then need to add the medication to the person
-            //AND add it to the DB
-            MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-
-            MMPerson person = MMUtilities.getPerson(mPersonID);
-            //Add the medication to the person, and to the DB
-            boolean addToDBToo = true;
-            if ((person == null) ||
-                (!medicationManager.addToPerson(person, medication, addToDBToo))) {
-                MMUtilities.errorHandler(getActivity(), R.string.exception_medication_not_added);
-            }
-
-        }
-
+        //Add the medication to the person if necessary, but definately add to the DB
         //add the scheduleMedications to the DB as well
-        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
-        ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
-        if (schedules != null) {
-            MMScheduleMedication scheduleMedication;
-            boolean returnCode;
-            if ((schedules != null) && (schedules.size() > 0)) {
-                int last = schedules.size();
+        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
+        MMPerson person = MMUtilities.getPerson(mPersonID);
+        //Add the medication to the person, and to the DB
+        boolean addToDBToo = true;
+        if (person == null) {
+            MMUtilities.errorHandler(getActivity(), R.string.exception_medication_not_added);
+        } else {
+            if (!medicationManager.addToPerson(person, medication, addToDBToo)) {
+                MMUtilities.errorHandler(getActivity(), R.string.exception_medication_not_added);
+            } else {
+                //Tell the user everything went well
+                Toast.makeText(getActivity(), R.string.save_successful, Toast.LENGTH_SHORT).show();
+                //enable the button to add schedules to this medication
+                if (medication.getDoseStrategy() == SET_SCHEDULE_FOR_MEDICATION) {
+                    MMUtilities.enableButton(getActivity(),
+                                             mMedicationAddScheduleButton,
+                                             MMUtilities.BUTTON_ENABLE);
+                }
+                //update position with this medications position
+                ArrayList<MMMedication> medications = person.getMedications();
+                MMMedication checkMed;
+                int last = medications.size();
                 int position = 0;
-                while (position < last) {
-                    scheduleMedication = schedules.get(position);
-                    returnCode = schedMedManager.addScheduleMedication(scheduleMedication);
-                    if (!returnCode) {
-                        returnCode = schedMedManager.updateScheduleMedication(scheduleMedication);
-                        // TODO: 2/26/2017 what if db update fails totally???
+                int medicationID = medication.getMedicationID();
+                while (position < last){
+                    checkMed = medications.get(position);
+                    if (medicationID == checkMed.getMedicationID()){
+                        mPosition = position;
+                        position = last;//so we'll fall out of the loop
                     }
                     position++;
+                }
+
+                RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.scheduleList);
+                MMSchedMedCursorAdapter adapter = (MMSchedMedCursorAdapter)recyclerView.getAdapter();
+                if (adapter != null) {
+                    adapter.reinitializeCursor(medicationID);
+                } else {
+                    //we did not have a medication earlier so it never got initialized
+                    initializeRecyclerView(getView());
                 }
             }
         }
@@ -437,10 +518,15 @@ public class MainMMMedicationFragment extends Fragment {
         MMMedication medication = getMedicationInstance(mPersonID, mPosition);
         if (medication == null)return;
 
+        if (medication.getDoseStrategy() != SET_SCHEDULE_FOR_MEDICATION){
+            MMUtilities.errorHandler(getActivity(), R.string.medication_not_scheduled);
+            return;
+        }
+
         int numPerDay = Integer.valueOf(mMedicationDoseNumInput.getText().toString());
 
         ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
-        if ((schedules == null) || (schedules.size() < numPerDay)){
+        if ((schedules == null) || (schedules.size() != numPerDay)){
             //need to create schedule from scratch
             schedules = createSchedules(mPersonID, medication.getMedicationID());
             medication.setSchedules(schedules);
@@ -456,7 +542,8 @@ public class MainMMMedicationFragment extends Fragment {
         while (position < numPerDay){
             scheduleMedication = schedules.get(position);
             hours = scheduleMedication.getTimeDue() / 60;
-            minutes = scheduleMedication.getTimeDue() - (hours * 60);
+            minutes = scheduleMedication.getTimeDue();
+            minutes = minutes - (hours * 60);
             schedMedID = scheduleMedication.getSchedMedID();
 
             showPicker(schedMedID, hours, minutes, is24Format);
@@ -465,10 +552,13 @@ public class MainMMMedicationFragment extends Fragment {
 
     }
 
-    private TimePickerDialog showPicker(final int schedMedID, int hour, int minute, boolean is24Format){
+    private TimePickerDialog showPicker(final int schedMedID,
+                                              int hour,
+                                              int minute,
+                                              boolean is24Format){
         TimePickerDialog timePickerDialog = new TimePickerDialog(
-                getActivity(),
-                new TimePickerDialog.OnTimeSetListener() {
+                                                        getActivity(),
+                                                        new TimePickerDialog.OnTimeSetListener() {
 
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -503,7 +593,7 @@ public class MainMMMedicationFragment extends Fragment {
 
         int hoursBetween = 24/numPerDay;
         int minutesBetween = hoursBetween*60;
-        int minutesDue = 0;
+        int minutesDue = 6*60;//first dose due at 6am
 
         int position = 0;
         MMScheduleMedication scheduleMed;
@@ -545,8 +635,8 @@ public class MainMMMedicationFragment extends Fragment {
 
         //flag assumes the medication is already there, but if not......
         if ((position == -1) || (medications.size() < mPosition)) {
-            //just create a new medication and add it
-            medication = new MMMedication();
+            //return an error
+           return null;
         } else {
             medication = person.getMedications().get(mPosition);
         }
@@ -561,6 +651,8 @@ public class MainMMMedicationFragment extends Fragment {
 
     private ArrayList<MMScheduleMedication> getSchedules(int personID, int position){
         MMMedication medication = getMedicationInstance(personID, position);
+        if (medication == null)return null;
+
         return medication.getSchedules();
     }
 
@@ -596,11 +688,11 @@ public class MainMMMedicationFragment extends Fragment {
     public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
         private GestureDetector gestureDetector;
-        private MainMMHomeFragment.ClickListener clickListener;
+        private MMHomeFragment.ClickListener clickListener;
 
         public RecyclerTouchListener(Context context,
                                      final RecyclerView recyclerView,
-                                     final MainMMHomeFragment.ClickListener clickListener) {
+                                     final MMHomeFragment.ClickListener clickListener) {
 
             this.clickListener = clickListener;
             gestureDetector = new GestureDetector(context,

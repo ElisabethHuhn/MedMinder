@@ -37,8 +37,7 @@ public class MMDatabaseManager {
     private static String sNoContextException = "Can not create database without a context";
     private static String sNotInitializedException =
             "Attempt to access the database before it has been initialized";
-    private static String sNotOpenedException =
-            "Attempt to access the database before it has been opened";
+
 
     /************************************************/
     /*         Instance variables                   */
@@ -183,56 +182,43 @@ public class MMDatabaseManager {
     /*        Person CRUD methods                   */
     /************************************************/
 
-
     //******************************    COUNT    ***********************
     //Get count of persons
-    //// TODO: 11/1/2016 write this routine if it is needed
     //public int getPersonCount() {}
 
     //******************************    Create    ***********************
     public boolean addPerson(MMPerson person){
-        long returnCode = 0;
+        boolean returnCode = false;
         MMPersonManager personManager = MMPersonManager.getInstance();
         returnCode = mDatabaseHelper.add(mDatabase,
                                          TABLE_PERSON,
-                                         null,
-                                         personManager.getCVFromPerson(person));
-        if (returnCode == sDB_ERROR_CODE)return false;
-        return true;
+                                         personManager.getCVFromPerson(person),
+                                         getPersonWhereClause(person.getPersonID()),
+                                         MMDataBaseSqlHelper.PERSON_ID);
+
+        return returnCode;
     }
 
 
     //***********************  Read **********************************
 
     public Cursor getAllPersonsCursor(){
-        Cursor cursor = mDatabaseHelper.getObject(  mDatabase,
+        return mDatabaseHelper.getObject(  mDatabase,
                                                     TABLE_PERSON,
                                                     null,    //get the whole object
                                                     null,
                                                     null, null, null, null);
-        return cursor;
+
     }
 
 
     //Reads the Persons into memory
     //Returns the number of persons read in
-    public int getAllPersons(){
-        Cursor cursor = mDatabaseHelper.getObject(  mDatabase,
-                                                    TABLE_PERSON,
-                                                    null,    //get the whole person
-                                                    null,    //get all persons.
-                                                    null, null, null, null);
+    public ArrayList<MMPerson>  getAllPersons(){
 
-        //get the person row from the DB
-        /********************************
-         Cursor query (String table, //Table Name
-         String[] columns,   //Columns to return, null for all columns
-         String where_clause,
-         String[] selectionArgs, //replaces ? in the where_clause with these arguments
-         String groupBy, //null meanas no grouping
-         String having,   //row grouping
-         String orderBy)  //null means the default sort order
-         *********************************/
+        Cursor cursor = getAllPersonsCursor();
+
+       //convert the cursor into a list of Person instances
 
         //create a person object from the Cursor object
         MMPersonManager personManager = MMPersonManager.getInstance();
@@ -240,16 +226,17 @@ public class MMDatabaseManager {
         int position = 0;
         int last = cursor.getCount();
         MMPerson person;
+        ArrayList<MMPerson> persons = new ArrayList<>();
+
         while (position < last) {
             person = personManager.getPersonFromCursor(cursor, position);
             if (person != null) {
-                personManager.addFromDB(person);
+                persons.add(person);
             }
             position++;
         }
         cursor.close();
-        return last;
-
+        return persons;
     }
 
     //NOTE this routine does NOT add the person to the RAM list maintained by PersonManager
@@ -263,20 +250,10 @@ public class MMDatabaseManager {
                                                 getPersonWhereClause(personID), //where clause
                                                 null, null, null, null);//args, group, row grouping, order
 
-
-/********************************
-        Cursor query (String table, //Table Name
-                String[] columns,   //Columns to return, null for all columns
-                String where_clause,
-                String[] selectionArgs, //replaces ? in the where_clause with these arguments
-                String groupBy, //null meanas no grouping
-                String having,   //row grouping
-                String orderBy)  //null means the default sort order
-*********************************/
-
         //create a person object from the Cursor object
         MMPersonManager personManager = MMPersonManager.getInstance();
-        return personManager.getPersonFromCursor(cursor, 0);//get the first row in the cursor
+        int row = 0; //get the first row in the cursor
+        return personManager.getPersonFromCursor(cursor, row);
 
     }
 
@@ -284,19 +261,6 @@ public class MMDatabaseManager {
 
     //********************************    Update   *************************
 
-
-    public  int updatePerson(MMPerson person) {
-        MMPersonManager personManager = MMPersonManager.getInstance();
-        int             personID      = person.getPersonID();
-
-        return mDatabaseHelper.update(
-                mDatabase,
-                TABLE_PERSON,
-                personManager.getCVFromPerson(person),
-                getPersonWhereClause(personID),
-                null);  //values that replace ? in where clause
-
-    }
 
     //*********************************     Delete    ***************************
     //The return code indicates how many rows affected
@@ -318,40 +282,46 @@ public class MMDatabaseManager {
 
 
 
-
-
-
     /************************************************/
     /*        Medication CRUD methods               */
     /************************************************/
 
 
     //Get count of medications
-    //// TODO: 11/1/2016 write this routine if it is needed
+
     //public int getMedicationCount() {}
 
     //******************************    Create    ***********************
     public boolean addMedication(MMMedication medication){
-        long returnCode = 0;
+        boolean returnCode = true;
 
+        //first add/update the medication
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
         returnCode = mDatabaseHelper.add(mDatabase,
                                         TABLE_MEDICATION,
-                                        null,
-                                        medicationManager.getCVFromMedication(medication));
-        if (returnCode == sDB_ERROR_CODE)return false;
+                                        medicationManager.getCVFromMedication(medication),
+                                        getMedicationIDWhereClause(medication.getMedicationID()),
+                                        MMDataBaseSqlHelper.MEDICATION_ID);
+        if (!returnCode)return false;
 
-        ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
+        //only need to update the DB with schedules if there are some in memory
+        //we need this check first, as the medication.getSchedules()
+        //  reads any DB objects into memory.
+        //  We don't need to read them in then write them back out immediately
+        if (medication.isSchedulesChanged()) {
+            ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
 
-        int last = schedules.size();
-        int position = 0;
-        while (position < last){
-            MMScheduleMedication scheduleMed  = (MMScheduleMedication)schedules.get(position);
-            if (!addSchedMed(scheduleMed))return false;
-            position++;
+            int last = schedules.size();
+            int position = 0;
+            while (position < last) {
+                MMScheduleMedication scheduleMed =  schedules.get(position);
+                returnCode = addSchedMed(scheduleMed);
+                if (!returnCode) return false;
+                position++;
+            }
         }
 
-        return true;
+        return returnCode;
     }
 
 
@@ -366,10 +336,9 @@ public class MMDatabaseManager {
         return cursor;
     }
 
-    //Reads the Medications linked to this person into memory
-    //Returns the number of medications read in
-    public int getAllMedications(int personID){
-        if (personID == 0) return 0;
+    //gets the Medications linked to this person
+    public ArrayList<MMMedication> getAllMedications(int personID){
+        if (personID == 0) return null;
 
         Cursor cursor = getAllMedicationsCursor(personID);
 
@@ -379,47 +348,18 @@ public class MMDatabaseManager {
         int position = 0;
         int last = cursor.getCount();
         MMMedication medication;
+        ArrayList<MMMedication> medications = new ArrayList<>();
+
         while (position < last) {
             //translate the cursor into a medication object
             medication = medicationManager.getMedicationFromCursor(cursor, position);
             if (medication != null) {
-                //add the medication object to the medication manager's list (which is on the person)
-                if (!medicationManager.addFromDB(medication)) {
-                    throw new RuntimeException("Can't add medication from DB");
-                }
+                medications.add(medication);
             }
             position++;
         }
         cursor.close();
-        return last;
-
-    }
-
-    //NOTE this routine does NOT add the medication to the Person where
-    public MMMedication getMedication(int medicationID, int personID){
-
-        //get the medication row from the DB
-        Cursor cursor = mDatabaseHelper.getObject(
-                mDatabase,     //the db to access
-                TABLE_MEDICATION,  //table name
-                null,          //get the whole medication
-                getMedicationWhereClause(medicationID, personID), //where clause
-                null, null, null, null);//args, group, row grouping, order
-
-
-/********************************
- Cursor query (String table, //Table Name
- String[] columns,   //Columns to return, null for all columns
- String where_clause,
- String[] selectionArgs, //replaces ? in the where_clause with these arguments
- String groupBy, //null meanas no grouping
- String having,   //row grouping
- String orderBy)  //null means the default sort order
- *********************************/
-
-        //create a medication object from the Cursor object
-        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-        return medicationManager.getMedicationFromCursor(cursor, 0);//get the first row in the cursor
+        return medications;
     }
 
 
@@ -428,32 +368,22 @@ public class MMDatabaseManager {
 
         //get the medication row from the DB
         Cursor cursor = mDatabaseHelper.getObject(
-                mDatabase,     //the db to access
-                TABLE_MEDICATION,  //table name
-                null,          //get the whole medication
-                getMedicationWhereClause(medicationID), //where clause
-                null, null, null, null);//args, group, row grouping, order
+                                        mDatabase,     //the db to access
+                                        TABLE_MEDICATION,  //table name
+                                        null,          //get the whole medication
+                                        getMedicationIDWhereClause(medicationID), //where clause
+                                        null, null, null, null);//args, group, row grouping, order
 
         //create a medication object from the Cursor object
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-        return medicationManager.getMedicationFromCursor(cursor, 0);//get the first row in the cursor
+        int row = 0;//get the first row in the cursor
+        return medicationManager.getMedicationFromCursor(cursor, row);
     }
 
 
     //********************************    Update   *************************
-
-    public  int updateMedication(MMMedication medication) {
-
-        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-
-        return mDatabaseHelper.update(
-                mDatabase,
-                TABLE_MEDICATION,
-                medicationManager.getCVFromMedication(medication),
-                getMedicationWhereClause(medication.getMedicationID(), medication.getForPersonID()),
-                null);  //values that replace ? in where clause
-    }
-
+    //add first attempts an update, if that fails, it attempts an insert
+    //so there is no need for an update
 
 
     //*********************************     Delete    ***************************
@@ -479,6 +409,11 @@ public class MMDatabaseManager {
                 String.valueOf(personID) + "'";
     }
 
+    //This gets a single medication
+    private String getMedicationIDWhereClause(int medicationID){
+        return  MMDataBaseSqlHelper.MEDICATION_ID + " = '" + String.valueOf(medicationID) +"'";
+    }
+
     //This gets all medications linked to this person
     private String getMedicationWhereClause(int personID){
 
@@ -486,73 +421,9 @@ public class MMDatabaseManager {
     }
 
 
-
-    /************************************************/
-    /*        Dose CRUD methods                     */
-    /************************************************/
-
-
-    //CRUD routines for a Dose
-
-
-    public ArrayList<MMDose> getDosesForCD(MMConcurrentDose concurrentDose){
-
-        ArrayList<MMDose> doses = new ArrayList<>();
-
-        //get the dose row from the DB
-        Cursor cursor = mDatabaseHelper.getObject(
-                mDatabase,     //the db to access
-                TABLE_DOSE,   //table name
-                null,          //get the whole dose
-                getDosesWhereClause(concurrentDose.getConcurrentDoseID()), //where clause
-                null, null, null, null);//args, group, row grouping, order
-
-        //create Dose objects from the Cursor object
-        MMDoseManager doseManager = MMDoseManager.getInstance();
-
-        int position = 0;
-        int last = cursor.getCount();
-        MMDose dose;
-
-        while (position < last) {
-            //translate the cursor into a dose object
-            dose = doseManager.getDoseFromCursor(cursor, position);
-            if (dose != null) {
-                //add the dose object to the list
-                doses.add(dose);
-            }
-            position++;
-        }
-        cursor.close();
-        return doses;
-    }
-
-
-    public boolean addDose(MMDose dose){
-        long returnCode = 0;
-        MMDoseManager doseManager = MMDoseManager.getInstance();
-        returnCode = mDatabaseHelper.add(mDatabase, TABLE_DOSE, null, doseManager.getCVFromDose(dose));
-        if (returnCode == sDB_ERROR_CODE)return false;
-        return true;
-    }
-
-
-    /************************************************/
-    /*        Dose specific CRUD  utility         */
-    /************************************************/
-    //This gets a single medication
-    private String getDosesWhereClause(int concurrentDoseID){
-        return MMDataBaseSqlHelper.DOSE_CONTAINED_IN_CONCURRENT_DOSE + " = '" +
-                                        String.valueOf(concurrentDoseID) + "'";
-    }
-
-
     /************************************************/
     /*        Concurrent Dose CRUD methods          */
     /************************************************/
-
-    //CRUD routines for a ConcurrentDose
-
     public Cursor getAllConcurrentDosesCursor(int personID){
         Cursor cursor = mDatabaseHelper.getObject(  mDatabase,
                                                     TABLE_CONCURRENT_DOSE,
@@ -564,15 +435,44 @@ public class MMDatabaseManager {
     }
 
 
-    public boolean addConcurrentDose(MMConcurrentDose concurrentDose){
-        long returnCode = 0;
+    //gets the ConcurrentDoses linked to this person
+    public ArrayList<MMConcurrentDose> getAllConcurrentDoses(int personID){
+        if (personID == 0) return null;
+
+        Cursor cursor = getAllConcurrentDosesCursor(personID);
+
+        //create a concurrentDose object from the Cursor object
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
-        mDatabaseHelper.add(mDatabase,
+
+        int position = 0;
+        int last = cursor.getCount();
+        MMConcurrentDose concurrentDose;
+        ArrayList<MMConcurrentDose> concurrentDoses = new ArrayList<>();
+
+        while (position < last) {
+            //translate the cursor into a concurrentDose object
+            concurrentDose = concurrentDoseManager.getConcurrentDoseFromCursor(cursor, position);
+            if (concurrentDose != null) {
+                concurrentDoses.add(concurrentDose);
+            }
+            position++;
+        }
+        cursor.close();
+        return concurrentDoses;
+    }
+
+
+    public boolean addConcurrentDose(MMConcurrentDose concurrentDose){
+        boolean returnCode = true;
+
+        MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
+        returnCode = mDatabaseHelper.add(mDatabase,
                             TABLE_CONCURRENT_DOSE,
-                            null,
-                            concurrentDoseManager.getCVFromConcurrentDose(concurrentDose));
-        if (returnCode == sDB_ERROR_CODE)return false;
-        return true;
+                            concurrentDoseManager.getCVFromConcurrentDose(concurrentDose),
+                            getConcurrentDosesIDWhereClause(concurrentDose.getConcurrentDoseID()),
+                            MMDataBaseSqlHelper.CONCURRENT_DOSE_ID);
+
+        return returnCode;
     }
 
 
@@ -603,6 +503,75 @@ public class MMDatabaseManager {
     }
 
 
+
+    /************************************************/
+    /*        Dose CRUD methods                     */
+    /************************************************/
+
+    public Cursor getAllDosesCursor(int concurrentDoseID){
+        //get the dose row from the DB
+        return mDatabaseHelper.getObject(
+                mDatabase,     //the db to access
+                TABLE_DOSE,   //table name
+                null,          //get the whole dose
+                getDosesWhereClause(concurrentDoseID), //where clause
+                null, null, null, null);//args, group, row grouping, order
+    }
+
+    public ArrayList<MMDose> getAllDoses(int concurrentDoseID){
+
+        ArrayList<MMDose> doses = new ArrayList<>();
+
+        Cursor cursor = getAllDosesCursor(concurrentDoseID);
+
+        //create Dose objects from the Cursor object
+        MMDoseManager doseManager = MMDoseManager.getInstance();
+
+        int position = 0;
+        int last = cursor.getCount();
+        MMDose dose;
+
+        while (position < last) {
+            //translate the cursor into a dose object
+            dose = doseManager.getDoseFromCursor(cursor, position);
+            if (dose != null) {
+                //add the dose object to the list
+                doses.add(dose);
+            }
+            position++;
+        }
+        cursor.close();
+        return doses;
+    }
+
+
+    public boolean addDose(MMDose dose){
+        boolean returnCode = true;
+        MMDoseManager doseManager = MMDoseManager.getInstance();
+        returnCode = mDatabaseHelper.add(mDatabase,
+                                         TABLE_DOSE,
+                                         doseManager.getCVFromDose(dose),
+                                         getDosesIDWhereClause(dose.getDoseID()),
+                                         MMDataBaseSqlHelper.DOSE_ID);
+
+        return returnCode;
+    }
+
+
+    /************************************************/
+    /*        Dose specific CRUD  utility         */
+    /************************************************/
+    //This gets a single medication
+    private String getDosesWhereClause(int concurrentDoseID){
+        return MMDataBaseSqlHelper.DOSE_CONTAINED_IN_CONCURRENT_DOSE + " = '" +
+                String.valueOf(concurrentDoseID) + "'";
+    }
+
+    //This gets a single medication
+    private String getDosesIDWhereClause(int doseID){
+        return MMDataBaseSqlHelper.DOSE_ID + " = '" + String.valueOf(doseID) + "'";
+    }
+
     /************************************************/
     /*     Schedule Medications CRUD methods        */
     /************************************************/
@@ -620,7 +589,7 @@ public class MMDatabaseManager {
 
     }
 
-    public ArrayList<MMScheduleMedication> getTimesForSM(int medicationID){
+    public ArrayList<MMScheduleMedication> getAllSchedMeds(int medicationID){
         ArrayList<MMScheduleMedication> times = new ArrayList<>();
 
         Cursor cursor = getAllSchedMedsCursor(medicationID);
@@ -634,36 +603,24 @@ public class MMDatabaseManager {
                 times.add(scheduleMedication);
                 position++;
             }
+            cursor.close();
         }
-        cursor.close();
+
         return times;
     }
 
 
 
     public boolean addSchedMed(MMScheduleMedication schedMed){
-        long returnCode = 0;
+        boolean returnCode = true;
         MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
-        mDatabaseHelper.add(mDatabase,
-                            TABLE_SCHED_MED,
-                            null,
-                            schedMedManager.getCVFromScheduleMedication(schedMed));
-        if (returnCode == sDB_ERROR_CODE)return false;
-        return true;
-    }
+        returnCode = mDatabaseHelper.add(mDatabase,
+                                         TABLE_SCHED_MED,
+                                         schedMedManager.getCVFromScheduleMedication(schedMed),
+                                         getSchedMedIDWhereClause(schedMed.getSchedMedID()),
+                                         MMDataBaseSqlHelper.SCHED_MED_ID);
 
-
-
-    public boolean updateSchedMed(MMScheduleMedication schedMed){
-        long returnCode = 0;
-        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
-        returnCode = mDatabaseHelper.update(mDatabase,
-                                            TABLE_SCHED_MED,
-                                            schedMedManager.getCVFromScheduleMedication(schedMed),
-                                            getSchedMedIDWhereClause(schedMed.getSchedMedID()),
-                                            null);
-        if (returnCode == sDB_ERROR_CODE)return false;
-        return true;
+        return returnCode;
     }
 
 

@@ -85,7 +85,7 @@ public class MMSchedMedManager {
 
 
 
-    //The routine that actually adds the instance both to in memory list and to DB
+    //The routine that actually adds the instance to DB
     public boolean addScheduleMedication(MMScheduleMedication scheduleMedication){
         boolean returnCode = true;
 
@@ -95,22 +95,14 @@ public class MMSchedMedManager {
         return returnCode;
     }
 
-    public boolean updateScheduleMedication(MMScheduleMedication scheduleMedication){
-        boolean returnCode = true;
-
-        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        returnCode = databaseManager.updateSchedMed(scheduleMedication);
-
-        return returnCode;
-    }
 
     /********************************************/
     /********* Public Member Methods    *********/
     /********************************************/
 
-    public ArrayList<MMScheduleMedication> getTimesForSMFromDB(int medicationID){
+    public ArrayList<MMScheduleMedication> getAllSchedMeds(int medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        ArrayList<MMScheduleMedication> times = databaseManager.getTimesForSM(medicationID);
+        ArrayList<MMScheduleMedication> times = databaseManager.getAllSchedMeds(medicationID);
         return times;
     }
 
@@ -120,7 +112,7 @@ public class MMSchedMedManager {
         ContentValues values = new ContentValues();
         values.put(MMDataBaseSqlHelper.SCHED_MED_ID,             schedMed.getSchedMedID());
         values.put(MMDataBaseSqlHelper.SCHED_MED_FOR_PERSON_ID,  schedMed.getForPersonID());
-        values.put(MMDataBaseSqlHelper.SCHED_MED_FOR_PERSON_ID,  schedMed.getForPersonID());
+        values.put(MMDataBaseSqlHelper.SCHED_MED_OF_MEDICATION_ID,  schedMed.getOfMedicationID());
         values.put(MMDataBaseSqlHelper.SCHED_MED_TIME_DUE,       schedMed.getTimeDue());
 
         return values;
@@ -143,18 +135,15 @@ public class MMSchedMedManager {
         MMScheduleMedication scheduleMedications = new MMScheduleMedication(); //filled with defaults
 
         cursor.moveToPosition(position);
-        String tempIndexString = MMDataBaseSqlHelper.SCHED_MED_ID;
-        int tempColumnIndex = cursor.getColumnIndex(tempIndexString);
-        int tempID = cursor.getInt(tempColumnIndex);
-        scheduleMedications.setSchedMedID(tempID);
+
+        scheduleMedications.setSchedMedID
+                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_ID)));
 
         scheduleMedications.setForPersonID
                 (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_FOR_PERSON_ID)));
 
         scheduleMedications.setOfMedicationID
                 (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_OF_MEDICATION_ID)));
-
-
 
         scheduleMedications.setTimeDue
                 (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_TIME_DUE)));

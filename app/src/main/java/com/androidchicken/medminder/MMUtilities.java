@@ -1,13 +1,13 @@
 package com.androidchicken.medminder;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static com.androidchicken.medminder.R.id.personID;
 
 /**
  * Created by elisabethhuhn on 10/12/2016.
@@ -19,6 +19,8 @@ public class MMUtilities {
     /*************************************/
     /*    Static (class) Constants       */
     /*************************************/
+    public static final boolean BUTTON_DISABLE = false;
+    public static final boolean BUTTON_ENABLE  = true;
 
 
     /*************************************/
@@ -37,6 +39,10 @@ public class MMUtilities {
     /*************************************/
     //generate a guarenteed unique ID
     public static int getUniqueID(){
+        long temp = System.currentTimeMillis();
+        int  tempID = (int) temp;
+        long temp2 = System.currentTimeMillis() & 0xfffffff;
+        int  tempID2 = (int) temp2;
         return (int) (System.currentTimeMillis() & 0xfffffff);
     }
 
@@ -115,6 +121,18 @@ public class MMUtilities {
         return medicationManager.getMedicationFromID(medicationID);
     }
 
+
+    /*************************************/
+    /*         Widget Utilities          */
+    /*************************************/
+    public static void enableButton(Context context, Button button, boolean enable){
+        button.setEnabled(enable);
+        if (enable == BUTTON_ENABLE) {
+            button.setTextColor(ContextCompat.getColor(context, R.color.colorTextBlack));
+        } else {
+            button.setTextColor(ContextCompat.getColor(context, R.color.colorGray));
+        }
+    }
 
     /*************************************/
     /*         CONSTRUCTOR               */

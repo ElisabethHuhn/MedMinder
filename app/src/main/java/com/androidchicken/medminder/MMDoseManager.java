@@ -202,7 +202,7 @@ public class MMDoseManager {
         int last = cursor.getCount();
         if (position >= last) return null;
 
-        MMDose dose = new MMDose(); //filled with defaults
+        MMDose dose = new MMDose(0); //filled with defaults
 
         cursor.moveToPosition(position);
         dose.setDoseID

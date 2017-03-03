@@ -8,8 +8,6 @@
     android:focusable="true"
     android:clickable="true"
 
-    android:paddingTop="@dimen/interum_vertical"
-
     android:background="?android:attr/selectableItemBackground"
 
     >

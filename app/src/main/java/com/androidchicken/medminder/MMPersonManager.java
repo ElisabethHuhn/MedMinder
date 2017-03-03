@@ -65,39 +65,16 @@ public class MMPersonManager {
     //******************  CREATE *******************************************
 
     //This routine is called from the UI fragment and adds to memory then to the DB
-    public void add(MMPerson newPerson){
+    public boolean add(MMPerson newPerson){
 
-        if (mPersonList == null){
-            mPersonList = new ArrayList<>();
+        //we may need to read the persons in from the DB
+        if ((mPersonList == null) || (mPersonList.size() == 0)){
+            getPersonList();
         }
 
-        //determine whether the person already exists in the list
-        int position = getPersonPosition(newPerson.getPersonID());
-        if (position == PERSON_NOT_FOUND) {
-            addPerson (newPerson, true);
-        } else {
-            updatePerson (newPerson, position, true);
-        }
+        //add first attempts to add. If that fails, it attempts an update
+        return addPerson (newPerson, true);
 
-    }//end public add()
-
-    //This routine is called from the DB manager when adding to memory from the DB
-    public void addFromDB(MMPerson newPerson){
-        //determine if already in list
-        if (mPersonList == null){
-            mPersonList = new ArrayList<>();
-        }
-
-         //determine whether the person already exists
-        int position = getPersonPosition(newPerson.getPersonID());
-        if (position == PERSON_NOT_FOUND) {
-            addPerson (newPerson, false);
-            //Need to check if any medications exist in the DB for this person
-            MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-            medicationManager.getMedicationsFromDB(newPerson);
-        } else {
-            updatePerson (newPerson, position, false);
-        }
     }//end public add()
 
 
@@ -112,27 +89,25 @@ public class MMPersonManager {
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
             returnCode = databaseManager.addPerson(newPerson);
 
-            //also have to deal with any Medications on the person
-            //add any medications to the DB
-            //The ASSUMPTION is that if it didn't exist in memory, it doesn't exist in the DB
-            //This is perhaps a risky assumption.......
-            // TODO: 11/2/2016 Determine if add person assumption is too risky
+            //we need to put this check in as getMedications() will read from the DB if
+            //there are no medications listed locally.
+            // So to stop the loop of reading from DB just to write to the DB, add this check
+            if (newPerson.isMedicationsChanged()) {
+                ArrayList<MMMedication> medications = newPerson.getMedications();
+                if ((medications != null) && (returnCode = true)) {
+                    int position = 0;
+                    int last = medications.size();
+                    while (position < last) {
+                        returnCode = databaseManager.addMedication(medications.get(position));
+                        //// TODO: 1/25/2017 unfortunately if false, the DB is now corrupted
+                        if (returnCode = false) return false;
+                        position++;
+                    }
 
-            ArrayList<MMMedication> medications = newPerson.getMedications();
-            if ((medications != null) && (returnCode = true)){
-                int position = 0;
-                int last = medications.size();
-                while (position < last) {
-                    returnCode = databaseManager.addMedication(medications.get(position));
-                    //// TODO: 1/25/2017 unfortunately if false, the DB is now corrupted 
-                    if (returnCode = false)return false;
-                    position++;
                 }
-
             }
         }
         return returnCode;
-
     }
 
 
@@ -148,13 +123,11 @@ public class MMPersonManager {
 
     //Return the list of all Persons
     public ArrayList<MMPerson> getPersonList() {
-        if (mPersonList == null){
-            mPersonList = new ArrayList<>();
-        }
-        if (mPersonList.size() == 0){
+        //Assumption is that if any person is already in the list, it must be up to date
+        if ((mPersonList == null) || (mPersonList.size() == 0)){
             //get the Persons from the DB
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-            databaseManager.getAllPersons();
+            mPersonList = databaseManager.getAllPersons();
         }
         return mPersonList;
     }
@@ -163,6 +136,10 @@ public class MMPersonManager {
     //Return the person instance that matches the argument personID
     //returns null if the person is not in the list or in the DB
     public MMPerson getPerson(int personID)  {
+        //Assumption is that if any person is already in the list, it must be up to date
+        if ((mPersonList == null) || (mPersonList.size() == 0)){
+            getPersonList();
+        }
         int atPosition = getPersonPosition(personID);
 
         if (atPosition == PERSON_NOT_FOUND) {
@@ -173,9 +150,8 @@ public class MMPersonManager {
             if (person != null) {
                 //if a matching person was in the DB, add it to RAM
                 mPersonList.add(person);
-                //and go get the medications for this person
-                MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-                medicationManager.getMedicationsFromDB(person);
+                //Do not do the cascading get for the medications here
+
             }
             return person;
         }
@@ -209,56 +185,6 @@ public class MMPersonManager {
 
 
     //******************  UPDATE *******************************************
-
-
-    //This routine not only replaces in the in memory list, but also in the DB
-    public void update(MMPerson person){
-        //The update functionality already exists in add
-        //    as a Person can only appear once
-        add(person);
-    }//end public add()
-
-
-    //This routine  only replaces in the in memory list
-    public void updateFromDB(MMPerson person){
-        //The update functionality already exists in add
-        //    as a Person can only appear once
-        addFromDB(person);
-    }//end public add()
-
-
-
-    private void updatePerson(MMPerson newPerson, int atPosition, boolean addToDBToo){
-        MMPerson listPerson = mPersonList.get(atPosition);
-
-        //update the list instance with the attributes from the new person being added
-        //        don't copy the ID
-        // TODO: 2/21/2017 need deep copy here, not shallow copy 
-        copyPersonAttributes (newPerson, listPerson, false);
-
-        if (addToDBToo) {
-            // update the person already in the DB
-            MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-            // TODO: 2/2/2017 need to check return code on update
-            int returnCode = databaseManager.updatePerson(newPerson);
-
-            //also have to deal with any Medications on the person
-            //add any medications to the DB
-            //The ASSUMPTION is that if it didn't exist in memory, it doesn't exist in the DB
-            //This is perhaps a risky assumption.......
-            // TODO: 11/2/2016 Determine if add person assumption is too risky
-
-            ArrayList<MMMedication> medications = newPerson.getMedications();
-            if (medications != null){
-                for (int position = 0; position < medications.size(); position++) {
-                    databaseManager.updateMedication(medications.get(position));
-                }
-
-            }
-
-        }
-    }
-
 
 
     //******************  DELETE *******************************************
@@ -331,7 +257,7 @@ public class MMPersonManager {
         int last = cursor.getCount();
         if (position >= last) return null;
 
-        MMPerson person = new MMPerson(); //filled with defaults
+        MMPerson person = new MMPerson(0); //filled with defaults, no ID assigned
 
         cursor.moveToPosition(position);
         person.setPersonID

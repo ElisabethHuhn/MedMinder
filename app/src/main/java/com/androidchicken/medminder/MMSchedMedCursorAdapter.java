@@ -48,7 +48,7 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
 
         View itemView = LayoutInflater.from(parent.getContext())
-                                      .inflate(R.layout.list_row_dose_history, parent,false);
+                                      .inflate(R.layout.list_row_schedule_med, parent,false);
         return new MyViewHolder(itemView);
 
     }
@@ -66,15 +66,25 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
         if (schedMed == null)return;
 
         //remove the person from the DB
-        schedMedManager.removeSchedMedFromDB(schedMed.getSchedMedID());
+        int schedMedID = schedMed.getSchedMedID();
+        schedMedManager.removeSchedMedFromDB(schedMedID);
+        //update the cursor for the adapter
+        reinitializeCursor(schedMed.getOfMedicationID());
+     }
+
+
+    public Cursor reinitializeCursor(int medicationID){
+        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
 
         //Create a new Cursor with the current contents of DB
-        mSchedMedCursor = schedMedManager.getAllScheduleMedicationsCursor(schedMed.getOfMedicationID());
+        mSchedMedCursor = schedMedManager.getAllScheduleMedicationsCursor(medicationID);
 
         //Tell the RecyclerView to update the User Display
         notifyDataSetChanged();
 
-       //notifyItemRangeChanged(position, getItemCount());
+        //notifyItemRangeChanged(position, getItemCount());
+
+        return mSchedMedCursor;
     }
 
     @Override

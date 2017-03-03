@@ -28,7 +28,7 @@ public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAd
         public MyViewHolder(View v) {
             super(v);
 
-            personID        = (TextView) v.findViewById(R.id.personID);
+            personID        = (TextView) v.findViewById(R.id.personMainID);
             personNickName  = (TextView) v.findViewById(R.id.personNickNameInput);
             personEmailAddr = (TextView) v.findViewById(R.id.personEmailAddrInput);
             personTextAddr  = (TextView) v.findViewById(R.id.personTextAddrInput);
@@ -64,11 +64,19 @@ public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAd
         // TODO: 2/24/2017 remove the proper concurrent dose from the DB
 
         //Create a new Cursor with the current contents of DB
+        mPersonCursor = reinitializeCursor();
+    }
+
+    public Cursor reinitializeCursor(){
+        MMPersonManager personManager = MMPersonManager.getInstance();
+        //Create a new Cursor with the current contents of DB
         mPersonCursor = personManager.getAllPersonsCursor();
 
         //Tell the RecyclerView to update the User Display
-       notifyDataSetChanged();;
-       // notifyItemRangeChanged(position, getItemCount());
+        notifyDataSetChanged();;
+        // notifyItemRangeChanged(position, getItemCount());
+
+        return mPersonCursor;
     }
 
     @Override

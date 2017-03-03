@@ -68,11 +68,11 @@ public class MMPerson {
 
     public MMPerson( ) {
         initializeDefaultVariables();
-        mPersonID     = MMUtilities.getUniqueID();
     }
 
-    public MMPerson( int tempPerson) {
+    public MMPerson( int tempPersonID) {
         initializeDefaultVariables();
+        mPersonID = tempPersonID;
     }
 
 
@@ -113,12 +113,17 @@ public class MMPerson {
 
 
     public ArrayList<MMMedication> getMedications(){
-        if (mMedications != null)return mMedications;
-        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        mMedications = databaseManager.getTimesForSM(mMedicationID);
+        if (!isMedicationsChanged()) {
+            MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+            mMedications = databaseManager.getAllMedications(mPersonID);
+        }
         return mMedications;
     }
     public void setMedications(ArrayList<MMMedication> medications) { mMedications = medications; }
+    public boolean isMedicationsChanged(){
+        if ((mMedications == null) || (mMedications.size()==0)) return false;
+        return true;
+    }
 
     /*************************************/
     /*          Member Methods           */

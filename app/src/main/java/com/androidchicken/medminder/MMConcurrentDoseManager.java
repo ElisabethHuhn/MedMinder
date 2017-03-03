@@ -76,14 +76,10 @@ public class MMConcurrentDoseManager {
 
         int position = 0;
 
-        //determine whether the concurrentDose already exists
-        position = findConcurrentDosePosition(newConcurrentDose.getConcurrentDoseID());
-        if (position == DOSE_NOT_FOUND) {
-            boolean addToDBToo = true;
-            return addConcurrentDose (newConcurrentDose,addToDBToo);
-        } else {
-            return updateConcurrentDose (newConcurrentDose, position);
-        }
+        //update or insert the concurrentDose
+        boolean addToDBToo = true;
+        return addConcurrentDose (newConcurrentDose,addToDBToo);
+
     }//end public add()
 
 
@@ -94,12 +90,6 @@ public class MMConcurrentDoseManager {
         return databaseManager.getAllConcurrentDosesCursor(personID);
     }
 
-    //This routine not only replaces in the in memory list, but also in the DB
-    public void update(MMConcurrentDose concurrentDose){
-        //The update functionality already exists in add
-        //    as a ConcurrentDose can only appear once
-        add(concurrentDose);
-    }//end public update()
 
     //This routine not only removes from the in-memory list, but also from the DB
     public void removeConcurrentDose(int position) {
@@ -183,26 +173,13 @@ public class MMConcurrentDoseManager {
 
 
 
-    private boolean updateConcurrentDose(MMConcurrentDose newConcurrentDose, int atPosition){
-        MMConcurrentDose listConcurrentDose = mConcurrentDosesList.get(atPosition);
-
-        //update the list instance with the attributes from the new concurrentDose being added
-        listConcurrentDose.setForPerson (newConcurrentDose.getForPerson());
-        listConcurrentDose.setStartOfDay(newConcurrentDose.isStartOfDay());
-        listConcurrentDose.setStartTime (newConcurrentDose.getStartTime());
-        listConcurrentDose.setDoses     (newConcurrentDose.getDoses());
-
-        // TODO: 10/18/2016 update the concurrentDose already in the DB
-        return true;
-    }
-
     /********************************************/
     /********* Public Member Methods    *********/
     /********************************************/
 
     public MMConcurrentDose getDosesForCDFromDB(MMConcurrentDose concurrentDose){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        ArrayList<MMDose> doses = databaseManager.getDosesForCD(concurrentDose);
+        ArrayList<MMDose> doses = databaseManager.getAllDoses(concurrentDose.getConcurrentDoseID());
         concurrentDose.setDoses(doses);
         return concurrentDose;
     }
@@ -211,9 +188,6 @@ public class MMConcurrentDoseManager {
         ContentValues values = new ContentValues();
         values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_ID,             concurrentDose.getConcurrentDoseID());
         values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_FOR_PERSON_ID,  concurrentDose.getForPerson());
-        int startOfDay = 0; //false
-        if (concurrentDose.isStartOfDay())startOfDay = 1;
-        values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_IS_START_OF_DAY,startOfDay);
         values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_START_TIME,     concurrentDose.getStartTime());
 
         return values;
@@ -233,7 +207,8 @@ public class MMConcurrentDoseManager {
         int last = cursor.getCount();
         if (position >= last) return null;
 
-        MMConcurrentDose concurrentDoses = new MMConcurrentDose(); //filled with defaults
+        //filled with defaults, ID not assigned
+        MMConcurrentDose concurrentDoses = new MMConcurrentDose(0);
 
         cursor.moveToPosition(position);
         String tempIndexString = MMDataBaseSqlHelper.CONCURRENT_DOSE_ID;
@@ -242,12 +217,6 @@ public class MMConcurrentDoseManager {
         concurrentDoses.setConcurrentDoseID(tempID);
         concurrentDoses.setForPerson
                 (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.CONCURRENT_DOSE_FOR_PERSON_ID)));
-
-        int startOfDay =
-                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.CONCURRENT_DOSE_IS_START_OF_DAY)));
-        boolean isStartOfDay = true;
-        if (startOfDay < 1)isStartOfDay = false;
-        concurrentDoses.setStartOfDay(isStartOfDay);
 
         concurrentDoses.setStartTime
                 (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.CONCURRENT_DOSE_START_TIME)));
