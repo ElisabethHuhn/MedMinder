@@ -282,15 +282,17 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
      * @param values        - A content values structure describing the row
      * @param where_clause  - Uniquely describes the row to be updated
      * @param id_key        - The key of the ID column within the row
-     * @return              - A success/failure boolean indicating status of the update/insert
+     * @return              - The databaseID of the object added/updated.
+     *                        sDB_ERROR_CODE if an error occurred
      */
-    public boolean add( SQLiteDatabase db,
+    public long add( SQLiteDatabase db,
                         String         table,
                         ContentValues  values,          //Column names and new values
                         String         where_clause,
                         String         id_key){//null updates all rows
 
         long returnCode = 0;
+        long returnKey = 0;
         //determine whether object is already in DB
         Cursor cursor = getObject(  db,
                                     table,
@@ -300,21 +302,25 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
         if (cursor.getCount() > 0){
             //need to update
             returnCode = db.update(table, values, where_clause, null);
+            if (returnCode == sDB_ERROR_CODE)return returnCode;
+            returnKey = (long) values.get(id_key);
 
         } else {
             //need to insert
             returnCode = db.insert(table, null, values);
-            if (returnCode == sDB_ERROR_CODE)return false;
+            if (returnCode == sDB_ERROR_CODE)return sDB_ERROR_CODE;
 
             //update the object with the new ID
-            int id_value = (int) values.get(id_key);
+            long id_value = (long) values.get(id_key);
             values.put(id_key, returnCode);
+            returnKey = (long)returnKey;
+
             returnCode = db.update(table, values, where_clause, null);
         }
 
         //db.close(); //never close the db instance. Just leave the connection open
-        if (returnCode == sDB_ERROR_CODE)return false;
-        return true;
+        if (returnCode == sDB_ERROR_CODE)return sDB_ERROR_CODE;
+        return returnKey;
     }
 
     //**************************** READ *******************************

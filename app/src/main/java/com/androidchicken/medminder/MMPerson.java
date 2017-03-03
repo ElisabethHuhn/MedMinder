@@ -46,7 +46,7 @@ public class MMPerson {
     /*************************************/
     /*    Member (instance) Variables    */
     /*************************************/
-    private int          mPersonID;
+    private long         mPersonID;
     private CharSequence mNickname;
     private CharSequence mEmailAddress;
     private CharSequence mTextAddress;
@@ -70,7 +70,7 @@ public class MMPerson {
         initializeDefaultVariables();
     }
 
-    public MMPerson( int tempPersonID) {
+    public MMPerson( long tempPersonID) {
         initializeDefaultVariables();
         mPersonID = tempPersonID;
     }
@@ -99,8 +99,8 @@ public class MMPerson {
     /*************************************/
     /*    Member setter/getter Methods   */
     /*************************************/
-    public int  getPersonID()            {  return mPersonID; }
-    public void setPersonID(int personID){ mPersonID = personID;}
+    public long getPersonID()            {  return mPersonID; }
+    public void setPersonID(long personID){ mPersonID = personID;}
 
     public CharSequence getNickname()                      { return mNickname;  }
     public void         setNickname(CharSequence nickname) { mNickname = nickname; }

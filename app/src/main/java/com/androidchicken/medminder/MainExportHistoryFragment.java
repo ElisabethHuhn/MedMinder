@@ -58,7 +58,7 @@ public class MainExportHistoryFragment extends Fragment {
     /*          Member Variables                   */
     /***********************************************/
     private MMPerson mPatient;
-    private int      mPersonID;
+    private long     mPersonID;
 
     CharSequence mCDFileName ;
     CharSequence mCDFPath ;
@@ -70,13 +70,13 @@ public class MainExportHistoryFragment extends Fragment {
 
 
     //need to pass a person into the fragment
-    public static MainExportHistoryFragment newInstance(int personID){
+    public static MainExportHistoryFragment newInstance(long personID){
         //create a bundle to hold the arguments
         Bundle args = new Bundle();
 
         //It will be some work to make all of the data model serializable
         //so for now, just pass the person values
-        args.putInt         (MMPerson.sPersonIDTag,personID);
+        args.putLong         (MMPerson.sPersonIDTag,personID);
 
         MainExportHistoryFragment fragment = new MainExportHistoryFragment();
 
@@ -115,7 +115,7 @@ public class MainExportHistoryFragment extends Fragment {
         Bundle args = getArguments();
 
         if (args != null) {
-            mPersonID = args.getInt(MMPerson.sPersonIDTag);
+            mPersonID = args.getLong(MMPerson.sPersonIDTag);
             MMPersonManager personManager = MMPersonManager.getInstance();
 
             //If personID can't be found in the list, mPatient will be null

@@ -70,7 +70,7 @@ public class MMHomeFragment extends Fragment {
     /***********************************************/
     /*          Member Variables                   */
     /***********************************************/
-    private int      mPersonID;
+    private long  mPersonID;
 
 
 
@@ -78,13 +78,13 @@ public class MMHomeFragment extends Fragment {
     /*          Static Methods                     */
     /***********************************************/
     //need to pass a person into the fragment
-    public static MMHomeFragment newInstance(int personID){
+    public static MMHomeFragment newInstance(long personID){
         //create a bundle to hold the arguments
         Bundle args = new Bundle();
 
         //It will be some work to make all of the data model serializable
         //so for now, just pass the person values
-        args.putInt         (MMPerson.sPersonIDTag,personID);
+        args.putLong         (MMPerson.sPersonIDTag,personID);
 
         MMHomeFragment fragment = new MMHomeFragment();
 
@@ -120,7 +120,7 @@ public class MMHomeFragment extends Fragment {
         Bundle args = getArguments();
 
         if (args != null) {
-            mPersonID = args.getInt(MMPerson.sPersonIDTag);
+            mPersonID = args.getLong(MMPerson.sPersonIDTag);
         }
 
     }
@@ -655,14 +655,14 @@ public class MMHomeFragment extends Fragment {
         }
     }
 
-    private boolean onSave(){
+    private long onSave(){
 
         //Creates in memory structure to save all the doses taken concurrently
-        if (mPersonID == 0)return false;
+        if (mPersonID == 0)return MMDatabaseManager.sDB_ERROR_CODE;
 
         MMPerson person = MMUtilities.getPerson(mPersonID);
 
-        if (person == null) return false;
+        if (person == null) return MMDatabaseManager.sDB_ERROR_CODE;
 
         Calendar c = Calendar.getInstance();
         long seconds = c.getTimeInMillis();     // = c.get(Calendar.SECOND);

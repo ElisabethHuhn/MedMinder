@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCursorAdapter.MyViewHolder>{
     //The group to be listed is collected from a Cursor representing the DB rows
     private Cursor  mSchedMedCursor;
-    private int     mMedicationID;
+    private long    mMedicationID;
 
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -66,14 +66,14 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
         if (schedMed == null)return;
 
         //remove the person from the DB
-        int schedMedID = schedMed.getSchedMedID();
+        long schedMedID = schedMed.getSchedMedID();
         schedMedManager.removeSchedMedFromDB(schedMedID);
         //update the cursor for the adapter
         reinitializeCursor(schedMed.getOfMedicationID());
      }
 
 
-    public Cursor reinitializeCursor(int medicationID){
+    public Cursor reinitializeCursor(long medicationID){
         MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
 
         //Create a new Cursor with the current contents of DB
@@ -105,7 +105,7 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
         //get the medication indicated
         MMScheduleMedication schedMed = schedMedManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
 
-        int medicationID = schedMed.getOfMedicationID();
+        long medicationID = schedMed.getOfMedicationID();
         MMMedication medication = MMUtilities.getMedication(medicationID);
 
         holder.medicationNickName. setText(medication.getMedicationNickname().toString().trim());
@@ -124,7 +124,7 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
         return returnValue;
     }
 
-    public void setAdapterContext(int medicationID){
+    public void setAdapterContext(long medicationID){
         mMedicationID = medicationID;
     }
 }

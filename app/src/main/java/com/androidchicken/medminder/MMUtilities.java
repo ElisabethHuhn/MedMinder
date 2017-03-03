@@ -105,18 +105,14 @@ public class MMUtilities {
 
 
     /*************************************/
-    /*         get person instances      */
+    /*    get Data Object instances      */
     /*************************************/
-    public static MMPerson getPerson(int personID){
+    public static MMPerson getPerson(long personID){
         MMPersonManager personManager = MMPersonManager.getInstance();
         return personManager.getPerson(personID);
     }
 
-
-    /*************************************/
-    /*     get Medication instances      */
-    /*************************************/
-    public static MMMedication getMedication(int medicationID){
+    public static MMMedication getMedication(long medicationID){
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
         return medicationManager.getMedicationFromID(medicationID);
     }

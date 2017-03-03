@@ -35,23 +35,20 @@ public class MMPersonFragment extends Fragment {
     private EditText mPersonEmailAddrInput;
     private EditText mPersonTextAddrInput;
 
-    
-    private int      mPersonID;
+    private long     mPersonID;
 
 
     /***********************************************/
     /*          Static Methods                     */
     /***********************************************/
-
-
     //need to pass a person into the fragment
-    public static MMPersonFragment newInstance(int personID){
+    public static MMPersonFragment newInstance(long personID){
         //create a bundle to hold the arguments
         Bundle args = new Bundle();
 
         //It will be some work to make all of the data model serializable
         //so for now, just pass the person values
-        args.putInt         (MMPerson.sPersonIDTag,personID);
+        args.putLong         (MMPerson.sPersonIDTag,personID);
 
         MMPersonFragment fragment = new MMPersonFragment();
 
@@ -62,15 +59,12 @@ public class MMPersonFragment extends Fragment {
     /***********************************************/
     /*          Constructor                        */
     /***********************************************/
-
-    //
     public MMPersonFragment() {
     }
 
     /***********************************************/
     /*          Lifecycle Methods                  */
     /***********************************************/
-
 
     //pull the arguments out of the fragment bundle and store in the member variables
     //In this case, prepopulate the personID this screen refers to
@@ -86,14 +80,12 @@ public class MMPersonFragment extends Fragment {
             MMDatabaseManager.getInstance(getActivity());
 
             //Get the ID of the person passed to this screen
-            mPersonID = args.getInt(MMPerson.sPersonIDTag);
+            mPersonID = args.getLong(MMPerson.sPersonIDTag);
             MMPersonManager personManager = MMPersonManager.getInstance();
 
         }
 
     }
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -119,7 +111,6 @@ public class MMPersonFragment extends Fragment {
         return v;
     }
 
-
     private void initializeRecyclerView(View v){
         /*
          * The steps for doing recycler view in onCreateView() of a fragment are:
@@ -138,7 +129,7 @@ public class MMPersonFragment extends Fragment {
          */
 
         //1) Inflate the layout for this fragment
-        //      done in the caller
+        //      implemented in the caller: onCreateView()
 
 
         //2) find and remember the RecyclerView
@@ -413,13 +404,14 @@ public class MMPersonFragment extends Fragment {
         //so add/update the person to/in permanent storage
         //This adds/updates any medications that are recorded on the Person to the DB
         MMPersonManager personManager = MMPersonManager.getInstance();
-        if (personManager.add(person)) {
+        long returnCode = personManager.add(person);
+        if (returnCode != MMDatabaseManager.sDB_ERROR_CODE) {
             Toast.makeText(getActivity(), R.string.save_successful, Toast.LENGTH_SHORT).show();
             MMUtilities.enableButton(getActivity(), mAddMedButton, MMUtilities.BUTTON_ENABLE);
 
         }
         //if the person is newly created, the ID is assigned on DB add
-        mPersonID = person.getPersonID();
+        mPersonID = returnCode;
 
 
         RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.medicationList);

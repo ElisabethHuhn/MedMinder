@@ -44,11 +44,11 @@ public class MMMedication {
     /*************************************/
     /*    Member (instance) Variables    */
     /*************************************/
-    private int          mMedicationID;
+    private long         mMedicationID;
     private CharSequence mBrandName;
     private CharSequence mGenericName;
     private CharSequence mMedicationNickname;
-    private int          mForPersonID;
+    private long         mForPersonID;
     private int          mDoseStrategy;
     private int          mDoseAmount;
     private CharSequence mDoseUnits;
@@ -70,7 +70,7 @@ public class MMMedication {
         initializeDefaultVariables();
     }
 
-    public MMMedication(int tempMedID){
+    public MMMedication(long tempMedID){
         initializeDefaultVariables();
         mMedicationID = tempMedID;
     }
@@ -108,8 +108,8 @@ public class MMMedication {
     /*************************************/
     /*    Member setter/getter Methods   */
     /*************************************/
-    public int          getMedicationID()                 {  return mMedicationID; }
-    public void         setMedicationID(int medicationID) { mMedicationID = medicationID; }
+    public long         getMedicationID()                  {  return mMedicationID; }
+    public void         setMedicationID(long medicationID) { mMedicationID = medicationID; }
 
     public CharSequence getBrandName()                       {  return mBrandName;   }
     public void         setBrandName(CharSequence brandName) { mBrandName = brandName; }
@@ -121,8 +121,8 @@ public class MMMedication {
     public void         setMedicationNickname(CharSequence medicationNickname) {
                                                   mMedicationNickname = medicationNickname; }
 
-    public int          getForPersonID()                { return mForPersonID; }
-    public void         setForPersonID(int forPersonID) {  mForPersonID = forPersonID; }
+    public long         getForPersonID()                 { return mForPersonID; }
+    public void         setForPersonID(long forPersonID) {  mForPersonID = forPersonID; }
 
     public int          getDoseStrategy()          {  return mDoseStrategy;  }
     public void         setDoseStrategy(int doseStrategy) {  mDoseStrategy = doseStrategy;  }
@@ -155,7 +155,7 @@ public class MMMedication {
     /*************************************/
     /*    Default Attribute Values       */
     /*************************************/
-    public static int          getDefaultMedicationID()       {  return -1; }
+    public static long         getDefaultMedicationID()       {  return -1L; }
 
     public static CharSequence getDefaultBrandName()          {  return "Brand Name";   }
 
@@ -163,7 +163,7 @@ public class MMMedication {
 
     public static CharSequence getDefaultMedicationNickname() {return "Med Nick Name"; }
 
-    public static int          getDefaultForPersonID()         { return -1; }
+    public static long         getDefaultForPersonID()         { return -1L; }
 
     public static int          getDefaultDoseStrategy()        {  return 1;  }
 

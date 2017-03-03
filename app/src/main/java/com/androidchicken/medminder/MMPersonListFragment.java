@@ -1,6 +1,7 @@
 package com.androidchicken.medminder;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -18,8 +19,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 /**
  * Created by Elisabeth Huhn on 2/14/17, adpated from MMPersonAdapter
  *
@@ -31,11 +30,11 @@ public class MMPersonListFragment extends Fragment {
     private static final String TAG = "LIST_PROJECTS_FRAGMENT";
     /**
      * Create variables for all the widgets
-     *  although in the mockup, most will be statically defined in the xml
+     *
      */
 
     private Button          mAddPersonsButton;
-    private ArrayList<MMPerson> mPersonList ;
+
 
     /**********************************************************/
     //          Fragment Lifecycle Functions                  //
@@ -95,8 +94,6 @@ public class MMPersonListFragment extends Fragment {
         });
     }
 
-
-
     private void wireListTitleWidgets(View v){
         View field_container;
         TextView label;
@@ -123,7 +120,6 @@ public class MMPersonListFragment extends Fragment {
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
     }
 
-
     private void initializeRecyclerView(View v){
         /*
          * The steps for doing recycler view in onCreateView() of a fragment are:
@@ -141,7 +137,7 @@ public class MMPersonListFragment extends Fragment {
          * 9) return the view
          */
         //1) Inflate the layout for this fragment
-        //      done in the caller
+        //      implemented in the caller: onCreateView()
 
         //2) find and remember the RecyclerView
         RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.personList);
@@ -153,16 +149,14 @@ public class MMPersonListFragment extends Fragment {
 
         //4) Get the set of Person Instances from the Database
 
-        //      get the singleton list container
         MMPersonManager personManager = MMPersonManager.getInstance();
-        //      then go get our list of persons
-        mPersonList = personManager.getPersonList();
+        Cursor cursor = personManager.getAllPersonsCursor();
 
         //5) Use the data to Create and set out person Adapter
         //     even though we're giving the Adapter the list,
         //     Adapter uses the PersonManager to maintain the list and
         //     the items in the list.
-        MMPersonAdapter adapter = new MMPersonAdapter(mPersonList);
+        MMPersonCursorAdapter adapter = new MMPersonCursorAdapter(cursor);
         recyclerView.setAdapter(adapter);
 
         //6) create and set the itemAnimator
@@ -197,35 +191,39 @@ public class MMPersonListFragment extends Fragment {
 
 
 
-        /**********************************************************/
-        //      Utility Functions used in handling events         //
-        /**********************************************************/
+    /**********************************************************/
+    //      Utility Functions used in handling events         //
+    /**********************************************************/
 
-        //called from onClick(), executed when a person is selected
-        private void onSelect(int position){
-            //todo need to update selection visually
-            int selectedPosition = position;
-            // TODO: 10/3/2016 Need to query list in Person Manager or Adapter, not locally 
-            MMPerson selectedPerson = mPersonList.get(position);
+    //called from onClick(), executed when a person is selected
+    private void onSelect(int position){
+        //todo need to update selection visually
 
-            Toast.makeText(getActivity(),
-                    selectedPerson.getNickname() + " is selected!",
-                    Toast.LENGTH_SHORT).show();
+        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.personList);
+        MMPersonCursorAdapter adapter = (MMPersonCursorAdapter) recyclerView.getAdapter();
 
-            //switch to the dose taken for the selected patient
-            ((MainActivity) getActivity()).switchToHomeScreen(selectedPerson.getPersonID());
-        }
+        MMPersonManager personManager = MMPersonManager.getInstance();
+        MMPerson selectedPerson =
+                personManager.getPersonFromCursor(adapter.getPersonCursor(), position);
+
+        Toast.makeText(getActivity(),
+                selectedPerson.getNickname() + " is selected!",
+                Toast.LENGTH_SHORT).show();
+
+        //switch to the dose taken for the selected patient
+        ((MainActivity) getActivity()).switchToHomeScreen(selectedPerson.getPersonID());
+    }
 
 
-        //Add some code to improve the recycler view
-        //Here is the interface for event handlers for Click and LongClick
-        public interface ClickListener {
-            void onClick(View view, int position);
+    //Add some code to improve the recycler view
+    //Here is the interface for event handlers for Click and LongClick
+    public interface ClickListener {
+        void onClick(View view, int position);
 
-            void onLongClick(View view, int position);
-        }
+        void onLongClick(View view, int position);
+    }
 
-        public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
+    public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
             private GestureDetector gestureDetector;
             private MMPersonListFragment.ClickListener clickListener;

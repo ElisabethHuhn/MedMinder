@@ -20,10 +20,10 @@ public class MMScheduleMedication {
     /*************************************/
     /*    Member (instance) Variables    */
     /*************************************/
-    private int mSchedMedID;
-    private int mOfMedicationID;
-    private int mForPersonID;
-    private int mTimeDue;  //number of minutes from midnight
+    private long mSchedMedID;
+    private long mOfMedicationID;
+    private long mForPersonID;
+    private int  mTimeDue;  //number of minutes from midnight
 
 
 
@@ -42,9 +42,9 @@ public class MMScheduleMedication {
         mTimeDue        = 0;
     }
 
-    public MMScheduleMedication(int  ofMedicationID,
-                                int  forPersonID,
-                                int  timeDue) {
+    public MMScheduleMedication(long  ofMedicationID,
+                                long  forPersonID,
+                                int   timeDue) {
         mSchedMedID     = MMUtilities.getUniqueID();
         mOfMedicationID = ofMedicationID;
         mForPersonID    = forPersonID;
@@ -55,14 +55,14 @@ public class MMScheduleMedication {
     /*    Member setter/getter Methods   */
     /*************************************/
 
-    public int  getSchedMedID()              {return mSchedMedID;  }
-    public void setSchedMedID(int schedMedID){ mSchedMedID = schedMedID;}
+    public long getSchedMedID()              {return mSchedMedID;  }
+    public void setSchedMedID(long schedMedID){ mSchedMedID = schedMedID;}
 
-    public int  getOfMedicationID()                   {   return mOfMedicationID;   }
-    public void setOfMedicationID(int ofMedicationID) { mOfMedicationID = ofMedicationID; }
+    public long getOfMedicationID()                   {   return mOfMedicationID;   }
+    public void setOfMedicationID(long ofMedicationID) { mOfMedicationID = ofMedicationID; }
 
-    public int  getForPersonID()                {  return mForPersonID;    }
-    public void setForPersonID(int forPersonID) {  mForPersonID = forPersonID;    }
+    public long getForPersonID()                {  return mForPersonID;    }
+    public void setForPersonID(long forPersonID) {  mForPersonID = forPersonID;    }
 
     public int  getTimeDue()            { return mTimeDue; }
     public void setTimeDue(int timeDue) {  mTimeDue = timeDue; }

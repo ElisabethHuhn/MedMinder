@@ -17,7 +17,7 @@ import android.widget.EditText;
 public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedicationCursorAdapter.MyViewHolder>{
 
     private Cursor mMedicationCursor;
-    private int mPersonID;
+    private long mPersonID;
 
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -129,7 +129,8 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
         return returnValue;
     }
 
-    public void setAdapterContext(int personID){
+    public void setAdapterContext(long personID){
         mPersonID = personID;
     }
+    public Cursor getCursor(){return mMedicationCursor;}
 }

@@ -115,4 +115,6 @@ public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAd
         return returnValue;
     }
 
+    public Cursor getPersonCursor(){return mPersonCursor;}
+
 }

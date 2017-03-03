@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
         setMMSubtitle(title);
     }
 
-    public void switchToHomeScreen(int personID){
+    public void switchToHomeScreen(long personID){
         //replace the fragment with the Home UI
 
         //Need the Fragment Manager to do the swap for us
@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         setMMSubtitle(title);
     }
 
-    public void switchToPersonScreen(int personID){
+    public void switchToPersonScreen(long personID){
         //replace the fragment with the Home UI
 
         //Need the Fragment Manager to do the swap for us
@@ -253,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
         setMMSubtitle(title);
     }
 
-    public void switchToMedicationScreen(int personID){
+    public void switchToMedicationScreen(long personID){
         //replace the fragment with the Home UI
 
         //Need the Fragment Manager to do the swap for us
@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
         setMMSubtitle(title);
     }
 
-    public void switchToMedicationScreen(int personID, int position){
+    public void switchToMedicationScreen(long personID, int position){
         //replace the fragment with the Home UI
 
         //Need the Fragment Manager to do the swap for us
@@ -313,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
         setMMSubtitle(title);
     }
 
-    public void switchToExportScreen(int personID){
+    public void switchToExportScreen(long personID){
         //Need the Fragment Manager to do the swap for us
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
 

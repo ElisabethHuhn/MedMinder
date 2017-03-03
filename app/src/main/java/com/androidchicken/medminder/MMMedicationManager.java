@@ -74,8 +74,8 @@ public class MMMedicationManager {
         if ((person == null) || (newMedication == null)) return false;
 
         //Find the person the medication is for
-        int medPersonID = newMedication.getForPersonID();
-        int personID    = person.getPersonID();
+        long medPersonID = newMedication.getForPersonID();
+        long personID    = person.getPersonID();
         //The medication and the person must point at each other
         if (medPersonID != personID) return false;
 
@@ -112,22 +112,20 @@ public class MMMedicationManager {
     //***********************  READ **************************************
     //return the cursor containing all the Concurrent Doses in the DB
     //that pertain to this personID
-    public Cursor getAllMedicationsCursor (int personID){
+    public Cursor getAllMedicationsCursor (long personID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllMedicationsCursor(personID);
     }
 
     public ArrayList<MMMedication> getMedicationsFromDB(MMPerson person){
-        int personID = person.getPersonID();
+        long personID = person.getPersonID();
 
         //get all medications in the DB that are linked to this Person
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllMedications(personID);
     }
 
-
-
-    public MMMedication getMedicationFromID(int medicationID){
+    public MMMedication getMedicationFromID(long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getMedication(medicationID);
     }
@@ -140,7 +138,7 @@ public class MMMedicationManager {
     //Because the list is on one person instance, we must also have the person ID
     //of the instance being manipulated
     //This routine not only removes from the in-memory list, but also from the DB
-    public boolean removeMedication(int personID, int position) {
+    public boolean removeMedication(long personID, int position) {
         //Now find that person using the PersonManager
         MMPersonManager   personManager =  MMPersonManager.getInstance();
         MMPerson person = personManager.getPerson(personID);
@@ -182,14 +180,12 @@ public class MMMedicationManager {
     }//end public remove position
 
 
-    public boolean removeMedicationFromDB(int medicationID){
+    public boolean removeMedicationFromDB(long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         long returnCode = databaseManager.removeMedication(medicationID);
         if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return false;
         return true;
     }
-
-
 
 
     /********************************************/
@@ -201,7 +197,7 @@ public class MMMedicationManager {
     //     within the argument list medicationList
     //returns constant = MEDICATION_NOT_FOUND if the medication is not in the list
     //NOTE it is a RunTimeException to call this routine if the list is null or empty
-    private int findMedicationPosition(ArrayList<MMMedication> medicationList, int medicationID){
+    private int findMedicationPosition(ArrayList<MMMedication> medicationList, long medicationID){
         MMMedication medication;
         int position        = 0;
         int last            = medicationList.size();
@@ -280,9 +276,9 @@ public class MMMedicationManager {
 
         cursor.moveToPosition(position);
         medication.setMedicationID
-                (cursor.getInt   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_ID)));
+                (cursor.getLong   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_ID)));
         medication.setForPersonID
-                (cursor.getInt   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_FOR_PERSON_ID)));
+                (cursor.getLong   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_FOR_PERSON_ID)));
         medication.setBrandName
                 (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_BRAND_NAME)));
         medication.setGenericName

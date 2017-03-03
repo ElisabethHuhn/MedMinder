@@ -65,7 +65,7 @@ public class MMPersonManager {
     //******************  CREATE *******************************************
 
     //This routine is called from the UI fragment and adds to memory then to the DB
-    public boolean add(MMPerson newPerson){
+    public long add(MMPerson newPerson){
 
         //we may need to read the persons in from the DB
         if ((mPersonList == null) || (mPersonList.size() == 0)){
@@ -73,41 +73,45 @@ public class MMPersonManager {
         }
 
         //add first attempts to add. If that fails, it attempts an update
-        return addPerson (newPerson, true);
+        boolean addToDBToo = true;
+        return addPerson (newPerson, addToDBToo);
 
     }//end public add()
 
 
     //The routine that actually adds the instance to in memory list and
     // potentially (third boolean parameter) to the DB
-    private boolean addPerson(MMPerson newPerson, boolean addToDBToo){
-        boolean returnCode = true;
-        returnCode = mPersonList.add(newPerson);
+    private long addPerson(MMPerson newPerson, boolean addToDBToo){
+        long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
+        boolean listReturnCode = false;
+        listReturnCode = mPersonList.add(newPerson);
+        if (!listReturnCode)return returnCode;
 
-        if (returnCode && addToDBToo){
+        if (addToDBToo){
 
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
             returnCode = databaseManager.addPerson(newPerson);
+            if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return returnCode;
 
             //we need to put this check in as getMedications() will read from the DB if
             //there are no medications listed locally.
             // So to stop the loop of reading from DB just to write to the DB, add this check
             if (newPerson.isMedicationsChanged()) {
                 ArrayList<MMMedication> medications = newPerson.getMedications();
-                if ((medications != null) && (returnCode = true)) {
+                if (medications != null) {
                     int position = 0;
                     int last = medications.size();
                     while (position < last) {
                         returnCode = databaseManager.addMedication(medications.get(position));
-                        //// TODO: 1/25/2017 unfortunately if false, the DB is now corrupted
-                        if (returnCode = false) return false;
+
+                        if (returnCode == MMDatabaseManager.sDB_ERROR_CODE) return returnCode;
                         position++;
                     }
 
                 }
             }
         }
-        return returnCode;
+        return newPerson.getPersonID();
     }
 
 
@@ -135,7 +139,7 @@ public class MMPersonManager {
 
     //Return the person instance that matches the argument personID
     //returns null if the person is not in the list or in the DB
-    public MMPerson getPerson(int personID)  {
+    public MMPerson getPerson(long personID)  {
         //Assumption is that if any person is already in the list, it must be up to date
         if ((mPersonList == null) || (mPersonList.size() == 0)){
             getPersonList();
@@ -163,7 +167,7 @@ public class MMPersonManager {
     //returns the position of the person instance that matches the argument personEmailAddr
     //returns constant = PERSON_NOT_FOUND if the person is not in the list
     //NOTE it is a RunTimeException to call this routine if the list is null or empty
-    private int getPersonPosition(int personID){
+    private int getPersonPosition(long personID){
         MMPerson person;
         int position        = 0;
         int last            = mPersonList.size();
@@ -201,7 +205,7 @@ public class MMPersonManager {
         return true;
     }//end public remove position
 
-    public boolean removePersonFromDB(int personID){
+    public boolean removePersonFromDB(long personID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         long returnCode = databaseManager.removePerson(personID);
         if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return false;
@@ -221,17 +225,7 @@ public class MMPersonManager {
     /********* Translation Utility Methods  *****/
     /********************************************/
 
-    public void copyPersonAttributes(MMPerson fromPerson, MMPerson toPerson, boolean copyID){
-        if (copyID){
-            toPerson.setPersonID(fromPerson.getPersonID());
-        }
-        toPerson.setNickname    (fromPerson.getNickname());
-        toPerson.setEmailAddress(fromPerson.getEmailAddress());
-        toPerson.setTextAddress (fromPerson.getTextAddress());
-
-    }
-
-    //returns the ContentValues object needed to add/update the person to/in the DB
+     //returns the ContentValues object needed to add/update the person to/in the DB
     public ContentValues getCVFromPerson(MMPerson person){
         ContentValues values = new ContentValues();
         values.put(MMDataBaseSqlHelper.PERSON_ID,       person.getPersonID());
@@ -261,7 +255,7 @@ public class MMPersonManager {
 
         cursor.moveToPosition(position);
         person.setPersonID
-                (cursor.getInt   (cursor.getColumnIndex(MMDataBaseSqlHelper.PERSON_ID)));
+                (cursor.getLong   (cursor.getColumnIndex(MMDataBaseSqlHelper.PERSON_ID)));
         person.setNickname
                 (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.PERSON_NICKNAME)));
         person.setEmailAddress

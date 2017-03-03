@@ -21,10 +21,10 @@ public class MMDose {
     /*************************************/
     /*    Member (instance) Variables    */
     /*************************************/
-    private int  mDoseID;
-    private int  mOfMedicationID;
-    private int  mForPersonID;
-    private int  mContainedInConcurrentDoseID;
+    private long mDoseID;
+    private long mOfMedicationID;
+    private long mForPersonID;
+    private long mContainedInConcurrentDoseID;
     private int  mPositionWithinConcDose;
     private long mTimeTaken;   //milliseconds since Jan1, 1970;
     private int  mAmountTaken; //default can be overridden
@@ -42,14 +42,14 @@ public class MMDose {
         initializeVariables();
     }
 
-    public MMDose(int tempID){
+    public MMDose(long tempID){
         initializeVariables();
         mDoseID = tempID;
     }
 
-    public MMDose(int  ofMedicationID,
-                  int  forPersonID,
-                  int  containedInConcurrentDosesID,
+    public MMDose(long ofMedicationID,
+                  long forPersonID,
+                  long containedInConcurrentDosesID,
                   int  positionWithinConcDose,
                   long timeTaken,
                   int  amountTaken) {
@@ -78,17 +78,17 @@ public class MMDose {
     /*    Member setter/getter Methods   */
     /*************************************/
 
-    public int  getDoseID() {return mDoseID;  }
-    public void setDoseID(int doseID){mDoseID = doseID;}
+    public long getDoseID() {return mDoseID;  }
+    public void setDoseID(long doseID){mDoseID = doseID;}
 
-    public int  getOfMedicationID()                    {   return mOfMedicationID;   }
-    public void setOfMedicationID(int ofMedicationID) { mOfMedicationID = ofMedicationID; }
+    public long getOfMedicationID()                    {   return mOfMedicationID;   }
+    public void setOfMedicationID(long ofMedicationID) { mOfMedicationID = ofMedicationID; }
 
-    public int  getForPersonID()                 {  return mForPersonID;    }
-    public void setForPersonID(int forPersonID) {  mForPersonID = forPersonID;    }
+    public long getForPersonID()                 {  return mForPersonID;    }
+    public void setForPersonID(long forPersonID) {  mForPersonID = forPersonID;    }
 
-    public int  getContainedInConcurrentDosesID() { return mContainedInConcurrentDoseID; }
-    public void setContainedInConcurrentDosesID(int containedInConcurrentDosesID) {
+    public long getContainedInConcurrentDosesID() { return mContainedInConcurrentDoseID; }
+    public void setContainedInConcurrentDosesID(long containedInConcurrentDosesID) {
         mContainedInConcurrentDoseID = containedInConcurrentDosesID;
     }
 

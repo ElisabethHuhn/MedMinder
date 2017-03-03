@@ -19,8 +19,8 @@ public class MMConcurrentDose {
     /*    Static (class) Variables       */
     /*************************************/
 
-    private int               mConcurrentDoseID;
-    private int               mForPerson;
+    private long              mConcurrentDoseID;
+    private long              mForPerson;
     private long              mStartTime;
     private ArrayList<MMDose> mDoses;
 
@@ -43,14 +43,14 @@ public class MMConcurrentDose {
         initializeVariables();
     }
 
-    public MMConcurrentDose(int forPerson,  long startTime) {
+    public MMConcurrentDose(long forPerson,  long startTime) {
         mConcurrentDoseID = MMUtilities.getUniqueID();
         mForPerson    = forPerson;
         mStartTime    = startTime;
         mDoses        = new ArrayList<>();
     }
 
-    public MMConcurrentDose(int tempID){
+    public MMConcurrentDose(long tempID){
         initializeVariables();
         mConcurrentDoseID = tempID;
     }
@@ -65,11 +65,11 @@ public class MMConcurrentDose {
     /*************************************/
     /*    Member setter/getter Methods   */
     /*************************************/
-    public int getConcurrentDoseID() { return mConcurrentDoseID;  }
-    public void setConcurrentDoseID(int concurrentDoseID){mConcurrentDoseID = concurrentDoseID;}
+    public long getConcurrentDoseID() { return mConcurrentDoseID;  }
+    public void setConcurrentDoseID(long concurrentDoseID){mConcurrentDoseID = concurrentDoseID;}
 
-    public int  getForPerson()              { return mForPerson;  }
-    public void setForPerson(int forPerson) {  mForPerson = forPerson;   }
+    public long getForPerson()              { return mForPerson;  }
+    public void setForPerson(long forPerson) {  mForPerson = forPerson;   }
 
     public long getStartTime()              { return mStartTime;  }
     public void setStartTime(long startTime) { mStartTime = startTime; }
@@ -90,14 +90,6 @@ public class MMConcurrentDose {
     /*************************************/
     /*          Member Methods           */
     /*************************************/
-    public boolean addDose(MMDose dose){
-        if (mDoses == null){
-            mDoses = new ArrayList<>();
-        }
-        mDoses.add(dose);
-        return true;
-    }
-
 
     public String cdfHeaders(){
         //Header from the concatenated doses object
@@ -107,7 +99,7 @@ public class MMConcurrentDose {
                     "Time"               ;
 
         //Names of the possible medications that this patient takes
-        int personID = getForPerson();
+        long personID = getForPerson();
         MMPersonManager personManager = MMPersonManager.getInstance();
         MMPerson person = personManager.getPerson(personID);
         ArrayList<MMMedication> medications = person.getMedications();
@@ -133,7 +125,7 @@ public class MMConcurrentDose {
 
         //concatenate dose values
 
-        int personID = getForPerson();
+        long personID = getForPerson();
         MMPersonManager personManager = MMPersonManager.getInstance();
         MMPerson person = personManager.getPerson(personID);
 

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcurrentDoseCursorAdapter.MyViewHolder>{
     //The group to be listed is collected from a Cursor representing the DB rows
     private Cursor  mConcurrentDoseCursor;
-    private int     mPersonID;
+    private long    mPersonID;
     private int     mNumberMeds;
     private Context mContext;
 
@@ -235,7 +235,7 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
         return returnValue;
     }
 
-    public void setAdapterContext(Context context, int personID, int numberMeds){
+    public void setAdapterContext(Context context, long personID, int numberMeds){
         mPersonID   = personID;
         mNumberMeds = numberMeds;
         mContext    = context;

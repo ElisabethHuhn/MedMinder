@@ -55,7 +55,7 @@ public class MMMedicationFragment extends Fragment {
     /***********************************************/
     /*        Passed Arguments to this Fragment    */
     /***********************************************/
-    private int      mPersonID;
+    private long     mPersonID;
     private int      mPosition;
 
 
@@ -73,13 +73,13 @@ public class MMMedicationFragment extends Fragment {
     //need to pass a medication into the fragment
     //position is the index of the medication in the person list
     //-1 indicates add new medication
-    public static MMMedicationFragment newInstance(int personID, int position){
+    public static MMMedicationFragment newInstance(long personID, int position){
         //create a bundle to hold the arguments
         Bundle args = new Bundle();
 
         //It will be some work to make all of the data model serializable
         //so for now, just pass the person values
-        args.putInt         (MMPerson.sPersonIDTag,personID);
+        args.putLong        (MMPerson.sPersonIDTag,personID);
         args.putInt         (MMPerson.sPersonMedicationPositionTag, position);
 
         MMMedicationFragment fragment = new MMMedicationFragment();
@@ -111,7 +111,7 @@ public class MMMedicationFragment extends Fragment {
         Bundle args = getArguments();
 
         if (args != null) {
-            mPersonID = args.getInt(MMPerson.sPersonIDTag);
+            mPersonID = args.getLong(MMPerson.sPersonIDTag);
             mPosition = args.getInt(MMPerson.sPersonMedicationPositionTag);
 
         }
@@ -413,7 +413,7 @@ public class MMMedicationFragment extends Fragment {
             nickname = person.getNickname().toString().trim();
         }
         mMedicationForPerson.       setText(nickname);
-        mMedicationForInput.        setText(Integer.valueOf(mPersonID).toString().trim());
+        mMedicationForInput.        setText(Long.valueOf(mPersonID).toString().trim());
 
         MMMedication medication = getMedicationInstance(mPersonID, mPosition);
 
@@ -490,7 +490,7 @@ public class MMMedicationFragment extends Fragment {
                 MMMedication checkMed;
                 int last = medications.size();
                 int position = 0;
-                int medicationID = medication.getMedicationID();
+                long medicationID = medication.getMedicationID();
                 while (position < last){
                     checkMed = medications.get(position);
                     if (medicationID == checkMed.getMedicationID()){
@@ -536,7 +536,7 @@ public class MMMedicationFragment extends Fragment {
         MMScheduleMedication scheduleMedication;
         int hours;
         int minutes;
-        int schedMedID;
+        long schedMedID;
 
         boolean is24Format = false;
         while (position < numPerDay){
@@ -552,7 +552,7 @@ public class MMMedicationFragment extends Fragment {
 
     }
 
-    private TimePickerDialog showPicker(final int schedMedID,
+    private TimePickerDialog showPicker(final long schedMedID,
                                               int hour,
                                               int minute,
                                               boolean is24Format){
@@ -585,7 +585,7 @@ public class MMMedicationFragment extends Fragment {
         return timePickerDialog;
     }
 
-    private ArrayList<MMScheduleMedication> createSchedules(int personID, int medicationID){
+    private ArrayList<MMScheduleMedication> createSchedules(long personID, long medicationID){
 
         int numPerDay = Integer.valueOf(mMedicationDoseNumInput.getText().toString().trim());
         ArrayList<MMScheduleMedication> schedules = new ArrayList<>();
@@ -600,6 +600,8 @@ public class MMMedicationFragment extends Fragment {
 
         while (position < numPerDay){
             scheduleMed = new MMScheduleMedication( medicationID, personID, minutesDue);
+            //This is a temporary kludge, just so they get different ID's
+            scheduleMed.setSchedMedID(position);
             schedules.add(scheduleMed);
             position++;
             minutesDue = minutesDue + minutesBetween;
@@ -613,7 +615,7 @@ public class MMMedicationFragment extends Fragment {
     /**********************************************************/
     //      Utility Functions using passed arguments          //
     /**********************************************************/
-    private ArrayList<MMMedication> getMedications(int personID){
+    private ArrayList<MMMedication> getMedications(long personID){
         //If personID can't be found in the list, person will be null
         MMPerson person = MMUtilities.getPerson(mPersonID);
         if (person == null)return null;
@@ -621,7 +623,7 @@ public class MMMedicationFragment extends Fragment {
         return person.getMedications();
     }
 
-    private MMMedication getMedicationInstance(int personID, int position){
+    private MMMedication getMedicationInstance(long personID, int position){
         //If personID can't be found in the list, person will be null
         MMPerson person = MMUtilities.getPerson(mPersonID);
         if (person == null)return null;
@@ -649,7 +651,7 @@ public class MMMedicationFragment extends Fragment {
         return medications.contains(medication);
     }
 
-    private ArrayList<MMScheduleMedication> getSchedules(int personID, int position){
+    private ArrayList<MMScheduleMedication> getSchedules(long personID, int position){
         MMMedication medication = getMedicationInstance(personID, position);
         if (medication == null)return null;
 

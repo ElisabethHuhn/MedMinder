@@ -5,8 +5,6 @@ import android.database.Cursor;
 
 import java.util.ArrayList;
 
-import static com.androidchicken.medminder.MMPersonManager.PERSON_NOT_FOUND;
-
 /**
  * Created by elisabethhuhn on 10/17/2016.
  *
@@ -68,7 +66,8 @@ public class MMConcurrentDoseManager {
 
     //This routine not only adds from the UI. Adds the in memory objects to this managers list,
     // AND adds it to the DB
-    public boolean add(MMConcurrentDose newConcurrentDose){
+    public long add(MMConcurrentDose newConcurrentDose){
+        long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
         //determine if already in list
         if (mConcurrentDosesList == null){
             mConcurrentDosesList = new ArrayList<>();
@@ -78,29 +77,21 @@ public class MMConcurrentDoseManager {
 
         //update or insert the concurrentDose
         boolean addToDBToo = true;
-        return addConcurrentDose (newConcurrentDose,addToDBToo);
+        returnCode = addConcurrentDose (newConcurrentDose,addToDBToo);
+        return returnCode;
 
     }//end public add()
 
 
     //return the cursor containing all the Concurrent Doses in the DB
     //that pertain to this personID
-    public Cursor getAllConcurrentDosesCursor (int personID){
+    public Cursor getAllConcurrentDosesCursor (long personID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllConcurrentDosesCursor(personID);
     }
 
 
-    //This routine not only removes from the in-memory list, but also from the DB
-    public void removeConcurrentDose(int position) {
-        if (!(position > mConcurrentDosesList.size())) {
-            //Can't remove a position that the list isn't long enough for
-            mConcurrentDosesList.remove(position);
-        }
-    }//end remove
-
-
-    public boolean removeConcurrentDoesFromDB(int concurrentDoseID){
+    public boolean removeConcurrentDoesFromDB(long concurrentDoseID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         long returnCode = databaseManager.removeConcurrentDose(concurrentDoseID);
         if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return false;
@@ -108,61 +99,33 @@ public class MMConcurrentDoseManager {
     }
 
 
-    //find the concurrentDose instance that matches the argument concurrentDoseEmailAddr
-    //returns null if the concurrentDose is not in the list
-    public MMConcurrentDose findConcurrentDose(int concurrentDoseID){
-        int      atPosition = findConcurrentDosePosition(concurrentDoseID);
 
-        if (atPosition == DOSE_NOT_FOUND) return null;
-        return (mConcurrentDosesList.get(atPosition));
-    }
 
     /********************************************/
     /********* Private Member Methods   *********/
     /********************************************/
 
-    //Find the position of the concurrentDose instance that matches the argument concurrentDoseEmailAddr
-    //returns constant = PERSON_NOT_FOUND if the concurrentDose is not in the list
-    //NOTE it is a RunTimeException to call this routine if the list is null or empty
-    private int findConcurrentDosePosition(int concurrentDoseID){
-        MMConcurrentDose concurrentDose;
-        int position        = 0;
-        int last            = mConcurrentDosesList.size();
-
-        //Determine whether an instance of the concurrentDose is already in the list
-        //NOTE that if list is empty, while doesn't loop even once
-        while (position < last){
-            concurrentDose = mConcurrentDosesList.get(position);
-
-            if (concurrentDose.getConcurrentDoseID() == concurrentDoseID){
-                //Found the concurrentDose in the list at this position
-                return position;
-            }
-            position++;
-        }
-        return PERSON_NOT_FOUND;
-    }
-
 
 
     //The routine that actually adds the instance both to in memory list and to DB
-    private boolean addConcurrentDose(MMConcurrentDose newConcurrentDose, boolean addToDBToo){
-        boolean returnCode = true;
-        returnCode = mConcurrentDosesList.add(newConcurrentDose);
+    private long addConcurrentDose(MMConcurrentDose newConcurrentDose, boolean addToDBToo){
+        long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
+        boolean listReturnCode = mConcurrentDosesList.add(newConcurrentDose);
+        if (!listReturnCode)return returnCode;
 
-        if (returnCode && addToDBToo){
+        if (addToDBToo){
 
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
             returnCode = databaseManager.addConcurrentDose(newConcurrentDose);
+            if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return returnCode;
 
             ArrayList<MMDose> doses = newConcurrentDose.getDoses();
-            if ((doses != null) && (returnCode = true)){
+            if (doses != null) {
                 int position = 0;
                 int last = doses.size();
                 while (position < last) {
                     returnCode = databaseManager.addDose(doses.get(position));
-                    //// TODO: 1/25/2017 unfortunately if false, the DB is now corrupted
-                    if (returnCode = false)return false;
+                    if (returnCode == MMDatabaseManager.sDB_ERROR_CODE) return returnCode;
                     position++;
                 }
 
@@ -213,10 +176,11 @@ public class MMConcurrentDoseManager {
         cursor.moveToPosition(position);
         String tempIndexString = MMDataBaseSqlHelper.CONCURRENT_DOSE_ID;
         int tempColumnIndex = cursor.getColumnIndex(tempIndexString);
-        int tempID = cursor.getInt(tempColumnIndex);
+        long tempID = cursor.getLong(tempColumnIndex);
         concurrentDoses.setConcurrentDoseID(tempID);
+
         concurrentDoses.setForPerson
-                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.CONCURRENT_DOSE_FOR_PERSON_ID)));
+                (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.CONCURRENT_DOSE_FOR_PERSON_ID)));
 
         concurrentDoses.setStartTime
                 (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.CONCURRENT_DOSE_START_TIME)));

@@ -61,7 +61,7 @@ public class MMSchedMedManager {
 
     //return the cursor containing all the Concurrent Doses in the DB
     //that pertain to this personID
-    public Cursor getAllScheduleMedicationsCursor (int medicationID){
+    public Cursor getAllScheduleMedicationsCursor (long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllSchedMedsCursor(medicationID);
     }
@@ -70,7 +70,7 @@ public class MMSchedMedManager {
 
 
 
-    public boolean removeSchedMedFromDB(int schedMedID){
+    public boolean removeSchedMedFromDB(long schedMedID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         long returnCode = databaseManager.removeSchedMed(schedMedID);
         if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return false;
@@ -86,8 +86,8 @@ public class MMSchedMedManager {
 
 
     //The routine that actually adds the instance to DB
-    public boolean addScheduleMedication(MMScheduleMedication scheduleMedication){
-        boolean returnCode = true;
+    public long addScheduleMedication(MMScheduleMedication scheduleMedication){
+        long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
 
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         returnCode = databaseManager.addSchedMed(scheduleMedication);
@@ -100,7 +100,7 @@ public class MMSchedMedManager {
     /********* Public Member Methods    *********/
     /********************************************/
 
-    public ArrayList<MMScheduleMedication> getAllSchedMeds(int medicationID){
+    public ArrayList<MMScheduleMedication> getAllSchedMeds(long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         ArrayList<MMScheduleMedication> times = databaseManager.getAllSchedMeds(medicationID);
         return times;
@@ -137,13 +137,13 @@ public class MMSchedMedManager {
         cursor.moveToPosition(position);
 
         scheduleMedications.setSchedMedID
-                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_ID)));
+                (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_ID)));
 
         scheduleMedications.setForPersonID
-                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_FOR_PERSON_ID)));
+                (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_FOR_PERSON_ID)));
 
         scheduleMedications.setOfMedicationID
-                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_OF_MEDICATION_ID)));
+                (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_OF_MEDICATION_ID)));
 
         scheduleMedications.setTimeDue
                 (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_TIME_DUE)));
