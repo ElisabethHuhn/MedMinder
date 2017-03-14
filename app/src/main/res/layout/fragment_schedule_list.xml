@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools=  "http://schemas.android.com/tools"
+    tools:context="com.androidchicken.medminder.MainActivityFragment"
+
+    android:layout_width= "match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport= "true"
+
+    android:orientation="vertical"
+
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft=  "@dimen/activity_horizontal_margin"
+    android:paddingRight= "@dimen/activity_horizontal_margin"
+    android:paddingTop=   "@dimen/interum_vertical"
+
+    android:background="@color/colorScreenBackground"
+    >
+    <!-- Allow entire screen to scroll horizontally -->
+    <LinearLayout
+        android:layout_width= "match_parent"
+        android:layout_height="match_parent"
+        android:orientation=  "vertical"
+        >
+
+        <!-- Screen Label -->
+        <TextView
+            android:id="@+id/scheduleListScreenLabel"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_gravity="center"
+
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:layout_marginBottom="8dp"
+
+            android:text="@string/schedule_list_screen_label"
+            android:textSize="20sp"
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorTitleBackground"
+            />
+
+        <!-- Exit Button -->
+        <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:id=  "@+id/exitButton"
+                android:text="@string/exit_label"
+                android:layout_gravity="center"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+
+                android:background="@color/colorButton1Background"
+                android:textColor="@color/colorTextBlack"
+                />
+
+        <!-- Headers and Scrolling list of schedule -->
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            >
+
+            <!-- Headers and Scrolling list of schedule -->
+            <LinearLayout
+                android:layout_width= "wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:fillViewport= "true"
+                >
+
+                <!-- Row: Headings for the list columns -->
+                <include android:id="@+id/scheduleTitleRow" layout="@layout/list_row_schedule_med"/>
+
+                <!-- RecyclerView List of Persons -->
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/scheduleList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    >
+                </android.support.v7.widget.RecyclerView>
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
+    </LinearLayout>
+
+</ScrollView>
+
+
+
+

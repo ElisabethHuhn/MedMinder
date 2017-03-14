@@ -36,7 +36,7 @@ public class MMScheduleMedication {
     /*         CONSTRUCTOR               */
     /*************************************/
     public MMScheduleMedication() {
-        mSchedMedID     = MMUtilities.getUniqueID();
+        mSchedMedID     = MMUtilities.ID_DOES_NOT_EXIST;
         mOfMedicationID = 0;
         mForPersonID    = 0;
         mTimeDue        = 0;
@@ -45,7 +45,7 @@ public class MMScheduleMedication {
     public MMScheduleMedication(long  ofMedicationID,
                                 long  forPersonID,
                                 int   timeDue) {
-        mSchedMedID     = MMUtilities.getUniqueID();
+        mSchedMedID     = MMUtilities.ID_DOES_NOT_EXIST;
         mOfMedicationID = ofMedicationID;
         mForPersonID    = forPersonID;
         mTimeDue        = timeDue;

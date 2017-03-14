@@ -61,10 +61,6 @@ public class MMPerson {
     /*************************************/
     /*         CONSTRUCTOR               */
     /*************************************/
-    public MMPerson( CharSequence nickname) {
-        initializeDefaultVariables();
-        mNickname     = nickname;
-    }
 
     public MMPerson( ) {
         initializeDefaultVariables();
@@ -78,7 +74,7 @@ public class MMPerson {
 
 
     private void initializeDefaultVariables(){
-        mPersonID     = MMUtilities.getUniqueID();
+        mPersonID     = MMUtilities.ID_DOES_NOT_EXIST;
         mNickname     = "Nickname";
         mEmailAddress = "Email@gmail.com";
         mTextAddress  = "6783587040";

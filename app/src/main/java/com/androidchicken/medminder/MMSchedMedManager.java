@@ -57,16 +57,42 @@ public class MMSchedMedManager {
     /*******************************************/
 
 
+    //The routine that actually adds the instance to DB
+    public long addScheduleMedication(MMScheduleMedication scheduleMedication){
+        long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
+
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        returnCode = databaseManager.addSchedMed(scheduleMedication);
+
+        return returnCode;
+    }
+
+
 
 
     //return the cursor containing all the Concurrent Doses in the DB
     //that pertain to this personID
-    public Cursor getAllScheduleMedicationsCursor (long medicationID){
+    public Cursor getAllSchedMedsCursor(){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        return databaseManager.getAllSchedMedsCursor();
+    }
+
+
+    //return the cursor containing all the Concurrent Doses in the DB
+    //that pertain to this personID
+    public Cursor getAllSchedMedsCursor(long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllSchedMedsCursor(medicationID);
     }
 
 
+
+
+    public ArrayList<MMScheduleMedication> getAllSchedMeds(long medicationID){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        ArrayList<MMScheduleMedication> schedules = databaseManager.getAllSchedMeds(medicationID);
+        return schedules;
+    }
 
 
 
@@ -79,34 +105,10 @@ public class MMSchedMedManager {
 
 
 
-    /********************************************/
-    /********* Private Member Methods   *********/
-    /********************************************/
-
-
-
-    //The routine that actually adds the instance to DB
-    public long addScheduleMedication(MMScheduleMedication scheduleMedication){
-        long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
-
-        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        returnCode = databaseManager.addSchedMed(scheduleMedication);
-
-        return returnCode;
-    }
-
 
     /********************************************/
-    /********* Public Member Methods    *********/
+    /********* Object to/from DB methods   ******/
     /********************************************/
-
-    public ArrayList<MMScheduleMedication> getAllSchedMeds(long medicationID){
-        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        ArrayList<MMScheduleMedication> times = databaseManager.getAllSchedMeds(medicationID);
-        return times;
-    }
-
-
 
     public ContentValues getCVFromScheduleMedication(MMScheduleMedication schedMed){
         ContentValues values = new ContentValues();
@@ -149,6 +151,20 @@ public class MMSchedMedManager {
                 (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_TIME_DUE)));
 
         return scheduleMedications;
+    }
+
+    public long getScheduleIDFromCursor(Cursor cursor, int position){
+
+        int last = cursor.getCount();
+        if (position >= last) return MMUtilities.ID_DOES_NOT_EXIST;
+
+        long scheduleID;
+
+        cursor.moveToPosition(position);
+
+        scheduleID = (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_ID)));
+
+        return scheduleID;
     }
 
 }

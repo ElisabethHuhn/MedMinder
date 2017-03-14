@@ -13,48 +13,6 @@
     >
 
     <!-- This layout is for a Medication element within a list-->
-    <!-- Medication Nick Name -->
-    <EditText
-        android:id="@+id/medicationNickNameInput"
-
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_weight="10"
-
-        android:layout_marginEnd="@dimen/listrow_field_separator"
-
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorHistoryBackground"
-        />
-
-    <!-- Medication Brand Name -->
-    <EditText
-            android:id="@+id/medicationBrandNameInput"
-
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="10"
-
-            android:layout_marginEnd="@dimen/listrow_field_separator"
-
-            android:textColor="@color/colorTextBlack"
-            android:background="@color/colorHistoryBackground"
-            />
-
-    <!-- Medication Generic Name -->
-    <EditText
-            android:id="@+id/medicationGenericNameInput"
-
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="10"
-
-            android:layout_marginEnd="@dimen/listrow_field_separator"
-
-            android:textColor="@color/colorTextBlack"
-            android:background="@color/colorHistoryBackground"
-            />
-
     <!-- Medication For Person -->
     <EditText
         android:id="@+id/medicationForPersonInput"
@@ -62,6 +20,22 @@
         android:layout_height="wrap_content"
         android:layout_width="0dp"
         android:layout_weight="5"
+        android:gravity="center_horizontal"
+
+        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorHistoryBackground"
+        />
+
+    <!-- Medication Nick Name -->
+    <EditText
+        android:id="@+id/medicationNickNameInput"
+
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="10"
+        android:gravity="center_horizontal"
 
         android:layout_marginEnd="@dimen/listrow_field_separator"
 
@@ -76,12 +50,29 @@
         android:layout_height="wrap_content"
         android:layout_width="0dp"
         android:layout_weight="3"
+        android:gravity="center_horizontal"
 
         android:layout_marginEnd="@dimen/listrow_field_separator"
 
         android:textColor="@color/colorTextBlack"
         android:background="@color/colorHistoryBackground"
         />
+
+    <!-- Medication Dose # -->
+    <EditText
+        android:id="@+id/medicationDoseNumInput"
+
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="2"
+        android:gravity="center_horizontal"
+
+        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorHistoryBackground"
+        />
+
 
     <!-- Dose Amount -->
     <EditText
@@ -90,6 +81,7 @@
         android:layout_height="wrap_content"
         android:layout_width="0dp"
         android:layout_weight="3"
+        android:gravity="center_horizontal"
 
         android:layout_marginEnd="@dimen/listrow_field_separator"
 
@@ -99,11 +91,27 @@
 
     <!-- Medication Dose Units -->
     <EditText
-            android:id="@+id/medicationDoseUnitsInput"
+        android:id="@+id/medicationDoseUnitsInput"
+
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="3"
+        android:gravity="center_horizontal"
+
+        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorHistoryBackground"
+        />
+
+    <!-- Medication Brand Name -->
+    <EditText
+            android:id="@+id/medicationBrandNameInput"
 
             android:layout_height="wrap_content"
             android:layout_width="0dp"
-            android:layout_weight="3"
+            android:layout_weight="10"
+            android:gravity="center_horizontal"
 
             android:layout_marginEnd="@dimen/listrow_field_separator"
 
@@ -111,18 +119,20 @@
             android:background="@color/colorHistoryBackground"
             />
 
-    <!-- Medication Dose # -->
+    <!-- Medication Generic Name -->
     <EditText
-        android:id="@+id/medicationDoseNumInput"
+            android:id="@+id/medicationGenericNameInput"
 
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="10"
+            android:gravity="center_horizontal"
 
-        android:layout_marginEnd="@dimen/listrow_field_separator"
+            android:layout_marginEnd="@dimen/listrow_field_separator"
 
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorHistoryBackground"
-        />
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorHistoryBackground"
+            />
+
 
 </LinearLayout>

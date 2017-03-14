@@ -171,7 +171,7 @@ public class MMConcurrentDoseManager {
         if (position >= last) return null;
 
         //filled with defaults, ID not assigned
-        MMConcurrentDose concurrentDoses = new MMConcurrentDose(0);
+        MMConcurrentDose concurrentDoses = new MMConcurrentDose(MMUtilities.ID_DOES_NOT_EXIST);
 
         cursor.moveToPosition(position);
         String tempIndexString = MMDataBaseSqlHelper.CONCURRENT_DOSE_ID;

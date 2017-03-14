@@ -585,12 +585,24 @@ public class MMDatabaseManager {
 
     //CRUD routines for a Schedule Medication
 
+    //This method is for debug. If you see it, delete it and fix the errors
+    public Cursor getAllSchedMedsCursor(){
+        Cursor cursor = mDatabaseHelper.getObject(  mDatabase,
+                TABLE_SCHED_MED,
+                null,    //get the whole object
+                null,
+                null, null, null, null);
+
+        return cursor;
+
+    }
+
     public Cursor getAllSchedMedsCursor(long medicationID){
         Cursor cursor = mDatabaseHelper.getObject(  mDatabase,
-                                                    TABLE_SCHED_MED,
-                                                    null,    //get the whole object
-                                                    getSchedMedWhereClause(medicationID),
-                                                    null, null, null, null);
+                TABLE_SCHED_MED,
+                null,    //get the whole object
+                getSchedMedWhereClause(medicationID),
+                null, null, null, null);
 
         return cursor;
 
@@ -600,6 +612,7 @@ public class MMDatabaseManager {
         ArrayList<MMScheduleMedication> times = new ArrayList<>();
 
         Cursor cursor = getAllSchedMedsCursor(medicationID);
+
         if (cursor != null) {
             MMScheduleMedication scheduleMedication;
             MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();

@@ -64,26 +64,17 @@ public class MMPersonManager {
 
     //******************  CREATE *******************************************
 
-    //This routine is called from the UI fragment and adds to memory then to the DB
-    public long add(MMPerson newPerson){
-
-        //we may need to read the persons in from the DB
-        if ((mPersonList == null) || (mPersonList.size() == 0)){
-            getPersonList();
-        }
-
-        //add first attempts to add. If that fails, it attempts an update
-        boolean addToDBToo = true;
-        return addPerson (newPerson, addToDBToo);
-
-    }//end public add()
-
-
     //The routine that actually adds the instance to in memory list and
     // potentially (third boolean parameter) to the DB
-    private long addPerson(MMPerson newPerson, boolean addToDBToo){
+    public long addPerson(MMPerson newPerson, boolean addToDBToo){
         long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
         boolean listReturnCode = false;
+
+        //There may be more people in the DB than are in memory
+        if ((mPersonList == null) || (mPersonList.size() == 0)){
+            mPersonList = new ArrayList<>();
+        }
+
         listReturnCode = mPersonList.add(newPerson);
         if (!listReturnCode)return returnCode;
 
@@ -169,8 +160,8 @@ public class MMPersonManager {
     //NOTE it is a RunTimeException to call this routine if the list is null or empty
     private int getPersonPosition(long personID){
         MMPerson person;
-        int position        = 0;
-        int last            = mPersonList.size();
+        int position = 0;
+        int last     = mPersonList.size();
 
         //Determine whether an instance of the person is already in the list
         //NOTE that if list is empty, while doesn't loop even once
@@ -251,7 +242,8 @@ public class MMPersonManager {
         int last = cursor.getCount();
         if (position >= last) return null;
 
-        MMPerson person = new MMPerson(0); //filled with defaults, no ID assigned
+        //filled with defaults, no ID assigned
+        MMPerson person = new MMPerson(MMUtilities.ID_DOES_NOT_EXIST);
 
         cursor.moveToPosition(position);
         person.setPersonID

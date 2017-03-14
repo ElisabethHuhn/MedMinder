@@ -115,6 +115,9 @@
             <!-- Row 3: Person Nick Name -->
             <include android:id= "@+id/personNickName" layout = "@layout/element_edit_label_input"/>
 
+            <!-- Row 3.5: Person ID -->
+            <include android:id= "@+id/personIDOutput" layout = "@layout/element_edit_label_input"/>
+
             <!-- Row 4: Person Email Address -->
             <include android:id="@+id/personEmailAddr" layout="@layout/element_edit_label_input"/>
 

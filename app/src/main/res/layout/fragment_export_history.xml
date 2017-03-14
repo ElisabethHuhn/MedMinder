@@ -146,8 +146,6 @@
         <!-- Row : File Suffix -->
         <include android:id= "@+id/fileSuffix"      layout = "@layout/element_edit_label_input"/>
 
-
-
     </TableLayout>
 
 

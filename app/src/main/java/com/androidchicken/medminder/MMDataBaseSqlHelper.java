@@ -293,33 +293,36 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
 
         long returnCode = 0;
         long returnKey = 0;
-        //determine whether object is already in DB
-        Cursor cursor = getObject(  db,
-                                    table,
-                                    null,    //get the whole object
-                                    where_clause,
-                                    null, null, null, null);
-        if (cursor.getCount() > 0){
-            //need to update
-            returnCode = db.update(table, values, where_clause, null);
-            if (returnCode == sDB_ERROR_CODE)return returnCode;
-            returnKey = (long) values.get(id_key);
 
-        } else {
+        long id_value = (long) values.get(id_key);
+        if (id_value == MMUtilities.ID_DOES_NOT_EXIST){
+            //Add it to the DB
             //need to insert
             returnCode = db.insert(table, null, values);
             if (returnCode == sDB_ERROR_CODE)return sDB_ERROR_CODE;
 
-            //update the object with the new ID
-            long id_value = (long) values.get(id_key);
+            //get ready to update the DB row with the new ID
             values.put(id_key, returnCode);
-            returnKey = (long)returnKey;
 
+            //get ready to pass back the new ID
+            returnKey = (long)returnCode;
+
+            returnCode = db.update(table, values, where_clause, null);
+        } else {
+            //Update the existing DB row
+
+            //get ready to pass back the instance ID
+            returnKey = (long) values.get(id_key);
+
+            //update the row in the DB
             returnCode = db.update(table, values, where_clause, null);
         }
 
         //db.close(); //never close the db instance. Just leave the connection open
+
         if (returnCode == sDB_ERROR_CODE)return sDB_ERROR_CODE;
+
+        //return the instance/row ID
         return returnKey;
     }
 

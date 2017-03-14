@@ -1,7 +1,10 @@
 package com.androidchicken.medminder;
 
 import android.content.Context;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -22,6 +25,12 @@ public class MMUtilities {
     public static final boolean BUTTON_DISABLE = false;
     public static final boolean BUTTON_ENABLE  = true;
 
+    public static final long    ID_DOES_NOT_EXIST = -1;
+
+    public static final String  PERSONID_TAG = "personid_tag";
+    public static final String  MEDICATIONID_TAG = "medicataionid_tag";
+    public static final String  POSITION_TAG = "position_tag";
+
 
     /*************************************/
     /*    Static (class) Variables       */
@@ -37,6 +46,7 @@ public class MMUtilities {
     /*************************************/
     /*         Static Methods            */
     /*************************************/
+/*
     //generate a guarenteed unique ID
     public static int getUniqueID(){
         long temp = System.currentTimeMillis();
@@ -45,7 +55,7 @@ public class MMUtilities {
         int  tempID2 = (int) temp2;
         return (int) (System.currentTimeMillis() & 0xfffffff);
     }
-
+*/
 
     //convert pixels to dp
     public static int convertPixelsToDp(Context context, int sizeInDp) {
@@ -128,6 +138,18 @@ public class MMUtilities {
         } else {
             button.setTextColor(ContextCompat.getColor(context, R.color.colorGray));
         }
+    }
+
+    public static void hideSoftKeyboard(FragmentActivity context){
+        //hide the soft keyboard
+        // Check if no view has focus:
+        View view = context.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm =
+                    (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+
     }
 
     /*************************************/

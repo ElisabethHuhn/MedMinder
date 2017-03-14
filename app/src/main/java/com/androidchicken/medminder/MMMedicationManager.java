@@ -272,7 +272,8 @@ public class MMMedicationManager {
         int last = cursor.getCount();
         if (position >= last) return null;
 
-        MMMedication medication = new MMMedication(0); //filled with defaults, no ID is assigned
+        //filled with defaults, no ID is assigned
+        MMMedication medication = new MMMedication(MMUtilities.ID_DOES_NOT_EXIST);
 
         cursor.moveToPosition(position);
         medication.setMedicationID

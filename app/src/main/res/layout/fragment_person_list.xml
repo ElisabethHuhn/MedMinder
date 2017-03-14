@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools=  "http://schemas.android.com/tools"
     tools:context="com.androidchicken.medminder.MainActivityFragment"
@@ -26,78 +26,130 @@
 
         <!-- Screen Label and Add Person Button -->
         <LinearLayout
-        android:layout_width= "match_parent"
-        android:layout_height="wrap_content"
-        android:orientation=  "vertical"
-        >
-        <!-- Row: Person Screen Label -->
-        <TextView
-            android:id="@+id/personListScreenLabel"
+            android:layout_width= "match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
+            android:orientation=  "vertical"
+            >
 
-            android:gravity="center_vertical|center_horizontal"
-            android:layout_gravity="center"
+            <!-- Row: Person Screen Label -->
+            <TextView
+                android:id="@+id/personListScreenLabel"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
 
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingBottom="8dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:layout_gravity="center"
 
-            android:text="@string/person_list_screen_label"
-            android:textSize="20sp"
-            android:textColor="@color/colorTextBlack"
-            android:background="@color/colorTitleBackground"
-            />
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:layout_marginBottom="8dp"
 
-        <Button
-            style="?android:attr/buttonBarButtonStyle"
-            android:id=  "@+id/addPersonsButton"
-            android:text="@string/patient_add_persons_label"
+                android:text="@string/person_list_screen_label"
+                android:textSize="20sp"
+                android:textColor="@color/colorTextBlack"
+                android:background="@color/colorTitleBackground"
+                />
 
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            <!-- Row: Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="8dp"
+                >
 
-            android:layout_gravity="center"
+                <Button
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:id=  "@+id/exitButton"
+                    android:text="@string/exit_label"
 
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingBottom="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
 
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="4dp"
 
-            android:background="@color/colorButton1Background"
-            android:textColor="@color/colorTextBlack"
-            />
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+
+                    android:background="@color/colorButton1Background"
+                    android:textColor="@color/colorTextBlack"
+                    />
+
+                <Button
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:id=  "@+id/scheduleListButton"
+                    android:text="@string/patient_list_schedules_label"
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+
+                    android:background="@color/colorButton2Background"
+                    android:textColor="@color/colorTextBlack"
+                    />
+
+                <Button
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:id=  "@+id/addPersonsButton"
+                    android:text="@string/patient_add_persons_label"
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:paddingStart="4dp"
+                    android:paddingEnd="8dp"
+
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+
+                    android:background="@color/colorButton1Background"
+                    android:textColor="@color/colorTextBlack"
+                    />
+
+            </LinearLayout>
+
 
         </LinearLayout>
 
-
-        <!-- Row: Headings for the list columns -->
-        <include android:id="@+id/personTitleRow" layout="@layout/list_row_person"/>
-
-
-
         <!-- Scrolling list of persons -->
-        <ScrollView
-            android:layout_width= "wrap_content"
-            android:layout_height="match_parent"
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:fillViewport= "true"
             >
 
-            <!-- RecyclerView List of Persons -->
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/personList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <LinearLayout
+                android:layout_width= "wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
                 >
-            </android.support.v7.widget.RecyclerView>
 
-        </ScrollView>
+                <!-- Row: Headings for the list columns -->
+                <include android:id="@+id/personTitleRow" layout="@layout/list_row_person"/>
+
+                <!-- RecyclerView List of Persons -->
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/personList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    >
+                </android.support.v7.widget.RecyclerView>
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
 
     </LinearLayout>
 
-</HorizontalScrollView>
+</ScrollView>
 
 
 

@@ -44,7 +44,7 @@ public class MMConcurrentDose {
     }
 
     public MMConcurrentDose(long forPerson,  long startTime) {
-        mConcurrentDoseID = MMUtilities.getUniqueID();
+        mConcurrentDoseID = MMUtilities.ID_DOES_NOT_EXIST;
         mForPerson    = forPerson;
         mStartTime    = startTime;
         mDoses        = new ArrayList<>();
@@ -56,7 +56,7 @@ public class MMConcurrentDose {
     }
 
     private void initializeVariables(){
-        mConcurrentDoseID = MMUtilities.getUniqueID();
+        mConcurrentDoseID = MMUtilities.ID_DOES_NOT_EXIST;
         mForPerson    = 0;
         mStartTime    = 0;
         mDoses        = new ArrayList<>();

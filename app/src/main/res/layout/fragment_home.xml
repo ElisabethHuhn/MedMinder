@@ -40,7 +40,6 @@
         <LinearLayout
             android:layout_height= "match_parent"
             android:layout_width=  "wrap_content"
-
             android:orientation="vertical"
             >
             <!-- Row 1: Patient Name -->
@@ -55,6 +54,8 @@
                 <TextView
                     android:labelFor="@+id/patientNickNameLabel"
                     android:text="@string/patient_title"
+                    android:textSize="20sp"
+
                     android:layout_height= "wrap_content"
                     android:layout_width = "wrap_content"
 
@@ -66,17 +67,18 @@
                     />
 
                 <TextView
-                android:id="@id/patientNickNameLabel"
-                android:text="@string/patient_nick_name_label"
-                android:layout_height= "wrap_content"
-                android:layout_width = "wrap_content"
-                android:layout_gravity="center"
+                    android:id="@id/patientNickNameLabel"
+                    android:text="@string/patient_nick_name_label"
+                    android:textSize="20sp"
+                    android:layout_height= "wrap_content"
+                    android:layout_width = "wrap_content"
+                    android:layout_gravity="center"
 
-                android:gravity      = "start"
+                    android:gravity      = "start"
 
-                android:background   = "@color/colorWhite"
-                android:textColor    = "@color/colorTextBlack"
-                />
+                    android:background   = "@color/colorWhite"
+                    android:textColor    = "@color/colorTextBlack"
+                    />
 
             </LinearLayout>
 
@@ -94,6 +96,8 @@
                     android:id="@+id/patientSaveButton"
                     android:text="@string/save_label"
 
+                    android:enabled="false"
+
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
 
@@ -105,7 +109,7 @@
                     android:layout_marginEnd="2dp"
 
                     android:background="@color/colorButton1Background"
-                    android:textColor="@color/colorTextBlack"
+                    android:textColor="@color/colorGray"
                     />
 
                 <!-- Select Patient Button -->
@@ -142,8 +146,9 @@
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
 
+                    android:enabled="false"
                     android:background="@color/colorButton1Background"
-                    android:textColor="@color/colorTextBlack"
+                    android:textColor="@color/colorGray"
                     />
 
                 <!-- Export History Button -->

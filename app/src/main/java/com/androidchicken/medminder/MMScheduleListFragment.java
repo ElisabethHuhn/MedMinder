@@ -20,22 +20,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * Created by Elisabeth Huhn on 2/14/17, adpated from MMPersonAdapter
+ * Created by Elisabeth Huhn on 3/10/17, adpated from MMPersonListFragment
  *
- * Defines a fragment whose main purpose is to provide a list of Persons to the UI
+ * Defines a fragment whose main purpose is to provide a list of Schedules to the UI
+ * This is a debug effort to determine why this list isn't working on the Medication Screen
  */
 
-public class MMPersonListFragment extends Fragment {
+public class MMScheduleListFragment extends Fragment {
 
-    private static final String TAG = "LIST_PERSONS_FRAGMENT";
+    private static final String TAG = "LIST_SCHEDULES_FRAGMENT";
     /**
      * Create variables for all the widgets
      *
      */
 
     private Button mExitButton;
-    private Button mAddPersonsButton;
-    private Button mListSchedulesButton;
 
 
     /**********************************************************/
@@ -43,24 +42,16 @@ public class MMPersonListFragment extends Fragment {
     /**********************************************************/
 
     //Constructor
-    public MMPersonListFragment() {
+    public MMScheduleListFragment() {
         //for now, we don't need to initialize anything when the fragment
         //  is first created
     }
 
-    //This is where parameters are unbundled
-    @Override
-    public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
-    }
-
-
-    //set up the recycler view
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.fragment_person_list, container, false);
+        View v = inflater.inflate(R.layout.fragment_schedule_list, container, false);
         v.setTag(TAG);
 
         wireWidgets(v);
@@ -72,13 +63,12 @@ public class MMPersonListFragment extends Fragment {
         MMUtilities.hideSoftKeyboard(getActivity());
 
         //set the title bar subtitle
-        ((MainActivity) getActivity()).setMMSubtitle(R.string.title_person_list);
+        ((MainActivity) getActivity()).setMMSubtitle(R.string.title_schedule_list);
 
 
         //9) return the view
         return v;
     }
-
 
     private void wireWidgets(View v){
         //Exit Button
@@ -90,41 +80,12 @@ public class MMPersonListFragment extends Fragment {
                 Toast.makeText(getActivity(),
                         R.string.exit_label,
                         Toast.LENGTH_SHORT).show();
-                //switch to person screen
+                //switch to home screen
                 // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToPopBackstack();
+                ((MainActivity) getActivity()).switchToHomeScreen();
             }
         });
 
-        //list Schedules Button
-        mListSchedulesButton = (Button) v.findViewById(R.id.scheduleListButton);
-        mListSchedulesButton.setText(R.string.patient_list_schedules_label);
-        mListSchedulesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.patient_list_schedules_label,
-                        Toast.LENGTH_SHORT).show();
-                //switch to person screen
-                // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToScheduleListScreen();
-            }
-        });
-
-        //Add Persons Button
-        mAddPersonsButton = (Button) v.findViewById(R.id.addPersonsButton);
-        mAddPersonsButton.setText(R.string.patient_add_persons_label);
-        mAddPersonsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.patient_add_persons_label,
-                        Toast.LENGTH_SHORT).show();
-                //switch to person screen
-                // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToPersonScreen();
-            }
-        });
     }
 
     private void wireListTitleWidgets(View v){
@@ -134,22 +95,14 @@ public class MMPersonListFragment extends Fragment {
         MainActivity myActivity = (MainActivity)getActivity();
 
         //set up the labels for the medication list
-        field_container = v.findViewById(R.id.personTitleRow);
+        field_container = v.findViewById(R.id.scheduleTitleRow);
 
-        label = (TextView) (field_container.findViewById(R.id.personMainID));
-        label.setText(R.string.person_id_label);
+        label = (EditText) (field_container.findViewById(R.id.scheduleTimeHourOutput));
+        label.setText(R.string.medication_dose_hours);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
-        label = (EditText) (field_container.findViewById(R.id.personNickNameInput));
-        label.setText(R.string.person_nick_name_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-        label = (EditText) (field_container.findViewById(R.id.personEmailAddrInput));
-        label.setText(R.string.person_email_addr_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-        label = (EditText) (field_container.findViewById(R.id.personTextAddrInput));
-        label.setText(R.string.person_text_addr_label);
+        label = (EditText) (field_container.findViewById(R.id.scheduleTimeMinutesOutput));
+        label.setText(R.string.medication_dose_minutes);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
     }
 
@@ -173,23 +126,24 @@ public class MMPersonListFragment extends Fragment {
         //      implemented in the caller: onCreateView()
 
         //2) find and remember the RecyclerView
-        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.personList);
+        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.scheduleList);
 
         //3) create and assign a layout manager to the recycler view
         //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
         RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
 
-        //4) Get the set of Person Instances from the Database
+        //4) Get the set of Schedule Instances from the Database
+        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+        Cursor cursor = schedMedManager.getAllSchedMedsCursor();
 
-        MMPersonManager personManager = MMPersonManager.getInstance();
-        Cursor cursor = personManager.getAllPersonsCursor();
+        int size = cursor.getCount();
 
-        //5) Use the data to Create and set out person Adapter
+        //5) Use the data to Create and set out schedule Adapter
         //     even though we're giving the Adapter the list,
-        //     Adapter uses the PersonManager to maintain the list and
+        //     Adapter uses the ScheduleManager to maintain the list and
         //     the items in the list.
-        MMPersonCursorAdapter adapter = new MMPersonCursorAdapter(cursor);
+        MMSchedMedCursorAdapter adapter = new MMSchedMedCursorAdapter(cursor);
         recyclerView.setAdapter(adapter);
 
         //6) create and set the itemAnimator
@@ -228,23 +182,23 @@ public class MMPersonListFragment extends Fragment {
     //      Utility Functions used in handling events         //
     /**********************************************************/
 
-    //called from onClick(), executed when a person is selected
+    //called from onClick(), executed when a schedule is selected
     private void onSelect(int position){
         //todo need to update selection visually
 
-        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.personList);
-        MMPersonCursorAdapter adapter = (MMPersonCursorAdapter) recyclerView.getAdapter();
+        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.scheduleList);
+        MMSchedMedCursorAdapter adapter = (MMSchedMedCursorAdapter) recyclerView.getAdapter();
 
-        MMPersonManager personManager = MMPersonManager.getInstance();
-        MMPerson selectedPerson =
-                personManager.getPersonFromCursor(adapter.getPersonCursor(), position);
+        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+        MMScheduleMedication selectedSchedule =
+                schedMedManager.getScheduleMedicationFromCursor(adapter.getSchedMedCursor(), position);
+
 
         Toast.makeText(getActivity(),
-                selectedPerson.getNickname() + " is selected!",
+                String.valueOf(selectedSchedule.getTimeDue()) + " is selected!",
                 Toast.LENGTH_SHORT).show();
 
-        //switch to the dose taken for the selected patient
-        ((MainActivity) getActivity()).switchToHomeScreen(selectedPerson.getPersonID());
+        // TODO: 3/10/2017 allow the user to change the value of the schedule
     }
 
 
@@ -259,11 +213,11 @@ public class MMPersonListFragment extends Fragment {
     public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
             private GestureDetector gestureDetector;
-            private MMPersonListFragment.ClickListener clickListener;
+            private MMScheduleListFragment.ClickListener clickListener;
 
             public RecyclerTouchListener(Context context,
                                          final RecyclerView recyclerView,
-                                         final MMPersonListFragment.ClickListener clickListener) {
+                                         final MMScheduleListFragment.ClickListener clickListener) {
 
                 this.clickListener = clickListener;
                 gestureDetector = new GestureDetector(context,

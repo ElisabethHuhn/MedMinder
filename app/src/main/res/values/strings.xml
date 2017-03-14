@@ -18,20 +18,22 @@
     <string name="action_home"     >Home</string>
 
     <!--      Title Bar Text                  -->
-    <string name="title_take_dose"  >Take Dose</string>
-    <string name="title_person"     >Person Profile</string>
-    <string name="title_person_list">List Persons</string>
-    <string name="title_medication" >Medication</string>
+    <string name="title_take_dose"      >Take Dose</string>
+    <string name="title_person"         >Person Profile</string>
+    <string name="title_person_list"    >List People</string>
+    <string name="title_medication"     >Medication</string>
     <string name="title_medication_list">List Medications</string>
     <string name="title_export_history" >Export History</string>
+    <string name="title_schedule_list"  >List Schedules</string>
 
     <!--      Medication SCREEN                  -->
     <!--  -->
-    <string name="medication_screen_label"      >Medications</string>
-    <string name="medication_nick_name_label"   >Nick Name</string>
+    <string name="medication_screen_label"      >Medication</string>
+    <string name="medication_id_label"          >Medication</string>
+    <string name="medication_nick_name_label"   >Med Name</string>
     <string name="medication_brand_name_label"  >Brand Name</string>
     <string name="medication_generic_name_label">Generic Name</string>
-    <string name="medication_for_label"         >Person ID</string>
+    <string name="medication_for_label"         >Person</string>
     <string name="medication_for_name"          >Person Name</string>
 
     <string name="medication_dose_strategy_label">Strategy</string>
@@ -39,7 +41,7 @@
     <string name="medication_dose_units_label"  >Units</string>
     <string name="medication_num_label"         ># per day</string>
 
-    <string name="medication_add_schedule"      >Add Schedule</string>
+    <string name="medication_add_schedule"      >Save Schedule</string>
     <string name="medication_update_schedule"   >Update Schedule</string>
     <string name="medication_maintain_schedule" >Maintain Schedule</string>
     <string name="medication_save_first"        >Save + proper strategy to enable Add Schedule</string>
@@ -54,8 +56,16 @@
     <string name="medication_dose_units_hint"   >For Example: mg</string>
     <string name="medication_num_per_day_hint"  >For Example: 2</string>
     <string name="medication_when_due_hint2"    >Leave When Due blank for as needed</string>
-    <string name="medication_when_due_hint"     >1 = on schedule, 2 = as needed</string>
-    <string name="medication_dose_time"         >Dose Time</string>
+    <string name="strategy_hint_label"          >Strategy Hint</string>
+    <string name="medication_strategy_hint"     >1 = schedule, 2 = as needed</string>
+    <string name="medication_dose_hours"        >Hours</string>
+    <string name="medication_dose_minutes"      >Minutes</string>
+    <string name="up_arrow"                     >\u0024</string>
+    <string name="down_arrow"                   >\u0025</string>
+    <string name="up_label"                     >"▲"</string>
+    <string name="down_label"                   >"▼"</string>
+    <string name="save_first"                   >Must SAVE before this function will work</string>
+    <string name="wrong_strategy"               >Can not set schedule with is needed strategy</string>
 
 
     <!--      Person SCREEN                  -->
@@ -88,10 +98,11 @@
 
     <!--      Dose Taken SCREEN                  -->
     <!--  -->
-    <string name="patient_nick_name_label"      >PATIENT NOT FOUND</string>
+    <string name="patient_nick_name_label"      >Please Select PATIENT</string>
     <string name="patient_title"                >Patient</string>
     <string name="patient_edit_profile_label"   >Edit Patient</string>
     <string name="patient_add_persons_label"    >Add A Person</string>
+    <string name="patient_list_schedules_label" >List Schedules</string>
     <string name="select_patient_label"         >Select Patient</string>
     <string name="patient_add_medication_label">Add Med</string>
     <string name="patient_medication_button"    >Med</string>
@@ -114,12 +125,23 @@
 
 
 
+    <!--      Schedule List SCREEN                  -->
+    <string name="schedule_list_screen_label" >Schedule List</string>
+
 
 
     <!-- exception messages -->
     <string name="person_does_not_exist"   >Person does not exist. ID = </string>
     <string name="no_person"               >There has to be a Person to add a Medication</string>
     <string name="no_persons_defined">No persons defined</string>
+
+
+    <!-- Alert Dialog Strings -->
+    <string name="are_you_sure">Are You Sure?</string>
+    <string name="continue_delete_dont_save">Permanently Delete</string>
+    <string name="delete_title">Delete Prism 4D Project</string>
+    <string name="abandon_title">Prism 4D Project Changes Could Be Lost</string>
+    <string name="cancel">Cancel</string>
 
 
     <!-- database exceptions -->

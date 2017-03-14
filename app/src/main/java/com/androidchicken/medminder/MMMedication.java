@@ -1,5 +1,7 @@
 package com.androidchicken.medminder;
 
+import android.database.Cursor;
+
 import java.util.ArrayList;
 
 /**
@@ -78,7 +80,7 @@ public class MMMedication {
 
 
     private void initializeDefaultVariables(){
-        mMedicationID = MMUtilities.getUniqueID();
+        mMedicationID = MMUtilities.ID_DOES_NOT_EXIST;
         mForPersonID  = getDefaultForPersonID();
         mBrandName    = getDefaultBrandName();
         mGenericName  = getDefaultGenericName();
@@ -90,20 +92,7 @@ public class MMMedication {
 
         mSchedules    = getDefaultSchedules();
     }
-/*
-    private void initializeDefaultVariables(){
-        mMedicationID = MMUtilities.getUniqueID();
-        mForPersonID  = -1;
-        mBrandName    = "6 ";
-        mGenericName  = "7";
-        mMedicationNickname = "Nick ";
-        mDoseStrategy = 8;
-        mDoseAmount   = 9;
-        mDoseUnits    = "10";
-        mWhenDue      = "11";
-        mDoseNumPerDay = 12;
-    }
-*/
+
 
     /*************************************/
     /*    Member setter/getter Methods   */
@@ -140,9 +129,15 @@ public class MMMedication {
         if (!isSchedulesChanged()) {
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
             mSchedules = databaseManager.getAllSchedMeds(mMedicationID);
+
+            MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+            mSchedules = schedMedManager.getAllSchedMeds(mMedicationID);
+
+            int temp = 0;
         }
         return mSchedules;
     }
+
     public void     setSchedules(ArrayList<MMScheduleMedication> schedules){mSchedules = schedules;}
     public boolean isSchedulesChanged() {
         if ((mSchedules == null) ||
@@ -157,9 +152,9 @@ public class MMMedication {
     /*************************************/
     public static long         getDefaultMedicationID()       {  return -1L; }
 
-    public static CharSequence getDefaultBrandName()          {  return "Brand Name";   }
+    public static CharSequence getDefaultBrandName()          {  return "";   }
 
-    public static CharSequence getDefaultGenericName()        {  return "Generic Name";    }
+    public static CharSequence getDefaultGenericName()        {  return "";    }
 
     public static CharSequence getDefaultMedicationNickname() {return "Med Nick Name"; }
 
@@ -171,7 +166,7 @@ public class MMMedication {
 
     public static CharSequence getDefaultDoseUnits()           { return "mg"; }
 
-    public static int          getDefaultDoseNumPerDay()         { return 1;   }
+    public static int          getDefaultDoseNumPerDay()         { return 0;   }
 
     public static ArrayList<MMScheduleMedication> getDefaultSchedules(){
         return new ArrayList<MMScheduleMedication>();}
@@ -179,6 +174,24 @@ public class MMMedication {
     /*************************************/
     /*          Member Methods           */
     /*************************************/
+    public Cursor getSchedulesCursor(){
+        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+        Cursor cursor = schedMedManager.getAllSchedMedsCursor(mMedicationID);
+        return cursor;
+    }
+
+    public boolean addSchedule(MMScheduleMedication schedule){
+       return mSchedules.add(schedule);
+    }
+
+    public MMScheduleMedication removeLastSchedule(){
+        int position = mSchedules.size();
+        position--;
+        return mSchedules.remove(position);
+    }
+
+
+
 
     public String cdfHeaders(){
         String msg =

@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String sPersonListTag  = "PERSON_LIST";
     private static final String sMedicationTag  = "MEDICATION";
     private static final String sExportTag      = "EXPORT";
+    private static final String sScheduleListTag  = "SCHEDULE_LIST";
 
 
     @Override
@@ -119,6 +120,39 @@ public class MainActivity extends AppCompatActivity {
 
         if (getSupportActionBar() != null){
             getSupportActionBar().setSubtitle(subtitle);
+        }
+
+
+    }
+
+
+    public void switchToPopBackstack(){
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+
+        //settings is at the top of the back stack, so pop it off
+        fm.popBackStack();
+
+    }
+
+
+    public void popToScreen(String tag){
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+        //fm.popBackStack(tag, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+        boolean stillLooking = true;
+        if (fm.getBackStackEntryCount() == 0) stillLooking = false;
+
+        int i;
+        CharSequence fragName;
+        while (stillLooking){
+            i = fm.getBackStackEntryCount()-1;
+            fragName = fm.getBackStackEntryAt(i).getName();
+            if (fragName.equals(tag)){
+                stillLooking = false;
+            } else {
+                fm.popBackStackImmediate();
+                if (fm.getBackStackEntryCount() == 0) stillLooking = false;
+            }
         }
 
 
@@ -286,6 +320,17 @@ public class MainActivity extends AppCompatActivity {
         Fragment fragment    = MMMedicationFragment.newInstance(personID, position);
         String   tag         = sMedicationTag;
         int      title       = R.string.title_medication;
+
+        switchScreen(fragment, tag);
+        setMMSubtitle(title);
+    }
+
+    public void switchToScheduleListScreen(){
+        //replace the fragment with the list of persons already defined
+
+        Fragment fragment    = new MMScheduleListFragment();
+        String   tag         = sScheduleListTag;
+        int      title       = R.string.title_schedule_list;
 
         switchScreen(fragment, tag);
         setMMSubtitle(title);

@@ -53,7 +53,7 @@ public class MMDose {
                   int  positionWithinConcDose,
                   long timeTaken,
                   int  amountTaken) {
-        mDoseID         = MMUtilities.getUniqueID();
+        mDoseID         = MMUtilities.ID_DOES_NOT_EXIST;
         mOfMedicationID = ofMedicationID;
         mForPersonID    = forPersonID;
         mContainedInConcurrentDoseID = containedInConcurrentDosesID;
@@ -64,7 +64,7 @@ public class MMDose {
 
 
     private void initializeVariables(){
-        mDoseID         = MMUtilities.getUniqueID();
+        mDoseID         = MMUtilities.ID_DOES_NOT_EXIST;
         mOfMedicationID = 0;
         mForPersonID    = 0;
         mContainedInConcurrentDoseID = 0;

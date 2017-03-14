@@ -23,7 +23,6 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -121,8 +120,9 @@ public class MMHomeFragment extends Fragment {
 
         if (args != null) {
             mPersonID = args.getLong(MMPerson.sPersonIDTag);
+        } else {
+            mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
         }
-
     }
 
 
@@ -131,22 +131,24 @@ public class MMHomeFragment extends Fragment {
                              ViewGroup container,
                              Bundle savedInstanceState) {
 
+        if (savedInstanceState != null){
+            //the fragment is being restored so restore the person ID
+            mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
+        }
+
+
         //Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
+
 
         //Wire up the UI widgets so they can handle events later
         wireWidgets(v);
         initializeRecyclerView(v);
         initializeUI();
 
+
         //hide the soft keyboard
-        // Check if no view has focus:
-        View view = getActivity().getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm =
-                    (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
+        MMUtilities.hideSoftKeyboard(getActivity());
 
         //start the medButton animation
         startMedButtonBlink();
@@ -154,6 +156,13 @@ public class MMHomeFragment extends Fragment {
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         return v;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        // Save custom values into the bundle
+        savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
+        // Always call the superclass so it can save the view hierarchy statesuper.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
@@ -175,6 +184,12 @@ public class MMHomeFragment extends Fragment {
         mEditPatientButton.setText(R.string.patient_edit_profile_label);
         //the order of images here is left, top, right, bottom
         // mEditPatientButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
+        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
+            //if there is a person active, enable the button
+            mEditPatientButton.setEnabled(true);
+            mEditPatientButton.setTextColor(ContextCompat.getColor(getActivity(),
+                                            R.color.colorTextBlack));
+        }
         mEditPatientButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -183,7 +198,7 @@ public class MMHomeFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
                 //switch to person screen
                 // But the switching happens on the container Activity
-                if (mPersonID == 0) {
+                if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
                     ((MainActivity) getActivity()).switchToPersonScreen();
                 } else {
                     //pre-populate
@@ -206,7 +221,7 @@ public class MMHomeFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
                 //switch to home screen
                 // But the switching happens on the container Activity
-                if (mPersonID == 0) {
+                if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
                     ((MainActivity) getActivity()).switchToExportScreen();
                 } else {
                     //pre-populate
@@ -216,24 +231,7 @@ public class MMHomeFragment extends Fragment {
             }
         });
 
-/*
-        //Add Persons Button
-        mAddPersonsButton = (Button) v.findViewById(R.id.addPersonsButton);
-        mAddPersonsButton.setText(R.string.patient_add_persons_label);
-        //the order of images here is left, top, right, bottom
-        // mAddPersonsButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
-        mAddPersonsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.patient_add_persons_label,
-                        Toast.LENGTH_SHORT).show();
-                //switch to person screen
-                // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToPersonScreen();
-            }
-        });
-*/
+
         //Show Persons Button
         mSelectPatientButton = (Button) v.findViewById(R.id.selectPatientButton);
         mSelectPatientButton.setText(R.string.select_patient_label);
@@ -259,7 +257,7 @@ public class MMHomeFragment extends Fragment {
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPersonID == 0)return;
+                if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return;
                 Toast.makeText(getActivity(),
                         R.string.save_label,
                         Toast.LENGTH_SHORT).show();
@@ -269,26 +267,9 @@ public class MMHomeFragment extends Fragment {
 
             }
         });
-/*
-        //Add Medication Button
-        mAddMedicationButton = (Button) v.findViewById(R.id.patientAddMedicationButton);
-        mAddMedicationButton.setText(R.string.patient_add_medication_label);
-        //the order of images here is left, top, right, bottom
-        //mAddMedicationButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_stakeout, 0, 0);
-        mAddMedicationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.patient_add_medication_label,
-                        Toast.LENGTH_SHORT).show();
-                //switch to medication screen
-                // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToMedicationScreen(mPatient.getPersonID());
-            }
-        });
-*/
+
         //Medication Buttons
-        if (mPersonID != 0){
+        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
 
             MMPerson person = MMUtilities.getPerson(mPersonID);
 
@@ -357,7 +338,7 @@ public class MMHomeFragment extends Fragment {
         //     Adapter uses the ConcurrentDoseManager to maintain the list and
         //     the items in the list.
         mAdapter = new MMConcurrentDoseCursorAdapter(mConcurrentDoseCursor);
-        if (mPersonID != 0){
+        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
 
             MMPerson person = MMUtilities.getPerson(mPersonID);
 
@@ -405,7 +386,7 @@ public class MMHomeFragment extends Fragment {
         String nickName;
         position = position-1;
 
-        if (mPersonID != 0){
+        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
             MMPerson person = MMUtilities.getPerson(mPersonID);
 
             if (person != null) {
@@ -586,7 +567,7 @@ public class MMHomeFragment extends Fragment {
 
     private void   startMedButtonBlink(){
         //if (true)return;
-        if (mPersonID == 0)return;
+        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return;
 
         if (mMedButtons == null){
             mMedButtons = new ArrayList<Button>();
@@ -619,7 +600,7 @@ public class MMHomeFragment extends Fragment {
     }
 
     private void   showDose(int position){
-        if (mPersonID != 0){
+        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
             MMPerson person = MMUtilities.getPerson(mPersonID);
 
             if (person != null) {
@@ -645,7 +626,7 @@ public class MMHomeFragment extends Fragment {
 
     private void   initializeUI(){
         //determine if a person is yet associated with the fragment
-        if (mPersonID != 0){
+        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
             //if there is a person corresponding to the patientID, put the name up on the screen
             MMPerson person = MMUtilities.getPerson(mPersonID);
 
@@ -658,7 +639,7 @@ public class MMHomeFragment extends Fragment {
     private long onSave(){
 
         //Creates in memory structure to save all the doses taken concurrently
-        if (mPersonID == 0)return MMDatabaseManager.sDB_ERROR_CODE;
+        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return MMDatabaseManager.sDB_ERROR_CODE;
 
         MMPerson person = MMUtilities.getPerson(mPersonID);
 

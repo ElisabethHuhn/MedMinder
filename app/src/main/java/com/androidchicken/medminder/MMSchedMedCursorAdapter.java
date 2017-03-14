@@ -2,12 +2,12 @@ package com.androidchicken.medminder;
 
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-
-import java.util.ArrayList;
 
 /**
  * Created by Elisabeth Huhn on 2/25/2017.
@@ -24,17 +24,66 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
 
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        public EditText  medicationNickName, medicationForPerson, medicationTime;
-        public ArrayList<EditText> doseTimes = new ArrayList<EditText>();
-
+        public EditText  medicationNickName, medicationForPerson;
+        public EditText medicationTimeHours, medicationTimeMinutes;
 
         public MyViewHolder(View v) {
             super(v);
 
-            //remember the views we know about at coding time
-            medicationNickName  = (EditText) v.findViewById(R.id.medicationNickNameOutput);
-            medicationForPerson = (EditText) v.findViewById(R.id.medicationForPersonOutput);
-            medicationTime      = (EditText) v.findViewById(R.id.scheduleTimeOutput);
+            medicationTimeHours   = (EditText) v.findViewById(R.id.scheduleTimeHourOutput);
+            medicationTimeMinutes = (EditText) v.findViewById(R.id.scheduleTimeMinutesOutput);
+
+            medicationTimeHours.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                    //This tells you that text is about to change.
+                    // Starting at character "start", the next "count" characters
+                    // will be changed with "after" number of characters
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                    //This tells you where the text has changed
+                    //Starting at character "start", the "before" number of characters
+                    // has been replaced with "count" number of characters
+
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    //This tells you that somewhere within editable, it's text has changed
+
+                }
+            });
+
+
+            medicationTimeHours.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                    //This tells you that text is about to change.
+                    // Starting at character "start", the next "count" characters
+                    // will be changed with "after" number of characters
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                    //This tells you where the text has changed
+                    //Starting at character "start", the "before" number of characters
+                    // has been replaced with "count" number of characters
+
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    //This tells you that somewhere within editable, it's text has changed
+
+                }
+            });
+
         }
 
     } //end inner class MyViewHolder
@@ -72,17 +121,42 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
         reinitializeCursor(schedMed.getOfMedicationID());
      }
 
+    public void removeAllItems(){
+        //removes all items in the cursor
+        if (mSchedMedCursor == null)return;
+
+        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+
+        int last = mSchedMedCursor.getCount();
+        int position = 0;
+        long scheduleID;
+        while (position < last){
+            //get the schedule ID from the cursor row
+            scheduleID = schedMedManager.getScheduleIDFromCursor(mSchedMedCursor, position);
+            if (scheduleID != MMUtilities.ID_DOES_NOT_EXIST) {
+                //remove the schedule from the DB
+                schedMedManager.removeSchedMedFromDB(scheduleID);
+            }
+            position++;
+        }
+
+        //update the cursor for the adapter
+        reinitializeCursor(mMedicationID);
+
+    }
+
 
     public Cursor reinitializeCursor(long medicationID){
         MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
 
         //Create a new Cursor with the current contents of DB
-        mSchedMedCursor = schedMedManager.getAllScheduleMedicationsCursor(medicationID);
+        mSchedMedCursor = schedMedManager.getAllSchedMedsCursor(medicationID);
 
-        //Tell the RecyclerView to update the User Display
+        //Tell the adapter to update the User Display
         notifyDataSetChanged();
 
-        //notifyItemRangeChanged(position, getItemCount());
+        notifyItemRangeChanged(0, getItemCount());
+
 
         return mSchedMedCursor;
     }
@@ -94,23 +168,22 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
 
         if (mSchedMedCursor == null ) {
 
-            mSchedMedCursor = schedMedManager.getAllScheduleMedicationsCursor(mMedicationID);
+            mSchedMedCursor = schedMedManager.getAllSchedMedsCursor(mMedicationID);
             if (mSchedMedCursor == null) {
-                holder.medicationNickName.setText("");
-                holder.medicationForPerson.setText("");
-                holder.medicationTime.setText("");
+                holder.medicationTimeHours.setText("0");
+                holder.medicationTimeMinutes.setText("0");
                 return;
             }
         }
         //get the medication indicated
-        MMScheduleMedication schedMed = schedMedManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
+        MMScheduleMedication schedMed =
+                schedMedManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
 
-        long medicationID = schedMed.getOfMedicationID();
-        MMMedication medication = MMUtilities.getMedication(medicationID);
+        int hours = schedMed.getTimeDue() / 60;
+        int minutes = (schedMed.getTimeDue()) - (hours * 60);
 
-        holder.medicationNickName. setText(medication.getMedicationNickname().toString().trim());
-        holder.medicationForPerson.setText(String.valueOf(medication.getForPersonID()).trim());
-        holder.medicationTime.     setText(String.valueOf(schedMed.getTimeDue()).trim());
+        holder.medicationTimeHours  .setText(String.valueOf(hours));
+        holder.medicationTimeMinutes.setText(String.valueOf(minutes));
     }
 
     @Override
@@ -123,6 +196,8 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
         }
         return returnValue;
     }
+
+    public Cursor getSchedMedCursor(){return mSchedMedCursor;}
 
     public void setAdapterContext(long medicationID){
         mMedicationID = medicationID;

@@ -6,6 +6,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
     android:focusable="true"
     android:clickable="true"
 
@@ -17,39 +18,27 @@
 
     <!-- This layout is for a Schedule Medication element within a list-->
 
-    <!-- Medication Nick Name -->
-    <EditText
-            android:id="@+id/medicationNickNameOutput"
-
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="5"
-
-            android:layout_marginEnd="@dimen/listrow_field_separator"
-
-            android:textColor="@color/colorTextBlack"
-            android:background="@color/colorHistoryBackground"
-            />
-
-    <!-- Medication For Person -->
-    <EditText
-        android:id="@+id/medicationForPersonOutput"
-
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_weight="5"
-
-        android:layout_marginEnd="@dimen/listrow_field_separator"
-
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorHistoryBackground"
-        />
-
     <!-- The times the medication is actually due will be added programmatically -->
 
-    <!-- Time to take Medication -->
+    <!-- Hours Time to take Medication -->
     <EditText
-        android:id="@+id/scheduleTimeOutput"
+        android:id="@+id/scheduleTimeHourOutput"
+        android:text="@string/medication_dose_hours"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="5"
+
+        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+        android:gravity="center_horizontal"
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorWhite"
+        />
+
+    <!-- Minutes Time to take Medication -->
+    <EditText
+        android:id="@+id/scheduleTimeMinutesOutput"
+        android:text="@string/medication_dose_minutes"
 
         android:layout_height="wrap_content"
         android:layout_width="0dp"
@@ -57,8 +46,9 @@
 
         android:layout_marginEnd="@dimen/listrow_field_separator"
 
+        android:gravity="center_horizontal"
         android:textColor="@color/colorTextBlack"
-        android:background="@color/colorHistoryBackground"
+        android:background="@color/colorWhite"
         />
 
 

@@ -126,6 +126,9 @@ public class MainExportHistoryFragment extends Fragment {
             }
             */
 
+        } else {
+            mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
+            mPatient = null;
         }
 
     }
@@ -136,6 +139,12 @@ public class MainExportHistoryFragment extends Fragment {
                              ViewGroup container,
                              Bundle savedInstanceState) {
 
+        if (savedInstanceState != null){
+            //the fragment is being restored so restore the person ID
+            mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
+        }
+
+
         //Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_export_history, container, false);
 
@@ -144,10 +153,23 @@ public class MainExportHistoryFragment extends Fragment {
 
         initializeUI();
 
+        //get rid of soft keyboard if it is visible
+        MMUtilities.hideSoftKeyboard(getActivity());
+
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         return v;
     }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        // Save custom values into the bundle
+        savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
 
     @Override
     public void onResume(){
@@ -177,7 +199,7 @@ public class MainExportHistoryFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
                 //switch to person screen
                 // But the switching happens on the container Activity
-                if (mPersonID == 0) {
+                if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
                     ((MainActivity) getActivity()).switchToPersonScreen();
                 } else {
                     //pre-populate
@@ -200,7 +222,7 @@ public class MainExportHistoryFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
                 //switch to home screen
                 // But the switching happens on the container Activity
-                if (mPersonID == 0) {
+                if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
                     ((MainActivity) getActivity()).switchToHomeScreen();
                 } else {
                     //pre-populate
@@ -332,7 +354,7 @@ public class MainExportHistoryFragment extends Fragment {
 
     private void   initializeUI(){
         //determine if a person is yet associated with the fragment
-        if (mPersonID != 0){
+        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
             //if there is a person corresponding to the patientID, put the name up on the screen
             if (mPatient != null) {
                 mPatientNickName.setText(mPatient.getNickname().toString().trim());

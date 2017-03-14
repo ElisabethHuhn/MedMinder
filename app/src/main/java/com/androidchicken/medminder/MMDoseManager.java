@@ -125,7 +125,7 @@ public class MMDoseManager {
         int last = cursor.getCount();
         if (position >= last) return null;
 
-        MMDose dose = new MMDose(0); //filled with defaults
+        MMDose dose = new MMDose(MMUtilities.ID_DOES_NOT_EXIST); //filled with defaults
 
         cursor.moveToPosition(position);
         dose.setDoseID

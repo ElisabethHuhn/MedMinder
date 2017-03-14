@@ -31,6 +31,7 @@ public class MMPersonFragment extends Fragment {
     private Button   mSaveButton;
     private Button   mAddMedButton;
 
+    private EditText mPersonIDOutput;
     private EditText mPersonNickNameInput;
     private EditText mPersonEmailAddrInput;
     private EditText mPersonTextAddrInput;
@@ -81,8 +82,9 @@ public class MMPersonFragment extends Fragment {
 
             //Get the ID of the person passed to this screen
             mPersonID = args.getLong(MMPerson.sPersonIDTag);
-            MMPersonManager personManager = MMPersonManager.getInstance();
 
+        } else {
+            mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
         }
 
     }
@@ -91,10 +93,17 @@ public class MMPersonFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        //Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_person_with_meds, container, false);
 
-        if (mPersonID != 0) {
+        if (savedInstanceState != null){
+            //the fragment is being restored so restore the person ID
+            mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
+        }
+
+
+        //Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.fragment_person, container, false);
+
+        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST) {
             initializeRecyclerView(v);
         }
 
@@ -105,11 +114,23 @@ public class MMPersonFragment extends Fragment {
         //If we had any arguments passed, update the screen with them
         initializeUI();
 
+        //get rid of the soft keyboard if it is visible
+        MMUtilities.hideSoftKeyboard(getActivity());
+
         //set the title bar subtitle
         ((MainActivity) getActivity()).setMMSubtitle(R.string.title_person);
 
         return v;
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        // Save custom values into the bundle
+        savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
 
     private void initializeRecyclerView(View v){
         /*
@@ -140,18 +161,11 @@ public class MMPersonFragment extends Fragment {
         RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
 
-        //4) Get the list of Medication Instances from the Person
+        //4) Get the Cursor of Medication Instances for this Person from the DB
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
         Cursor cursor = medicationManager.getAllMedicationsCursor(mPersonID);
 
         //5) Use the data to Create and set out medication Adapter
-        //     even though we're giving the Adapter the list,
-        //     Adapter uses the MedicationManager to maintain the list and
-        //     the items in the list.
-        //     The medication manager is smart enough to go find the person,
-        //       then find the medication list, and maintain it from there
-
-
         MMMedicationCursorAdapter adapter = new MMMedicationCursorAdapter(cursor);
         adapter.setAdapterContext(mPersonID);
         recyclerView.setAdapter(adapter);
@@ -203,7 +217,8 @@ public class MMPersonFragment extends Fragment {
                 //onExit();
 
                 //switch to home screen with the person as a patient
-                ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
+                //((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
+                ((MainActivity)getActivity()).switchToPopBackstack();
 
             }
         });
@@ -231,7 +246,7 @@ public class MMPersonFragment extends Fragment {
         mAddMedButton = (Button) v.findViewById(R.id.personAddMedicationButton);
         mAddMedButton.setText(R.string.patient_add_medication_label);
         //only enable the Add button after the person has been created
-        if (mPersonID == 0){
+        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
             MMUtilities.enableButton(getActivity(), mAddMedButton, MMUtilities.BUTTON_DISABLE);
             Toast.makeText(getActivity(), R.string.person_save_first, Toast.LENGTH_SHORT).show();
         }
@@ -251,8 +266,28 @@ public class MMPersonFragment extends Fragment {
 
 
 
+        field_container = v.findViewById(R.id.personIDOutput);
+        label = (TextView)(field_container.findViewById(R.id.fieldLabel));
+        label.setEnabled(false);
+        label.setText(R.string.person_id_label);
+
+        mPersonIDOutput = (EditText) (field_container.findViewById(R.id.fieldInput));
+        mPersonIDOutput.setEnabled(false);
+        mPersonIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorGray));
+
+        //mPersonIDOutput.setHint(R.string.person_nick_name_hint);
+        mPersonIDOutput.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                return false;
+            }
+        });
+
+
         field_container = v.findViewById(R.id.personNickName);
         label = (TextView)(field_container.findViewById(R.id.fieldLabel));
+        label.setEnabled(false);
         label.setText(R.string.person_nick_name_label);
 
         mPersonNickNameInput = (EditText) (field_container.findViewById(R.id.fieldInput));
@@ -312,43 +347,55 @@ public class MMPersonFragment extends Fragment {
         //set up the labels for the medication list
         field_container = v.findViewById(R.id.medicationTitleRow);
 
-        label = (EditText) (field_container.findViewById(R.id.medicationNickNameInput));
-        label.setText(R.string.medication_nick_name_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-        label = (EditText) (field_container.findViewById(R.id.medicationBrandNameInput));
-        label.setText(R.string.medication_brand_name_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-        label = (EditText) (field_container.findViewById(R.id.medicationGenericNameInput));
-        label.setText(R.string.medication_generic_name_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.medicationForPersonInput));
         label.setText(R.string.medication_for_label);
+        label.setEnabled(false);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
+
+        label = (EditText) (field_container.findViewById(R.id.medicationNickNameInput));
+        label.setText(R.string.medication_nick_name_label);
+        label.setEnabled(false);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
 
         label = (EditText) (field_container.findViewById(R.id.medicationDoseStrategyInput));
         label.setText(R.string.medication_dose_strategy_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-        label = (EditText) (field_container.findViewById(R.id.medicationDoseAmountInput));
-        label.setText(R.string.medication_dose_amount_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-        label = (EditText) (field_container.findViewById(R.id.medicationDoseUnitsInput));
-        label.setText(R.string.medication_dose_units_label);
+        label.setEnabled(false);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.medicationDoseNumInput));
         label.setText(R.string.medication_num_label);
+        label.setEnabled(false);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
-    }
+        label = (EditText) (field_container.findViewById(R.id.medicationDoseAmountInput));
+        label.setText(R.string.medication_dose_amount_label);
+        label.setEnabled(false);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
+        label = (EditText) (field_container.findViewById(R.id.medicationDoseUnitsInput));
+        label.setText(R.string.medication_dose_units_label);
+        label.setEnabled(false);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
+        label = (EditText) (field_container.findViewById(R.id.medicationBrandNameInput));
+        label.setText(R.string.medication_brand_name_label);
+        label.setEnabled(false);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
+        label = (EditText) (field_container.findViewById(R.id.medicationGenericNameInput));
+        label.setText(R.string.medication_generic_name_label);
+        label.setEnabled(false);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
+
+     }
 
     private void initializeUI() {
         MMPerson person = null;
-        if (mPersonID == 0) {
+        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
             //just create a temporary person object without an id
             person = new MMPerson(mPersonID);
         } else {
@@ -358,18 +405,21 @@ public class MMPersonFragment extends Fragment {
                 String message = getString(R.string.person_does_not_exist) + mPersonID;
                 MMUtilities.errorHandler(getActivity(), message);
                 // TODO: 2/21/2017 How should this error be handled???
-                mPersonID = 0;
+                mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
                 person = new MMPerson(mPersonID);
             }
         }
 
-
+        mPersonIDOutput      .setText(String.valueOf(person.getPersonID()));
         mPersonNickNameInput .setText(person.getNickname()    .toString().trim());
         mPersonEmailAddrInput.setText(person.getEmailAddress().toString().trim());
         mPersonTextAddrInput .setText(person.getTextAddress() .toString().trim());
     }
 
     private void onSave(){
+        //get rid of the soft keyboard
+        MMUtilities.hideSoftKeyboard(getActivity());
+
         CharSequence nickname = mPersonNickNameInput.getText();
         if (nickname == null){
             MMUtilities.errorHandler(getActivity(), R.string.person_not_valid);
@@ -377,9 +427,9 @@ public class MMPersonFragment extends Fragment {
         }
         //If this person already exists, we do NOT want to create a new Person object
         MMPerson person;
-        if (mPersonID == 0) {
+        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
             //but the ID isn't assigned until the DB save
-            person = new MMPerson(nickname);
+            person = new MMPerson(mPersonID);
         } else {
             MMPersonManager personManager = MMPersonManager.getInstance();
             person = personManager.getPerson(mPersonID);
@@ -404,7 +454,8 @@ public class MMPersonFragment extends Fragment {
         //so add/update the person to/in permanent storage
         //This adds/updates any medications that are recorded on the Person to the DB
         MMPersonManager personManager = MMPersonManager.getInstance();
-        long returnCode = personManager.add(person);
+        boolean addToDBToo = true;
+        long returnCode = personManager.addPerson(person, addToDBToo);
         if (returnCode != MMDatabaseManager.sDB_ERROR_CODE) {
             Toast.makeText(getActivity(), R.string.save_successful, Toast.LENGTH_SHORT).show();
             MMUtilities.enableButton(getActivity(), mAddMedButton, MMUtilities.BUTTON_ENABLE);
@@ -412,6 +463,8 @@ public class MMPersonFragment extends Fragment {
         }
         //if the person is newly created, the ID is assigned on DB add
         mPersonID = returnCode;
+        //update the ID field on the UI
+        mPersonIDOutput.setText(String.valueOf(mPersonID));
 
 
         RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.medicationList);
