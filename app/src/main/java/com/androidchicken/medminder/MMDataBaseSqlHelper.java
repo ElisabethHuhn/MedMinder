@@ -50,19 +50,21 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     public static final String PERSON_TEXT     = "person_text";
     public static final String PERSON_DURATION = "person_duration";
     public static final String PERSON_ORDER    = "person_order";
+    public static final String PERSON_EXISTS   = "person_exists";
 
 
 
     //create person table
     private static final String CREATE_TABLE_PERSON = "CREATE TABLE " + TABLE_PERSON +"(" +
             KEY_ID          + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            PERSON_ID       + " INTEGER, " +
+            PERSON_ID       + " INTEGER, "   +
             PERSON_NICKNAME + " TEXT, "      +
             PERSON_EMAIL    + " TEXT, "      +
             PERSON_TEXT     + " TEXT, "      +
             PERSON_DURATION + " INTEGER, "   +
             PERSON_ORDER    + " INTEGER, "   +
-            KEY_CREATED_AT  + " DATETIME "  + ")";
+            PERSON_EXISTS   + " INTEGER, "   +
+            KEY_CREATED_AT  + " DATETIME "   + ")";
 
     /*****************************************************/
     /*****    Medication Table          ******************/
@@ -81,6 +83,7 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     public static final String MEDICATION_DOSE_AMOUNT    = "med_dose_amount";
     public static final String MEDICATION_DOSE_UNITS     = "med_dose_units";
     public static final String MEDICATION_DOSE_NUM_PER_DAY = "med_number_per_day";
+    public static final String MEDICATION_CURRENTLY_TAKEN = "med_curr_taken";//stored as integer, 0 = false, 1 = true
 
 
     //create  table
@@ -95,6 +98,7 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
             MEDICATION_DOSE_AMOUNT    + " INTEGER, "  +
             MEDICATION_DOSE_UNITS     + " INTEGER, "  +
             MEDICATION_DOSE_NUM_PER_DAY + " INTEGER, "  +
+            MEDICATION_CURRENTLY_TAKEN  + " INTEGER, "  +
             KEY_CREATED_AT            + " INTEGER "  + ")";
 
     /*****************************************************/
@@ -305,7 +309,7 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
             values.put(id_key, returnCode);
 
             //get ready to pass back the new ID
-            returnKey = (long)returnCode;
+            returnKey = returnCode;
 
             returnCode = db.update(table, values, where_clause, null);
         } else {

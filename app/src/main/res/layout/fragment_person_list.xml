@@ -20,7 +20,7 @@
     <!-- Allow entire screen to scroll horizontally -->
     <LinearLayout
         android:layout_width= "match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation=  "vertical"
         >
 
@@ -47,7 +47,7 @@
                 android:text="@string/person_list_screen_label"
                 android:textSize="20sp"
                 android:textColor="@color/colorTextBlack"
-                android:background="@color/colorTitleBackground"
+                android:background="@color/colorScreenBackground"
                 />
 
             <!-- Row: Buttons -->
@@ -64,8 +64,9 @@
                     android:id=  "@+id/exitButton"
                     android:text="@string/exit_label"
 
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
 
                     android:paddingStart="8dp"
                     android:paddingEnd="4dp"
@@ -79,29 +80,12 @@
 
                 <Button
                     style="?android:attr/buttonBarButtonStyle"
-                    android:id=  "@+id/scheduleListButton"
-                    android:text="@string/patient_list_schedules_label"
-
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
-
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-
-                    android:background="@color/colorButton2Background"
-                    android:textColor="@color/colorTextBlack"
-                    />
-
-                <Button
-                    style="?android:attr/buttonBarButtonStyle"
                     android:id=  "@+id/addPersonsButton"
                     android:text="@string/patient_add_persons_label"
 
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
 
                     android:paddingStart="4dp"
                     android:paddingEnd="8dp"

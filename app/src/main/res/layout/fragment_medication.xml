@@ -53,7 +53,7 @@
 
                     android:textSize="20sp"
                     android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorTitleBackground"
+                    android:background="@color/colorScreenBackground"
                     />
 
             </TableRow>
@@ -91,7 +91,7 @@
                     android:layout_height="wrap_content"
 
                     android:gravity="center|center_vertical"
-                    android:layout_gravity="start"
+                    android:layout_gravity="center_horizontal"
                     android:layout_weight="1"
 
                     android:layout_marginStart="4dp"
@@ -101,28 +101,26 @@
                     android:background="@color/colorButton1Background"
                     />
 
-                <!-- Add Schedule Button -->
-                <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:id="@+id/medicationAddScheduleButton"
-                    android:text="@string/medication_add_schedule"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-
-                    android:gravity="center|center_vertical"
-                    android:layout_gravity="start"
-                    android:layout_weight="1"
-
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="8dp"
-
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorButton1Background"
-                    />
 
             </TableRow>
 
-            <!-- Row 3: Medication For PersonID/Nickname, which the user may not change -->
+            <!-- Row 3: Medication Exists? -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width ="match_parent"
+                android:paddingTop="10dp"
+                android:gravity="center"
+                >
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/switchExists"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/exists_label"/>
+
+            </TableRow>
+
+
+            <!-- Row 4: Medication For PersonID/Nickname, which the user may not change -->
             <TableRow
 
                 android:layout_height="wrap_content"
@@ -243,42 +241,7 @@
 
             </TableRow>
 
-            <!-- Row 7: Medication Strategy Hint -->
-            <TableRow
-
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
-                >
-                <TextView
-                    android:text="@string/strategy_hint_label"
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_weight="30"
-                    android:gravity="end"
-
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorLabelBackground"
-                    />
-                <TextView
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_weight="70"
-                    android:gravity="center_horizontal"
-
-                    android:hint="@string/medication_strategy_hint"
-
-                    android:layout_marginEnd="16dp"
-
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorScreenBackground"
-                    />
-
-            </TableRow>
-
-
-            <!-- Row : Project Strategy Type -->
+            <!-- Row 6: Project Strategy Type -->
             <TableRow
 
                 android:layout_height="wrap_content"
@@ -291,7 +254,7 @@
                     android:text="@string/medication_dose_strategy_label"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    android:layout_weight="25"
+                    android:layout_weight="30"
                     android:gravity="end"
 
                     android:textColor="@color/colorTextBlack"
@@ -303,7 +266,7 @@
                     android:id            = "@+id/strategy_type_spinner"
                     android:layout_width  = "0dp"
                     android:layout_height = "wrap_content"
-                    android:layout_weight="75"
+                    android:layout_weight="70"
                     android:layout_marginEnd="16dp"
                     android:textColor="@color/colorTextBlack"
                     android:background="@color/colorWhite"
@@ -311,50 +274,7 @@
 
             </TableRow>
 
-
-
-            <!-- Row 8: Medication Strategy -->
-            <TableRow
-
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
-                >
-                <TextView
-                    android:labelFor="@+id/medicationDoseStrategyInput"
-                    android:text="@string/medication_dose_strategy_label"
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_weight="30"
-                    android:gravity="end"
-
-                    android:focusable="false"
-
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorLabelBackground"
-                    />
-                <EditText
-                    android:id="@id/medicationDoseStrategyInput"
-
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_weight="70"
-                    android:gravity="center_horizontal"
-
-                    android:hint="@string/medication_strategy_hint"
-
-                    android:inputType="text"
-                    android:imeOptions="flagNoExtractUi"
-                    android:layout_marginEnd="16dp"
-
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorInputBackground"
-                    />
-
-            </TableRow>
-
-            <!-- Row 9: Medication Dose # Per Day -->
+            <!-- Row 7: Medication Dose # Per Day -->
             <TableRow
 
                 android:layout_height="wrap_content"
@@ -430,10 +350,9 @@
 
             </TableRow>
 
-
         </TableLayout>
 
-        <!-- Schedule Times -->
+        <!-- Title row and list of Schedule Times -->
         <HorizontalScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -443,14 +362,13 @@
             <LinearLayout
 
                 android:layout_height="wrap_content"
-                android:layout_width= "match_parent"
+                android:layout_width= "wrap_content"
                 android:orientation="vertical"
                 android:layout_gravity="center_horizontal"
                 android:paddingTop=    "10dp"
                 >
                 <!-- Row: Headings for the list columns -->
                 <include android:id="@+id/schedMedTitleRow" layout="@layout/list_row_schedule_med"/>
-
 
                 <!-- RecyclerView of History -->
                 <android.support.v7.widget.RecyclerView
@@ -464,7 +382,6 @@
 
         </HorizontalScrollView>
 
-
         <!-- Medication Attributes -->
         <TableLayout
             android:layout_width="match_parent"
@@ -472,7 +389,7 @@
             android:layout_gravity="top|center_vertical"
             >
 
-            <!-- Row 10: Dose Amount -->
+            <!-- Row : Dose Amount -->
             <TableRow
 
                 android:layout_height="wrap_content"

@@ -2,10 +2,13 @@ package com.androidchicken.medminder;
 
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -29,8 +32,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -45,32 +50,16 @@ public class MMHomeFragment extends Fragment {
     /*          UI Widgets                         */
     /***********************************************/
 
-    //main area of screen fragment
-    private Button mEditPatientButton;
-    //private Button mAddPersonsButton;
-    private Button mSelectPatientButton;
-    private Button mSaveButton;
-    private Button mExportHistoryButton;
-    //private Button mAddMedicationButton;
-    ArrayList<Button> mMedButtons = new ArrayList<>();
-    ArrayList<EditText> mMedEdits = new ArrayList<>();
-
-
-    private TextView mPatientNickName;
-
-    private EditText mTimeInput;
-
-    private Cursor                  mConcurrentDoseCursor;
-    private RecyclerView            mRecyclerView;
-    private MMConcurrentDoseCursorAdapter mAdapter;
-
+    ArrayList<Button>   mMedButtons = new ArrayList<>();
+    ArrayList<EditText> mMedEdits   = new ArrayList<>();
+    
 
 
     /***********************************************/
     /*          Member Variables                   */
     /***********************************************/
     private long  mPersonID;
-
+    private boolean isUIChanged = false;
 
 
     /***********************************************/
@@ -111,7 +100,8 @@ public class MMHomeFragment extends Fragment {
 
         //Initialize the DB if necessary
         try {
-            MMDatabaseManager databaseManager = MMDatabaseManager.getInstance(getActivity());
+            //initialize the database
+            MMDatabaseManager.getInstance(getActivity());
         }catch (Exception e) {
             Log.e(TAG,Log.getStackTraceString(e));
         }
@@ -131,9 +121,25 @@ public class MMHomeFragment extends Fragment {
                              ViewGroup container,
                              Bundle savedInstanceState) {
 
+        //First, get the mPersonID set properly
         if (savedInstanceState != null){
             //the fragment is being restored so restore the person ID
             mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
+        }
+
+        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
+            //see if there is anything stored in shared preferences from the last time Home ran
+            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+            long defaultValue = MMUtilities.ID_DOES_NOT_EXIST;
+            mPersonID = sharedPref.getLong(MMPerson.sPersonIDTag, defaultValue);
+        }
+
+        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST) {
+            //Store the PersonID for the next time the Home Fragment runs
+            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putLong(MMPerson.sPersonIDTag, mPersonID);
+            editor.apply();
         }
 
 
@@ -144,16 +150,17 @@ public class MMHomeFragment extends Fragment {
         //Wire up the UI widgets so they can handle events later
         wireWidgets(v);
         initializeRecyclerView(v);
-        initializeUI();
+        initializeUI(v);
 
 
         //hide the soft keyboard
         MMUtilities.hideSoftKeyboard(getActivity());
 
         //start the medButton animation
-        startMedButtonBlink();
+        startMedButtonBlink(v);
 
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        getActivity().getWindow().
+                setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         return v;
     }
@@ -170,27 +177,27 @@ public class MMHomeFragment extends Fragment {
         super.onResume();
 
         //set the title bar subtitle
-        ((MainActivity) getActivity()).setMMSubtitle(R.string.title_take_dose);
+        ((MainActivity) getActivity()).setMMSubtitle(R.string.title_home);
     }
 
     /***********************************************/
-    /*          Member Methods                     */
+    /*   Initialization Methods                    */
     /***********************************************/
 
     private void   wireWidgets(View v){
 
         //Patient Profile Button
-        mEditPatientButton = (Button) v.findViewById(R.id.patientProfileButton);
-        mEditPatientButton.setText(R.string.patient_edit_profile_label);
+        Button editPatientButton = (Button) v.findViewById(R.id.patientProfileButton);
+        editPatientButton.setText(R.string.patient_edit_profile_label);
         //the order of images here is left, top, right, bottom
-        // mEditPatientButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
+        // editPatientButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
         if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
             //if there is a person active, enable the button
-            mEditPatientButton.setEnabled(true);
-            mEditPatientButton.setTextColor(ContextCompat.getColor(getActivity(),
+            editPatientButton.setEnabled(true);
+            editPatientButton.setTextColor(ContextCompat.getColor(getActivity(),
                                             R.color.colorTextBlack));
         }
-        mEditPatientButton.setOnClickListener(new View.OnClickListener() {
+        editPatientButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(),
@@ -208,49 +215,27 @@ public class MMHomeFragment extends Fragment {
             }
         });
 
-        //Export History Button
-        mExportHistoryButton = (Button) v.findViewById(R.id.exportHistoryButton);
-        mExportHistoryButton.setText(R.string.exportHistoryLabel);
+
+        //Select Patient Button
+        Button selectPatientButton = (Button) v.findViewById(R.id.selectPatientButton);
+        selectPatientButton.setText(R.string.select_patient_label);
         //the order of images here is left, top, right, bottom
-        // mExportHistoryButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
-        mExportHistoryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.exportHistoryLabel,
-                        Toast.LENGTH_SHORT).show();
-                //switch to home screen
-                // But the switching happens on the container Activity
-                if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
-                    ((MainActivity) getActivity()).switchToExportScreen();
-                } else {
-                    //pre-populate
-                    ((MainActivity) getActivity()).switchToExportScreen(mPersonID);
-                }
-
-            }
-        });
-
-
-        //Show Persons Button
-        mSelectPatientButton = (Button) v.findViewById(R.id.selectPatientButton);
-        mSelectPatientButton.setText(R.string.select_patient_label);
-        //the order of images here is left, top, right, bottom
-        // mSelectPatientButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
-        mSelectPatientButton.setOnClickListener(new View.OnClickListener() {
+        // selectPatientButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
+        selectPatientButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(),
                         R.string.select_patient_label,
                         Toast.LENGTH_SHORT).show();
                 //switch to person screen
-                // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToPersonListScreen();
+                // But it has to know where to come back to
+                ((MainActivity)getActivity()).
+                        switchToPersonListScreen(MainActivity.sHomeTag, mPersonID);
             }
         });
 
         //save Button
-        mSaveButton = (Button) v.findViewById(R.id.patientSaveButton);
+        Button mSaveButton = (Button) v.findViewById(R.id.homeSaveButton);
         mSaveButton.setText(R.string.save_label);
         //the order of images here is left, top, right, bottom
         //mSaveButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
@@ -268,6 +253,9 @@ public class MMHomeFragment extends Fragment {
             }
         });
 
+
+
+
         //Medication Buttons
         if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
 
@@ -275,7 +263,9 @@ public class MMHomeFragment extends Fragment {
 
             if (person != null) {
 
-                int last = person.getMedications().size();
+                ArrayList<MMMedication> medications = person.getMedications();
+
+                int last = medications.size();
                 if (last > 0) {
                     //convert pixels to dp
                     int sizeInDp = 10; //padding between buttons
@@ -285,17 +275,15 @@ public class MMHomeFragment extends Fragment {
                     int position = 0;
 
                     while (position < last) {
-                        addMedButtonToView(v, position, sizeInDp);
+                        MMMedication medication = medications.get(position);
+                        if ((medication != null) && (medication.isCurrentlyTaken())) {
+                            addMedButtonToView(v, medication, sizeInDp);
+                        }
                         position++;
                     }
                 }
             }
         }
-
-        //Patient Nick Name
-        mPatientNickName = (TextView) v.findViewById(R.id.patientNickNameLabel);
-        //There are no events associated with this field
-
     }
 
     private void   initializeRecyclerView(View v){
@@ -319,52 +307,55 @@ public class MMHomeFragment extends Fragment {
 
 
         //2) find and remember the RecyclerView
-        mRecyclerView = (RecyclerView) v.findViewById(R.id.doseHistoryList);
+        RecyclerView recyclerView = getRecyclerView(v);
 
         //3) create and assign a layout manager to the recycler view
         //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
         RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setLayoutManager(mLayoutManager);
 
         //4) Get the list of ConcurrentDose Instances from the ConcurrentDoseManager
 
         //      get the singleton list container
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
         //      then go get our list of concurrentDoses
-        mConcurrentDoseCursor = concurrentDoseManager.getAllConcurrentDosesCursor(mPersonID);
+        Cursor concurrentDoseCursor = concurrentDoseManager.getAllConcurrentDosesCursor(mPersonID);
 
         //5) Use the data to Create and set out concurrentDose Adapter
         //     even though we're giving the Adapter the list,
         //     Adapter uses the ConcurrentDoseManager to maintain the list and
         //     the items in the list.
-        mAdapter = new MMConcurrentDoseCursorAdapter(mConcurrentDoseCursor);
+        int numbMeds = 0; //initialize to person not yet existing
+
         if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
-
             MMPerson person = MMUtilities.getPerson(mPersonID);
-
             if (person != null) {
-                // TODO: 2/22/2017 Perhaps need to bail on list here if null
-                int numbMeds = person.getMedications().size();
-                mAdapter.setAdapterContext(getActivity(), mPersonID, numbMeds);
+                numbMeds = person.getMedications().size();
+
             }
         }
-        mRecyclerView.setAdapter(mAdapter);
+        MMConcurrentDoseCursorAdapter adapter =
+                new MMConcurrentDoseCursorAdapter(getActivity(),
+                                                  mPersonID,
+                                                  numbMeds,
+                                                  concurrentDoseCursor);
+        recyclerView.setAdapter(adapter);
 
         //6) create and set the itemAnimator
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         //7) create and add the item decorator
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
                                                                    DividerItemDecoration.VERTICAL));
  /*
-           mRecyclerView.addItemDecoration(new DividerItemDecoration(
+           recyclerView.addItemDecoration(new DividerItemDecoration(
                 getActivity(),
                 LinearLayoutManager.VERTICAL));
 */
 
         //8) add event listeners to the recycler view
-        mRecyclerView.addOnItemTouchListener(
-            new RecyclerTouchListener(getActivity(), mRecyclerView, new ClickListener() {
+        recyclerView.addOnItemTouchListener(
+            new RecyclerTouchListener(getActivity(), recyclerView, new ClickListener() {
 
                 @Override
                 public void onClick(View view, int position) {
@@ -379,33 +370,24 @@ public class MMHomeFragment extends Fragment {
 
     }
 
-    private String getMedNickname(int position){
-
-        MMMedication medication;
-
-        String nickName;
-        position = position-1;
-
+    private void   initializeUI(View v){
+        //determine if a person is yet associated with the fragment
         if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
+            //if there is a person corresponding to the patientID, put the name up on the screen
             MMPerson person = MMUtilities.getPerson(mPersonID);
 
             if (person != null) {
-
-                int last = person.getMedications().size();
-
-                if (last > 0) {
-                    if (position < last) {
-                        medication = person.getMedications().get(position);
-                        if (medication != null) {
-                            nickName = medication.getMedicationNickname().toString().trim();
-                            return nickName;
-                        }
-                    }
-                }
+                TextView patientNickName = (TextView) v.findViewById(R.id.patientNickNameLabel);
+                patientNickName.setText(person.getNickname().toString().trim());
             }
         }
-        return "Med"+ String.valueOf(position+1);
+        setUISaved(v);
     }
+
+
+    /***********************************************/
+    /*   Initialization of Views                   */
+    /***********************************************/
 
     private void   addDateTimeFieldsToView(View v, int sizeInDp){
 
@@ -419,20 +401,20 @@ public class MMHomeFragment extends Fragment {
         //lp.gravity = Gravity.CENTER;//set below too
         lp.setMarginEnd(padding);
 
-        EditText mTimeInput = new EditText(getActivity());
-        mTimeInput.setHint(R.string.dose_default_time);
-        mTimeInput.setInputType(InputType.TYPE_CLASS_TEXT);
-        mTimeInput.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-        mTimeInput.setLayoutParams(lp);
-        mTimeInput.setPadding(0,0,padding,0);
-        mTimeInput.setGravity(Gravity.CENTER);
-        mTimeInput.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
-        mTimeInput.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
+        EditText timeInput = new EditText(getActivity());
+        timeInput.setHint(R.string.dose_default_time);
+        timeInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        timeInput.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        timeInput.setLayoutParams(lp);
+        timeInput.setPadding(0,0,padding,0);
+        timeInput.setGravity(Gravity.CENTER);
+        timeInput.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
+        timeInput.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
 
 
         //Time input for this dose
         //There is no label for this field
-        mTimeInput.setOnTouchListener(new View.OnTouchListener() {
+        timeInput.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                /* Toast.makeText(getActivity(),
@@ -443,13 +425,13 @@ public class MMHomeFragment extends Fragment {
             }
         });
 
-        mTimeInput.setText(MMUtilities.getDateTimeString());
+        timeInput.setText(MMUtilities.getTimeString());
 
-        layout.addView(mTimeInput);
+        layout.addView(timeInput);
 
     }
 
-    private Button addMedButtonToView(View v, int position, int sizeInDp){
+    private Button addMedButtonToView(View v, MMMedication medication, int sizeInDp){
         Button medButton;
         EditText edtView;
 
@@ -471,7 +453,7 @@ public class MMHomeFragment extends Fragment {
         medButton.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorButton1Background));
 
         medButton.setPadding(0,0,padding,0);
-        medButton.setText(getMedNickname(position + 1));
+        medButton.setText(medication.getMedicationNickname());
         medButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
         layout.addView(medButton);
 
@@ -516,7 +498,6 @@ public class MMHomeFragment extends Fragment {
         mMedEdits.add(edtView);
 
         return medButton;
-
     }
 
     private void   addMedButtonListener(Button medButton){
@@ -543,6 +524,9 @@ public class MMHomeFragment extends Fragment {
 
                         //Show the amount taken
                         showDose(position);
+
+                        //indicate the UI has changed
+                        setUIChanged();
                         return;
                     }
                     position++;
@@ -559,28 +543,110 @@ public class MMHomeFragment extends Fragment {
                         R.string.person_med_long_click,
                         Toast.LENGTH_SHORT).show();
 
+                setUIChanged();
                 return true;
             }
         });
 
     }
 
-    private void   startMedButtonBlink(){
+    private void   startMedButtonBlink(View v){
         //if (true)return;
         if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return;
 
+        MMPerson person = MMUtilities.getPerson(mPersonID);
+        if (person == null)return;
+
         if (mMedButtons == null){
-            mMedButtons = new ArrayList<Button>();
+            mMedButtons = new ArrayList<>();
         }
 
-        int last = mMedButtons.size();
-        int position = 0;
+        Calendar calendar = Calendar.getInstance();
+        long currentTimeMinutesSinceMidnight = getMinutesFromCalendar(calendar);
+
+        ArrayList<MMMedication> medications = person.getMedications();
+        int lastMed = medications.size();
+        //position within medications for this person
+        //corresponds to the position of medButton for this medication
+        int positionMed = 0;
         Button medButton;
-        while (position < last){
-            medButton = mMedButtons.get(position);
-            if (position == 1)animateButton(medButton);
-            position++;
+
+        //If the dose is overdue, blink the button
+        while (positionMed < lastMed){
+            //Get the most recent dose taken for this medication
+            MMMedication medication = medications.get(positionMed);
+            MMDose dose = getMostRecentDose(v, medication);
+
+            long lastTakenMinutes;
+            boolean firstDoseOfDay = true;
+
+            //If there are no doses yet taken, it is due
+            if (dose == null){
+                lastTakenMinutes = 0;  //minutes since midnight
+            } else {
+                //The timeTaken is the number of MINUTES since midnight
+                long timeTaken = dose.getTimeTaken();
+
+                //takes into account whether it's was taken today
+                //zero if the first dose of the day has not yet been taken
+                lastTakenMinutes = getLastTakenMinutes(timeTaken);
+            }
+            //so we have the time the dose was taken. When is/was the next dose due?
+
+            //The schedule of the medication gives us
+            // how many minutes since midnight that the dose is due
+
+            MMScheduleMedication schedule;
+            ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
+            int scheduleTimeDue;
+            int lastSched = schedules.size();
+            int positionSched = 0;
+            while (positionSched < lastSched){
+                schedule = schedules.get(positionSched);
+                scheduleTimeDue = schedule.getTimeDue();
+
+                //if schedule time is greater than the time the last dose was taken
+                if (scheduleTimeDue > lastTakenMinutes) {
+                    //So this scheduled dose has not yet been taken
+                    if (scheduleTimeDue <= currentTimeMinutesSinceMidnight) {
+                        //it is time to take the dose, blink the proper button
+                        medButton = mMedButtons.get(positionMed);
+                        animateButton(medButton);
+                        //no need to loop through the rest of the schedules
+                        positionSched = lastSched;
+                    }
+                }
+                positionSched++;
+            }//end while schedule loop
+
+            positionMed++;
+        }//end while medication loop
+    }
+
+    private long   getLastTakenMinutes(long timeTaken){
+        long lastTakenMinutes = 0L;
+
+
+        //compare whether the last dose was taken today
+        Date lastTaken = new Date(timeTaken);
+
+        Date now = new Date();
+
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+        boolean firstDoseOfDay = !(fmt.format(lastTaken).equals(fmt.format(now)));
+
+        if (firstDoseOfDay) {
+            lastTakenMinutes = 0;
+        } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(lastTaken);
+            lastTakenMinutes = getMinutesFromCalendar(calendar);
         }
+        return lastTakenMinutes;
+    }
+
+    private long   getMinutesFromCalendar (Calendar calendar){
+        return (calendar.get(Calendar.HOUR_OF_DAY) * 60) + calendar.get(Calendar.MINUTE);
     }
 
     private void   animateButton(Button medButton){
@@ -606,17 +672,17 @@ public class MMHomeFragment extends Fragment {
             if (person != null) {
 
                 //get the medication
-                MMMedication medication = person.getMedications().get(position);
+                MMMedication medication = getMedicationFromPerson(person, position);
 
                 if (medication != null) {
                     //and the dose
-                    int dose = medication.getDoseAmount();
+                    int doseAmt = medication.getDoseAmount();
                     //and the EditText field
                     EditText medField = mMedEdits.get(position);
 
                     if (medField != null) {
                         //show the user
-                        medField.setText(String.valueOf(dose));
+                        medField.setText(String.valueOf(doseAmt));
                     }
                 }
             }
@@ -624,18 +690,143 @@ public class MMHomeFragment extends Fragment {
 
     }
 
-    private void   initializeUI(){
-        //determine if a person is yet associated with the fragment
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
-            //if there is a person corresponding to the patientID, put the name up on the screen
-            MMPerson person = MMUtilities.getPerson(mPersonID);
 
-            if (person != null) {
-                mPatientNickName.setText(person.getNickname().toString().trim());
+
+  /***********************************************/
+    /*   Get object instances                      */
+    /***********************************************/
+    private MMDose getMostRecentDose(View v, MMMedication medication){
+        //The concurrent doses for this person are in the Cursor that the Adapter is holding
+        Cursor cursor = getCursor(v);
+        if (cursor == null)return null;
+
+        ArrayList<MMDose> doses;
+        MMDose dose;
+        MMDose mostRecentDose = null;
+
+        Calendar c = Calendar.getInstance();
+        long milliSeconds = c.getTimeInMillis();     // = c.get(Calendar.SECOND);
+
+        //position within cursor
+        int positionConDose = 0;
+        int last = cursor.getCount();
+        while (positionConDose < last) {
+            MMConcurrentDose concurrentDose = getAdapter(v).getConcurrentDoseAt(positionConDose);
+            long timeOfCCDose = concurrentDose.getStartTime();
+            doses = concurrentDose.getDoses();
+            int lastDoses = doses.size();
+            int positionDoses = 0;
+
+            while (positionDoses < lastDoses){
+                dose = doses.get(positionDoses);
+                if (dose.getOfMedicationID() == medication.getMedicationID()){
+                    if ((mostRecentDose == null)||
+                        (dose.getTimeTaken() > mostRecentDose.getTimeTaken())){
+                        //replace the mostRecentDose with the one we just found
+                        mostRecentDose = dose;
+                    }
+                }
+                positionDoses++;
             }
+            positionConDose++;
+        }
+        return mostRecentDose;
+    }
+
+    private MMMedication getMedicationFromPersonID(long personID, int position){
+        MMPerson person = MMUtilities.getPerson(personID);
+        return getMedicationFromPerson(person, position);
+    }
+
+    private MMMedication getMedicationFromPerson(MMPerson person, int position){
+        return person.getMedications().get(position);
+    }
+
+    private int getNumberOfMedicationsFromPerson(MMPerson person){
+        return person.getMedications().size();
+    }
+
+
+
+    /**********************************************************/
+    //      Methods dealing with whether the UI has changed   //
+    /**********************************************************/
+    private void setUIChanged(){
+        isUIChanged = true;
+        saveButtonEnable(MMUtilities.BUTTON_ENABLE);
+    }
+
+    private void setUISaved(){
+        isUIChanged = false;
+
+        //disable the save button
+        saveButtonEnable(MMUtilities.BUTTON_DISABLE);
+    }
+
+    private void setUISaved(View v){
+        isUIChanged = false;
+
+        //disable the export button
+        saveButtonEnable(v, MMUtilities.BUTTON_DISABLE);
+    }
+
+    private void saveButtonEnable(boolean isEnabled){
+        View v = getView();
+        saveButtonEnable(v, isEnabled);
+    }
+
+
+    private void saveButtonEnable(View v, boolean isEnabled){
+
+        if (v == null)return; //onCreateView() hasn't run yet
+
+        Button personSaveButton =
+                (Button) v.findViewById(R.id.homeSaveButton);
+
+        MMUtilities.enableButton(getActivity(),
+                personSaveButton,
+                isEnabled);
+    }
+
+
+
+    /************************************************************/
+    /**********  RecyclerView / Adapter related Methods  ********/
+    /************************************************************/
+
+    private void reinitializeCursor(long personID){
+        if (personID == MMUtilities.ID_DOES_NOT_EXIST) return;
+
+        //reset the list
+        MMConcurrentDoseCursorAdapter adapter = getAdapter(getView());
+
+        if (adapter != null) {
+            adapter.reinitializeCursor();
+        } else {
+            //we did not have a medication earlier so it never got initialized
+            initializeRecyclerView(getView());
         }
     }
 
+    private Cursor getCursor(View v){
+        MMConcurrentDoseCursorAdapter adapter = getAdapter(v);
+        return adapter.getCursor();
+    }
+
+    private RecyclerView getRecyclerView(View v){
+        return  (RecyclerView) v.findViewById(R.id.doseHistoryList);
+    }
+
+    private MMConcurrentDoseCursorAdapter getAdapter(View v){
+        return (MMConcurrentDoseCursorAdapter) getRecyclerView(v).getAdapter();
+    }
+
+
+
+
+    /***********************************************/
+    /*    Event Handler Methods                    */
+    /***********************************************/
     private long onSave(){
 
         //Creates in memory structure to save all the doses taken concurrently
@@ -646,9 +837,9 @@ public class MMHomeFragment extends Fragment {
         if (person == null) return MMDatabaseManager.sDB_ERROR_CODE;
 
         Calendar c = Calendar.getInstance();
-        long seconds = c.getTimeInMillis();     // = c.get(Calendar.SECOND);
+        long milliSeconds = c.getTimeInMillis();     // = c.get(Calendar.SECOND);
 
-        MMConcurrentDose concurrentDoses = new MMConcurrentDose(mPersonID, seconds);
+        MMConcurrentDose concurrentDoses = new MMConcurrentDose(mPersonID, milliSeconds);
         ArrayList<MMDose> doses = new ArrayList<>();
         concurrentDoses.setDoses(doses);
 
@@ -664,11 +855,11 @@ public class MMHomeFragment extends Fragment {
                 amtTaken = Integer.valueOf(amtTakenString);
                 if (amtTaken > 0) {
                     MMDose dose = new MMDose(medications.get(position).getMedicationID(),
-                                             mPersonID,
-                                             concurrentDoses.getConcurrentDoseID(),
-                                             position,
-                                             seconds,
-                                             amtTaken);
+                            mPersonID,
+                            concurrentDoses.getConcurrentDoseID(),
+                            position,
+                            milliSeconds,
+                            amtTaken);
                     doses.add(dose);
                 }
             }
@@ -676,8 +867,25 @@ public class MMHomeFragment extends Fragment {
         }
 
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
-        return concurrentDoseManager.add(concurrentDoses);
+        long cDoseID = concurrentDoseManager.add(concurrentDoses);
 
+        reinitializeCursor(mPersonID);
+        setUISaved();
+        return cDoseID;
+
+    }
+
+    private void onExit(){
+        MMConcurrentDoseCursorAdapter adapter = getAdapter(getView());
+        adapter.closeCursor();
+    }
+
+    private void onDelete(){
+        Toast.makeText(getActivity(),
+                R.string.delete_title,
+                Toast.LENGTH_SHORT).show();
+
+        areYouSureDelete();
     }
 
 
@@ -690,7 +898,20 @@ public class MMHomeFragment extends Fragment {
     private void onSelect(int position){
         //todo need to update selection visually
 
-        // TODO: 10/3/2016 Need to query list in Manager or Adapter, not locally
+        MMConcurrentDoseCursorAdapter adapter = getAdapter(getView());
+        MMConcurrentDose selectedConcurrentDose = adapter.getConcurrentDoseAt(position);
+
+        // TODO: 3/22/2017 Need to decide how to use the selected concurrent dose
+        //create a dialogue to allow the user to:
+        // 1) change the Doses on this Concurrent Dose:
+        // OR
+        // 2) delete the line
+
+        //Date
+        //Time
+        //For each Medication on the Person: a dose amount
+
+        //Save the Concurrent Dose on the Callback from the Dialogue
 
         Toast.makeText(getActivity(),
                 "Position " + String.valueOf(position) + " is selected!",
@@ -698,6 +919,44 @@ public class MMHomeFragment extends Fragment {
 
 
     }
+
+    /************************************/
+    /*****  Delete Button Dialogue    *****/
+    /************************************/
+    //Build and display the alert dialog
+    private void areYouSureDelete(){
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.delete_title)
+                .setIcon(R.drawable.ground_station_icon)
+                .setMessage(R.string.are_you_sure)
+                .setPositiveButton(R.string.delete_title,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Leave even though project has chaged
+                                //Toast.makeText(getActivity(), R.string.exit_label, Toast.LENGTH_SHORT).show();
+                                performDelete();
+
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                        Toast.makeText(getActivity(),
+                                "Pressed Cancel",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setIcon(R.drawable.ground_station_icon)
+                .show();
+    }
+
+    private void performDelete(){
+        Toast.makeText(getActivity(),
+                R.string.delete_concurrent_dose,
+                Toast.LENGTH_SHORT).show();
+
+    }
+
 
 
     //Add some code to improve the recycler view
@@ -755,6 +1014,14 @@ public class MMHomeFragment extends Fragment {
 
         }
     }
+
+
+
+
+
+    /**************************************************/
+    //      Dialogues for Changing List Doses         //
+    /**************************************************/
 
 
 }

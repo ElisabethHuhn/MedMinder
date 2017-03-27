@@ -12,11 +12,11 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String sHomeTag        = "HOME";//HOME screen fragment
+    public  static final String sHomeTag        = "HOME";//HOME screen fragment
     private static final String sPersonTag      = "PERSON";
     private static final String sPersonListTag  = "PERSON_LIST";
     private static final String sMedicationTag  = "MEDICATION";
-    private static final String sExportTag      = "EXPORT";
+    public  static final String sExportTag      = "EXPORT";
     private static final String sScheduleListTag  = "SCHEDULE_LIST";
 
 
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Put Home on the title bar
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setSubtitle(R.string.title_take_dose);
+            getSupportActionBar().setSubtitle(R.string.title_home);
         }
 
         //Put HOME in the title bar
@@ -77,10 +77,16 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else  if (id == R.id.action_export) {
+            switchToExportScreen();
+            return true;
+        } else  if (id == R.id.action_list_schedules) {
+            switchToScheduleListScreen();
+            return true;
         }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -178,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
 
         Fragment fragment    = new MMHomeFragment();
         String   tag         = sHomeTag;
-        int      title       = R.string.title_take_dose;
+        int      title       = R.string.title_home;
 
         switchScreen(fragment, tag);
         setMMSubtitle(title);
@@ -197,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
         Fragment fragment    = MMHomeFragment.newInstance(personID);
         String   tag         = sHomeTag;
-        int      title       = R.string.title_take_dose;
+        int      title       = R.string.title_home;
 
         switchScreen(fragment, tag);
         setMMSubtitle(title);
@@ -251,10 +257,11 @@ public class MainActivity extends AppCompatActivity {
      * Method to switch fragment to List Persons screen
      * EMH 10/17/16
      */
-    public void switchToPersonListScreen(){
+
+    public void switchToPersonListScreen(CharSequence returnTag, long personID){
         //replace the fragment with the list of persons already defined
 
-        Fragment fragment    = new MMPersonListFragment();
+        Fragment fragment    = MMPersonListFragment.newInstance(returnTag, personID);
         String   tag         = sPersonListTag;
         int      title       = R.string.title_person_list;
 
@@ -262,6 +269,14 @@ public class MainActivity extends AppCompatActivity {
         setMMSubtitle(title);
     }
 
+    public void switchToPersonListReturn(CharSequence returnFragmentTag, long personID){
+
+        if (returnFragmentTag.equals(sHomeTag)){
+            switchToHomeScreen(personID);
+        } else if (returnFragmentTag.equals(sExportTag)){
+            switchToExportScreen(personID);
+        }
+    }
 
 
     /****

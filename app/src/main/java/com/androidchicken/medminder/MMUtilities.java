@@ -11,6 +11,7 @@ import android.widget.Toast;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by elisabethhuhn on 10/12/2016.
@@ -22,8 +23,19 @@ public class MMUtilities {
     /*************************************/
     /*    Static (class) Constants       */
     /*************************************/
+
+    // TODO: 3/22/2017  this eventually needs to be a user setting
+    //# of minutes prior to scheduled due time that notification is giving to take dose
+    public static final int WITHIN_DOSE_WINDOW = 5;
+    public static final long MINUTES_IN_DAY = 24 * 60;
+
+
     public static final boolean BUTTON_DISABLE = false;
     public static final boolean BUTTON_ENABLE  = true;
+
+    public static final boolean HOUR12FORMAT = false;
+    public static final boolean HOUR24FORMAT = true;
+
 
     public static final long    ID_DOES_NOT_EXIST = -1;
 
@@ -61,8 +73,7 @@ public class MMUtilities {
     public static int convertPixelsToDp(Context context, int sizeInDp) {
         //int sizeInDp = 10; //padding between buttons
         float scale = context.getResources().getDisplayMetrics().density;
-        int dpAsPixels = (int) (sizeInDp * scale + 0.5f);
-        return dpAsPixels;
+        return (int) (sizeInDp * scale + 0.5f); // dpAsPixels;
     }
 
     //Just a stub for now, but figure out what to do
@@ -83,14 +94,16 @@ public class MMUtilities {
     //The only reason these are here is so that the app
     // will use a consistent method of displaying dates
     public static String getDateTimeString(){
-        String time = DateFormat.getDateTimeInstance().format(new Date());
-        return  time;
+        return DateFormat.getDateTimeInstance().format(new Date());
     }
 
     public static String getDateTimeString(long milliSeconds){
         Date date = new Date(milliSeconds);
-        SimpleDateFormat dateFormat = new SimpleDateFormat();//without format uses locale
+        /*
+        SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a", Locale.US);
         return dateFormat.format(date);
+        */
+        return DateFormat.getDateTimeInstance().format(date);
     }
 
     public static String getDateString(){
@@ -104,12 +117,14 @@ public class MMUtilities {
     }
 
     public static String getTimeString(){
-        return  DateFormat.getTimeInstance().format(new Date());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a", Locale.US);
+        return dateFormat.format(new Date());
     }
 
     public static String getTimeString(long milliSeconds){
         Date date = new Date(milliSeconds);
-        return DateFormat.getTimeInstance().format(date);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a", Locale.US);
+        return dateFormat.format(date);
 
     }
 
@@ -150,6 +165,14 @@ public class MMUtilities {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
 
+    }
+
+
+    /*************************************/
+    /*         Clock Utilities          */
+    /*************************************/
+    public static boolean is24Format() {
+        return HOUR12FORMAT;
     }
 
     /*************************************/

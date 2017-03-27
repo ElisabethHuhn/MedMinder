@@ -55,6 +55,7 @@ public class MMMedication {
     private int          mDoseAmount;
     private CharSequence mDoseUnits;
     private int          mDoseNumPerDay;
+    private boolean      mCurrentlyTaken;
 
     private ArrayList<MMScheduleMedication> mSchedules;
 
@@ -77,8 +78,6 @@ public class MMMedication {
         mMedicationID = tempMedID;
     }
 
-
-
     private void initializeDefaultVariables(){
         mMedicationID = MMUtilities.ID_DOES_NOT_EXIST;
         mForPersonID  = getDefaultForPersonID();
@@ -89,6 +88,7 @@ public class MMMedication {
         mDoseAmount   = getDefaultDoseAmount();
         mDoseUnits    = getDefaultDoseUnits();
         mDoseNumPerDay= getDefaultDoseNumPerDay();
+        mCurrentlyTaken = getDefaultCurrentlyTaken();
 
         mSchedules    = getDefaultSchedules();
     }
@@ -124,6 +124,9 @@ public class MMMedication {
 
     public int          getDoseNumPerDay()         { return mDoseNumPerDay;   }
     public void         setDoseNumPerDay(int doseNumPerDay) { mDoseNumPerDay = doseNumPerDay; }
+
+    public boolean      isCurrentlyTaken() {return mCurrentlyTaken;}
+    public void         setCurrentlyTaken(boolean isTaken) {mCurrentlyTaken = isTaken;}
 
     public ArrayList<MMScheduleMedication> getSchedules(){
         if (!isSchedulesChanged()) {
@@ -166,18 +169,19 @@ public class MMMedication {
 
     public static CharSequence getDefaultDoseUnits()           { return "mg"; }
 
-    public static int          getDefaultDoseNumPerDay()         { return 0;   }
+    public static int          getDefaultDoseNumPerDay()       { return 0;   }
+
+    public static boolean      getDefaultCurrentlyTaken()      {return true;}
 
     public static ArrayList<MMScheduleMedication> getDefaultSchedules(){
-        return new ArrayList<MMScheduleMedication>();}
+        return new ArrayList<>();}
 
     /*************************************/
     /*          Member Methods           */
     /*************************************/
     public Cursor getSchedulesCursor(){
         MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
-        Cursor cursor = schedMedManager.getAllSchedMedsCursor(mMedicationID);
-        return cursor;
+        return schedMedManager.getAllSchedMedsCursor(mMedicationID);
     }
 
     public boolean addSchedule(MMScheduleMedication schedule){

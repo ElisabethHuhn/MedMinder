@@ -114,21 +114,31 @@ public class MMConcurrentDoseManager {
         if (!listReturnCode)return returnCode;
 
         if (addToDBToo){
-
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
             returnCode = databaseManager.addConcurrentDose(newConcurrentDose);
             if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return returnCode;
 
+            //The ID is only set when the ConcurrentDose is saved in the DB
+            //This new ID must also be set in the doses being saved now
+            //This is done in the loop below
+            long newConcurrentDoseID = newConcurrentDose.getConcurrentDoseID();
+
             ArrayList<MMDose> doses = newConcurrentDose.getDoses();
+            MMDose dose;
+            long concurrentDoseID;
             if (doses != null) {
                 int position = 0;
                 int last = doses.size();
                 while (position < last) {
-                    returnCode = databaseManager.addDose(doses.get(position));
-                    if (returnCode == MMDatabaseManager.sDB_ERROR_CODE) return returnCode;
+                    dose = doses.get(position);
+                    if (dose != null) {
+                        //set the ID of the newly saved ConcurrentDose in the current individual dose
+                        dose.setContainedInConcurrentDosesID(newConcurrentDoseID);
+                        returnCode = databaseManager.addDose(dose);
+                        if (returnCode == MMDatabaseManager.sDB_ERROR_CODE) return returnCode;
+                    }
                     position++;
                 }
-
             }
         }
         return returnCode;

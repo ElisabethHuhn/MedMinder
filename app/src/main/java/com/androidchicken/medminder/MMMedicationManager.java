@@ -18,7 +18,7 @@ public class MMMedicationManager {
     /********* Static Constants  ********/
     /************************************/
 
-    public static final int MEDICATION_NOT_FOUND = -1;
+    private static final int MEDICATION_NOT_FOUND = -1;
 
 
     /************************************/
@@ -254,6 +254,9 @@ public class MMMedicationManager {
         values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_AMOUNT,   medication.getDoseAmount());
         values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_UNITS,    medication.getDoseUnits().toString());
         values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_NUM_PER_DAY,medication.getDoseNumPerDay());
+        int booleanValue = 0; //default is false
+        if (medication.isCurrentlyTaken())booleanValue = 1; //true
+        values.put(MMDataBaseSqlHelper.MEDICATION_CURRENTLY_TAKEN, booleanValue);
 
         return values;
     }
@@ -276,24 +279,30 @@ public class MMMedicationManager {
         MMMedication medication = new MMMedication(MMUtilities.ID_DOES_NOT_EXIST);
 
         cursor.moveToPosition(position);
-        medication.setMedicationID
-                (cursor.getLong   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_ID)));
-        medication.setForPersonID
-                (cursor.getLong   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_FOR_PERSON_ID)));
-        medication.setBrandName
-                (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_BRAND_NAME)));
-        medication.setGenericName
-                (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_GENERIC_NAME)));
-        medication.setMedicationNickname
-                (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_NICK_NAME)));
-        medication.setDoseStrategy
-                (cursor.getInt   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_STRATEGY)));
-        medication.setDoseAmount
-                (cursor.getInt   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_AMOUNT)));
-        medication.setDoseUnits
-                (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_UNITS)));
-        medication.setDoseNumPerDay
-                (cursor.getInt   (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_NUM_PER_DAY)));
+        medication.setMedicationID(cursor.getLong
+                (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_ID)));
+        medication.setForPersonID(cursor.getLong
+                (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_FOR_PERSON_ID)));
+        medication.setBrandName(cursor.getString
+                (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_BRAND_NAME)));
+        medication.setGenericName(cursor.getString
+                (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_GENERIC_NAME)));
+        medication.setMedicationNickname(cursor.getString
+                (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_NICK_NAME)));
+        medication.setDoseStrategy(cursor.getInt
+                (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_STRATEGY)));
+        medication.setDoseAmount(cursor.getInt
+                (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_AMOUNT)));
+        medication.setDoseUnits(cursor.getString
+                (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_UNITS)));
+        medication.setDoseNumPerDay(cursor.getInt
+                (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_NUM_PER_DAY)));
+
+        boolean booleanValue = false;
+        int currentlyTaken = (cursor.getInt
+                (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_CURRENTLY_TAKEN)));
+        if (currentlyTaken == 1)booleanValue = true;
+        medication.setCurrentlyTaken(booleanValue);
 
         return medication;
     }

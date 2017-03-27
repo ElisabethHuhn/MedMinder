@@ -1,21 +1,24 @@
 package com.androidchicken.medminder;
 
-import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
+import android.text.Editable;
 import android.text.InputType;
-import android.view.GestureDetector;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,16 +30,15 @@ import android.widget.Toast;
 public class MMPersonFragment extends Fragment {
 
     //Screen Widgets
-    private Button   mExitButton;
-    private Button   mSaveButton;
-    private Button   mAddMedButton;
 
     private EditText mPersonIDOutput;
     private EditText mPersonNickNameInput;
     private EditText mPersonEmailAddrInput;
     private EditText mPersonTextAddrInput;
 
+
     private long     mPersonID;
+    private boolean  isUIChanged = false;
 
 
     /***********************************************/
@@ -112,7 +114,7 @@ public class MMPersonFragment extends Fragment {
         wireListTitleWidgets(v);
 
         //If we had any arguments passed, update the screen with them
-        initializeUI();
+        initializeUI(v);
 
         //get rid of the soft keyboard if it is visible
         MMUtilities.hideSoftKeyboard(getActivity());
@@ -120,6 +122,7 @@ public class MMPersonFragment extends Fragment {
         //set the title bar subtitle
         ((MainActivity) getActivity()).setMMSubtitle(R.string.title_person);
 
+        setUISaved(v);
         return v;
     }
 
@@ -154,7 +157,7 @@ public class MMPersonFragment extends Fragment {
 
 
         //2) find and remember the RecyclerView
-        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.medicationList);
+        RecyclerView recyclerView = getRecyclerView(v);
 
         //3) create and assign a layout manager to the recycler view
         //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
@@ -166,8 +169,7 @@ public class MMPersonFragment extends Fragment {
         Cursor cursor = medicationManager.getAllMedicationsCursor(mPersonID);
 
         //5) Use the data to Create and set out medication Adapter
-        MMMedicationCursorAdapter adapter = new MMMedicationCursorAdapter(cursor);
-        adapter.setAdapterContext(mPersonID);
+        MMMedicationCursorAdapter adapter = new MMMedicationCursorAdapter(getActivity(), mPersonID, cursor);
         recyclerView.setAdapter(adapter);
 
         //6) create and set the itemAnimator
@@ -183,7 +185,9 @@ public class MMPersonFragment extends Fragment {
 
         //8) add event listeners to the recycler view
         recyclerView.addOnItemTouchListener(
-                new RecyclerTouchListener(getActivity(), recyclerView, new MMPersonListFragment.ClickListener() {
+                new MMHomeFragment.RecyclerTouchListener(getActivity(),
+                                                         recyclerView,
+                                                         new MMHomeFragment.ClickListener() {
                     @Override
                     public void onClick(View view, int position) {
                         onSelect(position);
@@ -203,54 +207,67 @@ public class MMPersonFragment extends Fragment {
         TextView label;
 
         //Exit Button
-        mExitButton = (Button) v.findViewById(R.id.personExitButton);
-        mExitButton.setText(R.string.exit_label);
+        Button exitButton = (Button) v.findViewById(R.id.personExitButton);
+        exitButton.setText(R.string.exit_label);
         //the order of images here is left, top, right, bottom
-        //mExitButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
-        mExitButton.setOnClickListener(new View.OnClickListener() {
+        //exitButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
+        exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.exit_label,
-                        Toast.LENGTH_SHORT).show();
-
-                //onExit();
-
-                //switch to home screen with the person as a patient
-                //((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
-                ((MainActivity)getActivity()).switchToPopBackstack();
-
+                onExit();
             }
         });
 
 
         //Save Button
-        mSaveButton = (Button) v.findViewById(R.id.personSaveButton);
-        mSaveButton.setText(R.string.save_label);
+        Button saveButton = (Button) v.findViewById(R.id.personSaveButton);
+        saveButton.setText(R.string.save_label);
         //the order of images here is left, top, right, bottom
-        //mSaveButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
-        mSaveButton.setOnClickListener(new View.OnClickListener() {
+        //saveButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.save_label,
-                        Toast.LENGTH_SHORT).show();
-
                 onSave();
-
             }
         });
 
+/*
+        //Delete Button
+        Button deleteButton = (Button) v.findViewById(R.id.personDeleteButton);
+        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
+            MMUtilities.enableButton(getActivity(), deleteButton, MMUtilities.BUTTON_DISABLE);
+        } else {
+            MMPerson person = MMUtilities.getPerson(mPersonID);
+            if (person == null) {
+                MMUtilities.enableButton(getActivity(), deleteButton, MMUtilities.BUTTON_DISABLE);
+            } else {
+                MMUtilities.enableButton(getActivity(), deleteButton, MMUtilities.BUTTON_ENABLE);
+                if (!person.isCurrentlyExists()){
+                    deleteButton.setText(R.string.reinstate_title);
+                }
+            }
+        }
+        deleteButton.setText(R.string.delete_title);
+        //the order of images here is left, top, right, bottom
+        //deleteButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onDelete();
+            }
+        });
+
+*/
 
         //add Button
-        mAddMedButton = (Button) v.findViewById(R.id.personAddMedicationButton);
-        mAddMedButton.setText(R.string.patient_add_medication_label);
+        Button addMedButton = (Button) v.findViewById(R.id.personAddMedicationButton);
+        addMedButton.setText(R.string.patient_add_medication_label);
         //only enable the Add button after the person has been created
         if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
-            MMUtilities.enableButton(getActivity(), mAddMedButton, MMUtilities.BUTTON_DISABLE);
+            MMUtilities.enableButton(getActivity(), addMedButton, MMUtilities.BUTTON_DISABLE);
             Toast.makeText(getActivity(), R.string.person_save_first, Toast.LENGTH_SHORT).show();
         }
-        mAddMedButton.setOnClickListener(new View.OnClickListener() {
+        addMedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -265,41 +282,56 @@ public class MMPersonFragment extends Fragment {
         });
 
 
+        SwitchCompat existSwitch = (SwitchCompat) v.findViewById(R.id.switchExists);
+        existSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                setUIChanged();
+            }
+        });
 
-        field_container = v.findViewById(R.id.personIDOutput);
+
+
+
+
+        field_container = v.findViewById(R.id.personIDName);
         label = (TextView)(field_container.findViewById(R.id.fieldLabel));
         label.setEnabled(false);
-        label.setText(R.string.person_id_label);
+        label.setText(R.string.person_label);
 
-        mPersonIDOutput = (EditText) (field_container.findViewById(R.id.fieldInput));
+        mPersonIDOutput = (EditText) (field_container.findViewById(R.id.fieldIdInput));
         mPersonIDOutput.setEnabled(false);
         mPersonIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorGray));
 
-        //mPersonIDOutput.setHint(R.string.person_nick_name_hint);
-        mPersonIDOutput.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                return false;
-            }
-        });
-
-
-        field_container = v.findViewById(R.id.personNickName);
-        label = (TextView)(field_container.findViewById(R.id.fieldLabel));
-        label.setEnabled(false);
-        label.setText(R.string.person_nick_name_label);
 
         mPersonNickNameInput = (EditText) (field_container.findViewById(R.id.fieldInput));
-
-        //mPersonNickNameInput.setHint(R.string.person_nick_name_hint);
-        mPersonNickNameInput.setOnTouchListener(new View.OnTouchListener() {
+        mPersonNickNameInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                //This tells you that text is about to change.
+                // Starting at character "start", the next "count" characters
+                // will be changed with "after" number of characters
 
-                return false;
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                //This tells you where the text has changed
+                //Starting at character "start", the "before" number of characters
+                // has been replaced with "count" number of characters
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //This tells you that somewhere within editable, it's text has changed
+                setUIChanged();
             }
         });
+
+
+
+
 
 
         field_container = v.findViewById(R.id.personEmailAddr);
@@ -309,12 +341,27 @@ public class MMPersonFragment extends Fragment {
         mPersonEmailAddrInput = (EditText) (field_container.findViewById(R.id.fieldInput));
         //mPersonEmailAddrInput.setHint(R.string.person_email_addr_hint);
         mPersonEmailAddrInput.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-
-        mPersonEmailAddrInput.setOnTouchListener(new View.OnTouchListener() {
+        mPersonEmailAddrInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                //This tells you that text is about to change.
+                // Starting at character "start", the next "count" characters
+                // will be changed with "after" number of characters
 
-                return false;
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                //This tells you where the text has changed
+                //Starting at character "start", the "before" number of characters
+                // has been replaced with "count" number of characters
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //This tells you that somewhere within editable, it's text has changed
+                setUIChanged();
             }
         });
 
@@ -327,15 +374,29 @@ public class MMPersonFragment extends Fragment {
         mPersonTextAddrInput = (EditText)(field_container.findViewById(R.id.fieldInput));
         mPersonTextAddrInput.setInputType(InputType.TYPE_CLASS_PHONE);
         //mPersonTextAddrInput.setHint(R.string.person_text_addr_hint);
-        mPersonTextAddrInput.setOnTouchListener(new View.OnTouchListener() {
+        mPersonTextAddrInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                //This tells you that text is about to change.
+                // Starting at character "start", the next "count" characters
+                // will be changed with "after" number of characters
 
-                return false;
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                //This tells you where the text has changed
+                //Starting at character "start", the "before" number of characters
+                // has been replaced with "count" number of characters
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //This tells you that somewhere within editable, it's text has changed
+                setUIChanged();
             }
         });
-
-
     }
 
     private void wireListTitleWidgets(View v){
@@ -366,7 +427,7 @@ public class MMPersonFragment extends Fragment {
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.medicationDoseNumInput));
-        label.setText(R.string.medication_num_label);
+        label.setText(R.string.number_hash_tag);
         label.setEnabled(false);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
@@ -393,7 +454,7 @@ public class MMPersonFragment extends Fragment {
 
      }
 
-    private void initializeUI() {
+    private void initializeUI(View v) {
         MMPerson person = null;
         if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
             //just create a temporary person object without an id
@@ -410,13 +471,31 @@ public class MMPersonFragment extends Fragment {
             }
         }
 
+
+        //set the radio button to whether the Person exists
+        SwitchCompat existSwitch = (SwitchCompat) v.findViewById(R.id.switchExists) ;
+
+        //This is certainly overkill, but it is explicit
+        if (person.isCurrentlyExists()){
+            existSwitch.setChecked(true);
+         } else {
+            existSwitch.setChecked(false);
+        }
+
+
         mPersonIDOutput      .setText(String.valueOf(person.getPersonID()));
         mPersonNickNameInput .setText(person.getNickname()    .toString().trim());
         mPersonEmailAddrInput.setText(person.getEmailAddress().toString().trim());
         mPersonTextAddrInput .setText(person.getTextAddress() .toString().trim());
+
+        setUISaved(v);
     }
 
     private void onSave(){
+        Toast.makeText(getActivity(),
+                R.string.save_label,
+                Toast.LENGTH_SHORT).show();
+
         //get rid of the soft keyboard
         MMUtilities.hideSoftKeyboard(getActivity());
 
@@ -434,6 +513,19 @@ public class MMPersonFragment extends Fragment {
             MMPersonManager personManager = MMPersonManager.getInstance();
             person = personManager.getPerson(mPersonID);
         }
+
+        //This check really isn't necessary, but use it to shut up lint
+        View v = getView();
+        if (v != null) {
+            SwitchCompat existSwitch = (SwitchCompat) getView().findViewById(R.id.switchExists);
+
+            if (existSwitch.isChecked()) {
+                person.setCurrentlyExists(true);
+            } else {
+                person.setCurrentlyExists(false);
+            }
+        }
+
         person.setNickname(nickname);
 
         //strings are set to "" in the constructor, so the empty case can be ignored
@@ -458,7 +550,7 @@ public class MMPersonFragment extends Fragment {
         long returnCode = personManager.addPerson(person, addToDBToo);
         if (returnCode != MMDatabaseManager.sDB_ERROR_CODE) {
             Toast.makeText(getActivity(), R.string.save_successful, Toast.LENGTH_SHORT).show();
-            MMUtilities.enableButton(getActivity(), mAddMedButton, MMUtilities.BUTTON_ENABLE);
+            MMUtilities.enableButton(getActivity(), getAddMedButton(getView()), MMUtilities.BUTTON_ENABLE);
 
         }
         //if the person is newly created, the ID is assigned on DB add
@@ -467,19 +559,242 @@ public class MMPersonFragment extends Fragment {
         mPersonIDOutput.setText(String.valueOf(mPersonID));
 
 
-        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.medicationList);
-        MMMedicationCursorAdapter adapter = (MMMedicationCursorAdapter) recyclerView.getAdapter();
+        MMMedicationCursorAdapter adapter = getAdapter(getView());
 
         if (adapter != null) {
             //because the adapter exists, initializeRecyclerView() has already run
             //so all we need to reinitialize is the adapter
-            adapter.setAdapterContext(mPersonID);
-            adapter.reinitializeCursor();
+            adapter.reinitializeCursor(mPersonID);
         } else {
             //we did not have a medication earlier so the entire recyclerView never got initialized
             initializeRecyclerView(getView());
         }
+        setUISaved();
     }
+
+    private void onExit(){
+        Toast.makeText(getActivity(),
+                R.string.exit_label,
+                Toast.LENGTH_SHORT).show();
+
+        //if something has changed in the UI, ask first
+        if (isUIChanged){
+            areYouSureExit();
+        } else {
+            switchToExit();
+        }
+    }
+
+    private void onDelete(){
+        MMPerson person = MMUtilities.getPerson(mPersonID);
+        if (person != null){
+            if (person.isCurrentlyExists()){
+                areYouSureDelete();
+            } else {
+                areYouSureReinstate();
+            }
+        } else {
+            Toast.makeText(getActivity(), R.string.person_not_found_delete, Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+
+    /************************************/
+    /*****  Delete Button Dialogue    *****/
+    /************************************/
+    //Build and display the alert dialog
+    private void areYouSureDelete(){
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.delete_title)
+                .setIcon(R.drawable.ground_station_icon)
+                .setMessage(R.string.are_you_sure)
+                .setPositiveButton(R.string.delete_title,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Leave even though project has chaged
+                                //Toast.makeText(getActivity(), R.string.exit_label, Toast.LENGTH_SHORT).show();
+                                performDelete();
+
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                        Toast.makeText(getActivity(),
+                                "Pressed Cancel",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setIcon(R.drawable.ground_station_icon)
+                .show();
+    }
+
+    private void areYouSureReinstate(){
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.reinstate_title)
+                .setIcon(R.drawable.ground_station_icon)
+                .setMessage(R.string.are_you_sure)
+                .setPositiveButton(R.string.reinstate_title,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Leave even though project has chaged
+                                //Toast.makeText(getActivity(), R.string.exit_label, Toast.LENGTH_SHORT).show();
+                                performDelete();
+
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                        Toast.makeText(getActivity(),
+                                "Pressed Cancel",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setIcon(R.drawable.ground_station_icon)
+                .show();
+    }
+
+    private void performDelete(){
+        MMPerson person = MMUtilities.getPerson(mPersonID);
+        int msg;
+
+        if (person == null) {
+            msg = R.string.person_not_found_delete;
+        } else {
+            if (person.isCurrentlyExists()) {
+                msg = R.string.delete_person;
+                person.setCurrentlyExists(false);
+            } else {
+                msg = R.string.reinstate_person;
+                person.setCurrentlyExists(true);
+            }
+        }
+        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+
+    /************************************/
+    /*****  Exit Button Dialogue    *****/
+    /************************************/
+    //Build and display the alert dialog
+    private void areYouSureExit(){
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.abandon_title)
+                .setIcon(R.drawable.ground_station_icon)
+                .setMessage(R.string.are_you_sure)
+                .setPositiveButton(R.string.exit_label,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Leave even though project has chaged
+                                //Toast.makeText(getActivity(), R.string.exit_label, Toast.LENGTH_SHORT).show();
+                                switchToExit();
+
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                        Toast.makeText(getActivity(),
+                                "Pressed Cancel",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setIcon(R.drawable.ground_station_icon)
+                .show();
+    }
+
+    private void switchToExit(){
+        MMMedicationCursorAdapter adapter = getAdapter(getView());
+        adapter.closeCursor();
+
+        ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);   //switchToPopBackstack();
+
+    }
+
+
+
+
+
+    /************************************/
+    /*****      Widget Methods      *****/
+    /************************************/
+
+
+    private RecyclerView getRecyclerView(View v){
+        return  (RecyclerView) v.findViewById(R.id.medicationList);
+    }
+
+    private MMMedicationCursorAdapter getAdapter(View v){
+        return (MMMedicationCursorAdapter)  getRecyclerView(v).getAdapter();
+    }
+
+    private Button getAddMedButton(View v){
+        return (Button) v.findViewById(R.id.personAddMedicationButton);
+    }
+
+
+    /**********************************************************/
+    //      Methods dealing with whether the UI has changed   //
+    /**********************************************************/
+    private void setUIChanged(){
+        isUIChanged = true;
+        saveButtonEnable(MMUtilities.BUTTON_ENABLE);
+    }
+
+    private void setUISaved(){
+        isUIChanged = false;
+
+        //disable the save button
+        saveButtonEnable(MMUtilities.BUTTON_DISABLE);
+
+        //ENable the delete button
+        deleteButtonEnable(MMUtilities.BUTTON_ENABLE);
+    }
+
+    private void setUISaved(View v){
+        isUIChanged = false;
+
+        //disable the save button
+        saveButtonEnable(v, MMUtilities.BUTTON_DISABLE);
+    }
+
+    private void saveButtonEnable(boolean isEnabled){
+        View v = getView();
+        saveButtonEnable(v, isEnabled);
+    }
+
+    private void saveButtonEnable(View v, boolean isEnabled){
+        if (v == null)return; //onCreateView() hasn't run yet
+
+        Button personSaveButton =
+                (Button) v.findViewById(R.id.personSaveButton);
+
+        MMUtilities.enableButton(getActivity(),
+                personSaveButton,
+                isEnabled);
+    }
+
+
+    private void deleteButtonEnable(boolean isEnabled){
+        View v = getView();
+        deleteButtonEnable(v, isEnabled);
+    }
+
+    private void deleteButtonEnable(View v, boolean isEnabled){
+/*
+        if (v == null)return; //onCreateView() hasn't run yet
+
+        Button medicationDeleteButton =
+                (Button) v.findViewById(R.id.personDeleteButton);
+
+        MMUtilities.enableButton(getActivity(),
+                medicationDeleteButton,
+                isEnabled);
+ */
+    }
+
 
     /**********************************************************/
     //      Utility Functions used in handling events         //
@@ -493,71 +808,33 @@ The medication list is maintained on the person object, not locally here
 
         // TODO: 10/3/2016 Need to query list in Person Manager or Adapter, not locally
         MMMedication selectedMedication = mMedicationList.get(position);
+*/
+
+
+        MMMedicationCursorAdapter adapter = getAdapter(getView());
+        MMMedication selectedMedication = adapter.getMedicationAt(position);
 
         Toast.makeText(getActivity().getApplicationContext(),
                 selectedMedication.getMedicationNickname() + " is selected!",
                 Toast.LENGTH_SHORT).show();
-*/
+
+
+
+        // No need to change the Medications on this Person: That happens on the Person Screen
+        //Crete a dialogue to ask if the user wants to Delete the medication
+
+        //Medication Attributes
+        //Time
+        //For each Medication on the Person: a dose amount
+
+        //Save the Concurrent Dose on the Callback from the Dialogue
+
+
+
         //But, don't know if this makes sense in the flow of things
         ((MainActivity) getActivity()).switchToMedicationScreen(mPersonID, position);
     }
 
-
-    //Add some code to improve the recycler view
-    //Here is the interface for event handlers for Click and LongClick
-    public interface ClickListener {
-        void onClick(View view, int position);
-
-        void onLongClick(View view, int position);
-    }
-
-    public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
-
-        private GestureDetector gestureDetector;
-        private MMPersonListFragment.ClickListener clickListener;
-
-        public RecyclerTouchListener(Context context,
-                                     final RecyclerView recyclerView,
-                                     final MMPersonListFragment.ClickListener clickListener) {
-
-            this.clickListener = clickListener;
-            gestureDetector = new GestureDetector(context,
-                    new GestureDetector.SimpleOnGestureListener() {
-
-                        @Override
-                        public boolean onSingleTapUp(MotionEvent e) {
-                            return true;
-                        }
-
-                        @Override
-                        public void onLongPress(MotionEvent e) {
-                            View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
-                            if (child != null && clickListener != null) {
-                                clickListener.onLongClick(child, recyclerView.getChildLayoutPosition(child));
-                            }
-                        }
-                    });
-        }
-
-        @Override
-        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-
-            View child = rv.findChildViewUnder(e.getX(), e.getY());
-            if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
-                clickListener.onClick(child, rv.getChildLayoutPosition(child));
-            }
-            return false;
-        }
-
-        @Override
-        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-        }
-
-        @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
-        }
-    }
 
 
 }

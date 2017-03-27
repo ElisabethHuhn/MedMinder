@@ -1,6 +1,8 @@
 package com.androidchicken.medminder;
 
+import android.content.Context;
 import android.database.Cursor;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +18,8 @@ import android.widget.TextView;
  */
 
 public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAdapter.MyViewHolder>{
-    private Cursor mPersonCursor;
+    private Cursor  mPersonCursor;
+    private Context mContext;
 
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -37,7 +40,8 @@ public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAd
     } //end inner class MyViewHolder
 
     //Constructor for MMPersonAdapter
-    public MMPersonCursorAdapter(Cursor personCursor){
+    public MMPersonCursorAdapter(Context context, Cursor personCursor){
+        this.mContext      = context;
         this.mPersonCursor = personCursor;
     }
 
@@ -50,30 +54,15 @@ public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAd
 
     }
 
-    public void removeItem(int position) {
-        if (mPersonCursor == null)return;
-
-        MMPersonManager personManager = MMPersonManager.getInstance();
-
-        //get the row indicated which is the person to be removed
-        MMPerson person = personManager.getPersonFromCursor(mPersonCursor, position);
-        if (person == null)return;
-
-        //remove the person from the DB
-        personManager.removePersonFromDB(person.getPersonID());
-        // TODO: 2/24/2017 remove the proper concurrent dose from the DB
-
-        //Create a new Cursor with the current contents of DB
-        mPersonCursor = reinitializeCursor();
-    }
-
     public Cursor reinitializeCursor(){
+        closeCursor();
+
         MMPersonManager personManager = MMPersonManager.getInstance();
         //Create a new Cursor with the current contents of DB
         mPersonCursor = personManager.getAllPersonsCursor();
 
         //Tell the RecyclerView to update the User Display
-        notifyDataSetChanged();;
+        notifyDataSetChanged();
         // notifyItemRangeChanged(position, getItemCount());
 
         return mPersonCursor;
@@ -91,8 +80,13 @@ public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAd
                 holder.personID.       setText("0");
                 holder.personNickName. setText("No persons defined");
                 holder.personEmailAddr.setText("");
-                holder.personTextAddr. setText("");}
-            return;
+                holder.personTextAddr. setText("");
+
+                setBackColor(holder, R.color.colorGray);
+                return;
+            }
+
+
         }
 
         //get the row indicated
@@ -102,7 +96,22 @@ public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAd
         holder.personNickName. setText(person.getNickname());
         holder.personEmailAddr.setText(person.getEmailAddress());
         holder.personTextAddr. setText(person.getTextAddress());
+
+        if (person.isCurrentlyExists()){
+            setBackColor(holder, R.color.colorWhite);
+        } else {
+            setBackColor(holder, R.color.colorGray);
+        }
     }
+
+
+    private void setBackColor(MMPersonCursorAdapter.MyViewHolder holder, int newColor){
+        holder.personID.setBackgroundColor(ContextCompat.getColor(mContext, newColor));
+        holder.personNickName.   setBackgroundColor(ContextCompat.getColor(mContext, newColor));
+        holder.personEmailAddr.  setBackgroundColor(ContextCompat.getColor(mContext, newColor));
+        holder.personTextAddr.setBackgroundColor(ContextCompat.getColor(mContext, newColor));
+    }
+
 
     @Override
     public int getItemCount(){
@@ -115,6 +124,10 @@ public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAd
         return returnValue;
     }
 
-    public Cursor getPersonCursor(){return mPersonCursor;}
+    public Cursor getCursor(){return mPersonCursor;}
+
+    public void closeCursor(){
+        if (mPersonCursor != null)mPersonCursor.close();
+    }
 
 }

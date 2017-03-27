@@ -1,6 +1,5 @@
 package com.androidchicken.medminder;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,9 +8,8 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.GestureDetector;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -28,14 +26,36 @@ import android.widget.Toast;
 public class MMPersonListFragment extends Fragment {
 
     private static final String TAG = "LIST_PERSONS_FRAGMENT";
+    private static final String RETURN_TAG = "RETURN_TAG";
     /**
      * Create variables for all the widgets
      *
      */
 
-    private Button mExitButton;
-    private Button mAddPersonsButton;
-    private Button mListSchedulesButton;
+
+    private CharSequence mReturnFragmentTag = null;
+    private long         mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
+
+
+    /***********************************************/
+    /*          Static Methods                     */
+    /***********************************************/
+    //need to pass a return destination into the fragment
+    public static MMPersonListFragment newInstance(CharSequence returnTag, long personID){
+        //create a bundle to hold the arguments
+        Bundle args = new Bundle();
+
+        //It will be some work to make all of the data model serializable
+        //so for now, just pass the person values
+        args.putCharSequence  (RETURN_TAG, returnTag);
+        args.putLong(MMPerson.sPersonIDTag, personID);
+
+        MMPersonListFragment fragment = new MMPersonListFragment();
+
+        fragment.setArguments(args);
+        return fragment;
+    }
+
 
 
     /**********************************************************/
@@ -49,10 +69,37 @@ public class MMPersonListFragment extends Fragment {
     }
 
     //This is where parameters are unbundled
+    //pull the arguments out of the fragment bundle and store in the member variables
+    //In this case, prepopulate the personID this screen refers to
     @Override
     public void onCreate(Bundle savedInstanceState){
+
         super.onCreate(savedInstanceState);
+
+        //Initialize the DB if necessary
+
+        try {
+            MMDatabaseManager databaseManager = MMDatabaseManager.getInstance(getActivity());
+        }catch (Exception e) {
+            Log.e(TAG,Log.getStackTraceString(e));
+        }
+
+        Bundle args = getArguments();
+
+        if (args != null) {
+            mReturnFragmentTag = args.getCharSequence(RETURN_TAG);
+            mPersonID          = args.getLong(MMPerson.sPersonIDTag);
+
+        } else {
+            //Do not really know what to do here. Go to the Home fragment, but its arbitrary
+            mReturnFragmentTag = MainActivity.sHomeTag;
+            mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
+
+        }
+
     }
+
+
 
 
     //set up the recycler view
@@ -82,39 +129,21 @@ public class MMPersonListFragment extends Fragment {
 
     private void wireWidgets(View v){
         //Exit Button
-        mExitButton = (Button) v.findViewById(R.id.exitButton);
-        mExitButton.setText(R.string.exit_label);
-        mExitButton.setOnClickListener(new View.OnClickListener() {
+        Button exitButton = (Button) v.findViewById(R.id.exitButton);
+        exitButton.setText(R.string.exit_label);
+        exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.exit_label,
-                        Toast.LENGTH_SHORT).show();
-                //switch to person screen
-                // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToPopBackstack();
+               onExit();
             }
         });
 
-        //list Schedules Button
-        mListSchedulesButton = (Button) v.findViewById(R.id.scheduleListButton);
-        mListSchedulesButton.setText(R.string.patient_list_schedules_label);
-        mListSchedulesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.patient_list_schedules_label,
-                        Toast.LENGTH_SHORT).show();
-                //switch to person screen
-                // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToScheduleListScreen();
-            }
-        });
+
 
         //Add Persons Button
-        mAddPersonsButton = (Button) v.findViewById(R.id.addPersonsButton);
-        mAddPersonsButton.setText(R.string.patient_add_persons_label);
-        mAddPersonsButton.setOnClickListener(new View.OnClickListener() {
+        Button addPersonButton = (Button) v.findViewById(R.id.addPersonsButton);
+        addPersonButton.setText(R.string.patient_add_persons_label);
+        addPersonButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(),
@@ -173,7 +202,7 @@ public class MMPersonListFragment extends Fragment {
         //      implemented in the caller: onCreateView()
 
         //2) find and remember the RecyclerView
-        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.personList);
+        RecyclerView recyclerView = getRecyclerView(v);
 
         //3) create and assign a layout manager to the recycler view
         //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
@@ -189,7 +218,7 @@ public class MMPersonListFragment extends Fragment {
         //     even though we're giving the Adapter the list,
         //     Adapter uses the PersonManager to maintain the list and
         //     the items in the list.
-        MMPersonCursorAdapter adapter = new MMPersonCursorAdapter(cursor);
+        MMPersonCursorAdapter adapter = new MMPersonCursorAdapter(getActivity(), cursor);
         recyclerView.setAdapter(adapter);
 
         //6) create and set the itemAnimator
@@ -206,7 +235,9 @@ public class MMPersonListFragment extends Fragment {
 
         //8) add event listeners to the recycler view
         recyclerView.addOnItemTouchListener(
-            new RecyclerTouchListener(getActivity(), recyclerView, new ClickListener() {
+            new MMHomeFragment.RecyclerTouchListener(getActivity(),
+                                                     recyclerView,
+                                                     new MMHomeFragment.ClickListener() {
 
                 @Override
                 public void onClick(View view, int position) {
@@ -223,6 +254,26 @@ public class MMPersonListFragment extends Fragment {
     }
 
 
+    private void onExit(){
+        Toast.makeText(getActivity(),
+                R.string.exit_label,
+                Toast.LENGTH_SHORT).show();
+
+        MMPersonCursorAdapter adapter = getAdapter(getView());
+        adapter.closeCursor();
+
+        //switch to person screen
+        // But the switching happens on the container Activity
+        ((MainActivity) getActivity()).switchToPersonListReturn(mReturnFragmentTag, mPersonID);
+    }
+
+    private RecyclerView getRecyclerView(View v){
+        return (RecyclerView) v.findViewById(R.id.personList);
+    }
+
+    private MMPersonCursorAdapter getAdapter(View v){
+        return (MMPersonCursorAdapter) getRecyclerView(v).getAdapter();
+    }
 
     /**********************************************************/
     //      Utility Functions used in handling events         //
@@ -232,76 +283,22 @@ public class MMPersonListFragment extends Fragment {
     private void onSelect(int position){
         //todo need to update selection visually
 
+        View v = getView();
+        if (v == null)return;
+
         RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.personList);
         MMPersonCursorAdapter adapter = (MMPersonCursorAdapter) recyclerView.getAdapter();
 
         MMPersonManager personManager = MMPersonManager.getInstance();
         MMPerson selectedPerson =
-                personManager.getPersonFromCursor(adapter.getPersonCursor(), position);
+                personManager.getPersonFromCursor(adapter.getCursor(), position);
 
         Toast.makeText(getActivity(),
                 selectedPerson.getNickname() + " is selected!",
                 Toast.LENGTH_SHORT).show();
 
         //switch to the dose taken for the selected patient
-        ((MainActivity) getActivity()).switchToHomeScreen(selectedPerson.getPersonID());
+        ((MainActivity) getActivity()).switchToPersonListReturn(mReturnFragmentTag,
+                                                                selectedPerson.getPersonID());
     }
-
-
-    //Add some code to improve the recycler view
-    //Here is the interface for event handlers for Click and LongClick
-    public interface ClickListener {
-        void onClick(View view, int position);
-
-        void onLongClick(View view, int position);
-    }
-
-    public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
-
-            private GestureDetector gestureDetector;
-            private MMPersonListFragment.ClickListener clickListener;
-
-            public RecyclerTouchListener(Context context,
-                                         final RecyclerView recyclerView,
-                                         final MMPersonListFragment.ClickListener clickListener) {
-
-                this.clickListener = clickListener;
-                gestureDetector = new GestureDetector(context,
-                                                      new GestureDetector.SimpleOnGestureListener() {
-
-                            @Override
-                            public boolean onSingleTapUp(MotionEvent e) {
-                                return true;
-                            }
-
-                            @Override
-                            public void onLongPress(MotionEvent e) {
-                                View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
-                                if (child != null && clickListener != null) {
-                                    clickListener.onLongClick(child, recyclerView.getChildLayoutPosition(child));
-                                }
-                            }
-                        });
-            }
-
-            @Override
-            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-
-                View child = rv.findChildViewUnder(e.getX(), e.getY());
-                if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
-                    clickListener.onClick(child, rv.getChildLayoutPosition(child));
-                }
-                return false;
-            }
-
-            @Override
-            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-            }
-
-            @Override
-            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
-            }
-        }
-
 }

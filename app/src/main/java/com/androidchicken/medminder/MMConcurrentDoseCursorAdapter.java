@@ -35,7 +35,7 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public EditText  doseTime;
         public TextView  doseDate;
-        public ArrayList<EditText> doseMeds = new ArrayList<EditText>();
+        public ArrayList<EditText> doseMeds = new ArrayList<>();
 
 
         public MyViewHolder(View v) {
@@ -91,7 +91,13 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
     } //end inner class MyViewHolder
 
     //Constructor for MMConcurrentDosesAdapter
-    public MMConcurrentDoseCursorAdapter(Cursor concurrentDoseCursor){
+    public MMConcurrentDoseCursorAdapter(Context context,
+                                         long personID,
+                                         int numberMeds,
+                                         Cursor concurrentDoseCursor){
+        this.mPersonID   = personID;
+        this.mNumberMeds = numberMeds;
+        this.mContext    = context;
         this.mConcurrentDoseCursor = concurrentDoseCursor;
     }
 
@@ -122,6 +128,8 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
     }
 
     public Cursor reinitializeCursor(){
+        closeCursor();
+
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
         //Create a new Cursor with the current contents of DB
         mConcurrentDoseCursor = concurrentDoseManager.getAllConcurrentDosesCursor(mPersonID);
@@ -235,10 +243,17 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
         return returnValue;
     }
 
-    public void setAdapterContext(Context context, long personID, int numberMeds){
-        mPersonID   = personID;
-        mNumberMeds = numberMeds;
-        mContext    = context;
+
+    public MMConcurrentDose getConcurrentDoseAt(int position){
+        MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
+        return concurrentDoseManager.getConcurrentDoseFromCursor(mConcurrentDoseCursor, position);
+    }
+
+
+    public Cursor getCursor(){return mConcurrentDoseCursor;}
+
+    public void closeCursor(){
+        if (mConcurrentDoseCursor != null)mConcurrentDoseCursor.close();
     }
 
 }

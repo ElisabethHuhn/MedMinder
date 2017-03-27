@@ -17,180 +17,143 @@
     tools:context=     "com.androidchicken.medminder.MainActivityFragment"
 
     >
-
-    <HorizontalScrollView
-        android:layout_width= "match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport= "true"
+    <LinearLayout
+        android:layout_height= "wrap_content"
+        android:layout_width=  "wrap_content"
+        android:orientation="vertical"
         >
-        <!-- This layout is for Recording that medication has been taken -->
-        <!--  -->
-
-
-
-        <!-- with layout_width  = 0dp, ignore the content width, for horiz orient  -->
-        <!-- with layout_height = 0dp, ignore the content height, vert orient      -->
-        <!-- with layout_weight = 1, distribute width/height between views equally -->
-        <!-- with gravity       = center, center text within button                -->
-        <!-- with layout_gravity=start, place button on left of the row            -->
-        <!-- with background,   = set button color to gray, grayer, grayest        -->
-        <!-- with paddingStart, = set some space between this button and the next  -->
-
-        <!-- Container for entire screen -->
+        <!-- Row 1: Patient Name -->
         <LinearLayout
-            android:layout_height= "match_parent"
-            android:layout_width=  "wrap_content"
-            android:orientation="vertical"
+            android:layout_height="match_parent"
+            android:layout_width ="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="10dp"
+
             >
-            <!-- Row 1: Patient Name -->
-            <LinearLayout
-                android:layout_height="match_parent"
-                android:layout_width ="match_parent"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingBottom="10dp"
+            <TextView
+                android:labelFor="@+id/patientNickNameLabel"
+                android:text="@string/title_patient"
+                android:textSize="20sp"
 
-                >
-                <TextView
-                    android:labelFor="@+id/patientNickNameLabel"
-                    android:text="@string/patient_title"
-                    android:textSize="20sp"
+                android:layout_height= "wrap_content"
+                android:layout_width = "wrap_content"
 
-                    android:layout_height= "wrap_content"
-                    android:layout_width = "wrap_content"
+                android:gravity      = "end"
+                android:paddingEnd   = "8dp"
 
-                    android:gravity      = "end"
-                    android:paddingEnd   = "8dp"
+                android:background   = "@color/colorLabelBackground"
+                android:textColor    = "@color/colorTextBlack"
+                />
 
-                    android:background   = "@color/colorLabelBackground"
-                    android:textColor    = "@color/colorTextBlack"
-                    />
+            <TextView
+                android:id="@id/patientNickNameLabel"
+                android:text="@string/patient_nick_name_label"
+                android:textSize="20sp"
+                android:layout_height= "wrap_content"
+                android:layout_width = "wrap_content"
+                android:layout_gravity="center"
 
-                <TextView
-                    android:id="@id/patientNickNameLabel"
-                    android:text="@string/patient_nick_name_label"
-                    android:textSize="20sp"
-                    android:layout_height= "wrap_content"
-                    android:layout_width = "wrap_content"
-                    android:layout_gravity="center"
+                android:gravity      = "start"
 
-                    android:gravity      = "start"
+                android:background   = "@color/colorWhite"
+                android:textColor    = "@color/colorTextBlack"
+                />
 
-                    android:background   = "@color/colorWhite"
-                    android:textColor    = "@color/colorTextBlack"
-                    />
+        </LinearLayout>
 
-            </LinearLayout>
+        <!-- Save Button, Edit Patient, Select Patient, Export History -->
+        <LinearLayout
+            android:layout_height="match_parent"
+            android:layout_width ="match_parent"
+            android:orientation="horizontal"
 
-            <!-- Save Button, Edit Patient, Select Patient, Export History -->
-            <LinearLayout
-                android:layout_height="match_parent"
-                android:layout_width ="match_parent"
-                android:orientation="horizontal"
+            >
 
-                >
+            <!-- Save Button -->
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:id="@+id/homeSaveButton"
+                android:text="@string/save_label"
 
-                <!-- Save Button -->
-                <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:id="@+id/patientSaveButton"
-                    android:text="@string/save_label"
+                android:enabled="false"
 
-                    android:enabled="false"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
 
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                android:gravity="center|center_vertical"
+                android:layout_gravity="start"
+                android:layout_weight="10"
 
-                    android:gravity="center|center_vertical"
-                    android:layout_gravity="start"
-                    android:layout_weight="10"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="2dp"
 
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="2dp"
+                android:background="@color/colorButton1Background"
+                android:textColor="@color/colorGray"
+                />
 
-                    android:background="@color/colorButton1Background"
-                    android:textColor="@color/colorGray"
-                    />
+            <!-- Select Patient Button -->
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:id="@+id/selectPatientButton"
+                android:text="@string/select_patient_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
 
-                <!-- Select Patient Button -->
-                <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:id="@+id/selectPatientButton"
-                    android:text="@string/select_patient_label"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                android:gravity="center|center_vertical"
+                android:layout_gravity="start"
+                android:layout_weight="10"
 
-                    android:gravity="center|center_vertical"
-                    android:layout_gravity="start"
-                    android:layout_weight="10"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
 
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
+                android:background="@color/colorButton1Background"
+                android:textColor="@color/colorTextBlack"
+                />
 
-                    android:background="@color/colorButton1Background"
-                    android:textColor="@color/colorTextBlack"
-                    />
+            <!-- Edit Patient Button -->
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:id="@+id/patientProfileButton"
+                android:text="@string/patient_edit_profile_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
 
-                <!-- Edit Patient Button -->
-                <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:id="@+id/patientProfileButton"
-                    android:text="@string/patient_edit_profile_label"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                android:gravity="center|center_vertical"
+                android:layout_gravity="start"
+                android:layout_weight="10"
 
-                    android:gravity="center|center_vertical"
-                    android:layout_gravity="start"
-                    android:layout_weight="10"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
 
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-
-                    android:enabled="false"
-                    android:background="@color/colorButton1Background"
-                    android:textColor="@color/colorGray"
-                    />
-
-                <!-- Export History Button -->
-                <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:id="@+id/exportHistoryButton"
-                    android:text="@string/exportHistoryLabel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-
-                    android:gravity="center|center_vertical"
-                    android:layout_gravity="start"
-                    android:layout_weight="10"
-
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="8dp"
-
-                    android:background="@color/colorButton1Background"
-                    android:textColor="@color/colorTextBlack"
-                    />
-
-            </LinearLayout>
-
-            <!-- Row 2: Medication Buttons -->
-            <LinearLayout
-                android:id="@+id/medButtonLayout"
-                android:layout_height="match_parent"
-                android:layout_width="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="5dp"
-                android:orientation="horizontal"
-                >
-                <!-- Add Medication moved to Edit Patient fragment -->
+                android:enabled="false"
+                android:background="@color/colorButton1Background"
+                android:textColor="@color/colorGray"
+                />
 
 
 
-                <!--  Medication Buttons are added programmatically by the fragment -->
+        </LinearLayout>
 
-            </LinearLayout>
+        <!-- Row 2: Medication Buttons -->
+        <LinearLayout
+            android:id="@+id/medButtonLayout"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="5dp"
+            android:orientation="horizontal"
+            >
+            <!-- Add Medication moved to Edit Patient fragment -->
 
-            <!-- Row 3: Dose Taken fields added programmatically -->
-            <LinearLayout
+
+
+            <!--  Medication Buttons are added programmatically by the fragment -->
+
+        </LinearLayout>
+
+        <!-- Row 3: Dose Taken fields added programmatically -->
+        <LinearLayout
                 android:id="@+id/medInputLayout"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
@@ -204,30 +167,36 @@
 
             </LinearLayout>
 
-            <!-- Row 4: DDose Taken History -->
-            <LinearLayout
+        <HorizontalScrollView
+        android:layout_width= "match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport= "true"
+        >
 
+        <!-- Row 4: DDose Taken History -->
+        <LinearLayout
+
+            android:layout_height="wrap_content"
+            android:layout_width= "wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop=    "10dp"
+            >
+            <!-- RecyclerView of History -->
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/doseHistoryList"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_width= "match_parent"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop=    "10dp"
                 >
-                <!-- RecyclerView of History -->
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/doseHistoryList"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    >
-                </android.support.v7.widget.RecyclerView>
-
-            </LinearLayout>
+            </android.support.v7.widget.RecyclerView>
 
         </LinearLayout>
 
-
         </HorizontalScrollView>
 
-    </ScrollView>
+    </LinearLayout>
+
+
+</ScrollView>
 
 
 

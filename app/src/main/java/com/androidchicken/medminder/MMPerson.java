@@ -50,6 +50,7 @@ public class MMPerson {
     private CharSequence mNickname;
     private CharSequence mEmailAddress;
     private CharSequence mTextAddress;
+    private boolean      mCurrentlyExists;
     private ArrayList<MMMedication> mMedications;
 
 
@@ -78,18 +79,10 @@ public class MMPerson {
         mNickname     = "Nickname";
         mEmailAddress = "Email@gmail.com";
         mTextAddress  = "6783587040";
+        mCurrentlyExists = true;
         mMedications  = null;
     }
 
-/*
-    private void initializeDefaultVariables(){
-        mPersonID     = MMUtilities.getUniqueID();
-        mNickname     = "1";
-        mEmailAddress = "2";
-        mTextAddress  = "3";
-        mMedications  = new ArrayList<>();
-    }
-*/
 
 
     /*************************************/
@@ -106,6 +99,9 @@ public class MMPerson {
 
     public CharSequence getTextAddress()                         { return mTextAddress;  }
     public void         setTextAddress(CharSequence textAddress) { mTextAddress = textAddress; }
+
+    public boolean isCurrentlyExists()                   {return mCurrentlyExists;}
+    public void         setCurrentlyExists(boolean isExistant) {mCurrentlyExists = isExistant;}
 
 
     public ArrayList<MMMedication> getMedications(){

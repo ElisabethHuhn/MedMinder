@@ -2,8 +2,6 @@ package com.androidchicken.medminder;
 
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,77 +18,29 @@ import android.widget.EditText;
 public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCursorAdapter.MyViewHolder>{
     //The group to be listed is collected from a Cursor representing the DB rows
     private Cursor  mSchedMedCursor;
+    private boolean mIs24Format;
     private long    mMedicationID;
 
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public EditText  medicationNickName, medicationForPerson;
-        public EditText medicationTimeHours, medicationTimeMinutes;
+        public EditText medicationTimeHours, medicationTimeMinutes, medicationAmPm;
 
         public MyViewHolder(View v) {
             super(v);
 
             medicationTimeHours   = (EditText) v.findViewById(R.id.scheduleTimeHourOutput);
             medicationTimeMinutes = (EditText) v.findViewById(R.id.scheduleTimeMinutesOutput);
-
-            medicationTimeHours.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                    //This tells you that text is about to change.
-                    // Starting at character "start", the next "count" characters
-                    // will be changed with "after" number of characters
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                    //This tells you where the text has changed
-                    //Starting at character "start", the "before" number of characters
-                    // has been replaced with "count" number of characters
-
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    //This tells you that somewhere within editable, it's text has changed
-
-                }
-            });
-
-
-            medicationTimeHours.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                    //This tells you that text is about to change.
-                    // Starting at character "start", the next "count" characters
-                    // will be changed with "after" number of characters
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                    //This tells you where the text has changed
-                    //Starting at character "start", the "before" number of characters
-                    // has been replaced with "count" number of characters
-
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    //This tells you that somewhere within editable, it's text has changed
-
-                }
-            });
-
+            medicationAmPm        = (EditText) v.findViewById(R.id.scheduleTimeAmPmOutput);
         }
 
     } //end inner class MyViewHolder
 
     //Constructor for MMSchedMedsAdapter
-    public MMSchedMedCursorAdapter(Cursor schedMedCursor){
+    public MMSchedMedCursorAdapter(Cursor schedMedCursor, boolean is24Format){
+
         this.mSchedMedCursor = schedMedCursor;
+        this.mIs24Format     = is24Format;
     }
 
     @Override
@@ -147,6 +97,8 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
 
 
     public Cursor reinitializeCursor(long medicationID){
+        closeCursor();
+
         MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
 
         //Create a new Cursor with the current contents of DB
@@ -172,6 +124,7 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
             if (mSchedMedCursor == null) {
                 holder.medicationTimeHours.setText("0");
                 holder.medicationTimeMinutes.setText("0");
+                holder.medicationAmPm.setText(R.string.medication_dose_am);
                 return;
             }
         }
@@ -181,6 +134,22 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
 
         int hours = schedMed.getTimeDue() / 60;
         int minutes = (schedMed.getTimeDue()) - (hours * 60);
+
+        if (mIs24Format){
+            holder.medicationAmPm.setText("");
+        } else {
+            if (hours > 12) {
+                hours = hours - 12;
+                holder.medicationAmPm.setText(R.string.medication_dose_pm);
+            } else if (hours == 12){
+                holder.medicationAmPm.setText(R.string.medication_dose_pm);
+            } else if (hours == 0){
+                hours = 12;
+                holder.medicationAmPm.setText(R.string.medication_dose_am);
+            } else {
+                holder.medicationAmPm.setText(R.string.medication_dose_am);
+            }
+        }
 
         holder.medicationTimeHours  .setText(String.valueOf(hours));
         holder.medicationTimeMinutes.setText(String.valueOf(minutes));
@@ -199,7 +168,16 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
 
     public Cursor getSchedMedCursor(){return mSchedMedCursor;}
 
+    public MMScheduleMedication getScheduleAt(int position){
+        MMSchedMedManager scheduleManager = MMSchedMedManager.getInstance();
+        return scheduleManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
+    }
+
     public void setAdapterContext(long medicationID){
         mMedicationID = medicationID;
+    }
+
+    public void closeCursor(){
+        if (mSchedMedCursor != null)mSchedMedCursor.close();
     }
 }

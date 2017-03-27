@@ -16,7 +16,7 @@ public class MMPersonManager {
     /************************************/
     /********* Static Constants *********/
     /************************************/
-    public static final int PERSON_NOT_FOUND = -1;
+    private static final int PERSON_NOT_FOUND = -1;
 
 
     /************************************/
@@ -224,6 +224,10 @@ public class MMPersonManager {
         values.put(MMDataBaseSqlHelper.PERSON_EMAIL,    person.getEmailAddress().toString());
         values.put(MMDataBaseSqlHelper.PERSON_TEXT,     person.getTextAddress().toString());
 
+        int booleanValue = 0;
+        if (person.isCurrentlyExists())booleanValue = 1;
+        values.put(MMDataBaseSqlHelper.PERSON_EXISTS,   booleanValue);
+
         return values;
     }
 
@@ -254,6 +258,11 @@ public class MMPersonManager {
                 (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.PERSON_EMAIL)));
         person.setTextAddress
                 (cursor.getString(cursor.getColumnIndex(MMDataBaseSqlHelper.PERSON_TEXT)));
+
+        int currentlyExists = cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.PERSON_EXISTS));
+        boolean booleanValue = false;
+        if (currentlyExists == 1)booleanValue = true;
+        person.setCurrentlyExists(booleanValue);
 
         return person;
     }

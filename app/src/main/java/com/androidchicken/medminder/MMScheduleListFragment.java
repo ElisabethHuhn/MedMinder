@@ -1,6 +1,5 @@
 package com.androidchicken.medminder;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,9 +8,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -33,8 +30,6 @@ public class MMScheduleListFragment extends Fragment {
      * Create variables for all the widgets
      *
      */
-
-    private Button mExitButton;
 
 
     /**********************************************************/
@@ -72,17 +67,12 @@ public class MMScheduleListFragment extends Fragment {
 
     private void wireWidgets(View v){
         //Exit Button
-        mExitButton = (Button) v.findViewById(R.id.exitButton);
-        mExitButton.setText(R.string.exit_label);
-        mExitButton.setOnClickListener(new View.OnClickListener() {
+        Button exitButton = (Button) v.findViewById(R.id.exitButton);
+        exitButton.setText(R.string.exit_label);
+        exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.exit_label,
-                        Toast.LENGTH_SHORT).show();
-                //switch to home screen
-                // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToHomeScreen();
+               onExit();
             }
         });
 
@@ -126,7 +116,7 @@ public class MMScheduleListFragment extends Fragment {
         //      implemented in the caller: onCreateView()
 
         //2) find and remember the RecyclerView
-        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.scheduleList);
+        RecyclerView recyclerView = getRecyclerView(v);
 
         //3) create and assign a layout manager to the recycler view
         //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
@@ -143,7 +133,8 @@ public class MMScheduleListFragment extends Fragment {
         //     even though we're giving the Adapter the list,
         //     Adapter uses the ScheduleManager to maintain the list and
         //     the items in the list.
-        MMSchedMedCursorAdapter adapter = new MMSchedMedCursorAdapter(cursor);
+        MMSchedMedCursorAdapter adapter =
+                new MMSchedMedCursorAdapter(cursor, MMUtilities.is24Format());
         recyclerView.setAdapter(adapter);
 
         //6) create and set the itemAnimator
@@ -160,7 +151,9 @@ public class MMScheduleListFragment extends Fragment {
 
         //8) add event listeners to the recycler view
         recyclerView.addOnItemTouchListener(
-            new RecyclerTouchListener(getActivity(), recyclerView, new ClickListener() {
+            new MMHomeFragment.RecyclerTouchListener(getActivity(),
+                                                     recyclerView,
+                                                     new MMHomeFragment.ClickListener() {
 
                 @Override
                 public void onClick(View view, int position) {
@@ -178,6 +171,30 @@ public class MMScheduleListFragment extends Fragment {
 
 
 
+    private void onExit(){
+
+        Toast.makeText(getActivity(),
+                R.string.exit_label,
+                Toast.LENGTH_SHORT).show();
+
+        MMSchedMedCursorAdapter adapter = getAdapter(getView());
+        adapter.closeCursor();
+
+        //switch to person screen
+        // But the switching happens on the container Activity
+       // ((MainActivity) getActivity()).switchToPopBackstack();
+        ((MainActivity) getActivity()).switchToHomeScreen();
+    }
+
+    private RecyclerView getRecyclerView(View v){
+        return (RecyclerView) v.findViewById(R.id.scheduleList);
+    }
+
+    private MMSchedMedCursorAdapter getAdapter(View v){
+        return (MMSchedMedCursorAdapter) getRecyclerView(v).getAdapter();
+    }
+
+
     /**********************************************************/
     //      Utility Functions used in handling events         //
     /**********************************************************/
@@ -186,7 +203,10 @@ public class MMScheduleListFragment extends Fragment {
     private void onSelect(int position){
         //todo need to update selection visually
 
-        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.scheduleList);
+        View v = getView();
+        if (v == null)return;
+
+        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.scheduleList);
         MMSchedMedCursorAdapter adapter = (MMSchedMedCursorAdapter) recyclerView.getAdapter();
 
         MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
@@ -201,61 +221,5 @@ public class MMScheduleListFragment extends Fragment {
         // TODO: 3/10/2017 allow the user to change the value of the schedule
     }
 
-
-    //Add some code to improve the recycler view
-    //Here is the interface for event handlers for Click and LongClick
-    public interface ClickListener {
-        void onClick(View view, int position);
-
-        void onLongClick(View view, int position);
-    }
-
-    public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
-
-            private GestureDetector gestureDetector;
-            private MMScheduleListFragment.ClickListener clickListener;
-
-            public RecyclerTouchListener(Context context,
-                                         final RecyclerView recyclerView,
-                                         final MMScheduleListFragment.ClickListener clickListener) {
-
-                this.clickListener = clickListener;
-                gestureDetector = new GestureDetector(context,
-                                                      new GestureDetector.SimpleOnGestureListener() {
-
-                            @Override
-                            public boolean onSingleTapUp(MotionEvent e) {
-                                return true;
-                            }
-
-                            @Override
-                            public void onLongPress(MotionEvent e) {
-                                View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
-                                if (child != null && clickListener != null) {
-                                    clickListener.onLongClick(child, recyclerView.getChildLayoutPosition(child));
-                                }
-                            }
-                        });
-            }
-
-            @Override
-            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-
-                View child = rv.findChildViewUnder(e.getX(), e.getY());
-                if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
-                    clickListener.onClick(child, rv.getChildLayoutPosition(child));
-                }
-                return false;
-            }
-
-            @Override
-            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-            }
-
-            @Override
-            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
-            }
-        }
 
 }

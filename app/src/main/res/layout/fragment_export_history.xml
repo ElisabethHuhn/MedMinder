@@ -37,7 +37,8 @@
 
             <TextView
                 android:labelFor="@+id/historyNickNameLabel"
-                android:text="@string/patient_title"
+                android:text="@string/title_patient"
+                android:textSize="20sp"
                 android:layout_height= "wrap_content"
                 android:layout_width = "wrap_content"
 
@@ -51,6 +52,7 @@
             <TextView
                 android:id="@id/historyNickNameLabel"
                 android:text="@string/patient_nick_name_label"
+                android:textSize="20sp"
                 android:layout_height= "wrap_content"
                 android:layout_width = "wrap_content"
                 android:layout_gravity="center"
@@ -63,7 +65,7 @@
 
         </TableRow>
 
-        <!-- Exit, Export, Edit, Select, Export buttons -->
+        <!-- Exit, Export, Select Patient buttons -->
         <TableRow
             android:layout_height="match_parent"
             android:layout_width ="match_parent"
@@ -92,8 +94,8 @@
 
             <Button
                 style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/editPatientButton"
-                android:text="@string/patient_edit_profile_label"
+                android:id="@+id/exportButton"
+                android:text="@string/export_label"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
 

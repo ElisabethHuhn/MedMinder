@@ -18,13 +18,13 @@
     android:background="@color/colorScreenBackground"
     >
 
-
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         >
 
+        <!-- Screen Title, Buttons and Person Attributes -->
         <TableLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -46,7 +46,7 @@
 
                     android:textSize="20sp"
                     android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorTitleBackground"
+                    android:background="@color/colorScreenBackground"
                     />
 
             </TableRow>
@@ -93,6 +93,7 @@
                     android:textColor="@color/colorTextBlack"
                     />
 
+
                 <!-- Add Medication  -->
                 <Button
                     style="?android:attr/buttonBarButtonStyle"
@@ -112,20 +113,53 @@
 
             </TableRow>
 
-            <!-- Row 3: Person Nick Name -->
-            <include android:id= "@+id/personNickName" layout = "@layout/element_edit_label_input"/>
 
-            <!-- Row 3.5: Person ID -->
-            <include android:id= "@+id/personIDOutput" layout = "@layout/element_edit_label_input"/>
+            <!-- Row 3: Person Exists? -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width ="match_parent"
+                android:paddingTop="10dp"
+                android:gravity="center"
+                >
 
-            <!-- Row 4: Person Email Address -->
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/switchExists"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/exists_label"/>
+
+            </TableRow>
+
+            <!-- Row 4: Person Nick Name -->
+            <include android:id= "@+id/personIDName" layout = "@layout/element_3edit_label_input"/>
+
+            <!-- Row 5: Person Email Address -->
             <include android:id="@+id/personEmailAddr" layout="@layout/element_edit_label_input"/>
 
-            <!-- Row 5: Person Text Address -->
+            <!-- Row 6: Person Text Address -->
             <include android:id="@+id/personTextAddr" layout="@layout/element_edit_label_input"/>
+
+            <!-- Row 7: Scroll Hint -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width ="match_parent"
+                android:paddingTop="10dp"
+                android:gravity="center"
+                >
+                <TextView
+                    android:text="@string/horizontal_scroll_hint"
+                    android:layout_height="wrap_content"
+                    android:layout_width ="wrap_content"
+                    android:gravity="center"
+
+                    android:background="@color/colorScreenBackground"
+                    />
+
+            </TableRow>
 
         </TableLayout>
 
+        <!-- Title Row and list of Medications -->
         <HorizontalScrollView
             android:layout_width= "match_parent"
             android:layout_height="match_parent"
@@ -161,6 +195,7 @@
             </LinearLayout>
 
         </HorizontalScrollView>
+
     </LinearLayout>
 
 </ScrollView>

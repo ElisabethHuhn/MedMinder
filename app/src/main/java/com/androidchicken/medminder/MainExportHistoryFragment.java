@@ -1,13 +1,16 @@
 package com.androidchicken.medminder;
 
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -25,6 +28,7 @@ import java.util.Date;
 
 /**
  * Created by Elisabeth Huhn on 2/4/2017.
+ * This is the UI for defining a filter for Exporting Doses Taken History
  */
 
 public class MainExportHistoryFragment extends Fragment {
@@ -34,7 +38,7 @@ public class MainExportHistoryFragment extends Fragment {
     /***********************************************/
     /*          UI Widgets                         */
     /***********************************************/
-    private Button mEditPatientButton;
+    private Button mExportButton;
     private Button mSelectPatientButton;
     private Button mExitButton;
 
@@ -59,6 +63,7 @@ public class MainExportHistoryFragment extends Fragment {
     /***********************************************/
     private MMPerson mPatient;
     private long     mPersonID;
+    private boolean  isUIChanged = false;
 
     CharSequence mCDFileName ;
     CharSequence mCDFPath ;
@@ -158,6 +163,8 @@ public class MainExportHistoryFragment extends Fragment {
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
+        setUISaved(v);
+
         return v;
     }
 
@@ -187,25 +194,17 @@ public class MainExportHistoryFragment extends Fragment {
         TextView label;
 
         //Patient Profile Button
-        mEditPatientButton = (Button) v.findViewById(R.id.editPatientButton);
-        mEditPatientButton.setText(R.string.patient_edit_profile_label);
+        mExportButton = (Button) v.findViewById(R.id.exportButton);
+        mExportButton.setText(R.string.export_label);
         //the order of images here is left, top, right, bottom
-        // mEditPatientButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
-        mEditPatientButton.setOnClickListener(new View.OnClickListener() {
+        // mExportButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
+        mExportButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(),
-                        R.string.patient_edit_profile_label,
+                        R.string.export_label,
                         Toast.LENGTH_SHORT).show();
-                //switch to person screen
-                // But the switching happens on the container Activity
-                if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
-                    ((MainActivity) getActivity()).switchToPersonScreen();
-                } else {
-                    //pre-populate
-                    ((MainActivity) getActivity()).switchToPersonScreen(mPersonID);
-                }
-
+                onExport();
             }
         });
 
@@ -217,22 +216,11 @@ public class MainExportHistoryFragment extends Fragment {
         mExitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.exit_label,
-                        Toast.LENGTH_SHORT).show();
-                //switch to home screen
-                // But the switching happens on the container Activity
-                if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
-                    ((MainActivity) getActivity()).switchToHomeScreen();
-                } else {
-                    //pre-populate
-                    ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
-                }
-
+                onExit();
             }
         });
 
-        //Show Persons Button
+        //Select Persons Button
         mSelectPatientButton = (Button) v.findViewById(R.id.selectPatientButton);
         mSelectPatientButton.setText(R.string.select_patient_label);
         //the order of images here is left, top, right, bottom
@@ -245,7 +233,10 @@ public class MainExportHistoryFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
                 //switch to person screen
                 // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToPersonListScreen();
+
+                ((MainActivity)getActivity()).
+                        switchToPersonListScreen(MainActivity.sExportTag, mPersonID);
+
             }
         });
 
@@ -263,12 +254,27 @@ public class MainExportHistoryFragment extends Fragment {
 
         //mFilterStartInput.setHint(R.string.person_nick_name_hint);
         mFilterStartInput.setInputType(InputType.TYPE_CLASS_DATETIME);
-        mFilterStartInput.setOnTouchListener(new View.OnTouchListener() {
+        mFilterStartInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                //This tells you that text is about to change.
+                // Starting at character "start", the next "count" characters
+                // will be changed with "after" number of characters
 
+            }
 
-                return false;
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                //This tells you where the text has changed
+                //Starting at character "start", the "before" number of characters
+                // has been replaced with "count" number of characters
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //This tells you that somewhere within editable, it's text has changed
+                setUIChanged();
             }
         });
 
@@ -281,11 +287,27 @@ public class MainExportHistoryFragment extends Fragment {
         //mFilterEndInput.setHint(R.string.person_email_addr_hint);
         mFilterEndInput.setInputType(InputType.TYPE_CLASS_DATETIME);
 
-        mFilterEndInput.setOnTouchListener(new View.OnTouchListener() {
+        mFilterEndInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                //This tells you that text is about to change.
+                // Starting at character "start", the next "count" characters
+                // will be changed with "after" number of characters
 
-                return false;
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                //This tells you where the text has changed
+                //Starting at character "start", the "before" number of characters
+                // has been replaced with "count" number of characters
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //This tells you that somewhere within editable, it's text has changed
+                setUIChanged();
             }
         });
 
@@ -297,14 +319,29 @@ public class MainExportHistoryFragment extends Fragment {
         mDirectoryInput = (EditText) (field_container.findViewById(R.id.fieldInput));
         mDirectoryInput.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
         //mDirectoryInput.setHint(R.string.person_text_addr_hint);
-        mDirectoryInput.setOnTouchListener(new View.OnTouchListener() {
+        mDirectoryInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                //This tells you that text is about to change.
+                // Starting at character "start", the next "count" characters
+                // will be changed with "after" number of characters
 
-                return false;
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                //This tells you where the text has changed
+                //Starting at character "start", the "before" number of characters
+                // has been replaced with "count" number of characters
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //This tells you that somewhere within editable, it's text has changed
+                setUIChanged();
             }
         });
-
 
         field_container = v.findViewById(R.id.subDirectory);
         label = (TextView) (field_container.findViewById(R.id.fieldLabel));
@@ -312,26 +349,58 @@ public class MainExportHistoryFragment extends Fragment {
 
         mSubDirectoryInput = (EditText) (field_container.findViewById(R.id.fieldInput));
         //mSubDirectoryInput.setHint(R.string.person_order_hint);
-        mSubDirectoryInput.setOnTouchListener(new View.OnTouchListener() {
+        mSubDirectoryInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                //This tells you that text is about to change.
+                // Starting at character "start", the next "count" characters
+                // will be changed with "after" number of characters
 
-                return false;
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                //This tells you where the text has changed
+                //Starting at character "start", the "before" number of characters
+                // has been replaced with "count" number of characters
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //This tells you that somewhere within editable, it's text has changed
+                setUIChanged();
             }
         });
 
 
         field_container = v.findViewById(R.id.fileName);
         label = (TextView) (field_container.findViewById(R.id.fieldLabel));
-        label.setText(R.string.person_order_label);
+        label.setText(R.string.export_filename);
 
         mFileNameInput = (EditText) (field_container.findViewById(R.id.fieldInput));
         //mFileNameInput.setHint(R.string.person_order_hint);
-        mFileNameInput.setOnTouchListener(new View.OnTouchListener() {
+        mFileNameInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                //This tells you that text is about to change.
+                // Starting at character "start", the next "count" characters
+                // will be changed with "after" number of characters
 
-                return false;
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                //This tells you where the text has changed
+                //Starting at character "start", the "before" number of characters
+                // has been replaced with "count" number of characters
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //This tells you that somewhere within editable, it's text has changed
+                setUIChanged();
             }
         });
 
@@ -342,11 +411,27 @@ public class MainExportHistoryFragment extends Fragment {
 
         mFileNameSuffixInput = (EditText) (field_container.findViewById(R.id.fieldInput));
         mFileNameSuffixInput.setHint(R.string.suffix_hint);
-        mFileNameSuffixInput.setOnTouchListener(new View.OnTouchListener() {
+        mFileNameSuffixInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                //This tells you that text is about to change.
+                // Starting at character "start", the next "count" characters
+                // will be changed with "after" number of characters
 
-                return false;
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                //This tells you where the text has changed
+                //Starting at character "start", the "before" number of characters
+                // has been replaced with "count" number of characters
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //This tells you that somewhere within editable, it's text has changed
+                setUIChanged();
             }
         });
 
@@ -361,6 +446,118 @@ public class MainExportHistoryFragment extends Fragment {
             }
         }
     }
+
+
+    private void onExit(){
+        Toast.makeText(getActivity(),
+                R.string.exit_label,
+                Toast.LENGTH_SHORT).show();
+
+        //if something has changed in the UI, ask first
+        if (isUIChanged){
+            areYouSureExit();
+        } else {
+            switchToExit();
+        }
+    }
+
+
+    private void onExport(){
+        Toast.makeText(getActivity(),
+                R.string.export_label,
+                Toast.LENGTH_SHORT).show();
+
+    }
+
+
+
+
+    /************************************/
+    /*****  Exit Button Dialogue    *****/
+    /************************************/
+    //Build and display the alert dialog
+    private void areYouSureExit(){
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.abandon_title)
+                .setIcon(R.drawable.ground_station_icon)
+                .setMessage(R.string.are_you_sure)
+                .setPositiveButton(R.string.exit_label,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Leave even though project has chaged
+                                //Toast.makeText(getActivity(), R.string.exit_label, Toast.LENGTH_SHORT).show();
+                                switchToExit();
+
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                        Toast.makeText(getActivity(),
+                                "Pressed Cancel",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setIcon(R.drawable.ground_station_icon)
+                .show();
+    }
+
+    private void switchToExit(){
+
+        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
+            ((MainActivity) getActivity()).switchToHomeScreen();
+        } else {
+            //pre-populate
+            ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
+        }
+
+    }
+
+
+
+    /**********************************************************/
+    //      Methods dealing with whether the UI has changed   //
+    /**********************************************************/
+    private void setUIChanged(){
+        isUIChanged = true;
+        exportButtonEnable(MMUtilities.BUTTON_ENABLE);
+    }
+
+    private void setUISaved(){
+        isUIChanged = false;
+
+        //disable the save button
+        exportButtonEnable(MMUtilities.BUTTON_DISABLE);
+    }
+
+    private void setUISaved(View v){
+        isUIChanged = false;
+
+        //disable the save button
+        exportButtonEnable(v, MMUtilities.BUTTON_DISABLE);
+    }
+
+    private void exportButtonEnable(boolean isEnabled){
+        View v = getView();
+        exportButtonEnable(v, isEnabled);
+    }
+
+    private void exportButtonEnable(View v, boolean isEnabled){
+        if (v == null)return; //onCreateView() hasn't run yet
+
+        Button exportButton =
+                (Button) v.findViewById(R.id.exportButton);
+
+        MMUtilities.enableButton(getActivity(),
+                exportButton,
+                isEnabled);
+    }
+
+
+
+    /************************************/
+    /*****                          *****/
+    /************************************/
 
     private File createPersonCDFile(MMPerson patient) throws IOException {
         // Create an image file name

@@ -20,7 +20,7 @@
     <!-- Allow entire screen to scroll horizontally -->
     <LinearLayout
         android:layout_width= "match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation=  "vertical"
         >
 
@@ -40,7 +40,7 @@
             android:text="@string/schedule_list_screen_label"
             android:textSize="20sp"
             android:textColor="@color/colorTextBlack"
-            android:background="@color/colorTitleBackground"
+            android:background="@color/colorScreenBackground"
             />
 
         <!-- Exit Button -->

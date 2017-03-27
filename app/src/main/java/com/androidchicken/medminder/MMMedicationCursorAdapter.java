@@ -1,6 +1,8 @@
 package com.androidchicken.medminder;
 
+import android.content.Context;
 import android.database.Cursor;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +18,9 @@ import android.widget.EditText;
 
 public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedicationCursorAdapter.MyViewHolder>{
 
-    private Cursor mMedicationCursor;
-    private long mPersonID;
+    private Cursor  mMedicationCursor;
+    private long    mPersonID;
+    private Context mContext;
 
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -42,7 +45,9 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
     } //end inner class MyViewHolder
 
     //Constructor for MMMedicationAdapter
-    public MMMedicationCursorAdapter(Cursor medicationCursor){
+    public MMMedicationCursorAdapter(Context context, long personID, Cursor medicationCursor){
+        this.mContext  = context;
+        this.mPersonID = personID;
         this.mMedicationCursor = medicationCursor;
     }
 
@@ -54,33 +59,19 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
         return new MyViewHolder(itemView);
     }
 
-    public void removeMedication(int position) {
-        if (mMedicationCursor == null)return;
 
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return;
+    public Cursor reinitializeCursor(long personID){
+        closeCursor();
 
-        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
+        mPersonID = personID;
 
-        //get the row indicated which is the person to be removed
-        MMMedication medication = 
-                medicationManager.getMedicationFromCursor(mMedicationCursor, position);
-        if (medication == null)return;
-
-        //remove the medication from the DB
-        medicationManager.removeMedicationFromDB(medication.getMedicationID());
-        // TODO: 3/8/2017 May need to worry about cascading schedules from the medicationID
-
-        mMedicationCursor = reinitializeCursor();
-    }
-
-    public Cursor reinitializeCursor(){
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
         //Create a new Cursor with the current contents of DB
         if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) return null;
         mMedicationCursor = medicationManager.getAllMedicationsCursor(mPersonID);
 
         //Tell the RecyclerView to update the User Display
-        notifyDataSetChanged();;
+        notifyDataSetChanged();
         //notifyItemRangeChanged(position, getItemCount());
         
         return mMedicationCursor;
@@ -103,6 +94,8 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
                 holder.medicationDoseAmt.setText("");
                 holder.medicationDoseUnits.setText("0");
                 holder.medicationDoseNum.setText("0");
+
+                setBackColor(holder, R.color.colorGray);
                 return;
             }
         }
@@ -118,6 +111,12 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
         holder.medicationDoseAmt.    setText(String.valueOf(medication.getDoseAmount()).trim());
         holder.medicationDoseUnits.  setText(medication.getDoseUnits().toString().trim());
         holder.medicationDoseNum.    setText(String.valueOf(medication.getDoseNumPerDay()).trim());
+
+        if (medication.isCurrentlyTaken()){
+            setBackColor(holder, R.color.colorWhite);
+        } else {
+            setBackColor(holder, R.color.colorGray);
+        }
     }
 
     @Override
@@ -131,8 +130,30 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
         return returnValue;
     }
 
-    public void setAdapterContext(long personID){
-        mPersonID = personID;
+
+
+    private void setBackColor(MyViewHolder holder, int newColor){
+        holder.medicationForPersonID.setBackgroundColor(ContextCompat.getColor(mContext, newColor));
+        holder.medicationNickName.   setBackgroundColor(ContextCompat.getColor(mContext, newColor));
+        holder.medicationBrandName.  setBackgroundColor(ContextCompat.getColor(mContext, newColor));
+        holder.medicationGenericName.setBackgroundColor(ContextCompat.getColor(mContext, newColor));
+        holder.medicationDoseStrategy.setBackgroundColor(ContextCompat.getColor(mContext, newColor));
+        holder.medicationDoseAmt.    setBackgroundColor(ContextCompat.getColor(mContext, newColor));
+        holder.medicationDoseUnits.  setBackgroundColor(ContextCompat.getColor(mContext, newColor));
+        holder.medicationDoseNum.    setBackgroundColor(ContextCompat.getColor(mContext, newColor));
     }
+
+
+    public MMMedication getMedicationAt(int position){
+        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
+        return medicationManager.getMedicationFromCursor(mMedicationCursor, position);
+    }
+
+
+
     public Cursor getCursor(){return mMedicationCursor;}
+
+    public void closeCursor(){
+        if (mMedicationCursor != null)mMedicationCursor.close();
+    }
 }

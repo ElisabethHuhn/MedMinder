@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+          android:layout_width=  "match_parent"
+          android:layout_height= "wrap_content"
+          android:layout_gravity="center_horizontal"
+          android:paddingTop=    "10dp"
+    >
+    <TextView
+        android:id=           "@+id/fieldLabel"
+        android:labelFor=     "@+id/fieldInput"
+        android:layout_height="wrap_content"
+        android:layout_width= "0dp"
+        android:layout_weight="25"
+        android:gravity=      "end"
+
+        android:focusable="false"
+
+        android:textColor=    "@color/colorTextBlack"
+        android:background=   "@color/colorLabelBackground"
+        />
+    <EditText
+        android:id=           "@+id/fieldIdInput"
+
+        android:layout_height="wrap_content"
+        android:layout_width= "0dp"
+        android:layout_weight="25"
+        android:gravity="center_horizontal"
+
+        android:inputType=    "text"
+        android:imeOptions=   "flagNoExtractUi"
+
+        android:layout_marginEnd="4dp"
+
+        android:textColor=    "@color/colorTextBlack"
+        android:background=   "@color/colorInputBackground"
+        />
+
+    <EditText
+        android:id=           "@id/fieldInput"
+
+        android:layout_height="wrap_content"
+        android:layout_width= "0dp"
+        android:layout_weight="50"
+        android:gravity="center_horizontal"
+
+        android:inputType=    "text"
+        android:imeOptions=   "flagNoExtractUi"
+
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="16dp"
+
+        android:textColor=    "@color/colorTextBlack"
+        android:background=   "@color/colorInputBackground"
+        />
+
+</TableRow>
