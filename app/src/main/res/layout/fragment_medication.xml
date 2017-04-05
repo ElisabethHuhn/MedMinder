@@ -14,7 +14,7 @@
     android:paddingTop=   "@dimen/activity_vertical_margin"
 
     android:background="@color/colorScreenBackground"
-    tools:context="com.androidchicken.medminder.MainActivityFragment"
+    tools:context="com.androidchicken.medminder.MMMainActivityFragment"
 
     >
 
@@ -95,12 +95,11 @@
                     android:layout_weight="1"
 
                     android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginEnd="8dp"
 
                     android:textColor="@color/colorTextBlack"
                     android:background="@color/colorButton1Background"
                     />
-
 
             </TableRow>
 
@@ -129,7 +128,7 @@
                 android:paddingTop="10dp"
                 >
                 <TextView
-                    android:labelFor="@+id/medicationForPerson"
+                    android:labelFor="@+id/medicationForPersonNickName"
                     android:focusable="false"
                     android:text="@string/medication_for_label"
                     android:layout_height="wrap_content"
@@ -142,7 +141,7 @@
                     />
 
                 <EditText
-                    android:id="@+id/medicationForPersonInput"
+                    android:id="@+id/medicationForPersonIDInput"
 
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
@@ -161,7 +160,7 @@
                     />
 
                 <EditText
-                    android:id="@+id/medicationForPerson"
+                    android:id="@id/medicationForPersonNickName"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
                     android:layout_weight="45"
@@ -354,28 +353,27 @@
 
         <!-- Title row and list of Schedule Times -->
         <HorizontalScrollView
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:fillViewport= "true"
             android:layout_gravity="center_horizontal"
             >
 
             <LinearLayout
-
                 android:layout_height="wrap_content"
                 android:layout_width= "wrap_content"
                 android:orientation="vertical"
                 android:layout_gravity="center_horizontal"
-                android:paddingTop=    "10dp"
                 >
                 <!-- Row: Headings for the list columns -->
-                <include android:id="@+id/schedMedTitleRow" layout="@layout/list_row_schedule_med"/>
+                <include android:id="@+id/schedTitleRow" layout="@layout/list_row_schedule"/>
 
                 <!-- RecyclerView of History -->
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/scheduleList"
-                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:layout_width="match_parent"
+                     >
                 </android.support.v7.widget.RecyclerView>
 
             </LinearLayout>

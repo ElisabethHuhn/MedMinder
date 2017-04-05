@@ -27,14 +27,31 @@ public class MMScheduleListFragment extends Fragment {
 
     private static final String TAG = "LIST_SCHEDULES_FRAGMENT";
     /**
-     * Create variables for all the widgets
+     *  variables
      *
      */
+
+    private long mPersonID;
 
 
     /**********************************************************/
     //          Fragment Lifecycle Functions                  //
     /**********************************************************/
+    public static MMScheduleListFragment newInstance(long personID){
+        //create a bundle to hold the arguments
+        Bundle args = new Bundle();
+
+        //It will be some work to make all of the data model serializable
+        //so for now, just pass the person values
+        args.putLong        (MMPerson.sPersonIDTag,personID);
+
+        MMScheduleListFragment fragment = new MMScheduleListFragment();
+
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
 
     //Constructor
     public MMScheduleListFragment() {
@@ -42,9 +59,38 @@ public class MMScheduleListFragment extends Fragment {
         //  is first created
     }
 
+    //pull the arguments out of the fragment bundle and store in the member variables
+    //In this case, prepopulate the personID this screen refers to
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+
+        super.onCreate(savedInstanceState);
+
+        Bundle args = getArguments();
+
+        if (args != null) {
+            //initialize the DB, providing it with a context if necessary
+            MMDatabaseManager.getInstance(getActivity());
+
+            //Get the ID of the person passed to this screen
+            mPersonID = args.getLong(MMPerson.sPersonIDTag);
+
+        } else {
+            mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
+        }
+    }
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
+        if (savedInstanceState != null){
+            //the fragment is being restored so restore the person ID
+            mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
+        }
+
 
         View v = inflater.inflate(R.layout.fragment_schedule_list, container, false);
         v.setTag(TAG);
@@ -58,12 +104,20 @@ public class MMScheduleListFragment extends Fragment {
         MMUtilities.hideSoftKeyboard(getActivity());
 
         //set the title bar subtitle
-        ((MainActivity) getActivity()).setMMSubtitle(R.string.title_schedule_list);
-
+        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_schedule_list);
 
         //9) return the view
         return v;
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        // Save custom values into the bundle
+        savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
 
     private void wireWidgets(View v){
         //Exit Button
@@ -76,13 +130,32 @@ public class MMScheduleListFragment extends Fragment {
             }
         });
 
+        //Person ID and name
+        TextView personLabel      = (TextView) v.findViewById(R.id.personIDLabel);
+        EditText personIDOutput   = (EditText) v.findViewById(R.id.personIdInput);
+        EditText personNameOutput = (EditText) v.findViewById(R.id.personNickNameInput);
+
+        personLabel.setText(R.string.person_label);
+        MMPerson person = null;
+        String message = String.format(getString(R.string.person_does_not_exist), mPersonID);
+        personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorLightPink));
+        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST) {
+            MMPersonManager personManager = MMPersonManager.getInstance();
+            person = personManager.getPerson(mPersonID);
+        }
+        if (person != null){
+            personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
+            message = person.getNickname().toString();
+        }
+        personIDOutput.setText(String.valueOf(mPersonID));
+        personNameOutput.setText(message);
     }
 
     private void wireListTitleWidgets(View v){
         View field_container;
         TextView label;
 
-        MainActivity myActivity = (MainActivity)getActivity();
+        MMMainActivity myActivity = (MMMainActivity)getActivity();
 
         //set up the labels for the medication list
         field_container = v.findViewById(R.id.scheduleTitleRow);
@@ -93,6 +166,18 @@ public class MMScheduleListFragment extends Fragment {
 
         label = (EditText) (field_container.findViewById(R.id.scheduleTimeMinutesOutput));
         label.setText(R.string.medication_dose_minutes);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
+        label = (EditText) (field_container.findViewById(R.id.scheduleTimeAmPmOutput));
+        label.setText(R.string.medication_dose_am_pm);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
+        label = (EditText) (field_container.findViewById(R.id.scheduleMedIDOutput));
+        label.setText(R.string.id_abrev);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
+        label = (EditText) (field_container.findViewById(R.id.scheduleMedNameOutput));
+        label.setText(R.string.medication_nick_name_label);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
     }
 
@@ -125,16 +210,20 @@ public class MMScheduleListFragment extends Fragment {
 
         //4) Get the set of Schedule Instances from the Database
         MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
-        Cursor cursor = schedMedManager.getAllSchedMedsCursor();
-
-        int size = cursor.getCount();
+        Cursor cursor;
+        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
+            //no particular person, get all schedules
+            cursor = schedMedManager.getAllSchedMedsCursor();
+        } else {
+            cursor = schedMedManager.getAllSchedMedsForPersonCursor(mPersonID);
+        }
 
         //5) Use the data to Create and set out schedule Adapter
         //     even though we're giving the Adapter the list,
         //     Adapter uses the ScheduleManager to maintain the list and
         //     the items in the list.
         MMSchedMedCursorAdapter adapter =
-                new MMSchedMedCursorAdapter(cursor, MMUtilities.is24Format());
+                new MMSchedMedCursorAdapter(cursor, MMUtilities.is24Format(), mPersonID);
         recyclerView.setAdapter(adapter);
 
         //6) create and set the itemAnimator
@@ -157,7 +246,7 @@ public class MMScheduleListFragment extends Fragment {
 
                 @Override
                 public void onClick(View view, int position) {
-                    onSelect(position);
+                    //onSelect(position);
                 }
 
                 @Override
@@ -183,7 +272,7 @@ public class MMScheduleListFragment extends Fragment {
         //switch to person screen
         // But the switching happens on the container Activity
        // ((MainActivity) getActivity()).switchToPopBackstack();
-        ((MainActivity) getActivity()).switchToHomeScreen();
+        ((MMMainActivity) getActivity()).switchToHomeScreen();
     }
 
     private RecyclerView getRecyclerView(View v){

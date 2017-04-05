@@ -16,7 +16,6 @@ public class MMSchedMedManager {
     /************************************/
     /********* Static Constants *********/
     /************************************/
-    public static final int SCHED_NOT_FOUND = -1;
 
 
     /************************************/
@@ -70,19 +69,25 @@ public class MMSchedMedManager {
 
 
 
-    //return the cursor containing all the Concurrent Doses in the DB
-    //that pertain to this personID
+    //return the cursor containing all the Schedules in the DB
     public Cursor getAllSchedMedsCursor(){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllSchedMedsCursor();
     }
 
 
-    //return the cursor containing all the Concurrent Doses in the DB
-    //that pertain to this personID
+    //return the cursor containing all the Schedules in the DB
+    //that pertain to this medicationID
     public Cursor getAllSchedMedsCursor(long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllSchedMedsCursor(medicationID);
+    }
+
+    //return the cursor containing all the Schedules in the DB
+    //that pertain to this personID
+    public Cursor getAllSchedMedsForPersonCursor(long personID){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        return databaseManager.getAllSchedMedsForPersonCursor(personID);
     }
 
 
@@ -90,8 +95,7 @@ public class MMSchedMedManager {
 
     public ArrayList<MMScheduleMedication> getAllSchedMeds(long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        ArrayList<MMScheduleMedication> schedules = databaseManager.getAllSchedMeds(medicationID);
-        return schedules;
+        return databaseManager.getAllSchedMeds(medicationID);
     }
 
 
@@ -105,6 +109,28 @@ public class MMSchedMedManager {
 
 
 
+
+    /********************************************/
+    /*********       Utility methods       ******/
+    /********************************************/
+    public int howManyDueAt(int minutesSinceMidnight){
+        Cursor cursor = getAllSchedMedsCursor();
+        if (cursor == null) return 0;
+
+        int last = cursor.getCount();
+        if (last == 0) return 0;
+
+        int position = 0;
+        int count    = 0;
+
+        while (position < last){
+            if (minutesSinceMidnight == getTimeDueFromCursor(cursor, position))count++;
+            position++;
+        }
+        cursor.close();
+
+        return count;
+    }
 
     /********************************************/
     /********* Object to/from DB methods   ******/
@@ -166,5 +192,23 @@ public class MMSchedMedManager {
 
         return scheduleID;
     }
+
+
+    public int getTimeDueFromCursor(Cursor cursor, int position){
+
+        int last = cursor.getCount();
+        if (position >= last) return -1;
+
+        int timeDue;
+
+        cursor.moveToPosition(position);
+
+        timeDue = (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_TIME_DUE)));
+
+        return timeDue;
+    }
+
+
+
 
 }

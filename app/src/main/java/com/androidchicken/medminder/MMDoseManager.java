@@ -3,8 +3,6 @@ package com.androidchicken.medminder;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-import java.util.ArrayList;
-
 /**
  * Created by elisabethhuhn on 10/17/2016.
  *
@@ -27,7 +25,6 @@ public class MMDoseManager {
     /************************************/
     /********* Member Variables *********/
     /************************************/
-    private ArrayList<MMDose> mDoseList;
 
 
     /************************************/
@@ -45,8 +42,6 @@ public class MMDoseManager {
     /********* Constructors     *********/
     /************************************/
     private MMDoseManager() {
-        //todo determine whether this should be initialized here as it lives on each ConcurrentDose instance
-        mDoseList = new ArrayList<>();
     }
 
     /************************************/
@@ -58,25 +53,19 @@ public class MMDoseManager {
     /********* Public Member Methods   *********/
     /*******************************************/
 
-
-
     //This routine not only adds to the in memory list, but also to the DB
     public void add(MMDose newDose){
-        //determine if already in list
-        if (mDoseList == null){
-            mDoseList = new ArrayList<>();
-        }
-
-        mDoseList.add(newDose);
 
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         databaseManager.addDose(newDose);
 
-
     }//end public add()
 
 
-
+    public int removeDose(long doseID){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        return databaseManager.removeDose(doseID);
+    }
 
     /********************************************/
     /********* Private Member Methods   *********/

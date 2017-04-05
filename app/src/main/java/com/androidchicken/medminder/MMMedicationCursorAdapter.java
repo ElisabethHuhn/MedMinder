@@ -90,7 +90,7 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
                 holder.medicationNickName.setText("");
                 holder.medicationBrandName.setText("");
                 holder.medicationGenericName.setText("");
-                holder.medicationDoseStrategy.setText("0");
+                holder.medicationDoseStrategy.setText(mContext.getString(R.string.strategy_schedule));
                 holder.medicationDoseAmt.setText("");
                 holder.medicationDoseUnits.setText("0");
                 holder.medicationDoseNum.setText("0");
@@ -107,7 +107,15 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
         holder.medicationNickName.   setText(medication.getMedicationNickname().toString().trim());
         holder.medicationBrandName.  setText(medication.getBrandName().toString().trim());
         holder.medicationGenericName.setText(medication.getGenericName().toString().trim());
-        holder.medicationDoseStrategy.setText(String.valueOf(medication.getDoseStrategy()).trim());
+
+        int strategy = medication.getDoseStrategy();
+        String msg;
+        if (strategy == MMMedicationFragment.SET_SCHEDULE_FOR_MEDICATION){
+            msg = mContext.getString(R.string.strategy_schedule);
+        } else {
+            msg = mContext.getString(R.string.strategy_as_needed);
+        }
+        holder.medicationDoseStrategy.setText(msg);
         holder.medicationDoseAmt.    setText(String.valueOf(medication.getDoseAmount()).trim());
         holder.medicationDoseUnits.  setText(medication.getDoseUnits().toString().trim());
         holder.medicationDoseNum.    setText(String.valueOf(medication.getDoseNumPerDay()).trim());
@@ -115,7 +123,7 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
         if (medication.isCurrentlyTaken()){
             setBackColor(holder, R.color.colorWhite);
         } else {
-            setBackColor(holder, R.color.colorGray);
+            setBackColor(holder, R.color.colorScreenDeletedBackground);
         }
     }
 

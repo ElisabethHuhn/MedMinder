@@ -1,5 +1,7 @@
 package com.androidchicken.medminder;
 
+import java.util.Comparator;
+
 /**
  * Created by Elisabeth Huhn on 2/14/17.
  *
@@ -90,5 +92,24 @@ public class MMScheduleMedication {
                String.valueOf(this.getTimeDue())         +
                System.getProperty("line.separator");
     }
+
+
+
+    /**********************************************/
+    /********* Comparable based on timeDue   ******/
+    /**********************************************/
+
+    /* USAGE of the Comparator:
+    //now sort the Array by timeDue
+    Collections.sort(schedules, new MMScheduleMedication.MMScheduleTimeDueComparator());
+ */
+
+
+    static class MMScheduleTimeDueComparator implements Comparator<MMScheduleMedication> {
+        public int compare(MMScheduleMedication schedule1, MMScheduleMedication schedule2) {
+            return schedule1.getTimeDue() - schedule2.getTimeDue();
+        }
+    }
+
 
 }

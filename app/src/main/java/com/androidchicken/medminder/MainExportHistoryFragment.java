@@ -26,6 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static com.androidchicken.medminder.R.id.directoryPath;
+
 /**
  * Created by Elisabeth Huhn on 2/4/2017.
  * This is the UI for defining a filter for Exporting Doses Taken History
@@ -183,7 +185,7 @@ public class MainExportHistoryFragment extends Fragment {
         super.onResume();
 
         //set the title bar subtitle
-        ((MainActivity) getActivity()).setMMSubtitle(R.string.title_export_history);
+        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_export_history);
     }
 
     /***********************************************/
@@ -234,8 +236,8 @@ public class MainExportHistoryFragment extends Fragment {
                 //switch to person screen
                 // But the switching happens on the container Activity
 
-                ((MainActivity)getActivity()).
-                        switchToPersonListScreen(MainActivity.sExportTag, mPersonID);
+                ((MMMainActivity)getActivity()).
+                        switchToPersonListScreen(MMMainActivity.sExportTag, mPersonID);
 
             }
         });
@@ -246,12 +248,10 @@ public class MainExportHistoryFragment extends Fragment {
         //There are no events associated with this field
 
 
-        field_container = v.findViewById(R.id.filterStartDate);
-        label = (TextView) (field_container.findViewById(R.id.fieldLabel));
+        label = (TextView)v.findViewById(R.id.filterStartDateLabel);
         label.setText(R.string.start_date);
 
-        mFilterStartInput = (EditText) (field_container.findViewById(R.id.fieldInput));
-
+        mFilterStartInput = (EditText) v.findViewById(R.id.filterStartDate);
         //mFilterStartInput.setHint(R.string.person_nick_name_hint);
         mFilterStartInput.setInputType(InputType.TYPE_CLASS_DATETIME);
         mFilterStartInput.addTextChangedListener(new TextWatcher() {
@@ -279,11 +279,11 @@ public class MainExportHistoryFragment extends Fragment {
         });
 
 
-        field_container = v.findViewById(R.id.filterEndDate);
-        label = (TextView) (field_container.findViewById(R.id.fieldLabel));
+
+        label = (TextView) (v.findViewById(R.id.filterEndDateLabel));
         label.setText(R.string.end_date);
 
-        mFilterEndInput = (EditText) (field_container.findViewById(R.id.fieldInput));
+        mFilterEndInput = (EditText) (v.findViewById(R.id.filterEndDate));
         //mFilterEndInput.setHint(R.string.person_email_addr_hint);
         mFilterEndInput.setInputType(InputType.TYPE_CLASS_DATETIME);
 
@@ -312,11 +312,11 @@ public class MainExportHistoryFragment extends Fragment {
         });
 
 
-        field_container = v.findViewById(R.id.directoryPath);
-        label = (TextView) (field_container.findViewById(R.id.fieldLabel));
+
+        label = (TextView) (v.findViewById(R.id.directoryPathLabel));
         label.setText(R.string.directory_path);
 
-        mDirectoryInput = (EditText) (field_container.findViewById(R.id.fieldInput));
+        mDirectoryInput = (EditText) (v.findViewById(directoryPath));
         mDirectoryInput.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
         //mDirectoryInput.setHint(R.string.person_text_addr_hint);
         mDirectoryInput.addTextChangedListener(new TextWatcher() {
@@ -343,11 +343,11 @@ public class MainExportHistoryFragment extends Fragment {
             }
         });
 
-        field_container = v.findViewById(R.id.subDirectory);
-        label = (TextView) (field_container.findViewById(R.id.fieldLabel));
+
+        label = (TextView) (v.findViewById(R.id.subDirectoryLabel));
         label.setText(R.string.sub_directory);
 
-        mSubDirectoryInput = (EditText) (field_container.findViewById(R.id.fieldInput));
+        mSubDirectoryInput = (EditText) (v.findViewById(R.id.subDirectory));
         //mSubDirectoryInput.setHint(R.string.person_order_hint);
         mSubDirectoryInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -374,11 +374,11 @@ public class MainExportHistoryFragment extends Fragment {
         });
 
 
-        field_container = v.findViewById(R.id.fileName);
-        label = (TextView) (field_container.findViewById(R.id.fieldLabel));
+
+        label = (TextView) (v.findViewById(R.id.fileNameLabel));
         label.setText(R.string.export_filename);
 
-        mFileNameInput = (EditText) (field_container.findViewById(R.id.fieldInput));
+        mFileNameInput = (EditText) (v.findViewById(R.id.fileName));
         //mFileNameInput.setHint(R.string.person_order_hint);
         mFileNameInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -405,11 +405,10 @@ public class MainExportHistoryFragment extends Fragment {
         });
 
 
-        field_container = v.findViewById(R.id.fileSuffix);
-        label = (TextView) (field_container.findViewById(R.id.fieldLabel));
+        label = (TextView) (v.findViewById(R.id.fileSuffixLabel));
         label.setText(R.string.filename_suffix);
 
-        mFileNameSuffixInput = (EditText) (field_container.findViewById(R.id.fieldInput));
+        mFileNameSuffixInput = (EditText) (v.findViewById(R.id.fileSuffix));
         mFileNameSuffixInput.setHint(R.string.suffix_hint);
         mFileNameSuffixInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -505,10 +504,10 @@ public class MainExportHistoryFragment extends Fragment {
     private void switchToExit(){
 
         if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
-            ((MainActivity) getActivity()).switchToHomeScreen();
+            ((MMMainActivity) getActivity()).switchToHomeScreen();
         } else {
             //pre-populate
-            ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
+            ((MMMainActivity) getActivity()).switchToHomeScreen(mPersonID);
         }
 
     }

@@ -14,7 +14,7 @@
     android:paddingTop=   "@dimen/activity_vertical_margin"
 
     android:background="@color/colorScreenBackground"
-    tools:context=     "com.androidchicken.medminder.MainActivityFragment"
+    tools:context=     "com.androidchicken.medminder.MMMainActivityFragment"
 
     >
 
@@ -131,22 +131,258 @@
         </TableRow>
 
         <!-- Row : Filter Start Date -->
-        <include android:id= "@+id/filterStartDate" layout = "@layout/element_edit_label_input"/>
+        <TableRow
+              android:layout_width=  "match_parent"
+              android:layout_height= "wrap_content"
+              android:layout_gravity="center_horizontal"
+              android:paddingTop=    "10dp"
+            >
+            <TextView
+                android:id=           "@+id/filterStartDateLabel"
+                android:labelFor=     "@+id/filterStartDate"
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity=      "end"
+
+                android:freezesText="true"
+
+                android:focusable="false"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorLabelBackground"
+                />
+            <EditText
+                android:id=           "@id/filterStartDate"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="75"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "text"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginEnd="16dp"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+        </TableRow>
 
         <!-- Row : Filter End Date -->
-        <include android:id= "@+id/filterEndDate"   layout = "@layout/element_edit_label_input"/>
+        <TableRow
+                  android:layout_width=  "match_parent"
+                  android:layout_height= "wrap_content"
+                  android:layout_gravity="center_horizontal"
+                  android:paddingTop=    "10dp"
+            >
+            <TextView
+                android:id=           "@+id/filterEndDateLabel"
+                android:labelFor=     "@+id/filterEndDate"
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity=      "end"
+
+                android:freezesText="true"
+
+                android:focusable="false"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorLabelBackground"
+                />
+            <EditText
+                android:id=           "@id/filterEndDate"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="75"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "text"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginEnd="16dp"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+        </TableRow>
 
         <!-- Row : Directory Path -->
-        <include android:id= "@+id/directoryPath"   layout = "@layout/element_edit_label_input"/>
+        <TableRow
+            android:layout_width=  "match_parent"
+            android:layout_height= "wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop=    "10dp"
+            >
+            <TextView
+                android:id=           "@+id/directoryPathLabel"
+                android:labelFor=     "@+id/directoryPath"
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity=      "end"
+
+                android:freezesText="true"
+
+                android:focusable="false"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorLabelBackground"
+                />
+            <EditText
+                android:id=           "@id/directoryPath"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="75"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "text"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginEnd="16dp"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+        </TableRow>
 
         <!-- Row : App Subdirectory -->
-        <include android:id= "@+id/subDirectory"    layout = "@layout/element_edit_label_input"/>
+        <TableRow
+            android:layout_width=  "match_parent"
+            android:layout_height= "wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop=    "10dp"
+            >
+            <TextView
+                android:id=           "@+id/subDirectoryLabel"
+                android:labelFor=     "@+id/subDirectory"
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity=      "end"
+
+                android:freezesText="true"
+
+                android:focusable="false"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorLabelBackground"
+                />
+            <EditText
+                android:id=           "@id/subDirectory"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="75"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "text"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginEnd="16dp"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+
+
+        </TableRow>
 
         <!-- Row : File Name -->
-        <include android:id= "@+id/fileName"        layout = "@layout/element_edit_label_input"/>
+        <TableRow
+            android:layout_width=  "match_parent"
+            android:layout_height= "wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop=    "10dp"
+            >
+            <TextView
+                android:id=           "@+id/fileNameLabel"
+                android:labelFor=     "@+id/fileName"
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity=      "end"
+
+                android:freezesText="true"
+
+                android:focusable="false"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorLabelBackground"
+                />
+            <EditText
+                android:id=           "@id/fileName"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="75"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "text"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginEnd="16dp"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+        </TableRow>
 
         <!-- Row : File Suffix -->
-        <include android:id= "@+id/fileSuffix"      layout = "@layout/element_edit_label_input"/>
+        <TableRow
+            android:layout_width=  "match_parent"
+            android:layout_height= "wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop=    "10dp"
+            >
+            <TextView
+                android:id=           "@+id/fileSuffixLabel"
+                android:labelFor=     "@+id/fileSuffix"
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity=      "end"
+
+                android:freezesText="true"
+
+                android:focusable="false"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorLabelBackground"
+                />
+            <EditText
+                android:id=           "@id/fileSuffix"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="75"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "text"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginEnd="16dp"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+        </TableRow>
 
     </TableLayout>
 

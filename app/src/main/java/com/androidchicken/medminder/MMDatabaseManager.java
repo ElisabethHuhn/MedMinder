@@ -564,6 +564,16 @@ public class MMDatabaseManager {
 
     }
 
+    //The return code indicates how many rows affected
+    public int removeDose(long doseID){
+
+        return mDatabaseHelper.remove(  mDatabase,
+                                        TABLE_DOSE,
+                                        getDosesIDWhereClause(doseID),
+                                        null);  //values that replace ? in where clause
+    }
+
+
 
     /************************************************/
     /*        Dose specific CRUD  utility         */
@@ -603,6 +613,17 @@ public class MMDatabaseManager {
                 null,    //get the whole object
                 getSchedMedWhereClause(medicationID),
                 null, null, null, null);
+
+        return cursor;
+
+    }
+
+    public Cursor getAllSchedMedsForPersonCursor(long personID){
+        Cursor cursor = mDatabaseHelper.getObject(  mDatabase,
+                                                    TABLE_SCHED_MED,
+                                                    null,    //get the whole object
+                                                    getSchedMedForPersonWhereClause(personID),
+                                                    null, null, null, null);
 
         return cursor;
 
@@ -663,7 +684,12 @@ public class MMDatabaseManager {
 
     private String getSchedMedWhereClause(long medicationID){
         return MMDataBaseSqlHelper.SCHED_MED_OF_MEDICATION_ID + " = '" +
-                                                                String.valueOf(medicationID) + "'";
+                String.valueOf(medicationID) + "'";
+    }
+
+    private String getSchedMedForPersonWhereClause(long personID){
+        return
+              MMDataBaseSqlHelper.SCHED_MED_FOR_PERSON_ID + " = '" + String.valueOf(personID) + "'";
     }
 
 

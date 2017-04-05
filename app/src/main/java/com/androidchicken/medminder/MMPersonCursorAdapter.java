@@ -100,7 +100,7 @@ public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAd
         if (person.isCurrentlyExists()){
             setBackColor(holder, R.color.colorWhite);
         } else {
-            setBackColor(holder, R.color.colorGray);
+            setBackColor(holder, R.color.colorScreenDeletedBackground);
         }
     }
 

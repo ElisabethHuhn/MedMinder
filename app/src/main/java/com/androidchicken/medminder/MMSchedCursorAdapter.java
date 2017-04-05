@@ -15,61 +15,95 @@ import android.widget.EditText;
  * the number of schedule times varies in real time, and is not known at compile time
  */
 
-public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCursorAdapter.MyViewHolder>{
+public class MMSchedCursorAdapter extends RecyclerView.Adapter<MMSchedCursorAdapter.MyViewHolder>{
     //The group to be listed is collected from a Cursor representing the DB rows
     private Cursor  mSchedMedCursor;
     private boolean mIs24Format;
-    private long    mPersonID;
+    private long    mMedicationID;
 
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        public EditText medicationIDOutput, medicationNickNameOutput, medicationForPerson;
-        public EditText medicationTimeHours, medicationTimeMinutes, medicationAmPm;
 
+        public EditText medicationTimeHours, medicationTimeMinutes, medicationAmPm;
 
         public MyViewHolder(View v) {
             super(v);
 
-            medicationTimeHours      = (EditText) v.findViewById(R.id.scheduleTimeHourOutput);
-            medicationTimeMinutes    = (EditText) v.findViewById(R.id.scheduleTimeMinutesOutput);
-            medicationAmPm           = (EditText) v.findViewById(R.id.scheduleTimeAmPmOutput);
-            medicationIDOutput       = (EditText) v.findViewById(R.id.scheduleMedIDOutput);
-            medicationNickNameOutput = (EditText) v.findViewById(R.id.scheduleMedNameOutput);
+            medicationTimeHours   = (EditText) v.findViewById(R.id.scheduleTimeHourOutput);
+            medicationTimeMinutes = (EditText) v.findViewById(R.id.scheduleTimeMinutesOutput);
+            medicationAmPm        = (EditText) v.findViewById(R.id.scheduleTimeAmPmOutput);
         }
 
     } //end inner class MyViewHolder
 
     //Constructor for MMSchedMedsAdapter
-    public MMSchedMedCursorAdapter(Cursor schedMedCursor, boolean is24Format, long personID){
+    public MMSchedCursorAdapter(Cursor schedMedCursor, boolean is24Format, long medicationID){
 
         this.mSchedMedCursor = schedMedCursor;
         this.mIs24Format     = is24Format;
-        this.mPersonID       = personID;
+        this.mMedicationID   = medicationID;
     }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
 
         View itemView = LayoutInflater.from(parent.getContext())
-                                      .inflate(R.layout.list_row_schedule_med, parent,false);
+                                      .inflate(R.layout.list_row_schedule, parent,false);
         return new MyViewHolder(itemView);
 
     }
 
+    //This isn't going to work with a cursor, its going to have to be removed from the DB
+
+    public void removeItem(int position) {
+        if (mSchedMedCursor == null)return;
+
+        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+
+        //get the row indicated which is the person to be removed
+        MMScheduleMedication schedMed =
+                schedMedManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
+        if (schedMed == null)return;
+
+        //remove the person from the DB
+        long schedMedID = schedMed.getSchedMedID();
+        schedMedManager.removeSchedMedFromDB(schedMedID);
+        //update the cursor for the adapter
+        reinitializeCursor(schedMed.getOfMedicationID());
+     }
+
+    public void removeAllItems(){
+        //removes all items in the cursor
+        if (mSchedMedCursor == null)return;
+
+        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+
+        int last = mSchedMedCursor.getCount();
+        int position = 0;
+        long scheduleID;
+        while (position < last){
+            //get the schedule ID from the cursor row
+            scheduleID = schedMedManager.getScheduleIDFromCursor(mSchedMedCursor, position);
+            if (scheduleID != MMUtilities.ID_DOES_NOT_EXIST) {
+                //remove the schedule from the DB
+                schedMedManager.removeSchedMedFromDB(scheduleID);
+            }
+            position++;
+        }
+
+        //update the cursor for the adapter
+        reinitializeCursor(mMedicationID);
+
+    }
 
 
-    public Cursor reinitializeCursor(long personID){
+    public Cursor reinitializeCursor(long medicationID){
         closeCursor();
 
         MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
 
         //Create a new Cursor with the current contents of DB
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
-            //get all schedules for all meds for all people
-            mSchedMedCursor = schedMedManager.getAllSchedMedsCursor();
-        } else {
-            mSchedMedCursor = schedMedManager.getAllSchedMedsForPersonCursor(personID);
-        }
+        mSchedMedCursor = schedMedManager.getAllSchedMedsCursor(medicationID);
 
         //Tell the adapter to update the User Display
         notifyDataSetChanged();
@@ -87,13 +121,11 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
 
         if (mSchedMedCursor == null ) {
 
-            mSchedMedCursor = schedMedManager.getAllSchedMedsForPersonCursor(mPersonID);
+            mSchedMedCursor = schedMedManager.getAllSchedMedsCursor(mMedicationID);
             if (mSchedMedCursor == null) {
                 holder.medicationTimeHours.setText("0");
                 holder.medicationTimeMinutes.setText("0");
                 holder.medicationAmPm.setText(R.string.medication_dose_am);
-                holder.medicationIDOutput.setText("0");
-                holder.medicationNickNameOutput.setText("");
                 return;
             }
         }
@@ -122,19 +154,6 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
 
         holder.medicationTimeHours  .setText(String.valueOf(hours));
         holder.medicationTimeMinutes.setText(String.valueOf(minutes));
-        long medicationID = schedMed.getOfMedicationID();
-        holder.medicationIDOutput   .setText(String.valueOf(medicationID));
-
-        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-        MMMedication medication = medicationManager.getMedicationFromID(medicationID);
-        CharSequence msg;
-        if (medication == null){
-            msg = "DOESN'T EXIST";
-        } else {
-            msg = medication.getMedicationNickname();
-        }
-        holder.medicationNickNameOutput.setText(msg);
-
     }
 
     @Override

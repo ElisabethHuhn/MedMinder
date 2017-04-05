@@ -20,54 +20,13 @@
 
     <!-- The times the medication is actually due will be added programmatically -->
 
-
-    <!--  Medication ID -->
-    <EditText
-        android:id="@+id/scheduleMedIDOutput"
-        android:text="@string/medication_dose_minutes"
-
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_weight="4"
-
-        android:focusable="false"
-
-        android:layout_marginEnd="@dimen/listrow_field_separator"
-
-        android:gravity="center_horizontal"
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorWhite"
-        />
-
-    <!-- Medication Name -->
-    <EditText
-        android:id="@+id/scheduleMedNameOutput"
-        android:text="@string/medication_dose_am"
-
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_weight="10"
-
-        android:focusable="false"
-
-
-        android:layout_marginEnd="@dimen/listrow_field_separator"
-
-        android:gravity="center_horizontal"
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorWhite"
-        />
-
     <!-- Hours Time to take Medication -->
     <EditText
         android:id="@+id/scheduleTimeHourOutput"
         android:text="@string/medication_dose_hours"
         android:layout_height="wrap_content"
         android:layout_width="0dp"
-        android:layout_weight="4"
-
-        android:focusable="false"
-
+        android:layout_weight="5"
 
         android:layout_marginEnd="@dimen/listrow_field_separator"
 
@@ -83,10 +42,7 @@
 
         android:layout_height="wrap_content"
         android:layout_width="0dp"
-        android:layout_weight="4"
-
-        android:focusable="false"
-
+        android:layout_weight="5"
 
         android:layout_marginEnd="@dimen/listrow_field_separator"
 
@@ -94,6 +50,7 @@
         android:textColor="@color/colorTextBlack"
         android:background="@color/colorWhite"
         />
+
 
     <!-- AM / PM -->
     <EditText
@@ -103,9 +60,6 @@
         android:layout_height="wrap_content"
         android:layout_width="0dp"
         android:layout_weight="3"
-
-        android:focusable="false"
-
 
         android:layout_marginEnd="@dimen/listrow_field_separator"
 

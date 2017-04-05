@@ -77,7 +77,6 @@ public class MMPersonListFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         //Initialize the DB if necessary
-
         try {
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance(getActivity());
         }catch (Exception e) {
@@ -92,7 +91,7 @@ public class MMPersonListFragment extends Fragment {
 
         } else {
             //Do not really know what to do here. Go to the Home fragment, but its arbitrary
-            mReturnFragmentTag = MainActivity.sHomeTag;
+            mReturnFragmentTag = MMMainActivity.sHomeTag;
             mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
 
         }
@@ -119,7 +118,7 @@ public class MMPersonListFragment extends Fragment {
         MMUtilities.hideSoftKeyboard(getActivity());
 
         //set the title bar subtitle
-        ((MainActivity) getActivity()).setMMSubtitle(R.string.title_person_list);
+        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person_list);
 
 
         //9) return the view
@@ -138,29 +137,13 @@ public class MMPersonListFragment extends Fragment {
             }
         });
 
-
-
-        //Add Persons Button
-        Button addPersonButton = (Button) v.findViewById(R.id.addPersonsButton);
-        addPersonButton.setText(R.string.patient_add_persons_label);
-        addPersonButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.patient_add_persons_label,
-                        Toast.LENGTH_SHORT).show();
-                //switch to person screen
-                // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToPersonScreen();
-            }
-        });
     }
 
     private void wireListTitleWidgets(View v){
         View field_container;
         TextView label;
 
-        MainActivity myActivity = (MainActivity)getActivity();
+        MMMainActivity myActivity = (MMMainActivity)getActivity();
 
         //set up the labels for the medication list
         field_container = v.findViewById(R.id.personTitleRow);
@@ -264,8 +247,13 @@ public class MMPersonListFragment extends Fragment {
 
         //switch to person screen
         // But the switching happens on the container Activity
-        ((MainActivity) getActivity()).switchToPersonListReturn(mReturnFragmentTag, mPersonID);
+        ((MMMainActivity) getActivity()).switchToPersonListReturn(mReturnFragmentTag, mPersonID);
     }
+
+    public long getPersonID(){
+        return mPersonID;
+    }
+
 
     private RecyclerView getRecyclerView(View v){
         return (RecyclerView) v.findViewById(R.id.personList);
@@ -298,7 +286,7 @@ public class MMPersonListFragment extends Fragment {
                 Toast.LENGTH_SHORT).show();
 
         //switch to the dose taken for the selected patient
-        ((MainActivity) getActivity()).switchToPersonListReturn(mReturnFragmentTag,
+        ((MMMainActivity) getActivity()).switchToPersonListReturn(mReturnFragmentTag,
                                                                 selectedPerson.getPersonID());
     }
 }

@@ -21,7 +21,7 @@ public class MMConcurrentDose {
 
     private long              mConcurrentDoseID;
     private long              mForPerson;
-    private long              mStartTime;
+    private long              mStartTime; //Time of dose in milliseconds since 1970
     private ArrayList<MMDose> mDoses;
 
 

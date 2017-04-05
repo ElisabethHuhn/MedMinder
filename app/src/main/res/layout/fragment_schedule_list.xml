@@ -2,7 +2,7 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools=  "http://schemas.android.com/tools"
-    tools:context="com.androidchicken.medminder.MainActivityFragment"
+    tools:context="com.androidchicken.medminder.MMMainActivityFragment"
 
     android:layout_width= "match_parent"
     android:layout_height="match_parent"
@@ -43,8 +43,71 @@
             android:background="@color/colorScreenBackground"
             />
 
-        <!-- Exit Button -->
-        <Button
+        <!-- Row 4: Person ID and Nickname -->
+        <LinearLayout
+            android:layout_width=  "match_parent"
+            android:layout_height= "wrap_content"
+            android:orientation   ="horizontal"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop=    "10dp"
+            >
+            <TextView
+                android:id=           "@+id/personIDLabel"
+                android:labelFor=     "@+id/personNickNameInput"
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity=      "end"
+
+                android:freezesText="true"
+
+                android:focusable="false"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorLabelBackground"
+                />
+            <EditText
+                android:id=           "@+id/personIdInput"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "text"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginEnd="4dp"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+
+            <EditText
+                android:id=           "@id/personNickNameInput"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="50"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "text"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="16dp"
+
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+
+
+            <!-- Exit Button -->
+            <Button
                 style="?android:attr/buttonBarButtonStyle"
                 android:id=  "@+id/exitButton"
                 android:text="@string/exit_label"
@@ -58,22 +121,26 @@
 
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
 
                 android:background="@color/colorButton1Background"
                 android:textColor="@color/colorTextBlack"
                 />
 
+        </LinearLayout>
+
+
         <!-- Headers and Scrolling list of schedule -->
         <HorizontalScrollView
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            >
+            android:layout_width="match_parent"
+            android:fillViewport= "true"
+            android:layout_gravity="center_horizontal"
+             >
 
             <!-- Headers and Scrolling list of schedule -->
             <LinearLayout
                 android:layout_width= "wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:fillViewport= "true"
                 >
@@ -84,8 +151,8 @@
                 <!-- RecyclerView List of Persons -->
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/scheduleList"
-                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
                     >
                 </android.support.v7.widget.RecyclerView>
 

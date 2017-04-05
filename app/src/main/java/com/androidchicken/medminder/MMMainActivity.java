@@ -10,7 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-public class MainActivity extends AppCompatActivity {
+public class MMMainActivity extends AppCompatActivity {
 
     public  static final String sHomeTag        = "HOME";//HOME screen fragment
     private static final String sPersonTag      = "PERSON";
@@ -31,8 +31,47 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+                Fragment fragment = fm.findFragmentById(R.id.fragment_container);
+
+                if (fragment instanceof MMHomeFragment) {
+                    //Add a new person
+                    MMUtilities.showHint(view, getString(R.string.add_person));
+                    switchToPersonScreen();
+
+                } else if (fragment instanceof MMPersonListFragment) {
+                    //Add a new person
+                    MMUtilities.showHint(view, getString(R.string.add_person));
+                    switchToPersonScreen();
+
+                } else if (fragment instanceof MMPersonFragment) {
+                    //Add a new medication
+                    long personID = ((MMPersonFragment) fragment).getPersonID();
+                    MMPerson person = MMUtilities.getPerson(personID);
+
+                    String msg =
+                            String.format(getString(R.string.add_medication), person.getNickname());
+                    MMUtilities.showHint(view, msg);
+
+                    switchToMedicationScreen(personID);
+
+                } else if (fragment instanceof MMMedicationFragment) {
+                    //Add a new schedule
+                    MMMedication medication =
+                            ((MMMedicationFragment) fragment).getMedicationInstance();
+                    if (medication != null) {
+                        String msg = String.format(getString(R.string.add_schedule),
+                                                   medication.getMedicationNickname());
+                        MMUtilities.showHint(view, msg);
+                        ((MMMedicationFragment) fragment).handleUpButton();
+                    }
+                } else {
+                    //do nothing
+                    Snackbar.make(view, getString(R.string.add_noting), Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+
+                }
 
             }
         });
@@ -95,6 +134,11 @@ public class MainActivity extends AppCompatActivity {
     /******************** Routines to switch fragments *************/
     /***************************************************************/
 
+    private Fragment getCurrentFragment(){
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+        return fm.findFragmentById(R.id.fragment_container);
+    }
+
     /****** Routine to actually switch the screens *******/
     private void switchScreen(Fragment fragment, String tag) {
         //Need the Fragment Manager to do the swap for us
@@ -105,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (oldFragment == null) {
             //It shouldn't ever be the case that we got this far with no fragments on the screen,
-            // but code defensively
+            // but code defensively. Who knows how the app will evolve
             fm.beginTransaction()
                     .add(R.id.fragment_container, fragment, tag)
                     .commit();
@@ -340,16 +384,43 @@ public class MainActivity extends AppCompatActivity {
         setMMSubtitle(title);
     }
 
+    /****
+     * Method to switch fragment to Schedule List screen
+     * EMH 2/4/17
+     */
     public void switchToScheduleListScreen(){
-        //replace the fragment with the list of persons already defined
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
 
-        Fragment fragment    = new MMScheduleListFragment();
+        long personID = MMUtilities.ID_DOES_NOT_EXIST;;
+
+        //get the specific person ID if we can
+        if (fragment instanceof MMHomeFragment) {
+            personID = ((MMHomeFragment)fragment).getPersonID();
+        } else if (fragment instanceof MMPersonListFragment) {
+            personID = ((MMPersonListFragment)fragment).getPersonID();
+        } else if (fragment instanceof MMPersonFragment) {
+            personID = ((MMPersonFragment) fragment).getPersonID();
+        } else if (fragment instanceof MMMedicationFragment) {
+            personID = ((MMMedicationFragment) fragment).getPersonID();
+        }
+        //if the personID is still non-existant, all schedules for all meds for all people
+        switchToScheduleListScreen(personID);
+    }
+
+    public void switchToScheduleListScreen(long personID){
+        //Need the Fragment Manager to do the swap for us
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+
+
+        Fragment fragment    = MMScheduleListFragment.newInstance(personID);
         String   tag         = sScheduleListTag;
         int      title       = R.string.title_schedule_list;
 
         switchScreen(fragment, tag);
         setMMSubtitle(title);
     }
+
 
     /****
      * Method to switch fragment to Export screen

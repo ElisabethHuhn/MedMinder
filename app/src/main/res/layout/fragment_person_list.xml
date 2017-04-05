@@ -2,7 +2,7 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools=  "http://schemas.android.com/tools"
-    tools:context="com.androidchicken.medminder.MainActivityFragment"
+    tools:context="com.androidchicken.medminder.MMMainActivityFragment"
 
     android:layout_width= "match_parent"
     android:layout_height="match_parent"
@@ -69,25 +69,6 @@
                     android:layout_weight="1"
 
                     android:paddingStart="8dp"
-                    android:paddingEnd="4dp"
-
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-
-                    android:background="@color/colorButton1Background"
-                    android:textColor="@color/colorTextBlack"
-                    />
-
-                <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:id=  "@+id/addPersonsButton"
-                    android:text="@string/patient_add_persons_label"
-
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-
-                    android:paddingStart="4dp"
                     android:paddingEnd="8dp"
 
                     android:layout_marginStart="8dp"
@@ -97,6 +78,7 @@
                     android:textColor="@color/colorTextBlack"
                     />
 
+
             </LinearLayout>
 
 
@@ -104,7 +86,7 @@
 
         <!-- Scrolling list of persons -->
         <HorizontalScrollView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fillViewport= "true"
             >

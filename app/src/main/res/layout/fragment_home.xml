@@ -14,12 +14,12 @@
     android:paddingTop=   "@dimen/activity_vertical_margin"
 
     android:background="@color/colorScreenBackground"
-    tools:context=     "com.androidchicken.medminder.MainActivityFragment"
+    tools:context=     "com.androidchicken.medminder.MMMainActivityFragment"
 
     >
     <LinearLayout
         android:layout_height= "wrap_content"
-        android:layout_width=  "wrap_content"
+        android:layout_width=  "match_parent"
         android:orientation="vertical"
         >
         <!-- Row 1: Patient Name -->
@@ -124,7 +124,7 @@
                 android:layout_weight="10"
 
                 android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
+                android:layout_marginEnd="8dp"
 
                 android:enabled="false"
                 android:background="@color/colorButton1Background"
@@ -167,29 +167,32 @@
 
             </LinearLayout>
 
+        <!-- Rows: DDose Taken History -->
         <HorizontalScrollView
-        android:layout_width= "match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport= "true"
-        >
-
-        <!-- Row 4: DDose Taken History -->
-        <LinearLayout
-
             android:layout_height="wrap_content"
-            android:layout_width= "wrap_content"
+            android:layout_width= "match_parent"
+            android:fillViewport= "true"
             android:layout_gravity="center_horizontal"
             android:paddingTop=    "10dp"
             >
-            <!-- RecyclerView of History -->
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/doseHistoryList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
-            </android.support.v7.widget.RecyclerView>
 
-        </LinearLayout>
+            <!-- Row 4: DDose Taken History -->
+            <LinearLayout
+               android:layout_height="wrap_content"
+               android:layout_width= "match_parent"
+               android:orientation="vertical"
+                >
+                <!-- Title Row: Goes here with the same include file as the RecyclerView -->
+
+                <!-- RecyclerView of History -->
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/doseHistoryList"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                     >
+                </android.support.v7.widget.RecyclerView>
+
+            </LinearLayout>
 
         </HorizontalScrollView>
 

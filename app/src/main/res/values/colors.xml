@@ -16,7 +16,10 @@
     <color name="colorLessBlue"        >#6497b1</color>
     <color name="colorLeastBlue"       >#b3cde0</color>
 
+    <color name="colorLightPink"       >#ffb6c1</color>
+
     <color name="colorScreenBackground" >#b1d1f1</color>
+    <color name="colorScreenDeletedBackground" >#dcdcdc</color>
     <color name="colorLabelBackground"  >#b3cde0</color>
     <color name="colorInputBackground"  >#ffffff</color>
     <color name="colorButton1Background">#6ca8e5</color>

@@ -52,14 +52,15 @@ public class MMHomeFragment extends Fragment {
 
     ArrayList<Button>   mMedButtons = new ArrayList<>();
     ArrayList<EditText> mMedEdits   = new ArrayList<>();
-    
+
 
 
     /***********************************************/
     /*          Member Variables                   */
     /***********************************************/
-    private long  mPersonID;
+    private long    mPersonID;
     private boolean isUIChanged = false;
+    private int     mSelectPosition = 0;
 
 
     /***********************************************/
@@ -177,7 +178,7 @@ public class MMHomeFragment extends Fragment {
         super.onResume();
 
         //set the title bar subtitle
-        ((MainActivity) getActivity()).setMMSubtitle(R.string.title_home);
+        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_home);
     }
 
     /***********************************************/
@@ -206,10 +207,10 @@ public class MMHomeFragment extends Fragment {
                 //switch to person screen
                 // But the switching happens on the container Activity
                 if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
-                    ((MainActivity) getActivity()).switchToPersonScreen();
+                    ((MMMainActivity) getActivity()).switchToPersonScreen();
                 } else {
                     //pre-populate
-                    ((MainActivity) getActivity()).switchToPersonScreen(mPersonID);
+                    ((MMMainActivity) getActivity()).switchToPersonScreen(mPersonID);
                 }
 
             }
@@ -229,8 +230,8 @@ public class MMHomeFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
                 //switch to person screen
                 // But it has to know where to come back to
-                ((MainActivity)getActivity()).
-                        switchToPersonListScreen(MainActivity.sHomeTag, mPersonID);
+                ((MMMainActivity)getActivity()).
+                        switchToPersonListScreen(MMMainActivity.sHomeTag, mPersonID);
             }
         });
 
@@ -248,7 +249,7 @@ public class MMHomeFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
 
                 onSave();
-                ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);
+                ((MMMainActivity) getActivity()).switchToHomeScreen(mPersonID);
 
             }
         });
@@ -331,7 +332,6 @@ public class MMHomeFragment extends Fragment {
             MMPerson person = MMUtilities.getPerson(mPersonID);
             if (person != null) {
                 numbMeds = person.getMedications().size();
-
             }
         }
         MMConcurrentDoseCursorAdapter adapter =
@@ -368,6 +368,8 @@ public class MMHomeFragment extends Fragment {
                 }
             }));
 
+
+
     }
 
     private void   initializeUI(View v){
@@ -379,11 +381,26 @@ public class MMHomeFragment extends Fragment {
             if (person != null) {
                 TextView patientNickName = (TextView) v.findViewById(R.id.patientNickNameLabel);
                 patientNickName.setText(person.getNickname().toString().trim());
+
+                if (person.isCurrentlyExists()){
+                    v.setBackgroundColor(ContextCompat.
+                            getColor(getActivity(), R.color.colorScreenBackground));
+                } else {
+                    v.setBackgroundColor(ContextCompat.
+                            getColor(getActivity(), R.color.colorScreenDeletedBackground));
+                }
             }
+        } else {
+            v.setBackgroundColor(ContextCompat.
+                    getColor(getActivity(), R.color.colorScreenDeletedBackground));
         }
         setUISaved(v);
     }
 
+
+    public long getPersonID(){
+        return mPersonID;
+    }
 
     /***********************************************/
     /*   Initialization of Views                   */
@@ -569,55 +586,60 @@ public class MMHomeFragment extends Fragment {
         //position within medications for this person
         //corresponds to the position of medButton for this medication
         int positionMed = 0;
+        int positionButton = 0;
         Button medButton;
 
         //If the dose is overdue, blink the button
         while (positionMed < lastMed){
             //Get the most recent dose taken for this medication
             MMMedication medication = medications.get(positionMed);
-            MMDose dose = getMostRecentDose(v, medication);
+            if (medication.isCurrentlyTaken()) {
+                //There are only medButtons for medications that are currently taken
+                MMDose dose = getMostRecentDose(v, medication);
 
-            long lastTakenMinutes;
-            boolean firstDoseOfDay = true;
+                long lastTakenMinutes;
+                boolean firstDoseOfDay = true;
 
-            //If there are no doses yet taken, it is due
-            if (dose == null){
-                lastTakenMinutes = 0;  //minutes since midnight
-            } else {
-                //The timeTaken is the number of MINUTES since midnight
-                long timeTaken = dose.getTimeTaken();
+                //If there are no doses yet taken, it is due
+                if (dose == null) {
+                    lastTakenMinutes = 0;  //minutes since midnight
+                } else {
+                    //The timeTaken is the number of MINUTES since midnight
+                    long timeTaken = dose.getTimeTaken();
 
-                //takes into account whether it's was taken today
-                //zero if the first dose of the day has not yet been taken
-                lastTakenMinutes = getLastTakenMinutes(timeTaken);
-            }
-            //so we have the time the dose was taken. When is/was the next dose due?
-
-            //The schedule of the medication gives us
-            // how many minutes since midnight that the dose is due
-
-            MMScheduleMedication schedule;
-            ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
-            int scheduleTimeDue;
-            int lastSched = schedules.size();
-            int positionSched = 0;
-            while (positionSched < lastSched){
-                schedule = schedules.get(positionSched);
-                scheduleTimeDue = schedule.getTimeDue();
-
-                //if schedule time is greater than the time the last dose was taken
-                if (scheduleTimeDue > lastTakenMinutes) {
-                    //So this scheduled dose has not yet been taken
-                    if (scheduleTimeDue <= currentTimeMinutesSinceMidnight) {
-                        //it is time to take the dose, blink the proper button
-                        medButton = mMedButtons.get(positionMed);
-                        animateButton(medButton);
-                        //no need to loop through the rest of the schedules
-                        positionSched = lastSched;
-                    }
+                    //takes into account whether it's was taken today
+                    //zero if the first dose of the day has not yet been taken
+                    lastTakenMinutes = getLastTakenMinutes(timeTaken);
                 }
-                positionSched++;
-            }//end while schedule loop
+                //so we have the time the dose was taken. When is/was the next dose due?
+
+                //The schedule of the medication gives us
+                // how many minutes since midnight that the dose is due
+
+                MMScheduleMedication schedule;
+                ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
+                int scheduleTimeDue;
+                int lastSched = schedules.size();
+                int positionSched = 0;
+                while (positionSched < lastSched) {
+                    schedule = schedules.get(positionSched);
+                    scheduleTimeDue = schedule.getTimeDue();
+
+                    //if schedule time is greater than the time the last dose was taken
+                    if (scheduleTimeDue > lastTakenMinutes) {
+                        //So this scheduled dose has not yet been taken
+                        if (scheduleTimeDue <= currentTimeMinutesSinceMidnight) {
+                            //it is time to take the dose, blink the proper button
+                            medButton = mMedButtons.get(positionButton);
+                            animateButton(medButton);
+                            //no need to loop through the rest of the schedules
+                            positionSched = lastSched;
+                        }
+                    }
+                    positionSched++;
+                }//end while schedule loop
+                positionButton++;
+            }
 
             positionMed++;
         }//end while medication loop
@@ -692,7 +714,7 @@ public class MMHomeFragment extends Fragment {
 
 
 
-  /***********************************************/
+    /***********************************************/
     /*   Get object instances                      */
     /***********************************************/
     private MMDose getMostRecentDose(View v, MMMedication medication){
@@ -846,24 +868,30 @@ public class MMHomeFragment extends Fragment {
         ArrayList<MMMedication> medications = person.getMedications();
 
         int last = medications.size();
-        int position = 0;
+        MMMedication medication;
+        int positionMed = 0;
+        int positionButton = 0; //only have buttons for active meds
         int amtTaken;
         String amtTakenString;
-        while (position < last) {
-            amtTakenString = mMedEdits.get(position).getText().toString().trim();
-            if (!amtTakenString.isEmpty()) {
-                amtTaken = Integer.valueOf(amtTakenString);
-                if (amtTaken > 0) {
-                    MMDose dose = new MMDose(medications.get(position).getMedicationID(),
-                            mPersonID,
-                            concurrentDoses.getConcurrentDoseID(),
-                            position,
-                            milliSeconds,
-                            amtTaken);
-                    doses.add(dose);
+        while (positionMed < last) {
+            medication = medications.get(positionMed);
+            if (medication.isCurrentlyTaken()) {
+                amtTakenString = mMedEdits.get(positionButton).getText().toString().trim();
+                if (!amtTakenString.isEmpty()) {
+                    amtTaken = Integer.valueOf(amtTakenString);
+                    if (amtTaken > 0) {
+                        MMDose dose = new MMDose(medications.get(positionMed).getMedicationID(),
+                                mPersonID,
+                                concurrentDoses.getConcurrentDoseID(),
+                                positionMed,
+                                milliSeconds,
+                                amtTaken);
+                        doses.add(dose);
+                    }
                 }
+                positionButton++;
             }
-            position++;
+            positionMed++;
         }
 
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
@@ -872,7 +900,6 @@ public class MMHomeFragment extends Fragment {
         reinitializeCursor(mPersonID);
         setUISaved();
         return cDoseID;
-
     }
 
     private void onExit(){
@@ -898,27 +925,232 @@ public class MMHomeFragment extends Fragment {
     private void onSelect(int position){
         //todo need to update selection visually
 
-        MMConcurrentDoseCursorAdapter adapter = getAdapter(getView());
-        MMConcurrentDose selectedConcurrentDose = adapter.getConcurrentDoseAt(position);
+        mSelectPosition = position;
 
-        // TODO: 3/22/2017 Need to decide how to use the selected concurrent dose
-        //create a dialogue to allow the user to:
-        // 1) change the Doses on this Concurrent Dose:
-        // OR
-        // 2) delete the line
+        //allow user to change the dose amount and date, then save the changes
+        onSelectDoseDialog();
+    }
 
-        //Date
-        //Time
-        //For each Medication on the Person: a dose amount
 
-        //Save the Concurrent Dose on the Callback from the Dialogue
 
+    /**********************************************/
+    /*****  Select ConcurrentDose Dialogue    *****/
+    /**********************************************/
+    //Build and display the alert dialog
+    private void onSelectDoseDialog(){
+        //Get the concurrentDose to be updated
+        MMConcurrentDoseCursorAdapter adapter   = getAdapter(getView());
+        MMConcurrentDose selectedConcurrentDose = adapter.getConcurrentDoseAt(mSelectPosition);
+        //Get the Dose Amounts already recorded for this concurrentDose
+        ArrayList<MMDose> doses = selectedConcurrentDose.getDoses();
+        MMDose dose;
+        int    amount;
+
+
+                //Build the layout and it's contained views
+        // that define the ConcurrentDose and its contained Doses
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View v = inflater.inflate(R.layout.list_row_dose_history, null);
+        LinearLayout layout = (LinearLayout) v.findViewById(R.id.doseHistoryLine);
+
+        TextView doseDate = (TextView) v.findViewById(R.id.doseDateLabel);
+        doseDate.setEnabled  (false);
+        doseDate.setFocusable(false);
+        doseDate.setText(MMUtilities.getDateString(selectedConcurrentDose.getStartTime()));
+
+        EditText doseTime = (EditText) v.findViewById(R.id.doseTimeInput);
+        doseTime.setEnabled  (false);
+        doseTime.setFocusable(false);
+        doseTime.setText(MMUtilities.getTimeString(selectedConcurrentDose.getStartTime()));
+
+
+        //Get the medications this patient is taking
+        int last     = 0;
+        int medicationPosition = 0;
+        ArrayList<MMMedication> medications;
+        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
+            MMPerson person = MMUtilities.getPerson(mPersonID);
+            if (person != null) {
+                medications = person.getMedications();
+                last = medications.size();
+            }
+        }
+
+        //Build EditText views that will allow the user to input dose amounts
+        //ArrayList<EditText> doseEditTexts = new ArrayList<>();
+        EditText edtView;
+        int sizeInDp = 2;
+        int padding = MMUtilities.convertPixelsToDp(getActivity(), sizeInDp);
+
+        //Create an EditText for each medication this patient takes
+        //Each EditText corresponds positionally to the Medication the Patient takes
+        //Position correspondence between doseEditTexts and medications on the Person instance
+        int dosePosition = 0;
+        while (medicationPosition < last){
+            //get the amount that is already recorded for this medication
+            if (dosePosition < doses.size()) {
+                dose = doses.get(dosePosition);
+                if (dose.getPositionWithinConcDose() == medicationPosition) {
+                    amount = dose.getAmountTaken();
+                    dosePosition++;
+                } else {
+                    amount = 0;
+                }
+            } else {
+                dose = null;
+                amount = 0;
+            }
+
+            //actually create the EditText view in the utility
+            edtView = MMUtilities.createDoseEditText(getActivity(), padding);
+
+            //show the amount of this dose
+            edtView.setText(String.valueOf(amount));
+
+            //save the EditTexts for later
+            //doseEditTexts.add(edtView);
+            //Add the EditText view to the layout
+            layout.addView(edtView);
+            medicationPosition++;
+        }
+
+
+        //Create the AlertDialog to display the current doses to the user
+        //and allow the user to update the amounts
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder .setView(v)
+                .setTitle(R.string.fix_dose_amounts)
+                .setIcon(R.drawable.ground_station_icon)
+                .setMessage(R.string.correct_amounts)
+                .setPositiveButton(R.string.save_label,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //which is a constant on DialogInterface
+                                //      = BUTTON_POSITIVE or
+                                //      = BUTTON_NEGATIVE or
+                                //      = BUTTON_NEUTRAL
+                                //Save these values
+                                onSaveSelected(dialog, which);
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                        Toast.makeText(getActivity(),
+                                "Pressed Cancel",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .show();
+    }
+
+    private void onSaveSelected(DialogInterface dialog, int which){
+        //This routine called from the POSITIVE button of the dialog that
+        // invites the user to update the Dose Amounts
+        //dialog is the AlertDialog built in onSelectDoseDialog()
+        //which is a constant on DialogInterface
+        //      = BUTTON_POSITIVE or
+        //      = BUTTON_NEGATIVE or
+        //      = BUTTON_NEUTRAL
         Toast.makeText(getActivity(),
-                "Position " + String.valueOf(position) + " is selected!",
+                R.string.save_concurrent_dose,
                 Toast.LENGTH_SHORT).show();
 
+        //Get the ConcurrentDose to be updated with the values from the Dialog
+        MMConcurrentDoseCursorAdapter adapter   = getAdapter(getView());
+        MMConcurrentDose selectedConcurrentDose = adapter.getConcurrentDoseAt(mSelectPosition);
+        ArrayList<MMDose> doses = selectedConcurrentDose.getDoses();
+        if (doses == null){
+            //This is an impossible error here, as the user selected a concurrent dose
+        }
+        int lastDose = doses.size();
 
+
+        //Get the pointers to the views in the Dialog
+        LinearLayout layout =
+                (LinearLayout) ((AlertDialog) dialog).findViewById(R.id.doseHistoryLine);
+
+        //can not change concurrentDoseID or personID
+        TextView doseDate = (TextView) layout.findViewById(R.id.doseDateLabel);
+        EditText doseTime = (EditText) layout.findViewById(R.id.doseTimeInput);
+
+        //For now, do not allow update of time. It's just too hard to convert
+        // TODO: 4/3/2017 allow user to update time dose taken
+
+
+        //set up the parameters for the While loop
+        //  where the amounts will be updated
+        int lastMedication     = 0;
+        //child 0 is the doseDate and child 1 is the doseTime
+        //Medication doses are children 2 through last
+        int dosePosition = 0;
+        int medicationPosition = 0;
+        ArrayList<MMMedication> medications = null;
+        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
+            MMPerson person = MMUtilities.getPerson(mPersonID);
+            if (person != null) {
+                medications    = person.getMedications();
+                lastMedication = medications.size();
+            } else {
+                medications    = new ArrayList<MMMedication>();
+                lastMedication = 0;
+            }
+        }
+
+        //get the amounts from the dialog EditText views, and
+        // store them in the Doses in the ConcurrentDose instance
+        EditText medicationDoseInput;
+        MMDose   dose;
+        int      amt;
+        String   amtString;
+        MMDoseManager doseManager = MMDoseManager.getInstance();
+
+        //Delete the old Dose Instances from the DB
+        lastDose     = doses.size();
+        dosePosition = 0;
+        while (dosePosition < lastDose){
+            dose = doses.get(dosePosition);
+            doseManager.removeDose(dose.getDoseID());
+
+            dosePosition++;
+        }
+
+        doses = new ArrayList<>();
+        selectedConcurrentDose.setDoses(doses);
+
+
+        //If the initial amount was zero, there was no dose instance in the CD
+        //So we have to check if any holes existed in the original data structure
+        while (medicationPosition < lastMedication) {
+            //Get the EditText view from the AlertDialog
+            //Note the offBy2 is caused by the 2 EditText views that are not medications: Date and Time
+            medicationDoseInput = (EditText) layout.getChildAt(medicationPosition+2);
+            amtString = medicationDoseInput.getText().toString().trim();
+
+            if (!amtString.isEmpty()){
+                amt = Integer.valueOf(amtString);
+                if (amt > 0) {
+                    dose = new MMDose(medications.get(medicationPosition).getMedicationID(),
+                            mPersonID,
+                            selectedConcurrentDose.getConcurrentDoseID(),
+                            medicationPosition,
+                            // TODO: 4/3/2017 need to get the real dose time perhaps
+                            selectedConcurrentDose.getStartTime(),
+                            amt);
+                    doses.add(dose);
+                    //save/update the dose in the DB
+                    doseManager.add(dose);
+                }
+            }
+
+            dosePosition++;
+            medicationPosition++;
+        }
+        //reinitialize the cursor
+        adapter.reinitializeCursor();
     }
+
+
 
     /************************************/
     /*****  Delete Button Dialogue    *****/
@@ -956,8 +1188,6 @@ public class MMHomeFragment extends Fragment {
                 Toast.LENGTH_SHORT).show();
 
     }
-
-
 
     //Add some code to improve the recycler view
     //Here is the interface for event handlers for Click and LongClick

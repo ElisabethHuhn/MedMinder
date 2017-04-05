@@ -29,12 +29,6 @@ import android.widget.Toast;
  */
 public class MMPersonFragment extends Fragment {
 
-    //Screen Widgets
-
-    private EditText mPersonIDOutput;
-    private EditText mPersonNickNameInput;
-    private EditText mPersonEmailAddrInput;
-    private EditText mPersonTextAddrInput;
 
 
     private long     mPersonID;
@@ -49,8 +43,6 @@ public class MMPersonFragment extends Fragment {
         //create a bundle to hold the arguments
         Bundle args = new Bundle();
 
-        //It will be some work to make all of the data model serializable
-        //so for now, just pass the person values
         args.putLong         (MMPerson.sPersonIDTag,personID);
 
         MMPersonFragment fragment = new MMPersonFragment();
@@ -120,10 +112,18 @@ public class MMPersonFragment extends Fragment {
         MMUtilities.hideSoftKeyboard(getActivity());
 
         //set the title bar subtitle
-        ((MainActivity) getActivity()).setMMSubtitle(R.string.title_person);
+        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person);
 
         setUISaved(v);
+
         return v;
+    }
+    @Override
+    public void onResume(){
+
+        super.onResume();
+        MMUtilities.clearFocus(getActivity());
+
     }
 
     @Override
@@ -203,7 +203,7 @@ public class MMPersonFragment extends Fragment {
     }
 
     private void wireWidgets(View v){
-        View field_container;
+
         TextView label;
 
         //Exit Button
@@ -231,87 +231,49 @@ public class MMPersonFragment extends Fragment {
             }
         });
 
-/*
-        //Delete Button
-        Button deleteButton = (Button) v.findViewById(R.id.personDeleteButton);
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
-            MMUtilities.enableButton(getActivity(), deleteButton, MMUtilities.BUTTON_DISABLE);
-        } else {
-            MMPerson person = MMUtilities.getPerson(mPersonID);
-            if (person == null) {
-                MMUtilities.enableButton(getActivity(), deleteButton, MMUtilities.BUTTON_DISABLE);
-            } else {
-                MMUtilities.enableButton(getActivity(), deleteButton, MMUtilities.BUTTON_ENABLE);
-                if (!person.isCurrentlyExists()){
-                    deleteButton.setText(R.string.reinstate_title);
-                }
-            }
-        }
-        deleteButton.setText(R.string.delete_title);
-        //the order of images here is left, top, right, bottom
-        //deleteButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onDelete();
-            }
-        });
-
-*/
-
-        //add Button
-        Button addMedButton = (Button) v.findViewById(R.id.personAddMedicationButton);
-        addMedButton.setText(R.string.patient_add_medication_label);
-        //only enable the Add button after the person has been created
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
-            MMUtilities.enableButton(getActivity(), addMedButton, MMUtilities.BUTTON_DISABLE);
-            Toast.makeText(getActivity(), R.string.person_save_first, Toast.LENGTH_SHORT).show();
-        }
-        addMedButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Toast.makeText(getActivity(),
-                        R.string.patient_add_medication_label,
-                        Toast.LENGTH_SHORT).show();
-                //switch to medication screen
-                // But the switching happens on the container Activity
-                ((MainActivity) getActivity()).switchToMedicationScreen(mPersonID);
-
-            }
-        });
 
 
-        SwitchCompat existSwitch = (SwitchCompat) v.findViewById(R.id.switchExists);
+        final SwitchCompat existSwitch = (SwitchCompat) v.findViewById(R.id.switchExists);
         existSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 setUIChanged();
+                View v = getView();
+                if (v != null) {
+                    if (existSwitch.isChecked()) {
+                        v.setBackgroundColor(ContextCompat.
+                                getColor(getActivity(), R.color.colorScreenBackground));
+                    } else {
+                        v.setBackgroundColor(ContextCompat.
+                                getColor(getActivity(), R.color.colorScreenDeletedBackground));
+                    }
+                }
             }
         });
 
 
-
-
-
-        field_container = v.findViewById(R.id.personIDName);
-        label = (TextView)(field_container.findViewById(R.id.fieldLabel));
+        label = (TextView)(v.findViewById(R.id.personIDLabel));
         label.setEnabled(false);
         label.setText(R.string.person_label);
 
-        mPersonIDOutput = (EditText) (field_container.findViewById(R.id.fieldIdInput));
-        mPersonIDOutput.setEnabled(false);
-        mPersonIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorGray));
+        EditText personIDOutput = (EditText) (v.findViewById(R.id.personIdInput));
+        personIDOutput.setEnabled(false);
+        personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorGray));
 
 
-        mPersonNickNameInput = (EditText) (field_container.findViewById(R.id.fieldInput));
-        mPersonNickNameInput.addTextChangedListener(new TextWatcher() {
+        EditText personNickNameInput = (EditText) (v.findViewById(R.id.personNickNameInput));
+        personNickNameInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
                 //This tells you that text is about to change.
                 // Starting at character "start", the next "count" characters
                 // will be changed with "after" number of characters
-
+                View v = getView();
+                if (v != null) {
+                    MMMedicationCursorAdapter adapter = getAdapter(v);
+                    int size = adapter.getItemCount();
+                    size++;
+                }
             }
 
             @Override
@@ -330,18 +292,14 @@ public class MMPersonFragment extends Fragment {
         });
 
 
-
-
-
-
-        field_container = v.findViewById(R.id.personEmailAddr);
-        label = (TextView)(field_container.findViewById(R.id.fieldLabel));
+        label = (TextView)(v.findViewById(R.id.personEmailAddrLabel));
         label.setText(R.string.person_email_addr_label);
 
-        mPersonEmailAddrInput = (EditText) (field_container.findViewById(R.id.fieldInput));
-        //mPersonEmailAddrInput.setHint(R.string.person_email_addr_hint);
-        mPersonEmailAddrInput.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        mPersonEmailAddrInput.addTextChangedListener(new TextWatcher() {
+
+        EditText personEmailAddrInput = (EditText) (v.findViewById(R.id.personEmailAddrInput));
+        //personEmailAddrInput.setHint(R.string.person_email_addr_hint);
+        personEmailAddrInput.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        personEmailAddrInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
                 //This tells you that text is about to change.
@@ -367,14 +325,13 @@ public class MMPersonFragment extends Fragment {
 
 
 
-        field_container = v.findViewById(R.id.personTextAddr);
-        label = (TextView)(field_container.findViewById(R.id.fieldLabel));
+        label = (TextView)(v.findViewById(R.id.personTextAddrInput));
         label.setText(R.string.person_text_addr_label);
 
-        mPersonTextAddrInput = (EditText)(field_container.findViewById(R.id.fieldInput));
-        mPersonTextAddrInput.setInputType(InputType.TYPE_CLASS_PHONE);
-        //mPersonTextAddrInput.setHint(R.string.person_text_addr_hint);
-        mPersonTextAddrInput.addTextChangedListener(new TextWatcher() {
+        EditText personTextAddrInput = (EditText)(v.findViewById(R.id.personTextAddrInput));
+        personTextAddrInput.setInputType(InputType.TYPE_CLASS_PHONE);
+        //personTextAddrInput.setHint(R.string.person_text_addr_hint);
+        personTextAddrInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
                 //This tells you that text is about to change.
@@ -403,7 +360,7 @@ public class MMPersonFragment extends Fragment {
         View field_container;
         TextView label;
 
-        MainActivity myActivity = (MainActivity)getActivity();
+        MMMainActivity myActivity = (MMMainActivity)getActivity();
 
         //set up the labels for the medication list
         field_container = v.findViewById(R.id.medicationTitleRow);
@@ -455,11 +412,19 @@ public class MMPersonFragment extends Fragment {
      }
 
     private void initializeUI(View v) {
+
+        EditText personIDOutput       = (EditText) (v.findViewById(R.id.personIdInput));
+        EditText personNickNameInput  = (EditText) (v.findViewById(R.id.personNickNameInput));
+        EditText personEmailAddrInput = (EditText) (v.findViewById(R.id.personEmailAddrInput));
+        EditText personTextAddrInput  = (EditText) (v.findViewById(R.id.personTextAddrInput));
+
         MMPerson person = null;
         if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
             //just create a temporary person object without an id
             person = new MMPerson(mPersonID);
+            personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorLightPink));
         } else {
+            personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
             MMPersonManager personManager = MMPersonManager.getInstance();
             person = personManager.getPerson(mPersonID);
             if (person == null){
@@ -478,15 +443,25 @@ public class MMPersonFragment extends Fragment {
         //This is certainly overkill, but it is explicit
         if (person.isCurrentlyExists()){
             existSwitch.setChecked(true);
+            v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorScreenBackground));
          } else {
             existSwitch.setChecked(false);
+            v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorScreenDeletedBackground));
         }
 
 
-        mPersonIDOutput      .setText(String.valueOf(person.getPersonID()));
-        mPersonNickNameInput .setText(person.getNickname()    .toString().trim());
-        mPersonEmailAddrInput.setText(person.getEmailAddress().toString().trim());
-        mPersonTextAddrInput .setText(person.getTextAddress() .toString().trim());
+        //Debug Statments. Remove if you see these
+        String temp = String.valueOf(person.getPersonID());
+        personIDOutput      .setText(temp);
+
+        temp = person.getNickname()    .toString().trim();
+        personNickNameInput .setText(temp);
+
+        temp = person.getEmailAddress().toString().trim();
+        personEmailAddrInput.setText(temp);
+
+        temp = person.getTextAddress() .toString().trim();
+        personTextAddrInput .setText(temp);
 
         setUISaved(v);
     }
@@ -499,7 +474,16 @@ public class MMPersonFragment extends Fragment {
         //get rid of the soft keyboard
         MMUtilities.hideSoftKeyboard(getActivity());
 
-        CharSequence nickname = mPersonNickNameInput.getText();
+        View v = getView();
+        if (v == null)return;
+
+        EditText personIDOutput       = (EditText) (v.findViewById(R.id.personIdInput));
+        EditText personNickNameInput  = (EditText) (v.findViewById(R.id.personNickNameInput));
+        EditText personEmailAddrInput = (EditText) (v.findViewById(R.id.personEmailAddrInput));
+        EditText personTextAddrInput  = (EditText) (v.findViewById(R.id.personTextAddrInput));
+
+
+        CharSequence nickname = personNickNameInput.getText();
         if (nickname == null){
             MMUtilities.errorHandler(getActivity(), R.string.person_not_valid);
             return;
@@ -514,28 +498,29 @@ public class MMPersonFragment extends Fragment {
             person = personManager.getPerson(mPersonID);
         }
 
-        //This check really isn't necessary, but use it to shut up lint
-        View v = getView();
-        if (v != null) {
-            SwitchCompat existSwitch = (SwitchCompat) getView().findViewById(R.id.switchExists);
+        SwitchCompat existSwitch = (SwitchCompat) getView().findViewById(R.id.switchExists);
 
-            if (existSwitch.isChecked()) {
-                person.setCurrentlyExists(true);
-            } else {
-                person.setCurrentlyExists(false);
-            }
+        if (existSwitch.isChecked()) {
+            person.setCurrentlyExists(true);
+            v.setBackgroundColor(ContextCompat.
+                    getColor(getActivity(),R.color.colorScreenBackground));
+        } else {
+            person.setCurrentlyExists(false);
+            v.setBackgroundColor(ContextCompat.
+                    getColor(getActivity(), R.color.colorScreenDeletedBackground));
         }
+
 
         person.setNickname(nickname);
 
         //strings are set to "" in the constructor, so the empty case can be ignored
         //but do need to know if legal input has been made
-        String temp = mPersonEmailAddrInput.getText().toString().trim();
+        String temp = personEmailAddrInput.getText().toString().trim();
         if (!(temp.isEmpty())){
             person.setEmailAddress(temp);
         }
 
-        temp = mPersonTextAddrInput.getText().toString().trim();
+        temp = personTextAddrInput.getText().toString().trim();
         if (!(temp.isEmpty())){
             person.setTextAddress(temp);
         }
@@ -550,13 +535,13 @@ public class MMPersonFragment extends Fragment {
         long returnCode = personManager.addPerson(person, addToDBToo);
         if (returnCode != MMDatabaseManager.sDB_ERROR_CODE) {
             Toast.makeText(getActivity(), R.string.save_successful, Toast.LENGTH_SHORT).show();
-            MMUtilities.enableButton(getActivity(), getAddMedButton(getView()), MMUtilities.BUTTON_ENABLE);
-
+            //MMUtilities.enableButton(getActivity(), getAddMedButton(getView()), MMUtilities.BUTTON_ENABLE);
         }
         //if the person is newly created, the ID is assigned on DB add
         mPersonID = returnCode;
         //update the ID field on the UI
-        mPersonIDOutput.setText(String.valueOf(mPersonID));
+        personIDOutput.setText(String.valueOf(mPersonID));
+        personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
 
 
         MMMedicationCursorAdapter adapter = getAdapter(getView());
@@ -585,93 +570,9 @@ public class MMPersonFragment extends Fragment {
         }
     }
 
-    private void onDelete(){
-        MMPerson person = MMUtilities.getPerson(mPersonID);
-        if (person != null){
-            if (person.isCurrentlyExists()){
-                areYouSureDelete();
-            } else {
-                areYouSureReinstate();
-            }
-        } else {
-            Toast.makeText(getActivity(), R.string.person_not_found_delete, Toast.LENGTH_SHORT).show();
 
-        }
-    }
-
-
-    /************************************/
-    /*****  Delete Button Dialogue    *****/
-    /************************************/
-    //Build and display the alert dialog
-    private void areYouSureDelete(){
-        new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.delete_title)
-                .setIcon(R.drawable.ground_station_icon)
-                .setMessage(R.string.are_you_sure)
-                .setPositiveButton(R.string.delete_title,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                //Leave even though project has chaged
-                                //Toast.makeText(getActivity(), R.string.exit_label, Toast.LENGTH_SHORT).show();
-                                performDelete();
-
-                            }
-                        })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
-                        Toast.makeText(getActivity(),
-                                "Pressed Cancel",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setIcon(R.drawable.ground_station_icon)
-                .show();
-    }
-
-    private void areYouSureReinstate(){
-        new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.reinstate_title)
-                .setIcon(R.drawable.ground_station_icon)
-                .setMessage(R.string.are_you_sure)
-                .setPositiveButton(R.string.reinstate_title,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                //Leave even though project has chaged
-                                //Toast.makeText(getActivity(), R.string.exit_label, Toast.LENGTH_SHORT).show();
-                                performDelete();
-
-                            }
-                        })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
-                        Toast.makeText(getActivity(),
-                                "Pressed Cancel",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setIcon(R.drawable.ground_station_icon)
-                .show();
-    }
-
-    private void performDelete(){
-        MMPerson person = MMUtilities.getPerson(mPersonID);
-        int msg;
-
-        if (person == null) {
-            msg = R.string.person_not_found_delete;
-        } else {
-            if (person.isCurrentlyExists()) {
-                msg = R.string.delete_person;
-                person.setCurrentlyExists(false);
-            } else {
-                msg = R.string.reinstate_person;
-                person.setCurrentlyExists(true);
-            }
-        }
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+    public long getPersonID(){
+        return mPersonID;
     }
 
 
@@ -707,9 +608,9 @@ public class MMPersonFragment extends Fragment {
 
     private void switchToExit(){
         MMMedicationCursorAdapter adapter = getAdapter(getView());
-        adapter.closeCursor();
+        if (adapter != null)adapter.closeCursor();
 
-        ((MainActivity) getActivity()).switchToHomeScreen(mPersonID);   //switchToPopBackstack();
+        ((MMMainActivity) getActivity()).switchToHomeScreen(mPersonID);   //switchToPopBackstack();
 
     }
 
@@ -729,11 +630,11 @@ public class MMPersonFragment extends Fragment {
     private MMMedicationCursorAdapter getAdapter(View v){
         return (MMMedicationCursorAdapter)  getRecyclerView(v).getAdapter();
     }
-
+/*
     private Button getAddMedButton(View v){
         return (Button) v.findViewById(R.id.personAddMedicationButton);
     }
-
+*/
 
     /**********************************************************/
     //      Methods dealing with whether the UI has changed   //
@@ -748,9 +649,6 @@ public class MMPersonFragment extends Fragment {
 
         //disable the save button
         saveButtonEnable(MMUtilities.BUTTON_DISABLE);
-
-        //ENable the delete button
-        deleteButtonEnable(MMUtilities.BUTTON_ENABLE);
     }
 
     private void setUISaved(View v){
@@ -774,25 +672,6 @@ public class MMPersonFragment extends Fragment {
         MMUtilities.enableButton(getActivity(),
                 personSaveButton,
                 isEnabled);
-    }
-
-
-    private void deleteButtonEnable(boolean isEnabled){
-        View v = getView();
-        deleteButtonEnable(v, isEnabled);
-    }
-
-    private void deleteButtonEnable(View v, boolean isEnabled){
-/*
-        if (v == null)return; //onCreateView() hasn't run yet
-
-        Button medicationDeleteButton =
-                (Button) v.findViewById(R.id.personDeleteButton);
-
-        MMUtilities.enableButton(getActivity(),
-                medicationDeleteButton,
-                isEnabled);
- */
     }
 
 
@@ -832,7 +711,7 @@ The medication list is maintained on the person object, not locally here
 
 
         //But, don't know if this makes sense in the flow of things
-        ((MainActivity) getActivity()).switchToMedicationScreen(mPersonID, position);
+        ((MMMainActivity) getActivity()).switchToMedicationScreen(mPersonID, position);
     }
 
 

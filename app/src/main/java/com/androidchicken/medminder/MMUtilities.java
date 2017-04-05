@@ -1,11 +1,18 @@
 package com.androidchicken.medminder;
 
 import android.content.Context;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.text.DateFormat;
@@ -85,10 +92,49 @@ public class MMUtilities {
         errorHandler(context, context.getString(messageResource));
     }
 
+    public static void showHint(View view, String msg){
+        Snackbar.make(view, msg, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+    }
+
     /*************************************/
     /*         Date / Time Utilities     */
     /*************************************/
 
+
+
+    /*****************************************/
+    /*    ConcurrentDose row list builder    */
+    /*****************************************/
+
+    public static EditText createDoseEditText(Context context, int padding){
+        EditText edtView;
+        LinearLayout.LayoutParams lp =
+                new LinearLayout.LayoutParams(0,//width
+                        ViewGroup.LayoutParams.WRAP_CONTENT);//height
+        lp.weight = 3f;
+        //lp.gravity = Gravity.CENTER;
+        lp.setMarginEnd(padding);
+
+        edtView = new EditText(context);
+        edtView.setHint("0");
+        edtView.setInputType(InputType.TYPE_CLASS_NUMBER);
+        edtView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        edtView.setLayoutParams(lp);
+        edtView.setPadding(0,0,padding,0);
+        edtView.setGravity(Gravity.CENTER);
+        edtView.setTextColor      (ContextCompat.getColor(context,R.color.colorTextBlack));
+        edtView.setBackgroundColor(ContextCompat.getColor(context,R.color.colorInputBackground));
+/*
+        //add listener
+        edtView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return false;
+            }
+        });
+*/
+        return edtView;
+    }
 
 
     //The only reason these are here is so that the app
@@ -113,13 +159,13 @@ public class MMUtilities {
     public static String getDateString(long milliSeconds){
         Date date = new Date(milliSeconds);
         return DateFormat.getDateInstance().format(date);
-
     }
 
     public static String getTimeString(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a", Locale.US);
         return dateFormat.format(new Date());
     }
+
 
     public static String getTimeString(long milliSeconds){
         Date date = new Date(milliSeconds);
@@ -160,11 +206,21 @@ public class MMUtilities {
         // Check if no view has focus:
         View view = context.getCurrentFocus();
         if (view != null) {
+            view.clearFocus();
             InputMethodManager imm =
                     (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
 
+    }
+
+    public static void clearFocus(FragmentActivity context){
+        //hide the soft keyboard
+        // Check if no view has focus:
+        View view = context.getCurrentFocus();
+        if (view != null) {
+            view.clearFocus();
+        }
     }
 
 

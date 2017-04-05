@@ -2,7 +2,7 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools=  "http://schemas.android.com/tools"
-    tools:context="com.androidchicken.medminder.MainActivityFragment"
+    tools:context="com.androidchicken.medminder.MMMainActivityFragment"
 
     android:id=   "@+id/content_main"
 
@@ -87,24 +87,6 @@
                     android:layout_weight="4"
 
                     android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-
-                    android:background="@color/colorButton1Background"
-                    android:textColor="@color/colorTextBlack"
-                    />
-
-
-                <!-- Add Medication  -->
-                <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:id="@+id/personAddMedicationButton"
-                    android:text="@string/patient_add_medication_label"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-
-                    android:layout_weight="4"
-
-                    android:layout_marginStart="4dp"
                     android:layout_marginEnd="8dp"
 
                     android:background="@color/colorButton1Background"
@@ -130,14 +112,152 @@
 
             </TableRow>
 
-            <!-- Row 4: Person Nick Name -->
-            <include android:id= "@+id/personIDName" layout = "@layout/element_3edit_label_input"/>
+            <!-- Row 4: Person ID and Nickname -->
+            <TableRow
+                  android:layout_width=  "match_parent"
+                  android:layout_height= "wrap_content"
+                  android:layout_gravity="center_horizontal"
+                  android:paddingTop=    "10dp"
+                >
+                <TextView
+                    android:id=           "@+id/personIDLabel"
+                    android:labelFor=     "@+id/personNickNameInput"
+                    android:layout_height="wrap_content"
+                    android:layout_width= "0dp"
+                    android:layout_weight="25"
+                    android:gravity=      "end"
+
+                    android:freezesText="true"
+
+                    android:focusable="false"
+
+                    android:textColor=    "@color/colorTextBlack"
+                    android:background=   "@color/colorLabelBackground"
+                    />
+                <EditText
+                    android:id=           "@+id/personIdInput"
+
+                    android:layout_height="wrap_content"
+                    android:layout_width= "0dp"
+                    android:layout_weight="25"
+                    android:gravity="center_horizontal"
+
+                    android:freezesText="true"
+
+                    android:inputType=    "text"
+                    android:imeOptions=   "flagNoExtractUi"
+
+                    android:layout_marginEnd="4dp"
+
+                    android:textColor=    "@color/colorTextBlack"
+                    android:background=   "@color/colorInputBackground"
+                    />
+
+                <EditText
+                    android:id=           "@id/personNickNameInput"
+
+                    android:layout_height="wrap_content"
+                    android:layout_width= "0dp"
+                    android:layout_weight="50"
+                    android:gravity="center_horizontal"
+
+                    android:freezesText="true"
+
+                    android:inputType=    "text"
+                    android:imeOptions=   "flagNoExtractUi"
+
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="16dp"
+
+                    android:textColor=    "@color/colorTextBlack"
+                    android:background=   "@color/colorInputBackground"
+                    />
+
+            </TableRow>
 
             <!-- Row 5: Person Email Address -->
-            <include android:id="@+id/personEmailAddr" layout="@layout/element_edit_label_input"/>
+            <TableRow
+                  android:layout_width=  "match_parent"
+                  android:layout_height= "wrap_content"
+                  android:layout_gravity="center_horizontal"
+                  android:paddingTop=    "10dp"
+                >
+                <TextView
+                    android:id=           "@+id/personEmailAddrLabel"
+                    android:labelFor=     "@+id/personEmailAddrInput"
+                    android:layout_height="wrap_content"
+                    android:layout_width= "0dp"
+                    android:layout_weight="25"
+                    android:gravity=      "end"
+
+                    android:freezesText="true"
+
+                    android:focusable="false"
+
+                    android:textColor=    "@color/colorTextBlack"
+                    android:background=   "@color/colorLabelBackground"
+                    />
+                <EditText
+                    android:id=           "@id/personEmailAddrInput"
+
+                    android:layout_height="wrap_content"
+                    android:layout_width= "0dp"
+                    android:layout_weight="75"
+                    android:gravity="center_horizontal"
+
+                    android:freezesText="true"
+
+                    android:inputType=    "textEmailAddress"
+                    android:imeOptions=   "flagNoExtractUi"
+
+                    android:layout_marginEnd="16dp"
+
+                    android:textColor=    "@color/colorTextBlack"
+                    android:background=   "@color/colorInputBackground"
+                    />
+            </TableRow>
 
             <!-- Row 6: Person Text Address -->
-            <include android:id="@+id/personTextAddr" layout="@layout/element_edit_label_input"/>
+            <TableRow
+                  android:layout_width=  "match_parent"
+                  android:layout_height= "wrap_content"
+                  android:layout_gravity="center_horizontal"
+                  android:paddingTop=    "10dp"
+                >
+                <TextView
+                    android:id=           "@+id/personTextAddrLabel"
+                    android:labelFor=     "@+id/personTextAddrInput"
+                    android:layout_height="wrap_content"
+                    android:layout_width= "0dp"
+                    android:layout_weight="25"
+                    android:gravity=      "end"
+
+                    android:freezesText="true"
+
+                    android:focusable="false"
+
+                    android:textColor=    "@color/colorTextBlack"
+                    android:background=   "@color/colorLabelBackground"
+                    />
+                <EditText
+                    android:id=           "@id/personTextAddrInput"
+
+                    android:layout_height="wrap_content"
+                    android:layout_width= "0dp"
+                    android:layout_weight="75"
+                    android:gravity="center_horizontal"
+
+                    android:freezesText="true"
+
+                    android:inputType=    "text"
+                    android:imeOptions=   "flagNoExtractUi"
+
+                    android:layout_marginEnd="16dp"
+
+                    android:textColor=    "@color/colorTextBlack"
+                    android:background=   "@color/colorInputBackground"
+                    />
+            </TableRow>
 
             <!-- Row 7: Scroll Hint -->
             <TableRow
@@ -161,40 +281,41 @@
 
         <!-- Title Row and list of Medications -->
         <HorizontalScrollView
+            android:layout_height="wrap_content"
             android:layout_width= "match_parent"
-            android:layout_height="match_parent"
             android:fillViewport= "true"
+            android:layout_gravity="center_horizontal"
             >
             <!-- Title row and list of Medications taken by the person -->
             <LinearLayout
+                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
                 android:orientation="vertical"
                 >
+                <!-- Title Row: Medications taken by the person -->
                 <include android:id="@+id/medicationTitleRow" layout="@layout/list_row_medication"/>
 
-
-                <!-- Medications taken by the person -->
-                <LinearLayout
-
-                    android:layout_width=   "match_parent"
-                    android:layout_height=  "match_parent"
-
-                    android:paddingTop=    "10dp"
-                    >
-                    <!-- RecyclerView of Medications -->
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/medicationList"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        >
-                    </android.support.v7.widget.RecyclerView>
-
-                </LinearLayout>
+                <!-- RecyclerView of Medications -->
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/medicationList"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                     >
+                </android.support.v7.widget.RecyclerView>
 
             </LinearLayout>
 
         </HorizontalScrollView>
+
+        <TextView
+            android:text="@string/horizontal_scroll_hint"
+            android:layout_height="wrap_content"
+            android:layout_width ="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+
+            android:background="@color/colorScreenBackground"
+            />
 
     </LinearLayout>
 
