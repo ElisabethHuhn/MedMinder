@@ -23,17 +23,14 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
 
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        public EditText medicationIDOutput, medicationNickNameOutput, medicationForPerson;
-        public EditText medicationTimeHours, medicationTimeMinutes, medicationAmPm;
+        public EditText medicationNickNameOutput;
+        public EditText medicationTime;
 
 
         public MyViewHolder(View v) {
             super(v);
 
-            medicationTimeHours      = (EditText) v.findViewById(R.id.scheduleTimeHourOutput);
-            medicationTimeMinutes    = (EditText) v.findViewById(R.id.scheduleTimeMinutesOutput);
-            medicationAmPm           = (EditText) v.findViewById(R.id.scheduleTimeAmPmOutput);
-            medicationIDOutput       = (EditText) v.findViewById(R.id.scheduleMedIDOutput);
+            medicationTime           = (EditText) v.findViewById(R.id.scheduleTimeOutput);
             medicationNickNameOutput = (EditText) v.findViewById(R.id.scheduleMedNameOutput);
         }
 
@@ -89,10 +86,7 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
 
             mSchedMedCursor = schedMedManager.getAllSchedMedsForPersonCursor(mPersonID);
             if (mSchedMedCursor == null) {
-                holder.medicationTimeHours.setText("0");
-                holder.medicationTimeMinutes.setText("0");
-                holder.medicationAmPm.setText(R.string.medication_dose_am);
-                holder.medicationIDOutput.setText("0");
+                holder.medicationTime          .setText("00:00 AM");
                 holder.medicationNickNameOutput.setText("");
                 return;
             }
@@ -101,30 +95,12 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
         MMScheduleMedication schedMed =
                 schedMedManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
 
-        int hours = schedMed.getTimeDue() / 60;
-        int minutes = (schedMed.getTimeDue()) - (hours * 60);
+        int timeMinutes = schedMed.getTimeDue();
+        long timeMilliseconds = timeMinutes * 60 * 1000;
+        String timeString = MMUtilities.getTimeString(timeMilliseconds, mIs24Format);
+        holder.medicationTime    .setText(timeString);
 
-        if (mIs24Format){
-            holder.medicationAmPm.setText("");
-        } else {
-            if (hours > 12) {
-                hours = hours - 12;
-                holder.medicationAmPm.setText(R.string.medication_dose_pm);
-            } else if (hours == 12){
-                holder.medicationAmPm.setText(R.string.medication_dose_pm);
-            } else if (hours == 0){
-                hours = 12;
-                holder.medicationAmPm.setText(R.string.medication_dose_am);
-            } else {
-                holder.medicationAmPm.setText(R.string.medication_dose_am);
-            }
-        }
-
-        holder.medicationTimeHours  .setText(String.valueOf(hours));
-        holder.medicationTimeMinutes.setText(String.valueOf(minutes));
         long medicationID = schedMed.getOfMedicationID();
-        holder.medicationIDOutput   .setText(String.valueOf(medicationID));
-
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
         MMMedication medication = medicationManager.getMedicationFromID(medicationID);
         CharSequence msg;

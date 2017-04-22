@@ -22,24 +22,8 @@
 
     <!-- Hours Time to take Medication -->
     <EditText
-        android:id="@+id/scheduleTimeHourOutput"
-        android:text="@string/medication_dose_hours"
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_weight="5"
-
-        android:layout_marginEnd="@dimen/listrow_field_separator"
-
-        android:gravity="center_horizontal"
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorWhite"
-        />
-
-    <!-- Minutes Time to take Medication -->
-    <EditText
-        android:id="@+id/scheduleTimeMinutesOutput"
-        android:text="@string/medication_dose_minutes"
-
+        android:id="@+id/scheduleTimeOutput"
+        android:text="@string/medication_dose_time"
         android:layout_height="wrap_content"
         android:layout_width="0dp"
         android:layout_weight="5"
@@ -52,20 +36,5 @@
         />
 
 
-    <!-- AM / PM -->
-    <EditText
-        android:id="@+id/scheduleTimeAmPmOutput"
-        android:text="@string/medication_dose_am"
-
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_weight="3"
-
-        android:layout_marginEnd="@dimen/listrow_field_separator"
-
-        android:gravity="center_horizontal"
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorWhite"
-        />
 
 </LinearLayout>

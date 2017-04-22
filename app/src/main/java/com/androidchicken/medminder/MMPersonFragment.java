@@ -1,6 +1,7 @@
 package com.androidchicken.medminder;
 
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -35,9 +36,9 @@ public class MMPersonFragment extends Fragment {
     private boolean  isUIChanged = false;
 
 
-    /***********************************************/
-    /*          Static Methods                     */
-    /***********************************************/
+    //**********************************************/
+    //          Static Methods                     */
+    //**********************************************/
     //need to pass a person into the fragment
     public static MMPersonFragment newInstance(long personID){
         //create a bundle to hold the arguments
@@ -51,15 +52,15 @@ public class MMPersonFragment extends Fragment {
         return fragment;
     }
 
-    /***********************************************/
-    /*          Constructor                        */
-    /***********************************************/
+    //**********************************************/
+    //          Constructor                        */
+    //**********************************************/
     public MMPersonFragment() {
     }
 
-    /***********************************************/
-    /*          Lifecycle Methods                  */
-    /***********************************************/
+    //**********************************************/
+    //          Lifecycle Methods                  */
+    //**********************************************/
 
     //pull the arguments out of the fragment bundle and store in the member variables
     //In this case, prepopulate the personID this screen refers to
@@ -84,7 +85,8 @@ public class MMPersonFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
                              Bundle savedInstanceState) {
 
 
@@ -108,99 +110,79 @@ public class MMPersonFragment extends Fragment {
         //If we had any arguments passed, update the screen with them
         initializeUI(v);
 
-        //get rid of the soft keyboard if it is visible
-        MMUtilities.hideSoftKeyboard(getActivity());
 
         //set the title bar subtitle
         ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person);
 
-        setUISaved(v);
+        //Set the changed UI flag based on whether we are recreating the View
+        if (savedInstanceState != null) {
+            isUIChanged = savedInstanceState.getBoolean(MMHomeFragment.sIsUIChangedTag);
+            if (isUIChanged) {
+                setUIChanged(v);
+            } else {
+                setUISaved(v);
+            }
+        } else {
+            setUISaved(v);
+        }
 
         return v;
     }
+
     @Override
     public void onResume(){
 
         super.onResume();
-        MMUtilities.clearFocus(getActivity());
+        //MMUtilities.clearFocus(getActivity());
 
+        //The following kludge is necessary because the RecyclerView list
+        // disappears in Landscape mode unless the soft keyboard is visible
+        // I never could figure out the right way to fix it.
+        if (getOrientation() == Configuration.ORIENTATION_LANDSCAPE) {
+
+            //get rid of the soft keyboard if it is visible
+            View v = getView();
+            if (v != null) {
+                EditText personNickNameInput = (EditText) (v.findViewById(R.id.personNickNameInput));
+                MMUtilities.showSoftKeyboard(getActivity(), personNickNameInput);
+            }
+        } else {
+
+            //get rid of the soft keyboard if it is visible
+            MMUtilities.hideSoftKeyboard(getActivity());
+        }
+
+
+        //set the title bar subtitle
+        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person);
+
+        //Set the FAB visible
+        ((MMMainActivity) getActivity()).showFAB();
+
+
+    }
+    public int getOrientation(){
+        int orientation = Configuration.ORIENTATION_PORTRAIT;
+        if (getResources().getDisplayMetrics().widthPixels >
+            getResources().getDisplayMetrics().heightPixels) {
+
+            orientation = Configuration.ORIENTATION_LANDSCAPE;
+        }
+        return orientation;
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
         // Save custom values into the bundle
         savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
+
+        //Save the isUIChanged flag
+        savedInstanceState.putBoolean(MMHomeFragment.sIsUIChangedTag, isUIChanged);
+
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
     }
 
-
-    private void initializeRecyclerView(View v){
-        /*
-         * The steps for doing recycler view in onCreateView() of a fragment are:
-         * 1) inflate the .xml
-         *
-         * the special recycler view stuff is:
-         * 2) get and store a reference to the recycler view widget that you created in xml
-         * 3) create and assign a layout manager to the recycler view
-         * 4) assure that there is data for the recycler view to show.
-         * 5) use the data to create and set an adapter in the recycler view
-         * 6) create and set an item animator (if desired)
-         * 7) create and set a line item decorator
-         * 8) add event listeners to the recycler view
-         *
-         * 9) return the view
-         */
-
-        //1) Inflate the layout for this fragment
-        //      implemented in the caller: onCreateView()
-
-
-        //2) find and remember the RecyclerView
-        RecyclerView recyclerView = getRecyclerView(v);
-
-        //3) create and assign a layout manager to the recycler view
-        //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
-        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(mLayoutManager);
-
-        //4) Get the Cursor of Medication Instances for this Person from the DB
-        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-        Cursor cursor = medicationManager.getAllMedicationsCursor(mPersonID);
-
-        //5) Use the data to Create and set out medication Adapter
-        MMMedicationCursorAdapter adapter = new MMMedicationCursorAdapter(getActivity(), mPersonID, cursor);
-        recyclerView.setAdapter(adapter);
-
-        //6) create and set the itemAnimator
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-        //7) create and add the item decorator
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
-                                                                 DividerItemDecoration.VERTICAL));
-/*
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
-                                                                 LinearLayoutManager.VERTICAL));
-*/
-
-        //8) add event listeners to the recycler view
-        recyclerView.addOnItemTouchListener(
-                new MMHomeFragment.RecyclerTouchListener(getActivity(),
-                                                         recyclerView,
-                                                         new MMHomeFragment.ClickListener() {
-                    @Override
-                    public void onClick(View view, int position) {
-                        onSelect(position);
-                    }
-
-                    @Override
-                    public void onLongClick(View view, int position) {
-
-                    }
-                })
-        );
-
-    }
 
     private void wireWidgets(View v){
 
@@ -268,12 +250,7 @@ public class MMPersonFragment extends Fragment {
                 //This tells you that text is about to change.
                 // Starting at character "start", the next "count" characters
                 // will be changed with "after" number of characters
-                View v = getView();
-                if (v != null) {
-                    MMMedicationCursorAdapter adapter = getAdapter(v);
-                    int size = adapter.getItemCount();
-                    size++;
-                }
+
             }
 
             @Override
@@ -325,7 +302,7 @@ public class MMPersonFragment extends Fragment {
 
 
 
-        label = (TextView)(v.findViewById(R.id.personTextAddrInput));
+        label = (TextView)(v.findViewById(R.id.personTextAddrLabel));
         label.setText(R.string.person_text_addr_label);
 
         EditText personTextAddrInput = (EditText)(v.findViewById(R.id.personTextAddrInput));
@@ -409,16 +386,85 @@ public class MMPersonFragment extends Fragment {
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
 
-     }
+    }
 
-    private void initializeUI(View v) {
+
+    private void initializeRecyclerView(View v){
+        /*
+         * The steps for doing recycler view in onCreateView() of a fragment are:
+         * 1) inflate the .xml
+         *
+         * the special recycler view stuff is:
+         * 2) get and store a reference to the recycler view widget that you created in xml
+         * 3) create and assign a layout manager to the recycler view
+         * 4) assure that there is data for the recycler view to show.
+         * 5) use the data to create and set an adapter in the recycler view
+         * 6) create and set an item animator (if desired)
+         * 7) create and set a line item decorator
+         * 8) add event listeners to the recycler view
+         *
+         * 9) return the view
+         */
+
+        //1) Inflate the layout for this fragment
+        //      implemented in the caller: onCreateView()
+
+
+        //2) find and remember the RecyclerView
+        RecyclerView recyclerView = getRecyclerView(v);
+
+        //3) create and assign a layout manager to the recycler view
+        //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
+        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(mLayoutManager);
+
+        //4) Get the Cursor of Medication Instances for this Person from the DB
+        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
+        Cursor cursor = medicationManager.getAllMedicationsCursor(mPersonID);
+
+        //5) Use the data to Create and set out medication Adapter
+        MMMedicationCursorAdapter adapter = new MMMedicationCursorAdapter(getActivity(), mPersonID, cursor);
+        recyclerView.setAdapter(adapter);
+
+        //6) create and set the itemAnimator
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+
+        //7) create and add the item decorator
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+                                                                 DividerItemDecoration.VERTICAL));
+/*
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+                                                                 LinearLayoutManager.VERTICAL));
+*/
+
+        //8) add event listeners to the recycler view
+        recyclerView.addOnItemTouchListener(
+                new MMHomeFragment.RecyclerTouchListener(getActivity(),
+                                                         recyclerView,
+                                                         new MMHomeFragment.ClickListener() {
+                    @Override
+                    public void onClick(View view, int position) {
+                        onSelect(position);
+                    }
+
+                    @Override
+                    public void onLongClick(View view, int position) {
+
+                    }
+                })
+        );
+
+    }
+
+     private void initializeUI(View v) {
 
         EditText personIDOutput       = (EditText) (v.findViewById(R.id.personIdInput));
         EditText personNickNameInput  = (EditText) (v.findViewById(R.id.personNickNameInput));
         EditText personEmailAddrInput = (EditText) (v.findViewById(R.id.personEmailAddrInput));
         EditText personTextAddrInput  = (EditText) (v.findViewById(R.id.personTextAddrInput));
 
-        MMPerson person = null;
+        MMPerson person;
         if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
             //just create a temporary person object without an id
             person = new MMPerson(mPersonID);
@@ -576,9 +622,9 @@ public class MMPersonFragment extends Fragment {
     }
 
 
-    /************************************/
-    /*****  Exit Button Dialogue    *****/
-    /************************************/
+    //***********************************/
+    //****  Exit Button Dialogue    *****/
+    //***********************************/
     //Build and display the alert dialog
     private void areYouSureExit(){
         new AlertDialog.Builder(getActivity())
@@ -618,9 +664,9 @@ public class MMPersonFragment extends Fragment {
 
 
 
-    /************************************/
-    /*****      Widget Methods      *****/
-    /************************************/
+    //***********************************/
+    //****      Widget Methods      *****/
+    //***********************************/
 
 
     private RecyclerView getRecyclerView(View v){
@@ -636,12 +682,16 @@ public class MMPersonFragment extends Fragment {
     }
 */
 
-    /**********************************************************/
+    //*********************************************************/
     //      Methods dealing with whether the UI has changed   //
-    /**********************************************************/
+    //*********************************************************/
     private void setUIChanged(){
         isUIChanged = true;
         saveButtonEnable(MMUtilities.BUTTON_ENABLE);
+    }
+    private void setUIChanged(View v){
+        isUIChanged = true;
+        saveButtonEnable(v, MMUtilities.BUTTON_ENABLE);
     }
 
     private void setUISaved(){
@@ -650,7 +700,6 @@ public class MMPersonFragment extends Fragment {
         //disable the save button
         saveButtonEnable(MMUtilities.BUTTON_DISABLE);
     }
-
     private void setUISaved(View v){
         isUIChanged = false;
 
@@ -670,47 +719,22 @@ public class MMPersonFragment extends Fragment {
                 (Button) v.findViewById(R.id.personSaveButton);
 
         MMUtilities.enableButton(getActivity(),
-                personSaveButton,
-                isEnabled);
+                                 personSaveButton,
+                                 isEnabled);
     }
 
 
-    /**********************************************************/
+    //*********************************************************/
     //      Utility Functions used in handling events         //
-    /**********************************************************/
+    //*********************************************************/
 
     //called from onClick(), executed when a medication is selected
     private void onSelect(int position){
-        //todo need to update selection visually
-/*
-The medication list is maintained on the person object, not locally here
-
-        // TODO: 10/3/2016 Need to query list in Person Manager or Adapter, not locally
-        MMMedication selectedMedication = mMedicationList.get(position);
-*/
-
-
         MMMedicationCursorAdapter adapter = getAdapter(getView());
-        MMMedication selectedMedication = adapter.getMedicationAt(position);
+        //MMMedication selectedMedication = adapter.getMedicationAt(position);
 
-        Toast.makeText(getActivity().getApplicationContext(),
-                selectedMedication.getMedicationNickname() + " is selected!",
-                Toast.LENGTH_SHORT).show();
+        adapter.notifyItemChanged(position);
 
-
-
-        // No need to change the Medications on this Person: That happens on the Person Screen
-        //Crete a dialogue to ask if the user wants to Delete the medication
-
-        //Medication Attributes
-        //Time
-        //For each Medication on the Person: a dose amount
-
-        //Save the Concurrent Dose on the Callback from the Dialogue
-
-
-
-        //But, don't know if this makes sense in the flow of things
         ((MMMainActivity) getActivity()).switchToMedicationScreen(mPersonID, position);
     }
 

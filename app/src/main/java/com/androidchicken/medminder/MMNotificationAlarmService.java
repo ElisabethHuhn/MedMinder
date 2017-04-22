@@ -12,10 +12,10 @@ import android.support.v7.app.NotificationCompat;
 
 /**
  * Created by Elisabeth Huhn on 3/28/2017.
- * A service to convert alarms into notifications
+ * A service to set / clear notification alarms for all schedules on the current patient
  */
 
-public class MMAlarmService extends Service {
+public class MMNotificationAlarmService extends Service {
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager notificationManager;
     private PendingIntent pendingIntent;
@@ -91,6 +91,7 @@ public class MMAlarmService extends Service {
         // Get a PendingIntent containing the entire back stack
         return stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }
+
 
 
 }

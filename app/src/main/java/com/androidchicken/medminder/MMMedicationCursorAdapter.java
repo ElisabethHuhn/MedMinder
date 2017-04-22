@@ -40,6 +40,15 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
             medicationDoseUnits    = (EditText) v.findViewById(R.id.medicationDoseUnitsInput);
             medicationDoseAmt      = (EditText) v.findViewById(R.id.medicationDoseAmountInput);
             medicationDoseNum      = (EditText) v.findViewById(R.id.medicationDoseNumInput);
+
+            medicationForPersonID.setFocusable(false);
+            medicationNickName.setFocusable(false);
+            medicationBrandName.setFocusable(false);
+            medicationGenericName.setFocusable(false);
+            medicationDoseStrategy.setFocusable(false);
+            medicationDoseUnits.setFocusable(false);
+            medicationDoseAmt.setFocusable(false);
+            medicationDoseNum.setFocusable(false);
         }
 
     } //end inner class MyViewHolder
@@ -110,7 +119,7 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
 
         int strategy = medication.getDoseStrategy();
         String msg;
-        if (strategy == MMMedicationFragment.SET_SCHEDULE_FOR_MEDICATION){
+        if (strategy == MMMedicationFragment.sSET_SCHEDULE_FOR_MEDICATION){
             msg = mContext.getString(R.string.strategy_schedule);
         } else {
             msg = mContext.getString(R.string.strategy_as_needed);

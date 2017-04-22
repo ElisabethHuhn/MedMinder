@@ -82,7 +82,8 @@ public class MMScheduleListFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
                              Bundle savedInstanceState) {
 
 
@@ -103,12 +104,24 @@ public class MMScheduleListFragment extends Fragment {
         //get rid of soft keyboard if it is visible
         MMUtilities.hideSoftKeyboard(getActivity());
 
-        //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_schedule_list);
 
         //9) return the view
         return v;
     }
+
+    @Override
+    public void onResume(){
+
+        super.onResume();
+        MMUtilities.clearFocus(getActivity());
+
+        //set the title bar subtitle
+        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_schedule_list);
+
+        //Set the FAB visible
+        ((MMMainActivity) getActivity()).hideFAB();
+    }
+
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
@@ -160,20 +173,8 @@ public class MMScheduleListFragment extends Fragment {
         //set up the labels for the medication list
         field_container = v.findViewById(R.id.scheduleTitleRow);
 
-        label = (EditText) (field_container.findViewById(R.id.scheduleTimeHourOutput));
-        label.setText(R.string.medication_dose_hours);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-        label = (EditText) (field_container.findViewById(R.id.scheduleTimeMinutesOutput));
-        label.setText(R.string.medication_dose_minutes);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-        label = (EditText) (field_container.findViewById(R.id.scheduleTimeAmPmOutput));
-        label.setText(R.string.medication_dose_am_pm);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-        label = (EditText) (field_container.findViewById(R.id.scheduleMedIDOutput));
-        label.setText(R.string.id_abrev);
+        label = (EditText) (field_container.findViewById(R.id.scheduleTimeOutput));
+        label.setText(R.string.medication_dose_time);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.scheduleMedNameOutput));
@@ -204,7 +205,6 @@ public class MMScheduleListFragment extends Fragment {
         RecyclerView recyclerView = getRecyclerView(v);
 
         //3) create and assign a layout manager to the recycler view
-        //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
         RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
 
@@ -290,22 +290,17 @@ public class MMScheduleListFragment extends Fragment {
 
     //called from onClick(), executed when a schedule is selected
     private void onSelect(int position){
-        //todo need to update selection visually
 
         View v = getView();
         if (v == null)return;
 
         RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.scheduleList);
         MMSchedMedCursorAdapter adapter = (MMSchedMedCursorAdapter) recyclerView.getAdapter();
+        adapter.notifyItemChanged(position);
 
         MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
         MMScheduleMedication selectedSchedule =
                 schedMedManager.getScheduleMedicationFromCursor(adapter.getSchedMedCursor(), position);
-
-
-        Toast.makeText(getActivity(),
-                String.valueOf(selectedSchedule.getTimeDue()) + " is selected!",
-                Toast.LENGTH_SHORT).show();
 
         // TODO: 3/10/2017 allow the user to change the value of the schedule
     }

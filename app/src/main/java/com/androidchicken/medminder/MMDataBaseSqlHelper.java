@@ -19,9 +19,9 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     //logcat Tag
     private static final String TAG = "MMSqliteOpenHelper";
 
-    /*****************************************************/
-    /*****************************************************/
-    /*****************************************************/
+    //****************************************************/
+    //****************************************************/
+    //****************************************************/
 
     //Database Version
     private static final int DATABASE_VERSION = 1;
@@ -29,16 +29,16 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     //Database Name
     private static final String DATABASE_NAME = "MedMinder";
 
-    /*****************************************************/
-    /*****************************************************/
-    /*****************************************************/
+    //****************************************************/
+    //****************************************************/
+    //****************************************************/
     //Common Column Names
     public static final String KEY_ID = "id";
     public static final String KEY_CREATED_AT = "created_at";
 
-    /*****************************************************/
-    /*****    Person Table     ***************************/
-    /*****************************************************/
+    //****************************************************/
+    //****    Person Table     ***************************/
+    //****************************************************/
 
     //Table Name
     public static final String TABLE_PERSON          = "Person";
@@ -66,9 +66,9 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
             PERSON_EXISTS   + " INTEGER, "   +
             KEY_CREATED_AT  + " DATETIME "   + ")";
 
-    /*****************************************************/
-    /*****    Medication Table          ******************/
-    /*****************************************************/
+    //****************************************************/
+    //****    Medication Table          ******************/
+    //****************************************************/
 
     //Table Name
     public static final String TABLE_MEDICATION      = "Medication";
@@ -101,9 +101,43 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
             MEDICATION_CURRENTLY_TAKEN  + " INTEGER, "  +
             KEY_CREATED_AT            + " INTEGER "  + ")";
 
-    /*****************************************************/
-    /*****    Concurrent Dose Table     ******************/
-    /*****************************************************/
+
+    //****************************************************/
+    //****    Medication Alert Table    ******************/
+    //****************************************************/
+
+    //Table Name
+    public static final String TABLE_MEDICATION_ALERT      = "MedicationAlert";
+
+    // Column Names
+    public static final String MEDICATION_ALERT_ID               = "med_alert_id";
+    public static final String MEDICATION_ALERT_MEDICATION_ID    = "med_alert_med_id";
+    public static final String MEDICATION_ALERT_FOR_PATIENT_ID   = "med_alert_for_patient_id";
+    public static final String MEDICATION_ALERT_NOTIFY_PERSON_ID = "med_alert_notify_person_id";
+    public static final String MEDICATION_ALERT_TYPE_NOTIFY      = "med_alert_type_notify";
+    public static final String MEDICATION_ALERT_OVERDUE_TIME     = "med_alert_overdue_time";
+
+
+
+    //create  table
+    private static final String CREATE_TABLE_MEDICATION_ALERT = "CREATE TABLE " +
+            TABLE_MEDICATION +"(" +
+            KEY_ID                            + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            MEDICATION_ALERT_ID               + " INTEGER, "  +
+            MEDICATION_ALERT_MEDICATION_ID    + " INTEGER, "  +
+            MEDICATION_ALERT_FOR_PATIENT_ID   + " INTEGER, "  +
+            MEDICATION_ALERT_NOTIFY_PERSON_ID + " INTEGER, "  +
+            MEDICATION_ALERT_TYPE_NOTIFY      + " INTEGER, "  +
+            MEDICATION_ALERT_OVERDUE_TIME     + " INTEGER, "  +
+            KEY_CREATED_AT                    + " INTEGER "  + ")";
+
+
+
+
+
+    //****************************************************/
+    //****    Concurrent Dose Table     ******************/
+    //****************************************************/
     //Table Name
     public static final String TABLE_CONCURRENT_DOSE = "ConcurrentDose";
 
@@ -123,9 +157,9 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
             KEY_CREATED_AT                  + " INTEGER " + ")";
 
 
-    /*****************************************************/
-    /*****    Dose Table                ******************/
-    /*****************************************************/
+    //****************************************************/
+    //****    Dose Table                ******************/
+    //****************************************************/
     //Table Name
     public static final String TABLE_DOSE            = "Dose";
 
@@ -158,9 +192,9 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
 
 
 
-    /*****************************************************/
-    /*****    Schedule Medication Table    ***************/
-    /*****************************************************/
+    //****************************************************/
+    //****    Schedule Medication Table    ***************/
+    //****************************************************/
     //Table Name
     public static final String TABLE_SCHED_MED            = "SchedMed";
 
@@ -181,9 +215,9 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
             KEY_CREATED_AT              + " INTEGER"   + ")";
 
 
-    /*****************************************************/
-    /*****************************************************/
-    /*****************************************************/
+    //****************************************************/
+    //****************************************************/
+    //****************************************************/
 
 
 
@@ -191,9 +225,9 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     private SQLiteDatabase mDatabase;
 
 
-    /*****************************************************/
-    /*******  Constructor               ******************/
-    /*****************************************************/
+    //****************************************************/
+    //******  Constructor               ******************/
+    //****************************************************/
 
     //This should be called with the APPLICATION context
     public MMDataBaseSqlHelper(Context context){
@@ -202,11 +236,11 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
         this.mContext = context;
     }
 
-    /*****************************************************/
-    /*******  Lifecycle Methods         ******************/
-    /*****************************************************/
+    //****************************************************/
+    //******  Lifecycle Methods         ******************/
+    //****************************************************/
 
-    /******************
+    /*****************
      * onCreate()
      * when the helper constructor is executed with a name (2nd param),
      * the platform checks if the database (second parameter) exists or not and
@@ -221,12 +255,13 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
         //create the tables using the pre-defined SQL
         db.execSQL(CREATE_TABLE_PERSON);
         db.execSQL(CREATE_TABLE_MEDICATION);
+        db.execSQL(CREATE_TABLE_MEDICATION_ALERT);
         db.execSQL(CREATE_TABLE_CONCURRENT_DOSE);
         db.execSQL(CREATE_TABLE_DOSE);
         db.execSQL(CREATE_TABLE_SCHED_MED);
     }
 
-    /******************
+    /*****************
      * This default version of the onUpgrade() method just
      * deletes any data in the database file, and recreates the
      * database from scratch.
@@ -265,15 +300,15 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
 
 
 
-    /************************************************/
+    //***********************************************/
     /*         Generic CRUD routines                */
     /* The same routine will do for all data types  */
-    /************************************************/
+    //***********************************************/
 
 
-    //****************************** Create ****************************
+    ///***************************** Create ****************************
 
-    /****************************************
+    /***************************************
      * Add is actually a complex function.
      * Add checks whether the object already exists within the DB.
      * If it does, the row is updated with the new values.
@@ -339,7 +374,7 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
                             String   groupBy,
                             String   having,
                             String   orderBy){
-        /********************************
+        /* ******************************
          Cursor query (String table, //Table Name
                          String[] columns,   //Columns to return, null for all columns
                          String where_clause,
@@ -377,10 +412,10 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     }
 
 
-    /************************************************/
+    //***********************************************/
     /*      Object Specific CRUD routines           */
     /*     Each Class has it's own routine          */
-    /************************************************/
+    //***********************************************/
 
     //********************* PERSON ****************************************************88
 

@@ -19,8 +19,8 @@
     >
 
     <LinearLayout
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_width="match_parent"
         android:orientation="vertical"
         >
 
@@ -291,6 +291,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:orientation="vertical"
+                android:fillViewport= "true"
                 >
                 <!-- Title Row: Medications taken by the person -->
                 <include android:id="@+id/medicationTitleRow" layout="@layout/list_row_medication"/>

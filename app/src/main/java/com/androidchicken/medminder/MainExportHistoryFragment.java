@@ -1,7 +1,6 @@
 package com.androidchicken.medminder;
 
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
@@ -37,32 +36,21 @@ public class MainExportHistoryFragment extends Fragment {
     private static final String TAG = "ExportHistoryFragment";
 
 
-    /***********************************************/
+    //**********************************************/
     /*          UI Widgets                         */
-    /***********************************************/
-    private Button mExportButton;
-    private Button mSelectPatientButton;
-    private Button mExitButton;
+    //**********************************************/
 
-    EditText mFilterStartInput;
-    EditText mFilterEndInput;
-    EditText mDirectoryInput;
-    EditText mSubDirectoryInput;
-    EditText mFileNameInput;
-    EditText mFileNameSuffixInput;
+    //**********************************************/
+    /*          Static Variables                   */
+    //**********************************************/
 
+    private static final String sCDF_FILENAME_TAG  = "cdfFilenameTag" ;
+    private static final String sCDF_PATH_TAG      = "cdfPathTag" ;
+    private static final String sCDF_TIMESTAMP_TAG = "cdfTimestampTag" ;
 
-    private TextView mPatientNickName;
-
-    private EditText mTimeInput;
-
-
-
-    private Cursor mConcurrentDoseCursor;
-
-    /***********************************************/
+    //**********************************************/
     /*          Member Variables                   */
-    /***********************************************/
+    //**********************************************/
     private MMPerson mPatient;
     private long     mPersonID;
     private boolean  isUIChanged = false;
@@ -71,11 +59,9 @@ public class MainExportHistoryFragment extends Fragment {
     CharSequence mCDFPath ;
     CharSequence mCDFTimestamp ;
 
-    /***********************************************/
+    //**********************************************/
     /*          Static Methods                     */
-    /***********************************************/
-
-
+    //**********************************************/
     //need to pass a person into the fragment
     public static MainExportHistoryFragment newInstance(long personID){
         //create a bundle to hold the arguments
@@ -92,17 +78,15 @@ public class MainExportHistoryFragment extends Fragment {
     }
 
 
-    /***********************************************/
+    //**********************************************/
     /*          Constructor                        */
-    /***********************************************/
-
-    //
+    //**********************************************/
     public MainExportHistoryFragment() {
     }
 
-    /***********************************************/
+    //**********************************************/
     /*          Lifecycle Methods                  */
-    /***********************************************/
+    //**********************************************/
 
     //pull the arguments out of the fragment bundle and store in the member variables
     //In this case, prepopulate the personID this screen refers to
@@ -148,7 +132,10 @@ public class MainExportHistoryFragment extends Fragment {
 
         if (savedInstanceState != null){
             //the fragment is being restored so restore the person ID
-            mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
+            mPersonID     = savedInstanceState.getLong(MMPerson.sPersonIDTag);
+            mCDFileName   = savedInstanceState.getString(sCDF_FILENAME_TAG);
+            mCDFPath      = savedInstanceState.getString(sCDF_PATH_TAG);
+            mCDFTimestamp = savedInstanceState.getString(sCDF_TIMESTAMP_TAG);
         }
 
 
@@ -158,7 +145,7 @@ public class MainExportHistoryFragment extends Fragment {
         //Wire up the UI widgets so they can handle events later
         wireWidgets(v);
 
-        initializeUI();
+        initializeUI(v);
 
         //get rid of soft keyboard if it is visible
         MMUtilities.hideSoftKeyboard(getActivity());
@@ -175,6 +162,10 @@ public class MainExportHistoryFragment extends Fragment {
     public void onSaveInstanceState(Bundle savedInstanceState){
         // Save custom values into the bundle
         savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
+        savedInstanceState.putString(sCDF_FILENAME_TAG,   mCDFileName.toString());
+        savedInstanceState.putString(sCDF_PATH_TAG,       mCDFPath.toString());
+        savedInstanceState.putString(sCDF_TIMESTAMP_TAG,  mCDFTimestamp.toString());
+
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -186,21 +177,23 @@ public class MainExportHistoryFragment extends Fragment {
 
         //set the title bar subtitle
         ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_export_history);
+
+        //Set the FAB invisible
+        ((MMMainActivity) getActivity()).hideFAB();
     }
 
-    /***********************************************/
+    //**********************************************/
     /*          Member Methods                     */
-    /***********************************************/
+    //**********************************************/
     private void   wireWidgets(View v) {
-        View field_container;
         TextView label;
 
         //Patient Profile Button
-        mExportButton = (Button) v.findViewById(R.id.exportButton);
-        mExportButton.setText(R.string.export_label);
+        Button exportButton = (Button) v.findViewById(R.id.exportButton);
+        exportButton.setText(R.string.export_label);
         //the order of images here is left, top, right, bottom
-        // mExportButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
-        mExportButton.setOnClickListener(new View.OnClickListener() {
+        // exportButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
+        exportButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(),
@@ -211,11 +204,11 @@ public class MainExportHistoryFragment extends Fragment {
         });
 
         //Exit Button
-        mExitButton = (Button) v.findViewById(R.id.exitButton);
-        mExitButton.setText(R.string.exit_label);
+        Button exitButton = (Button) v.findViewById(R.id.exitButton);
+        exitButton.setText(R.string.exit_label);
         //the order of images here is left, top, right, bottom
-        // mExitButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
-        mExitButton.setOnClickListener(new View.OnClickListener() {
+        // exitButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
+        exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onExit();
@@ -223,11 +216,11 @@ public class MainExportHistoryFragment extends Fragment {
         });
 
         //Select Persons Button
-        mSelectPatientButton = (Button) v.findViewById(R.id.selectPatientButton);
-        mSelectPatientButton.setText(R.string.select_patient_label);
+        Button selectPatientButton = (Button) v.findViewById(R.id.selectPatientButton);
+        selectPatientButton.setText(R.string.select_patient_label);
         //the order of images here is left, top, right, bottom
-        // mSelectPatientButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
-        mSelectPatientButton.setOnClickListener(new View.OnClickListener() {
+        // selectPatientButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
+        selectPatientButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getActivity(),
@@ -243,18 +236,15 @@ public class MainExportHistoryFragment extends Fragment {
         });
 
 
-        //Patient Nick Name
-        mPatientNickName = (TextView) v.findViewById(R.id.historyNickNameLabel);
-        //There are no events associated with this field
 
 
         label = (TextView)v.findViewById(R.id.filterStartDateLabel);
         label.setText(R.string.start_date);
 
-        mFilterStartInput = (EditText) v.findViewById(R.id.filterStartDate);
-        //mFilterStartInput.setHint(R.string.person_nick_name_hint);
-        mFilterStartInput.setInputType(InputType.TYPE_CLASS_DATETIME);
-        mFilterStartInput.addTextChangedListener(new TextWatcher() {
+        EditText filterStartInput = (EditText) v.findViewById(R.id.filterStartDate);
+        //filterStartInput.setHint(R.string.person_nick_name_hint);
+        filterStartInput.setInputType(InputType.TYPE_CLASS_DATETIME);
+        filterStartInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
                 //This tells you that text is about to change.
@@ -283,11 +273,11 @@ public class MainExportHistoryFragment extends Fragment {
         label = (TextView) (v.findViewById(R.id.filterEndDateLabel));
         label.setText(R.string.end_date);
 
-        mFilterEndInput = (EditText) (v.findViewById(R.id.filterEndDate));
-        //mFilterEndInput.setHint(R.string.person_email_addr_hint);
-        mFilterEndInput.setInputType(InputType.TYPE_CLASS_DATETIME);
+        EditText filterEndInput = (EditText) (v.findViewById(R.id.filterEndDate));
+        //filterEndInput.setHint(R.string.person_email_addr_hint);
+        filterEndInput.setInputType(InputType.TYPE_CLASS_DATETIME);
 
-        mFilterEndInput.addTextChangedListener(new TextWatcher() {
+        filterEndInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
                 //This tells you that text is about to change.
@@ -316,10 +306,10 @@ public class MainExportHistoryFragment extends Fragment {
         label = (TextView) (v.findViewById(R.id.directoryPathLabel));
         label.setText(R.string.directory_path);
 
-        mDirectoryInput = (EditText) (v.findViewById(directoryPath));
-        mDirectoryInput.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
-        //mDirectoryInput.setHint(R.string.person_text_addr_hint);
-        mDirectoryInput.addTextChangedListener(new TextWatcher() {
+        EditText directoryInput = (EditText) (v.findViewById(directoryPath));
+        directoryInput.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+        //directoryInput.setHint(R.string.person_text_addr_hint);
+        directoryInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
                 //This tells you that text is about to change.
@@ -347,9 +337,9 @@ public class MainExportHistoryFragment extends Fragment {
         label = (TextView) (v.findViewById(R.id.subDirectoryLabel));
         label.setText(R.string.sub_directory);
 
-        mSubDirectoryInput = (EditText) (v.findViewById(R.id.subDirectory));
-        //mSubDirectoryInput.setHint(R.string.person_order_hint);
-        mSubDirectoryInput.addTextChangedListener(new TextWatcher() {
+        EditText subDirectoryInput = (EditText) (v.findViewById(R.id.subDirectory));
+        //subDirectoryInput.setHint(R.string.person_order_hint);
+        subDirectoryInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
                 //This tells you that text is about to change.
@@ -378,9 +368,9 @@ public class MainExportHistoryFragment extends Fragment {
         label = (TextView) (v.findViewById(R.id.fileNameLabel));
         label.setText(R.string.export_filename);
 
-        mFileNameInput = (EditText) (v.findViewById(R.id.fileName));
-        //mFileNameInput.setHint(R.string.person_order_hint);
-        mFileNameInput.addTextChangedListener(new TextWatcher() {
+        EditText fileNameInput = (EditText) (v.findViewById(R.id.fileName));
+        //fileNameInput.setHint(R.string.person_order_hint);
+        fileNameInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
                 //This tells you that text is about to change.
@@ -408,9 +398,9 @@ public class MainExportHistoryFragment extends Fragment {
         label = (TextView) (v.findViewById(R.id.fileSuffixLabel));
         label.setText(R.string.filename_suffix);
 
-        mFileNameSuffixInput = (EditText) (v.findViewById(R.id.fileSuffix));
-        mFileNameSuffixInput.setHint(R.string.suffix_hint);
-        mFileNameSuffixInput.addTextChangedListener(new TextWatcher() {
+        EditText fileNameSuffixInput = (EditText) (v.findViewById(R.id.fileSuffix));
+        fileNameSuffixInput.setHint(R.string.suffix_hint);
+        fileNameSuffixInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
                 //This tells you that text is about to change.
@@ -436,15 +426,18 @@ public class MainExportHistoryFragment extends Fragment {
 
     }
 
-    private void   initializeUI(){
+    private void   initializeUI(View v){
         //determine if a person is yet associated with the fragment
         if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
             //if there is a person corresponding to the patientID, put the name up on the screen
             if (mPatient != null) {
-                mPatientNickName.setText(mPatient.getNickname().toString().trim());
+                //Patient Nick Name
+                TextView patientNickName = (TextView) v.findViewById(R.id.historyNickNameLabel);
+                //There are no events associated with this field
+                patientNickName.setText(mPatient.getNickname().toString().trim());
             }
         }
-    }
+     }
 
 
     private void onExit(){
@@ -471,9 +464,9 @@ public class MainExportHistoryFragment extends Fragment {
 
 
 
-    /************************************/
-    /*****  Exit Button Dialogue    *****/
-    /************************************/
+    //***********************************/
+    //****  Exit Button Dialogue    *****/
+    //***********************************/
     //Build and display the alert dialog
     private void areYouSureExit(){
         new AlertDialog.Builder(getActivity())
@@ -514,9 +507,9 @@ public class MainExportHistoryFragment extends Fragment {
 
 
 
-    /**********************************************************/
+    //*********************************************************/
     //      Methods dealing with whether the UI has changed   //
-    /**********************************************************/
+    //*********************************************************/
     private void setUIChanged(){
         isUIChanged = true;
         exportButtonEnable(MMUtilities.BUTTON_ENABLE);
@@ -554,9 +547,9 @@ public class MainExportHistoryFragment extends Fragment {
 
 
 
-    /************************************/
-    /*****                          *****/
-    /************************************/
+    //***********************************/
+    //****                          *****/
+    //***********************************/
 
     private File createPersonCDFile(MMPerson patient) throws IOException {
         // Create an image file name
@@ -612,9 +605,13 @@ public class MainExportHistoryFragment extends Fragment {
 
     private File writePersonCDF(MMPerson patient){
         File cdfFile = null;
-        FileWriter writer = null;
+        FileWriter writer;
         try {
             cdfFile = createPersonCDFile(patient);
+            if (cdfFile == null){
+                MMUtilities.errorHandler(getActivity(), R.string.error_unable_to_create_file);
+                return null;
+            }
             writer = new FileWriter(cdfFile);
 
             //Export the Patient
@@ -647,7 +644,7 @@ public class MainExportHistoryFragment extends Fragment {
 
     private File writeConcDoseCDF(MMPerson patient, File cdfFile){
 
-        FileWriter writer = null;
+        FileWriter writer;
         try {
             writer = new FileWriter(cdfFile);
 

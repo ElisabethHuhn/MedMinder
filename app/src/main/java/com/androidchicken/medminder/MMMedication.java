@@ -36,6 +36,9 @@ public class MMMedication {
     public static int DOSE_AMOUNT_UNITS_AS_NEEDED = 13;
     //public static int DOSE_AMOUNT_UNITS_MILLIEQUIVALENT = 14;
 
+    public static final String sDoseTimeTag = "DOSE_TIME";
+    public static final String sDoseAmountTag = "DOSE_AMOUNT";
+
 
 
     /*************************************/

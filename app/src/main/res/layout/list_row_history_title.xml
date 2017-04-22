@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:id="@+id/doseHistoryLine"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusable="true"
+    android:clickable="true"
+
+    android:paddingTop="@dimen/interum_vertical"
+
+    android:background="?android:attr/selectableItemBackground"
+
+    >
+    <!-- Layout for history titles (medication names with positional indicator) -->
+
+    <!-- Positional Indicator {A, B, C,...} -->
+    <TextView
+        android:id="@+id/titlePositionalIndicator"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+
+        android:layout_marginEnd="1dp"
+
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorHistoryBackground"
+        />
+
+    <!-- Medication Name -->
+    <TextView
+        android:id="@+id/titleMedicationName"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_weight="9"
+        android:gravity="center"
+
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorHistoryBackground"
+        />
+
+
+
+</LinearLayout>

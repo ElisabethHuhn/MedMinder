@@ -3,12 +3,14 @@
 
     <!--      Global                  -->
     <!--  -->
+    <string name="date_format"        >MMM DD,YYYY</string>
+    <string name="time_format"        >HH:MM A</string>
+
     <string name="save_label"         >Save</string>
     <string name="save_successful"    >Save Successful</string>
     <string name="exit_label"         >Exit</string>
     <string name="hint_label"         >Hint</string>
     <string name="cancle_label"       >Cancel</string>
-    <string name="exception_no_person">No Person was in List</string>
     <string name="exception_medication_not_added">Could not add medication</string>
     <string name="exportHistoryLabel" >Export</string>
     <string name="list_label"         >Title</string>
@@ -38,14 +40,17 @@
     <string name="add_noting"           >Nothing to Add</string>
 
     <!--      Title Bar Text                  -->
-    <string name="title_home"           >Home</string>
-    <string name="title_person"         >Person Profile</string>
-    <string name="title_patient"        >Patient</string>
-    <string name="title_person_list"    >List People</string>
-    <string name="title_medication"     >Medication Prescription</string>
-    <string name="title_medication_list">List Medications</string>
-    <string name="title_export_history" >Export History</string>
-    <string name="title_schedule_list"  >List Schedules</string>
+    <string name="title_home"               >Home</string>
+    <string name="title_person"             >Person Profile</string>
+    <string name="title_patient"            >Patient</string>
+    <string name="title_person_list"        >List People</string>
+    <string name="title_medication"         >Medication Prescription</string>
+    <string name="title_medication_list"    >List Medications</string>
+    <string name="title_medication_alert"   >Medication Alerts</string>
+    <string name="title_export_history"     >Export History</string>
+    <string name="title_schedule_list"      >Medication Schedule List</string>
+    <string name="title_history_title_line" >History Title Line Definition</string>
+
 
     <!--      Medication SCREEN                  -->
     <!--  -->
@@ -54,7 +59,7 @@
     <string name="medication_nick_name_label"   >Med Name</string>
     <string name="medication_brand_name_label"  >Brand Name</string>
     <string name="medication_generic_name_label">Generic Name</string>
-    <string name="medication_for_label"         >Person</string>
+    <string name="medication_for_label"         >Patient</string>
     <string name="medication_for_name"          >Person Name</string>
 
     <string name="medication_dose_strategy_label">Strategy</string>
@@ -80,6 +85,7 @@
     <string name="medication_when_due_hint2"    >Leave When Due blank for as needed</string>
     <string name="strategy_hint_label"          >Strategy Hint</string>
     <string name="medication_strategy_hint"     >1 = schedule, 2 = as needed</string>
+    <string name="medication_dose_time"         >Time</string>
     <string name="medication_dose_hours"        >Hours</string>
     <string name="medication_dose_minutes"      >Minutes</string>
     <string name="medication_dose_am_pm"        >A/P</string>
@@ -97,13 +103,11 @@
     <!--  -->
     <string name="person_screen_label"      >Person Profile</string>
     <string name="person_label"             >Person</string>
-    <string name="exists_label"            >Current?</string>
+    <string name="exists_label"             >Current?</string>
     <string name="person_id_label"          >Person ID</string>
     <string name="person_nick_name_label"   >Nick Name</string>
     <string name="person_email_addr_label"  >Email Addr</string>
     <string name="person_text_addr_label"   >Text Addr</string>
-    <string name="person_order_label"       >Order</string>
-    <string name="person_duration_label"   >Duration</string>
     <string name="person_is_patient_label"  >is patient?</string>
     <string name="person_save_first"        >Save before adding medications</string>
     <string name="horizontal_scroll_hint"   >Horizontal scroll to see all fields</string>
@@ -124,11 +128,11 @@
     <string name="person_list_screen_label" >Person List</string>
 
 
-    <!--      Dose Taken SCREEN                  -->
+    <!--      Home SCREEN                  -->
     <!--  -->
     <string name="patient_nick_name_label"      >Select SWITCH PATIENT</string>
     <string name="patient_edit_profile_label"   >Edit Patient</string>
-    <string name="patient_add_persons_label"    >Add Person</string>
+    <string name="patient_add_alerts_label"     >Add Alerts</string>
     <string name="patient_list_schedules_label" >List Schedules</string>
     <string name="select_patient_label"         >Switch Patient</string>
     <string name="patient_add_medication_label">Add Med</string>
@@ -136,6 +140,9 @@
     <string name="patient_no_med_but"           >No Med Button Pushed</string>
     <string name="dose_default_date"            >00/00/0000</string>
     <string name="dose_default_time"            >00/00 00:00</string>
+    <string name="reselect_dose"                >Re-select Dose to edit</string>
+    <string name="error_parsing_date_time"      >Error parsing Date and / or Time</string>
+    <string name="show_meds_help_label"         >Meds Help</string>
 
     <string name="input_received"    >Input received</string>
 
@@ -150,19 +157,26 @@
     <string name="export_filename"  >File Name</string>
     <string name="suffix_hint"      >Appended if file name exists</string>
     <string name="error_writing_file">ERROR writing file. Data not saved</string>
+    <string name="error_unable_to_create_file">ERROR unable to create file. Data not saved</string>
     <string name="export_label"     >Export</string>
 
 
 
     <!--      Schedule List SCREEN                  -->
-    <string name="schedule_list_screen_label" >Schedule List</string>
 
+    <!--      Medication Alert SCREEN                  -->
+    <!--  -->
+    <string name="medication_alert_screen_label"    >Medication Alerts</string>
+    <string name="medication_alert_num_label"       ># Alarms</string>
+    <string name="medication_alert_type"            >Email/Text</string>
+    <string name="medication_alert_time_overdue"    >When</string>
 
 
     <!-- exception messages -->
-    <string name="person_does_not_exist"   >Person does not exist. ID = %d</string>
-    <string name="no_person"               >There has to be a Person to add a Medication</string>
-    <string name="no_persons_defined"      >No persons defined</string>
+    <string name="person_does_not_exist"    >Person does not exist. ID = %d</string>
+    <string name="no_person_med"            >There has to be a Person to add a Medication</string>
+    <string name="no_persons_defined"       >No persons defined</string>
+    <string name="no_person_alert"          >Need Patient for Alert</string>
 
 
     <!-- Alert Dialog Strings -->
@@ -183,8 +197,12 @@
     <string name="save_concurrent_dose"     >Save Concurrent Dose</string>
 
 
-    <string name="med_not_found_delete" >Medication not found, can not delete OR reinstsate</string>
+    <string name="med_not_found_delete"     >Medication not found, can not delete OR reinstsate</string>
     <string name="person_not_found_delete"  >Person not found, can not delete OR reinstsate</string>
+    
+    <string name="create_medication_alert"  >Create Medication Alert</string>
+    <string name="med_alert_defaults"       >Override Defaults</string>
+    <string name="create_label"             >Create</string>
 
 
     <!-- database exceptions -->

@@ -12,12 +12,15 @@ import android.view.View;
 
 public class MMMainActivity extends AppCompatActivity {
 
-    public  static final String sHomeTag        = "HOME";//HOME screen fragment
-    private static final String sPersonTag      = "PERSON";
-    private static final String sPersonListTag  = "PERSON_LIST";
-    private static final String sMedicationTag  = "MEDICATION";
-    public  static final String sExportTag      = "EXPORT";
+    //Tags for the fragments which are the screens of the app
+    public  static final String sHomeTag          = "HOME";
+    private static final String sPersonTag        = "PERSON";
+    private static final String sPersonListTag    = "PERSON_LIST";
+    private static final String sMedicationTag    = "MEDICATION";
+    private static final String sMedAlertTag      = "MED_ALERT";
+    public  static final String sExportTag        = "EXPORT";
     private static final String sScheduleListTag  = "SCHEDULE_LIST";
+    public  static final String sHistoryTitleTag  = "HISTORY_TITLE_LIST";
 
 
     @Override
@@ -27,63 +30,14 @@ public class MMMainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        initializeFAB();
 
-                android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-                Fragment fragment = fm.findFragmentById(R.id.fragment_container);
-
-                if (fragment instanceof MMHomeFragment) {
-                    //Add a new person
-                    MMUtilities.showHint(view, getString(R.string.add_person));
-                    switchToPersonScreen();
-
-                } else if (fragment instanceof MMPersonListFragment) {
-                    //Add a new person
-                    MMUtilities.showHint(view, getString(R.string.add_person));
-                    switchToPersonScreen();
-
-                } else if (fragment instanceof MMPersonFragment) {
-                    //Add a new medication
-                    long personID = ((MMPersonFragment) fragment).getPersonID();
-                    MMPerson person = MMUtilities.getPerson(personID);
-
-                    String msg =
-                            String.format(getString(R.string.add_medication), person.getNickname());
-                    MMUtilities.showHint(view, msg);
-
-                    switchToMedicationScreen(personID);
-
-                } else if (fragment instanceof MMMedicationFragment) {
-                    //Add a new schedule
-                    MMMedication medication =
-                            ((MMMedicationFragment) fragment).getMedicationInstance();
-                    if (medication != null) {
-                        String msg = String.format(getString(R.string.add_schedule),
-                                                   medication.getMedicationNickname());
-                        MMUtilities.showHint(view, msg);
-                        ((MMMedicationFragment) fragment).handleUpButton();
-                    }
-                } else {
-                    //do nothing
-                    Snackbar.make(view, getString(R.string.add_noting), Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-
-                }
-
-            }
-        });
-
-        //Set the fragment to Dose Taken screen
-        //set up fragments
+        //Set the fragment to Home screen
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
 
         if (fragment == null) {
-            //when we first create the activity,
-            // the fragment needs to be the home screen
+            //when we first create the activity, the fragment needs to be the home screen
             fragment = new MMHomeFragment();
             fm.beginTransaction()
                     .add(R.id.fragment_container, fragment)
@@ -96,12 +50,79 @@ public class MMMainActivity extends AppCompatActivity {
             getSupportActionBar().setSubtitle(R.string.title_home);
         }
 
-        //Put HOME in the title bar
-
-        //Initialize the DBManager and open the DB
-
     }
 
+
+    /***************************************************************/
+    /*********** Methods dealing with the FAB          *************/
+    /***************************************************************/
+    private void initializeFAB(){
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handleFAB(view);
+            }
+        });
+    }
+
+    private void handleFAB(View view){
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
+
+        if (fragment instanceof MMHomeFragment) {
+            //Add a new person
+            MMUtilities.showHint(view, getString(R.string.add_person));
+            switchToPersonScreen();
+
+        } else if (fragment instanceof MMPersonListFragment) {
+            //Add a new person
+            MMUtilities.showHint(view, getString(R.string.add_person));
+            switchToPersonScreen();
+
+        } else if (fragment instanceof MMPersonFragment) {
+            //Add a new medication
+            long personID = ((MMPersonFragment) fragment).getPersonID();
+            MMPerson person = MMUtilities.getPerson(personID);
+
+            String msg =
+                    String.format(getString(R.string.add_medication), person.getNickname());
+            MMUtilities.showHint(view, msg);
+
+            switchToMedicationScreen(personID);
+
+        } else if (fragment instanceof MMMedicationFragment) {
+            //Add a new schedule
+            MMMedication medication =
+                    ((MMMedicationFragment) fragment).getMedicationInstance();
+            if (medication != null) {
+                String msg = String.format(getString(R.string.add_schedule),
+                        medication.getMedicationNickname());
+                MMUtilities.showHint(view, msg);
+                ((MMMedicationFragment) fragment).handleUpButton();
+            }
+        } else {
+            //do nothing
+            Snackbar.make(view, getString(R.string.add_noting), Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+
+        }
+    }
+
+    public void showFAB(){
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setVisibility(View.VISIBLE);
+    }
+
+    public void hideFAB(){
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setVisibility(View.GONE);
+    }
+
+
+    /***************************************************************/
+    /********************          Menu Methods        *************/
+    /***************************************************************/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -255,6 +276,31 @@ public class MMMainActivity extends AppCompatActivity {
 
 
     /****
+     * Method to switch fragment to History Title Line
+     * It defines the order of the medications in the history list of the Home screen
+     * EMH 10/17/16
+     */
+    public void switchToHistoryTitleScreen(long personID){
+        //replace the fragment with the Home UI
+
+        //Need the Fragment Manager to do the swap for us
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+
+        //clear the back stack
+        while (fm.getBackStackEntryCount() > 0){
+            fm.popBackStackImmediate();
+        }
+
+        Fragment fragment    = MMHistoryTitleLineFragment.newInstance(personID);
+        String   tag         = sHistoryTitleTag;
+        int      title       = R.string.title_history_title_line;
+
+        switchScreen(fragment, tag);
+        setMMSubtitle(title);
+    }
+
+
+    /****
      * Method to switch fragment to Edit Person Profile screen
      * EMH 10/17/16
      */
@@ -319,6 +365,8 @@ public class MMMainActivity extends AppCompatActivity {
             switchToHomeScreen(personID);
         } else if (returnFragmentTag.equals(sExportTag)){
             switchToExportScreen(personID);
+        } else if (returnFragmentTag.equals(sHistoryTitleTag)){
+            switchToHistoryTitleScreen(personID);
         }
     }
 
@@ -383,6 +431,32 @@ public class MMMainActivity extends AppCompatActivity {
         switchScreen(fragment, tag);
         setMMSubtitle(title);
     }
+
+
+    /*****
+     * Method to switch fragment to Medication Alert Screen
+     * EMH 4/22/2017
+     */
+    public void switchToMedicationAlertScreen(long personID){
+        //replace the fragment with the Home UI
+
+        //Need the Fragment Manager to do the swap for us
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+
+        //clear the back stack
+        while (fm.getBackStackEntryCount() > 0){
+            fm.popBackStackImmediate();
+        }
+
+        Fragment fragment    = MMMedicationAlertFragment.newInstance(personID);
+        String   tag         = sMedAlertTag;
+        int      title       = R.string.title_medication_alert;
+
+        switchScreen(fragment, tag);
+        setMMSubtitle(title);
+    }
+
+
 
     /****
      * Method to switch fragment to Schedule List screen

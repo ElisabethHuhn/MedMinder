@@ -99,9 +99,6 @@ public class MMPersonListFragment extends Fragment {
     }
 
 
-
-
-    //set up the recycler view
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -125,6 +122,19 @@ public class MMPersonListFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void onResume(){
+
+        super.onResume();
+
+        //set the title bar subtitle
+        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person_list);
+
+        //Set the FAB visible
+        ((MMMainActivity) getActivity()).showFAB();
+
+
+    }
 
     private void wireWidgets(View v){
         //Exit Button

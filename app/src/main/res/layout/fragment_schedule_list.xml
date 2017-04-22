@@ -19,8 +19,8 @@
     >
     <!-- Allow entire screen to scroll horizontally -->
     <LinearLayout
-        android:layout_width= "match_parent"
         android:layout_height="wrap_content"
+        android:layout_width= "match_parent"
         android:orientation=  "vertical"
         >
 
@@ -37,13 +37,13 @@
             android:paddingEnd="8dp"
             android:layout_marginBottom="8dp"
 
-            android:text="@string/schedule_list_screen_label"
+            android:text="@string/title_schedule_list"
             android:textSize="20sp"
             android:textColor="@color/colorTextBlack"
             android:background="@color/colorScreenBackground"
             />
 
-        <!-- Row 4: Person ID and Nickname -->
+        <!--  Person ID and Nickname -->
         <LinearLayout
             android:layout_width=  "match_parent"
             android:layout_height= "wrap_content"

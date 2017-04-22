@@ -7,6 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * Created by Elisabeth Huhn on 2/25/2017.
  *
@@ -24,14 +27,13 @@ public class MMSchedCursorAdapter extends RecyclerView.Adapter<MMSchedCursorAdap
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
-        public EditText medicationTimeHours, medicationTimeMinutes, medicationAmPm;
+        public EditText medicationTime;
 
         public MyViewHolder(View v) {
             super(v);
 
-            medicationTimeHours   = (EditText) v.findViewById(R.id.scheduleTimeHourOutput);
-            medicationTimeMinutes = (EditText) v.findViewById(R.id.scheduleTimeMinutesOutput);
-            medicationAmPm        = (EditText) v.findViewById(R.id.scheduleTimeAmPmOutput);
+            medicationTime   = (EditText) v.findViewById(R.id.scheduleTimeOutput);
+
         }
 
     } //end inner class MyViewHolder
@@ -123,9 +125,7 @@ public class MMSchedCursorAdapter extends RecyclerView.Adapter<MMSchedCursorAdap
 
             mSchedMedCursor = schedMedManager.getAllSchedMedsCursor(mMedicationID);
             if (mSchedMedCursor == null) {
-                holder.medicationTimeHours.setText("0");
-                holder.medicationTimeMinutes.setText("0");
-                holder.medicationAmPm.setText(R.string.medication_dose_am);
+                holder.medicationTime.setText("00:00 AM");
                 return;
             }
         }
@@ -133,27 +133,25 @@ public class MMSchedCursorAdapter extends RecyclerView.Adapter<MMSchedCursorAdap
         MMScheduleMedication schedMed =
                 schedMedManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
 
-        int hours = schedMed.getTimeDue() / 60;
-        int minutes = (schedMed.getTimeDue()) - (hours * 60);
+        int timeMinutes = schedMed.getTimeDue();
+        //I tried just using milliseconds, but somewhere it reset the timezone,
+        // causing the time I got back to be Greenwich.
+        // Thus the need to use the Calendar object kludge
+        //If you can do this better, have at it.
+        long timeMilliseconds = timeMinutes * 60 * 1000;
 
-        if (mIs24Format){
-            holder.medicationAmPm.setText("");
-        } else {
-            if (hours > 12) {
-                hours = hours - 12;
-                holder.medicationAmPm.setText(R.string.medication_dose_pm);
-            } else if (hours == 12){
-                holder.medicationAmPm.setText(R.string.medication_dose_pm);
-            } else if (hours == 0){
-                hours = 12;
-                holder.medicationAmPm.setText(R.string.medication_dose_am);
-            } else {
-                holder.medicationAmPm.setText(R.string.medication_dose_am);
-            }
-        }
+        int hours   = timeMinutes / 60;
+        int minutes = timeMinutes - (hours*60);
 
-        holder.medicationTimeHours  .setText(String.valueOf(hours));
-        holder.medicationTimeMinutes.setText(String.valueOf(minutes));
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.HOUR_OF_DAY, hours);
+        c.set(Calendar.MINUTE, minutes);
+        c.set(Calendar.SECOND, 0);
+        Date d1 = c.getTime();
+
+        String timeString = MMUtilities.getTimeString(MMUtilities.getTimeFormatString(mIs24Format), d1);
+
+        holder.medicationTime    .setText(timeString);
     }
 
     @Override

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools=  "http://schemas.android.com/tools"
+
+    android:id="@+id/content_main"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft=  "@dimen/activity_horizontal_margin"
+    android:paddingRight= "@dimen/activity_horizontal_margin"
+    android:paddingTop=   "@dimen/activity_vertical_margin"
+
+    android:background="@color/colorScreenBackground"
+    tools:context="com.androidchicken.medminder.MMMainActivityFragment"
+
+    >
+
+    <!-- This layout is for maintaining a Medication -->
+
+    <!-- Container for entire screen -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+
+        <!-- Medication Attributes -->
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_vertical"
+            >
+            <!-- Row 1: Medication Screen Label -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:gravity="center"
+                android:paddingBottom="4dp"
+                >
+                <TextView
+                    android:text="@string/medication_alert_screen_label"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
+
+                    android:focusable="false"
+
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+
+                    android:textSize="20sp"
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorScreenBackground"
+                    />
+
+            </TableRow>
+
+            <!-- Row 2: Buttons Row -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                >
+                <!-- Exit Button -->
+                <Button
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:id="@+id/medicationExitButton"
+                    android:text="@string/exit_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center|center_vertical"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="4dp"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorButton1Background"
+                    />
+
+            </TableRow>
+
+            <!-- Row : Medication For PersonID/Nickname, which the user may not change -->
+            <TableRow
+
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="10dp"
+                >
+                <TextView
+                    android:labelFor="@+id/medAlertForPersonNickName"
+                    android:focusable="false"
+                    android:text="@string/medication_for_label"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="30"
+                    android:gravity="end"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorLabelBackground"
+                    />
+
+                <TextView
+                    android:id="@+id/medAlertForPersonIDInput"
+
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="25"
+                    android:gravity="center_horizontal"
+
+                    android:focusable="false"
+                    android:enabled="false"
+
+                    android:layout_marginEnd="4dp"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorGray"
+                    />
+
+                <TextView
+                    android:id="@id/medAlertForPersonNickName"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="45"
+                    android:gravity="center_horizontal"
+
+                    android:focusable="false"
+                    android:enabled="false"
+
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="16dp"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorGray"
+                    />
+
+            </TableRow>
+
+
+            <!-- Row :  # of Alerts -->
+            <TableRow
+
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="10dp"
+                >
+                <!-- # of alerts -->
+                <TextView
+                    android:labelFor="@+id/medAlertNumInput"
+                    android:text="@string/medication_alert_num_label"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="30"
+                    android:gravity="end"
+
+                    android:focusable="false"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorLabelBackground"
+                    />
+                <TextView
+                    android:id="@id/medAlertNumInput"
+
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="50"
+                    android:gravity="center_horizontal"
+
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorInputBackground"
+                    />
+
+                <!-- Up Button -->
+                <Button
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:id="@+id/medicationAlertUpButton"
+                    android:text="@string/up_label"
+
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:layout_weight="10"
+                    android:gravity="center|center_vertical"
+
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorButton1Background"
+                    />
+                <!-- Down Button -->
+                <Button
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:id="@+id/medicationAlertDownButton"
+                    android:text="@string/down_label"
+
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:layout_weight="10"
+                    android:gravity="center|center_vertical"
+
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="8dp"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorButton1Background"
+                    />
+
+            </TableRow>
+
+        </TableLayout>
+
+        <!-- Title row and list of Medication Alerts -->
+        <HorizontalScrollView
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:fillViewport= "true"
+            android:layout_gravity="center_horizontal"
+            >
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width= "wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_horizontal"
+                >
+                <!-- Row: Headings for the list columns -->
+                <include android:id="@+id/medAlertTitleRow" layout="@layout/list_row_medication_alerts"/>
+
+                <!-- RecyclerView of History -->
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/scheduleList"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                     >
+                </android.support.v7.widget.RecyclerView>
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
+
+    </LinearLayout>
+
+</ScrollView>

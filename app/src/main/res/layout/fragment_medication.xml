@@ -118,8 +118,7 @@
 
             </TableRow>
 
-
-            <!-- Row 4: Medication For PersonID/Nickname, which the user may not change -->
+            <!-- Row 4: Medication For Patient: PersonID/Nickname, which the user may not change -->
             <TableRow
 
                 android:layout_height="wrap_content"

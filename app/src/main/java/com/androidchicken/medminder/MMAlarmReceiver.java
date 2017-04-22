@@ -25,7 +25,19 @@ public class MMAlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        sendNotificationNow(context, intent);
+        String action = intent.getAction();
+        if (action == null){
+            //A single alarm has gone off, send the notification
+            sendNotificationNow(context, intent);
+        } else if (action.equals("android.intent.action.BOOT_COMPLETED")) {
+            // A boot has just happened,
+            //start service to set the alarms for all people/all medications/all services
+            Intent bootAlarmService = new Intent(context, MMBootAlarmService.class);
+            context.startService(bootAlarmService);
+        } else {
+            //A single alarm has gone off, send the notification
+            sendNotificationNow(context, intent);
+        }
     }
 
 

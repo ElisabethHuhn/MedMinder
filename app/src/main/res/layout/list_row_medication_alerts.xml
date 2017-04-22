@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:id="@+id/medAlertLine"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusable="true"
+    android:clickable="true"
+
+    android:background="?android:attr/selectableItemBackground"
+
+    >
+
+    <!-- This layout is for a Medication element within a list-->
+    <!-- Patient who is taking the Medication  -->
+
+
+    <!-- Medication Nick Name -->
+    <TextView
+        android:id="@+id/medAlertMedNickNameInput"
+
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="10"
+        android:gravity="center_horizontal"
+
+        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorHistoryBackground"
+        />
+
+    <!-- Person Notified -->
+    <TextView
+        android:id="@+id/medAlertPersonInput"
+
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="3"
+        android:gravity="center_horizontal"
+
+        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorHistoryBackground"
+        />
+
+
+    <!-- Notification Type -->
+    <TextView
+        android:id="@+id/medAlertTypeInput"
+
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="3"
+        android:gravity="center_horizontal"
+
+        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorHistoryBackground"
+        />
+
+    <!-- Notify when overdue by (time duration) -->
+    <TextView
+        android:id="@+id/medAlertOverdueTimeInput"
+
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="2"
+        android:gravity="center_horizontal"
+
+        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorHistoryBackground"
+        />
+
+
+</LinearLayout>

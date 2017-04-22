@@ -13,26 +13,26 @@ import java.util.ArrayList;
  */
 
 public class MMSchedMedManager {
-    /************************************/
-    /********* Static Constants *********/
-    /************************************/
+    //***********************************/
+    //******** Static Constants *********/
+    //***********************************/
 
 
-    /************************************/
-    /********* Static Variables *********/
-    /************************************/
+    //***********************************/
+    //******** Static Variables *********/
+    //***********************************/
     private static MMSchedMedManager ourInstance ;
 
-    /************************************/
-    /********* Member Variables *********/
-    /************************************/
+    //***********************************/
+    //******** Member Variables *********/
+    //***********************************/
     //The list is kept on each medication, so no need for a list here
     //private ArrayList<MMScheduleMedication> mScheduleMedicationList;
 
 
-    /************************************/
-    /********* Static Methods   *********/
-    /************************************/
+    //***********************************/
+    //******** Static Methods   *********/
+    //***********************************/
     public static MMSchedMedManager getInstance() {
         if (ourInstance == null){
             ourInstance = new MMSchedMedManager();
@@ -41,29 +41,28 @@ public class MMSchedMedManager {
     }
 
 
-    /************************************/
-    /********* Constructors     *********/
-    /************************************/
+    //***********************************/
+    //******** Constructors     *********/
+    //***********************************/
     private MMSchedMedManager() {    }
 
-    /************************************/
-    /********* Setters/Getters  *********/
-    /************************************/
+    //***********************************/
+    //******** Setters/Getters  *********/
+    //***********************************/
 
 
-    /*******************************************/
-    /********* CRUD Methods   *********/
-    /*******************************************/
+    //******************************************/
+    //******** CRUD Methods   *********/
+    //******************************************/
 
 
     //The routine that actually adds the instance to DB
     public long addScheduleMedication(MMScheduleMedication scheduleMedication){
-        long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
+
 
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        returnCode = databaseManager.addSchedMed(scheduleMedication);
+        return databaseManager.addSchedMed(scheduleMedication);
 
-        return returnCode;
     }
 
 
@@ -84,10 +83,12 @@ public class MMSchedMedManager {
     }
 
     //return the cursor containing all the Schedules in the DB
+    // ordered by time dose is taken
     //that pertain to this personID
     public Cursor getAllSchedMedsForPersonCursor(long personID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        return databaseManager.getAllSchedMedsForPersonCursor(personID);
+        String orderClause = "SCHED_MED_TIME_DUE";
+        return databaseManager.getAllSchedMedsForPersonCursor(personID, orderClause);
     }
 
 
@@ -103,6 +104,8 @@ public class MMSchedMedManager {
     public boolean removeSchedMedFromDB(long schedMedID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         long returnCode = databaseManager.removeSchedMed(schedMedID);
+        //I know lint is complaining about simplifying this if stmt.
+        //I'd rather make it explicit rather than cryptic
         if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return false;
         return true;
     }
@@ -110,9 +113,9 @@ public class MMSchedMedManager {
 
 
 
-    /********************************************/
-    /*********       Utility methods       ******/
-    /********************************************/
+    //*******************************************/
+    //********       Utility methods       ******/
+    //*******************************************/
     public int howManyDueAt(int minutesSinceMidnight){
         Cursor cursor = getAllSchedMedsCursor();
         if (cursor == null) return 0;
@@ -132,9 +135,9 @@ public class MMSchedMedManager {
         return count;
     }
 
-    /********************************************/
-    /********* Object to/from DB methods   ******/
-    /********************************************/
+    //*******************************************/
+    //******** Object to/from DB methods   ******/
+    //*******************************************/
 
     public ContentValues getCVFromScheduleMedication(MMScheduleMedication schedMed){
         ContentValues values = new ContentValues();

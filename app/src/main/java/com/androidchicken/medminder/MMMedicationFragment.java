@@ -5,11 +5,12 @@ import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -24,6 +25,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -35,7 +37,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import static android.content.Context.ALARM_SERVICE;
 import static com.androidchicken.medminder.R.id.medicationDoseAmountInput;
@@ -47,53 +48,53 @@ import static com.androidchicken.medminder.R.id.medicationDoseNumInput;
  */
 public class MMMedicationFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
-    public static final int SET_SCHEDULE_FOR_MEDICATION = 0;
-    public static final int AS_NEEDED                   = 1;
+    public static final int sSET_SCHEDULE_FOR_MEDICATION = 0;
+    public static final int sAS_NEEDED = 1;
 
     private static final String SCHEDULE_STRATEGY  = "Schedule Medication Doses";
     private static final String AS_NEEDED_STRATEGY = "Take as needed";
 
-    /***********************************************/
+    //**********************************************/
     /*        UI Widget Views                      */
-    /***********************************************/
+    //**********************************************/
 
 
 
 
 
-    /***********************************************************/
+    //**********************************************************/
     /*   Variables that need to survive configuration change   */
-    /***********************************************************/
-    boolean isInputChanged = false;
+    //**********************************************************/
+    boolean isUIChanged = false;
     boolean userPressedOKinTimePicker = false;
 
 
-    /***********************************************/
+    //**********************************************/
     /*        Passed Arguments to this Fragment    */
-    /***********************************************/
+    //**********************************************/
     private long     mPersonID;
     private int      mPosition;
 
-    /***********************************************************/
-    /******  Strategy types for Spinner Widgets     **********/
-    /***********************************************************/
+    //**********************************************************/
+    //*****  Strategy types for Spinner Widgets     **********/
+    //**********************************************************/
     private static String[] mStrategyTypes  = new String[]{SCHEDULE_STRATEGY, AS_NEEDED_STRATEGY };
 
-    private int      mSelectedStrategyTypePosition = SET_SCHEDULE_FOR_MEDICATION;
-    private int      mOldPosition = SET_SCHEDULE_FOR_MEDICATION;
+    private int      mSelectedStrategyTypePosition = sSET_SCHEDULE_FOR_MEDICATION;
+    private int      mOldPosition = sSET_SCHEDULE_FOR_MEDICATION;
 
 
 
 
-    /***********************************************/
+    //**********************************************/
     /*          RecyclerView Widgets               */
-    /***********************************************/
+    //**********************************************/
     //all are now local to initializeRecyclerView()
 
 
-    /***********************************************/
+    //**********************************************/
     /*          Static Methods                     */
-    /***********************************************/
+    //**********************************************/
 
 
     //need to pass a medication into the fragment
@@ -115,16 +116,16 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         return fragment;
     }
 
-    /***********************************************/
+    //**********************************************/
     /*          Constructor                        */
-    /***********************************************/
+    //**********************************************/
     public MMMedicationFragment() {
     }
 
 
-    /***********************************************/
+    //**********************************************/
     /*          Lifecycle Methods                  */
-    /***********************************************/
+    //**********************************************/
 
 
     //pull the arguments out of the fragment bundle and store in the member variables
@@ -171,11 +172,21 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
         //hide the soft keyboard if it is visible
         MMUtilities.hideSoftKeyboard(getActivity());
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         //set the title bar subtitle
         ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_medication);
 
-       setUISaved();
+        if (savedInstanceState == null) {
+            setUISaved(v);
+        } else {
+            isUIChanged = savedInstanceState.getBoolean(MMHomeFragment.sIsUIChangedTag);
+            if (isUIChanged){
+                setUIChanged(v);
+            } else {
+                setUISaved(v);
+            }
+        }
 
         return v;
     }
@@ -185,6 +196,10 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         // Save custom values into the bundle
         savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
         savedInstanceState.putInt(MMPerson.sPersonMedicationPositionTag, mPosition);
+
+        //Save the isUIChanged flag
+        savedInstanceState.putBoolean(MMHomeFragment.sIsUIChangedTag, isUIChanged);
+
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -193,12 +208,23 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     public void onResume(){
         super.onResume();
 
+        //set the title bar subtitle
+        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_medication);
+
+        //Set the FAB visible
+        ((MMMainActivity) getActivity()).showFAB();
+
+
+        //hide the soft keyboard if it is visible
+        MMUtilities.hideSoftKeyboard(getActivity());
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
         setUISaved();
     }
 
-    /*********************************************/
-    /********   Initialization Methods  **********/
-    /*********************************************/
+    //********************************************/
+    //*******   Initialization Methods  **********/
+    //********************************************/
     private void wireWidgets(View v){
 
         Button medicationExitButton = (Button) v.findViewById(R.id.medicationExitButton);
@@ -392,92 +418,9 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         });
     }
 
-    public void handleUpButton(){
-        if (!isUpDownEnabled())return;
-        View v = getView();
-        if (v == null)return;
-
-        //increment the value on the UI
-        TextView medDoseNumInput = (TextView) v.findViewById(medicationDoseNumInput);
-        int size = Integer.valueOf(medDoseNumInput.getText().toString());
-        size++;
-
-        //Create a new schedule with time = 6AM
-        MMMedication medication = getMedicationInstance(mPersonID, mPosition);
-        if (medication != null) {
-            medDoseNumInput.setText(String.valueOf(size));
-            long medicationID = medication.getMedicationID();
-            MMScheduleMedication schedule =
-                    new MMScheduleMedication(medicationID,mPersonID,(6*60));
-            medication.addSchedule(schedule);
-
-            //shouldn't have to reinitialize cursor because onSave() will do it for us
-            //reinitializeCursor(medicationID);
-            onSave();
-
-            //create an Alarm to generate a notification for this scheduled dose
-            setNotificationAlarm(schedule.getTimeDue());
-        }
-
-    }
-
-    public void handleDownButton(){
-        if (!isUpDownEnabled())return;
-        View v = getView();
-        if (v == null)return;
-
-
-        //Decrement the value in the UI
-        TextView medDoseNumInput = (TextView) v.findViewById(medicationDoseNumInput);
-
-        //get rid of the last schedule
-        int last = Integer.valueOf(medDoseNumInput.getText().toString());
-        int position = 0;
-        int latestTime = 0;
-        int latestTimePosition = 0;
-        long latestTimeScheduleID = 0;
-        MMScheduleMedication latestTimeSchedule = null;
-        MMScheduleMedication schedule;
-
-        MMMedication medication = getMedicationInstance(mPersonID, mPosition);
-        if (medication == null)return;
-        ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
-
-        while (position < last){
-            schedule = schedules.get(position);
-            if (latestTime == 0)latestTime = schedule.getTimeDue();
-            if (latestTime <= schedule.getTimeDue()){
-                latestTime = schedule.getTimeDue();
-                latestTimePosition = position;
-                latestTimeSchedule = schedule;
-                latestTimeScheduleID = schedule.getSchedMedID();
-            }
-            position++;
-        }
-        if (latestTimeSchedule != null){
-
-            //If this is the only schedule due at this time
-            // Remove any alarms for this schedule
-            schedule = schedules.get(latestTimePosition);
-            cancelOneAlarm(schedule.getTimeDue());
-
-            //remove the schedule from the Medications List
-            schedules.remove(latestTimePosition);
-
-            //get rid of the schedule row in the DB
-            MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
-            schedMedManager.removeSchedMedFromDB(latestTimeScheduleID);
-
-            //let the user know the number of doses has decreased
-            medDoseNumInput.setText(String.valueOf(last-1));
-
-        }
-        onSave();
-    }
-
     private void wireStrategySpinner(View v){
         //set the default
-        mSelectedStrategyTypePosition = SET_SCHEDULE_FOR_MEDICATION;
+        mSelectedStrategyTypePosition = sSET_SCHEDULE_FOR_MEDICATION;
         mOldPosition = mSelectedStrategyTypePosition;
 
         //Then initialize the spinner itself
@@ -508,23 +451,10 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         //set up the labels for the medication list
         field_container = v.findViewById(R.id.schedTitleRow);
 
-        label = (EditText) (field_container.findViewById(R.id.scheduleTimeHourOutput));
-        label.setEnabled(false);
-        label.setText(R.string.medication_dose_hours);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-        label = (EditText) (field_container.findViewById(R.id.scheduleTimeMinutesOutput));
-        label.setEnabled(false);
-        label.setText(R.string.medication_dose_minutes);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-        label = (EditText) (field_container.findViewById(R.id.scheduleTimeAmPmOutput));
-        label.setEnabled(false);
-
-        label.setText(R.string.medication_dose_am_pm);
+        label = (EditText) (field_container.findViewById(R.id.scheduleTimeOutput));
+        label.setText(R.string.medication_dose_time);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
     }
-
 
     private void initializeRecyclerView(View v){
             /*
@@ -603,16 +533,15 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
     }
 
-
     private void initializeUI(View v){
         if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
-            throw new RuntimeException(getString(R.string.no_person));
+            throw new RuntimeException(getString(R.string.no_person_med));
         }
         MMPerson person = MMUtilities.getPerson(mPersonID);
 
         CharSequence nickname;
         if (person == null) {
-            nickname = getString(R.string.no_person);
+            nickname = getString(R.string.no_person_med);
         } else {
             nickname = person.getNickname().toString().trim();
         }
@@ -705,9 +634,9 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
 
         if (selectedStrategyType.equals(SCHEDULE_STRATEGY)) {
-            mSelectedStrategyTypePosition = SET_SCHEDULE_FOR_MEDICATION;
+            mSelectedStrategyTypePosition = sSET_SCHEDULE_FOR_MEDICATION;
         } else if (selectedStrategyType == AS_NEEDED_STRATEGY) {
-            mSelectedStrategyTypePosition = AS_NEEDED;
+            mSelectedStrategyTypePosition = sAS_NEEDED;
         }
         Spinner spinner = (Spinner) v.findViewById(R.id.strategy_type_spinner);
         spinner.setSelection(mSelectedStrategyTypePosition);
@@ -735,10 +664,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             v.setBackgroundColor(ContextCompat.
                     getColor(getActivity(), R.color.colorScreenBackground));
         }
-
-
         setUISaved(v);
-
     }
 
 
@@ -748,48 +674,42 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     }
 
 
-    /*************************************************/
-    /**********  UI Saved / Changed  Methods  ********/
-    /*************************************************/
+    //************************************************/
+    //*********  UI Saved / Changed  Methods  ********/
+    //************************************************/
 
     private void setUISaved(){
         View v = getView();
         setUISaved(v);
     }
-
     private void setUISaved(View v){
         if (v == null)return;
 
-        isInputChanged = false;
+        isUIChanged = false;
 
         //disable the save button
         saveButtonEnable(v, MMUtilities.BUTTON_DISABLE);
 
         setUpDownEnabled();
-
     }
-
 
     private void setUIChanged(){
         View v = getView();
         setUIChanged(v);
     }
-
     private void setUIChanged(View v){
         if (v == null)return;
 
-        isInputChanged = true;
+        isUIChanged = true;
 
         saveButtonEnable(v, MMUtilities.BUTTON_ENABLE);
         setUpDownEnabled();
     }
 
-
     private void saveButtonEnable(boolean isEnabled){
         View v = getView();
         saveButtonEnable(v, isEnabled);
     }
-
     private void saveButtonEnable(View v, boolean isEnabled){
 
         if (v == null)return; //onCreateView() hasn't run yet
@@ -801,8 +721,6 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
                 medicationSaveButton,
                 isEnabled);
     }
-
-
 
     private void    setUpDownEnabled(){
         View v = getView();
@@ -829,23 +747,21 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
                     ContextCompat.getColor(getActivity(),R.color.colorButton2Background));
         }
     }
-
     private boolean isUpDownEnabled(){
         int strategy = mSelectedStrategyTypePosition;
 
-        if (strategy != SET_SCHEDULE_FOR_MEDICATION) {
+        if (strategy != sSET_SCHEDULE_FOR_MEDICATION) {
             //This button doesn't do anything if the strategy isn't set
             //Toast.makeText(getActivity(),R.string.wrong_strategy, Toast.LENGTH_SHORT).show();
             return false;
         }
-        return !isInputChanged;
+        return !isUIChanged;
     }
 
 
-
-    /************************************************************/
-    /**********  RecyclerView / Adapter related Methods  ********/
-    /************************************************************/
+    //***********************************************************/
+    //*********  RecyclerView / Adapter related Methods  ********/
+    //***********************************************************/
 
     private void reinitializeCursor(long medicationID){
         if (medicationID == MMUtilities.ID_DOES_NOT_EXIST) return;
@@ -870,9 +786,9 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     }
 
 
-    /*********************************************/
-    /**********     Schedule Methods    **********/
-    /*********************************************/
+    //********************************************/
+    //*********     Schedule Methods    **********/
+    //********************************************/
 
     private TimePickerDialog showPicker(final long schedMedID,
                                         int hour,
@@ -911,7 +827,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
                                 schedMedManager.addScheduleMedication(scheduleMedication);
 
                                 //issue an alarm for this new time
-                                setNotificationAlarm(timeOfDay);
+                                MMUtilities.setNotificationAlarm(getActivity(), timeOfDay);
 
                                 //Now update the UI list
                                 reinitializeCursor(scheduleMedication.getOfMedicationID());
@@ -931,7 +847,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
                 //need to be able to differentiate between the three cases.
                 if (!userPressedOKinTimePicker) {
                     //need to set an Alarm for the old time as the user pressed cancel
-                    setNotificationAlarm(minutesSinceMidnight);
+                    MMUtilities.setNotificationAlarm(getActivity(), minutesSinceMidnight);
                 }
             }
         });
@@ -940,9 +856,9 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     }
 
 
-    /**********************************************************/
+    //*********************************************************/
     //      Utility Functions using passed arguments          //
-    /**********************************************************/
+    //*********************************************************/
     public MMMedication getMedicationInstance(){
         return getMedicationInstance(mPersonID, mPosition);
     }
@@ -979,10 +895,9 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     }
 
 
-    /*********************************************/
-    /**********     Spinner Callbacks   **********/
-    /*********************************************/
-
+    //********************************************/
+    //*********     Spinner Callbacks   **********/
+    //********************************************/
     public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
         mOldPosition = mSelectedStrategyTypePosition;
         mSelectedStrategyTypePosition = position;
@@ -999,14 +914,10 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     }
 
 
-    /****************************************/
-    /*****  Listeners for List Views    *****/
-    /****************************************/
 
-
-    /*********************************************/
-    /**********    Event Handlers       **********/
-    /*********************************************/
+    //********************************************/
+    //*********    Event Handlers       **********/
+    //********************************************/
     private void onSave(){
         View v = getView();
         if (v == null)return;
@@ -1124,16 +1035,108 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
                 R.string.exit_label,
                 Toast.LENGTH_SHORT).show();
 
-        if (isInputChanged) {
+        if (isUIChanged) {
             areYouSureExit();
         } else {
             switchToExit();
         }
     }
 
-    /************************************/
-    /*****  Exit Button Dialogue    *****/
-    /************************************/
+    public void handleUpButton(){
+        if (!isUpDownEnabled())return;
+        View v = getView();
+        if (v == null)return;
+
+        //increment the value on the UI
+        TextView medDoseNumInput = (TextView) v.findViewById(medicationDoseNumInput);
+        int size = Integer.valueOf(medDoseNumInput.getText().toString());
+        size++;
+
+        //Create a new schedule with time = 6AM
+        MMMedication medication = getMedicationInstance(mPersonID, mPosition);
+        if (medication != null) {
+            medDoseNumInput.setText(String.valueOf(size));
+            long medicationID = medication.getMedicationID();
+            MMScheduleMedication schedule =
+                    new MMScheduleMedication(medicationID,mPersonID,(6*60));
+            medication.addSchedule(schedule);
+
+            //shouldn't have to reinitialize cursor because onSave() will do it for us
+            //reinitializeCursor(medicationID);
+            onSave();
+
+            //Enable the Alarm receiver. It will stay enabled across reboots
+            ComponentName receiver = new ComponentName(getActivity(), MMAlarmReceiver.class);
+            PackageManager pm = getActivity().getPackageManager();
+
+            pm.setComponentEnabledSetting(receiver,
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    PackageManager.DONT_KILL_APP);
+
+            //create an Alarm to generate a notification for this scheduled dose
+            MMUtilities.setNotificationAlarm(getActivity(), schedule.getTimeDue());
+        }
+    }
+
+    public void handleDownButton(){
+        if (!isUpDownEnabled())return;
+        View v = getView();
+        if (v == null)return;
+
+
+        //Decrement the value in the UI
+        TextView medDoseNumInput = (TextView) v.findViewById(medicationDoseNumInput);
+
+        //get rid of the last schedule
+        int last = Integer.valueOf(medDoseNumInput.getText().toString());
+        int position = 0;
+        int latestTime = 0;
+        int latestTimePosition = 0;
+        long latestTimeScheduleID = 0;
+        MMScheduleMedication latestTimeSchedule = null;
+        MMScheduleMedication schedule;
+
+        MMMedication medication = getMedicationInstance(mPersonID, mPosition);
+        if (medication == null)return;
+        ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
+
+        while (position < last){
+            schedule = schedules.get(position);
+            if (latestTime == 0)latestTime = schedule.getTimeDue();
+            if (latestTime <= schedule.getTimeDue()){
+                latestTime = schedule.getTimeDue();
+                latestTimePosition = position;
+                latestTimeSchedule = schedule;
+                latestTimeScheduleID = schedule.getSchedMedID();
+            }
+            position++;
+        }
+        if (latestTimeSchedule != null){
+
+            //If this is the only schedule due at this time
+            // Remove any alarms for this schedule
+            schedule = schedules.get(latestTimePosition);
+            cancelOneAlarm(schedule.getTimeDue());
+
+            //remove the schedule from the Medications List
+            schedules.remove(latestTimePosition);
+
+            //get rid of the schedule row in the DB
+            MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+            schedMedManager.removeSchedMedFromDB(latestTimeScheduleID);
+
+            //let the user know the number of doses has decreased
+            medDoseNumInput.setText(String.valueOf(last-1));
+
+        }
+        onSave();
+    }
+
+
+
+    //***********************************/
+    //****  Exit Button Dialogue    *****/
+    //***********************************/
     //Build and display the alert dialog
     private void areYouSureExit(){
         new AlertDialog.Builder(getActivity())
@@ -1168,23 +1171,16 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         ((MMMainActivity) getActivity()).switchToPersonScreen(mPersonID);   //switchToPopBackstack();
     }
 
-
-
-
-    /**********************************************************/
+    //*********************************************************/
     //      Utility Functions used in handling events         //
-    /**********************************************************/
-
+    //*********************************************************/
     //called from onClick(), executed when a Schedule is selected
     private void onSelect(int position){
-        //todo need to update selection visually
-
-        Toast.makeText(getActivity(),
-                "Position " + String.valueOf(position) + " updated in DB!",
-                Toast.LENGTH_SHORT).show();
 
         //Need the schedule being updated, so ask the Adapter
         MMSchedCursorAdapter adapter = getAdapter(getView());
+        adapter.notifyItemChanged(position);
+
         MMScheduleMedication schedule = adapter.getScheduleAt(position);
 
         //create a dialogue to allow the user to:
@@ -1196,15 +1192,13 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         int minutes = schedule.getTimeDue() - (hours * 60);
         showPicker(schedule.getSchedMedID(), hours, minutes, MMUtilities.is24Format() );
 
-        //The schedule itself and its alarme are actually updated in the TimePicker callbacks
+        //The schedule itself and its alarms are actually updated in the TimePicker callbacks
     }
 
 
-    /**********************************/
+    //*********************************/
     //     Alarms and  Notifications  //
-    /*********************************/
-
-
+    //********************************/
     private void cancelOneAlarm(int minutesSinceMidnight){
         //If this is the only schedule due at this time
         // Remove any alarms for this schedule
@@ -1228,32 +1222,6 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
         //cancel any previous alarms
         alarmManager.cancel(pendingIntent);
-    }
-
-    private void setNotificationAlarm(int minutesSinceMidnight){
-        //get the PendingIntent that describes the action we desire,
-        // so that it can be performed when the alarm goes off
-        PendingIntent pendingIntent = getNotificationAlarmAction(minutesSinceMidnight);
-
-        AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(ALARM_SERVICE);
-
-        int hours   = minutesSinceMidnight / 60;
-        int minutes = minutesSinceMidnight - (hours * 60);
-
-        Calendar alarmStartTime = Calendar.getInstance();
-        alarmStartTime.set(Calendar.HOUR_OF_DAY, hours);
-        alarmStartTime.set(Calendar.MINUTE,      minutes);
-        alarmStartTime.set(Calendar.SECOND,      0);
-/*
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,          //alarm type, real time clock wake up device
-                                  alarmStartTime.getTimeInMillis(), //time to first trigger alarm
-                                  getInterval(),                    //interval between repeats
-                                  pendingIntent);                   //Action to perform when the alarm goes off
-*/
-        long futureInMillis = SystemClock.elapsedRealtime() + 30000;
-
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
-
     }
 
     private PendingIntent getNotificationAlarmAction(int requestCode){

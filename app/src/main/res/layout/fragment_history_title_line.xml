@@ -62,37 +62,12 @@
 
         </LinearLayout>
 
-        <!-- Buttons: Save, Select Patient, Edit Patient -->
+        <!-- Save Button, Select Patient, Edit Patient -->
         <LinearLayout
             android:layout_height="match_parent"
             android:layout_width ="match_parent"
             android:orientation="horizontal"
-            android:paddingBottom="10dp"
-
-
             >
-
-            <!-- Save Button -->
-            <Button
-                style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/homeSaveButton"
-                android:text="@string/save_label"
-
-                android:enabled="false"
-
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center|center_vertical"
-                android:layout_gravity="start"
-                android:layout_weight="10"
-
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="2dp"
-
-                android:background="@color/colorButton1Background"
-                android:textColor="@color/colorGray"
-                />
 
             <!-- Select Patient Button -->
             <Button
@@ -126,7 +101,7 @@
                 android:layout_weight="10"
 
                 android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
+                android:layout_marginEnd="8dp"
 
                 android:enabled="false"
                 android:background="@color/colorButton1Background"
@@ -135,91 +110,24 @@
 
         </LinearLayout>
 
-        <!-- Buttons: Alerts, Title Help -->
+        <!-- Dose Taken fields added programmatically -->
         <LinearLayout
-            android:layout_height="match_parent"
-            android:layout_width ="match_parent"
-            android:orientation="horizontal"
-            android:paddingBottom="10dp"
-
-
-            >
-
-            <!-- Title Help Button -->
-
-            <!-- Help for Medications Order Button -->
-            <!-- Includes deleted Medications  -->
-            <Button
-                style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/showMedsHelpButton"
-                android:text="@string/show_meds_help_label"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center|center_vertical"
-                android:layout_gravity="start"
-                android:layout_weight="10"
-
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="2dp"
-
-                android:background="@color/colorButton1Background"
-                android:textColor="@color/colorTextBlack"
-                />
-
-            <!-- Add Alerts Button -->
-            <Button
-                style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/patientAlertsButton"
-                android:text="@string/patient_edit_profile_label"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center|center_vertical"
-                android:layout_gravity="start"
-                android:layout_weight="10"
-
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="8dp"
-
-                android:enabled="false"
-                android:background="@color/colorButton1Background"
-                android:textColor="@color/colorTextBlack"
-                />
-
-        </LinearLayout>
-
-        <!-- Row 2: Medication Buttons -->
-        <LinearLayout
-            android:id="@+id/medButtonLayout"
-            android:layout_height="match_parent"
+            android:id="@+id/medHistoryLayout"
+            android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:layout_gravity="center_horizontal"
             android:paddingTop="5dp"
             android:orientation="horizontal"
             >
 
-            <!--  Medication Buttons are added programmatically by the fragment -->
-
-        </LinearLayout>
-
-        <!-- Row 3: Dose Taken fields added programmatically -->
-        <LinearLayout
-                android:id="@+id/medInputLayout"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="5dp"
-                android:orientation="horizontal"
-                >
-
-
             <!-- Date/Time -->
 
 
-            </LinearLayout>
+        </LinearLayout>
 
-        <!-- Rows: DDose Taken History -->
+
+
+        <!-- Rows: DDose Taken Title History -->
         <HorizontalScrollView
             android:layout_height="wrap_content"
             android:layout_width= "match_parent"
@@ -231,14 +139,16 @@
             <!-- Row 4: DDose Taken History -->
             <LinearLayout
                android:layout_height="wrap_content"
-               android:layout_width= "match_parent"
+               android:layout_width= "wrap_content"
                android:orientation="vertical"
                 >
+                <!-- Title Row: Medications taken by the person -->
                 <!-- Title Row: Goes here with the same include file as the RecyclerView -->
+                <include android:id="@+id/historyTitleRow" layout="@layout/list_row_history_title"/>
 
                 <!-- RecyclerView of History -->
                 <android.support.v7.widget.RecyclerView
-                    android:id="@+id/doseHistoryList"
+                    android:id="@+id/historyTitleList"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
                      >
