@@ -38,6 +38,7 @@
     <string name="add_medication"       >Add New Medication to %s</string>
     <string name="add_schedule"         >Schedule new dose to %s</string>
     <string name="add_noting"           >Nothing to Add</string>
+    <string name="add_medicaition_alert">Add New Medication Alert</string>
 
     <!--      Title Bar Text                  -->
     <string name="title_home"               >Home</string>
@@ -56,7 +57,7 @@
     <!--  -->
     <string name="medication_screen_label"      >Medication Prescription</string>
     <string name="medication_id_label"          >Medication</string>
-    <string name="medication_nick_name_label"   >Med Name</string>
+    <string name="medication_nick_name_label"   >Nick Name</string>
     <string name="medication_brand_name_label"  >Brand Name</string>
     <string name="medication_generic_name_label">Generic Name</string>
     <string name="medication_for_label"         >Patient</string>
@@ -169,10 +170,17 @@
     <string name="medication_alert_screen_label"    >Medication Alerts</string>
     <string name="medication_alert_num_label"       ># Alarms</string>
     <string name="medication_alert_type"            >Email/Text</string>
-    <string name="medication_alert_time_overdue"    >When</string>
+    <string name="medication_alert_notify"          >Notify</string>
+    <string name="medication_alert_time_overdue"    >When D:H:M</string>
+    <string name="medication_alert_msg"
+        >Patient %s has not taken a dose of %s since %s, even though one was due %s</string>
 
 
     <!-- exception messages -->
+    <string name="med_alert_text_permission">Need permission to send a text message</string>
+    <string name="telephony_supported"      >Telephony SUPPORTED</string>
+    <string name="teelphony_not_supported"  >Telephony NOT supported</string>
+    <string name="Alert_not_saved"          >Alert NOT saved</string>
     <string name="person_does_not_exist"    >Person does not exist. ID = %d</string>
     <string name="no_person_med"            >There has to be a Person to add a Medication</string>
     <string name="no_persons_defined"       >No persons defined</string>
@@ -185,9 +193,20 @@
     <string name="delete_title"             >Delete</string>
     <string name="reinstate_title"          >Reinstate</string>
     <string name="abandon_title"            >Changes Could Be Lost</string>
+    <string name="create_label"             >Create</string>
     <string name="cancel"                   >Cancel</string>
+    <string name="update"                   >Update</string>
+    <string name="ok"                       >OK</string>
     <string name="fix_dose_amounts"         >Fix Dose Amount(s)</string>
     <string name="correct_amounts"          >Correct Amount(s)</string>
+    <string name="notified_label"           >Person Notified</string>
+    <string name="notify_type_label"        >Email/Text</string>
+    <string name="notify_time_label"        >Overdue Time</string>
+    <string name="notify_hint"              >Notify when overdue by:</string>
+    <string name="notify_day_label"         >Days</string>
+    <string name="notify_hour_label"        >Hours</string>
+    <string name="notify_minute_label"      >Minutes</string>
+
 
     <string name="delete_person"            >Delete Person</string>
     <string name="reinstate_person"         >Reinstate Person</string>
@@ -197,13 +216,21 @@
     <string name="save_concurrent_dose"     >Save Concurrent Dose</string>
 
 
-    <string name="med_not_found_delete"     >Medication not found, can not delete OR reinstsate</string>
-    <string name="person_not_found_delete"  >Person not found, can not delete OR reinstsate</string>
+    <string name="med_not_found"            >Medication not found, can not create Alert</string>
+    <string name="person_not_found"         >Person not found, can not create Alert</string>
     
     <string name="create_medication_alert"  >Create Medication Alert</string>
-    <string name="med_alert_defaults"       >Override Defaults</string>
-    <string name="create_label"             >Create</string>
+    <string name="update_medication_alert"  >Update Medication Alert</string>
+    <string name="med_alert_defaults"       >Override Defaults for patient %s</string>
+    <string name="med_alert_values"         >Update current values for patient %s</string>
 
+    <string name="sms_permission_title"     >SMS Permissions Dialog</string>
+    <string name="sms_permission_message"   >SMS Permissions Message</string>
+
+    <string name="pressed_cancel"           >Cancel selected</string>
+    <string name="pressed_ok"               >OK selected</string>
+    <string name="med_alert_created"        >Medication Alert Created</string>
+    <string name="med_alert_updated"        >Medication Alert Updated</string>
 
     <!-- database exceptions -->
     <string name="no_context_eException"    >Can not create database without a context</string>

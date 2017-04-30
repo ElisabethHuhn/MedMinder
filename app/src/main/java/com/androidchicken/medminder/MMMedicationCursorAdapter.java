@@ -25,27 +25,21 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public EditText medicationBrandName, medicationGenericName, medicationNickName;
-        public EditText medicationForPersonID;
-        public EditText medicationDoseStrategy, medicationDoseAmt,   medicationDoseUnits;
-        public EditText medicationDoseNum;
+        public EditText medicationDoseNum, medicationDoseAmt,   medicationDoseUnits;
 
         public MyViewHolder(View v) {
             super(v);
 
-            medicationForPersonID  = (EditText) v.findViewById(R.id.medicationForPersonInput);
             medicationNickName     = (EditText) v.findViewById(R.id.medicationNickNameInput);
             medicationBrandName    = (EditText) v.findViewById(R.id.medicationBrandNameInput);
             medicationGenericName  = (EditText) v.findViewById(R.id.medicationGenericNameInput);
-            medicationDoseStrategy = (EditText) v.findViewById(R.id.medicationDoseStrategyInput);
             medicationDoseUnits    = (EditText) v.findViewById(R.id.medicationDoseUnitsInput);
             medicationDoseAmt      = (EditText) v.findViewById(R.id.medicationDoseAmountInput);
             medicationDoseNum      = (EditText) v.findViewById(R.id.medicationDoseNumInput);
 
-            medicationForPersonID.setFocusable(false);
             medicationNickName.setFocusable(false);
             medicationBrandName.setFocusable(false);
             medicationGenericName.setFocusable(false);
-            medicationDoseStrategy.setFocusable(false);
             medicationDoseUnits.setFocusable(false);
             medicationDoseAmt.setFocusable(false);
             medicationDoseNum.setFocusable(false);
@@ -95,11 +89,9 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
             if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) return;
             mMedicationCursor = medicationManager.getAllMedicationsCursor(mPersonID);
             if (mMedicationCursor == null) {
-                holder.medicationForPersonID.setText("");
                 holder.medicationNickName.setText("");
                 holder.medicationBrandName.setText("");
                 holder.medicationGenericName.setText("");
-                holder.medicationDoseStrategy.setText(mContext.getString(R.string.strategy_schedule));
                 holder.medicationDoseAmt.setText("");
                 holder.medicationDoseUnits.setText("0");
                 holder.medicationDoseNum.setText("0");
@@ -112,19 +104,9 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
         MMMedication medication =
                 medicationManager.getMedicationFromCursor(mMedicationCursor, position);
 
-        holder.medicationForPersonID.setText(String.valueOf(medication.getForPersonID()).trim());
         holder.medicationNickName.   setText(medication.getMedicationNickname().toString().trim());
         holder.medicationBrandName.  setText(medication.getBrandName().toString().trim());
         holder.medicationGenericName.setText(medication.getGenericName().toString().trim());
-
-        int strategy = medication.getDoseStrategy();
-        String msg;
-        if (strategy == MMMedicationFragment.sSET_SCHEDULE_FOR_MEDICATION){
-            msg = mContext.getString(R.string.strategy_schedule);
-        } else {
-            msg = mContext.getString(R.string.strategy_as_needed);
-        }
-        holder.medicationDoseStrategy.setText(msg);
         holder.medicationDoseAmt.    setText(String.valueOf(medication.getDoseAmount()).trim());
         holder.medicationDoseUnits.  setText(medication.getDoseUnits().toString().trim());
         holder.medicationDoseNum.    setText(String.valueOf(medication.getDoseNumPerDay()).trim());
@@ -150,11 +132,9 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
 
 
     private void setBackColor(MyViewHolder holder, int newColor){
-        holder.medicationForPersonID.setBackgroundColor(ContextCompat.getColor(mContext, newColor));
         holder.medicationNickName.   setBackgroundColor(ContextCompat.getColor(mContext, newColor));
         holder.medicationBrandName.  setBackgroundColor(ContextCompat.getColor(mContext, newColor));
         holder.medicationGenericName.setBackgroundColor(ContextCompat.getColor(mContext, newColor));
-        holder.medicationDoseStrategy.setBackgroundColor(ContextCompat.getColor(mContext, newColor));
         holder.medicationDoseAmt.    setBackgroundColor(ContextCompat.getColor(mContext, newColor));
         holder.medicationDoseUnits.  setBackgroundColor(ContextCompat.getColor(mContext, newColor));
         holder.medicationDoseNum.    setBackgroundColor(ContextCompat.getColor(mContext, newColor));

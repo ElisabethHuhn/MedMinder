@@ -26,7 +26,7 @@ public class MMDose {
     private long mForPersonID;
     private long mContainedInConcurrentDoseID;
     private int  mPositionWithinConcDose;
-    private long mTimeTaken;   //milliseconds since Jan1, 1970;
+    private long mTimeTaken;   //milliseconds since Jan 1, 1970;
     private int  mAmountTaken; //default can be overridden
 
 

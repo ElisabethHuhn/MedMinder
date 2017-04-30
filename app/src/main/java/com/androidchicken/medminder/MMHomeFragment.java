@@ -350,6 +350,8 @@ public class MMHomeFragment extends Fragment {
         //Medication Alerts
         Button medAlertsButton = (Button) v.findViewById(R.id.patientAlertsButton);
         medAlertsButton.setText(R.string.medication_alert_screen_label);
+        medAlertsButton.setFocusable(true);
+        medAlertsButton.setEnabled(true);
         //the order of images here is left, top, right, bottom
         //mShowMedsHelpButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
         medAlertsButton.setOnClickListener(new View.OnClickListener() {

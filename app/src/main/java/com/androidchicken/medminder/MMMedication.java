@@ -18,43 +18,26 @@ import java.util.ArrayList;
  */
 
 public class MMMedication {
-    /*************************************/
+    //************************************/
     /*    Static (class) Constants       */
-    /*************************************/
-    public static int DOSE_AMOUNT_UNITS_MG        = 1;
-    public static int DOSE_AMOUNT_UNITS_G         = 2;
-    public static int DOSE_AMOUNT_UNITS_GRAIN     = 3;
-    public static int DOSE_AMOUNT_UNITS_DROPS     = 4;
-    public static int DOSE_AMOUNT_UNITS_PUFFS     = 5;
-    public static int DOSE_AMOUNT_UNITS_SPRAY     = 6;
-    public static int DOSE_AMOUNT_UNITS_ML        = 7;
-    public static int DOSE_AMOUNT_UNITS_POUND     = 8;
-    public static int DOSE_AMOUNT_UNITS_SPOONFUL  = 9;
-    public static int DOSE_AMOUNT_UNITS_PILL      = 10;
-    public static int DOSE_AMOUNT_UNITS_CAPSULE   = 11;
-    public static int DOSE_AMOUNT_UNITS_TABLET    = 12;
-    public static int DOSE_AMOUNT_UNITS_AS_NEEDED = 13;
-    //public static int DOSE_AMOUNT_UNITS_MILLIEQUIVALENT = 14;
+    //************************************/
 
-    public static final String sDoseTimeTag = "DOSE_TIME";
-    public static final String sDoseAmountTag = "DOSE_AMOUNT";
+    public static final String MEDICATION_ID = "medication_id";
 
 
-
-    /*************************************/
+    //************************************/
     /*    Static (class) Variables       */
-    /*************************************/
+    //************************************/
 
 
-    /*************************************/
+    //************************************/
     /*    Member (instance) Variables    */
-    /*************************************/
+    //************************************/
     private long         mMedicationID;
     private CharSequence mBrandName;
     private CharSequence mGenericName;
     private CharSequence mMedicationNickname;
     private long         mForPersonID;
-    private int          mDoseStrategy;
     private int          mDoseAmount;
     private CharSequence mDoseUnits;
     private int          mDoseNumPerDay;
@@ -62,14 +45,14 @@ public class MMMedication {
 
     private ArrayList<MMScheduleMedication> mSchedules;
 
-    /*************************************/
+    //************************************/
     /*         Static Methods            */
-    /*************************************/
+    //************************************/
 
 
-    /*************************************/
+    //************************************/
     /*         CONSTRUCTORS              */
-    /*************************************/
+    //************************************/
 
     //Generic instance with no attributes
     public MMMedication() {
@@ -87,7 +70,6 @@ public class MMMedication {
         mBrandName    = getDefaultBrandName();
         mGenericName  = getDefaultGenericName();
         mMedicationNickname = getDefaultMedicationNickname();
-        mDoseStrategy = getDefaultDoseStrategy();//scheduled
         mDoseAmount   = getDefaultDoseAmount();
         mDoseUnits    = getDefaultDoseUnits();
         mDoseNumPerDay= getDefaultDoseNumPerDay();
@@ -97,9 +79,9 @@ public class MMMedication {
     }
 
 
-    /*************************************/
+    //************************************/
     /*    Member setter/getter Methods   */
-    /*************************************/
+    //************************************/
     public long         getMedicationID()                  {  return mMedicationID; }
     public void         setMedicationID(long medicationID) { mMedicationID = medicationID; }
 
@@ -116,9 +98,6 @@ public class MMMedication {
     public long         getForPersonID()                 { return mForPersonID; }
     public void         setForPersonID(long forPersonID) {  mForPersonID = forPersonID; }
 
-    public int          getDoseStrategy()          {  return mDoseStrategy;  }
-    public void         setDoseStrategy(int doseStrategy) {  mDoseStrategy = doseStrategy;  }
-
     public int          getDoseAmount()               { return mDoseAmount; }
     public void         setDoseAmount(int doseAmount) { mDoseAmount = doseAmount;  }
 
@@ -131,6 +110,14 @@ public class MMMedication {
     public boolean      isCurrentlyTaken() {return mCurrentlyTaken;}
     public void         setCurrentlyTaken(boolean isTaken) {mCurrentlyTaken = isTaken;}
 
+    public boolean isSchedulesChanged() {
+        if ((mSchedules == null) ||
+                (mSchedules.size() == 0)) {
+            return false;
+        }
+        return true;
+    }
+    public void     setSchedules(ArrayList<MMScheduleMedication> schedules){mSchedules = schedules;}
     public ArrayList<MMScheduleMedication> getSchedules(){
         if (!isSchedulesChanged()) {
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
@@ -138,24 +125,13 @@ public class MMMedication {
 
             MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
             mSchedules = schedMedManager.getAllSchedMeds(mMedicationID);
-
-            int temp = 0;
         }
         return mSchedules;
     }
 
-    public void     setSchedules(ArrayList<MMScheduleMedication> schedules){mSchedules = schedules;}
-    public boolean isSchedulesChanged() {
-        if ((mSchedules == null) ||
-            (mSchedules.size() == 0)) {
-            return false;
-        }
-        return true;
-    }
-
-    /*************************************/
+    //************************************/
     /*    Default Attribute Values       */
-    /*************************************/
+    //************************************/
     public static long         getDefaultMedicationID()       {  return -1L; }
 
     public static CharSequence getDefaultBrandName()          {  return "";   }
@@ -165,8 +141,6 @@ public class MMMedication {
     public static CharSequence getDefaultMedicationNickname() {return "Med Nick Name"; }
 
     public static long         getDefaultForPersonID()         { return -1L; }
-
-    public static int          getDefaultDoseStrategy()        {  return 1;  }
 
     public static int          getDefaultDoseAmount()          { return 1; }
 
@@ -179,9 +153,9 @@ public class MMMedication {
     public static ArrayList<MMScheduleMedication> getDefaultSchedules(){
         return new ArrayList<>();}
 
-    /*************************************/
+    //************************************/
     /*          Member Methods           */
-    /*************************************/
+    //************************************/
     public Cursor getSchedulesCursor(){
         MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
         return schedMedManager.getAllSchedMedsCursor(mMedicationID);
@@ -189,12 +163,6 @@ public class MMMedication {
 
     public boolean addSchedule(MMScheduleMedication schedule){
        return mSchedules.add(schedule);
-    }
-
-    public MMScheduleMedication removeLastSchedule(){
-        int position = mSchedules.size();
-        position--;
-        return mSchedules.remove(position);
     }
 
 
@@ -222,7 +190,6 @@ public class MMMedication {
                 String.valueOf(this.getGenericName())         + ", " +
                 String.valueOf(this.getMedicationNickname() ) + ", " +
                 String.valueOf(this.getForPersonID())         + ", " +
-                String.valueOf(this.getDoseStrategy())               + ", " +
                 String.valueOf(this.getDoseAmount())          + ", " +
                 String.valueOf(this.getDoseUnits())           + ", " +
                 String.valueOf(this.getDoseNumPerDay()            +

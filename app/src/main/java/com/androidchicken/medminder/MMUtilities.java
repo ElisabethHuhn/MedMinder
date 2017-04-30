@@ -3,13 +3,18 @@ package com.androidchicken.medminder;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.SystemClock;
+import android.content.pm.PackageManager;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.provider.Telephony;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
+import android.telephony.SmsManager;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
@@ -23,7 +28,7 @@ import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -97,6 +102,15 @@ public class MMUtilities {
     public static void errorHandler(Context context, int messageResource) {
         errorHandler(context, context.getString(messageResource));
     }
+
+    public static void showStatus(Context context, String message){
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void showStatus(Context context, int messageResource){
+        showStatus(context, context.getString(messageResource));
+    }
+
 
     public static void showHint(View view, String msg){
         Snackbar.make(view, msg, Snackbar.LENGTH_LONG).setAction("Action", null).show();
@@ -289,64 +303,255 @@ public class MMUtilities {
     //*****************************************/
     /*      Alarm / Notification Utilities    */
     //*****************************************/
-    public static void setNotificationAlarm(Context context, int minutesSinceMidnight){
+    public static void enableAlarmReceiver(Context activity){
+        //Enable the Alarm receiver. It will stay enabled across reboots
+        ComponentName receiver = new ComponentName(activity, MMAlarmReceiver.class);
+        PackageManager pm = activity.getPackageManager();
+
+        pm.setComponentEnabledSetting(receiver,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP);
+    }
+
+
+
+    public static void createAlertAlarm(Context activity, MMMedicationAlert medAlert){
+        //get the last dose of this medication for this patient
+        MMDoseManager doseManager = MMDoseManager.getInstance();
+        MMDose mostRecentDose = doseManager.getMostRecentDose(medAlert.getMedicationID());
+
+        long lastTaken;
+        if (mostRecentDose == null){
+            lastTaken = System.currentTimeMillis();
+        } else {
+            lastTaken = mostRecentDose.getTimeTaken();
+        }
+
+        //calculate when the Alert should be sent (in milliseconds since Jan 1, 1970)
+        long timeOverdueMillisec = (medAlert.getOverdueTime() * 60 * 1000);
+        timeOverdueMillisec = timeOverdueMillisec + lastTaken;
+
+        //build the Pending Intent which will be activated when the Alarm triggers
+        int alertRequestcode = MMAlarmReceiver.alertRequestCode;
+        PendingIntent alertIntent = buildAlertIntent(activity, alertRequestcode, medAlert);
+
+        AlarmManager alarmManager = (AlarmManager) activity.getSystemService((Context.ALARM_SERVICE));
+        alarmManager.set(AlarmManager.RTC_WAKEUP, timeOverdueMillisec, alertIntent);
+    }
+
+    public static void scheduleNotification(Context activity, long timeOfDayMillisec) {
+        //start by building the Notification
+        int notificationID = MMAlarmReceiver.scheduleNotificationID;
+        Notification notification = buildNotification(activity, notificationID);
+
+        //But we need to set an Alarm Intent to send to the Alarm Manager.
+        PendingIntent alarmIntent = buildAlarmIntent(activity, notificationID, notification);
+        // When the Alarm fires, it will broadcast the PendingIntent
+        // that will be picked up by our AlarmReceiver
+
+
+        AlarmManager alarmManager = (AlarmManager) activity.getSystemService(Context.ALARM_SERVICE);
+
+        //set to repeat every 24 hours
+        long repeatInterval = (24 * 60 * 60 * 1000); //hours * minutes * seconds * milli
+
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,  //alarm type, real time clock wake up device
+                                  timeOfDayMillisec,        //time to first trigger alarm
+                                  repeatInterval,           //interval between repeats
+                                  alarmIntent);             //Action to perform when the alarm goes off
+    }
+
+
+    public static void cancelNotificationAlarms(Context activity, int minutesSinceMidnight){
         //get the PendingIntent that describes the action we desire,
         // so that it can be performed when the alarm goes off
-        PendingIntent pendingIntent = getNotificationAlarmAction(context, minutesSinceMidnight);
+        int notificationID = MMAlarmReceiver.scheduleNotificationID;
+        Notification notification = buildNotification(activity, notificationID);
+        PendingIntent alarmIntent = buildAlarmIntent(activity, notificationID, notification);
 
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+        AlarmManager alarmManager = (AlarmManager) activity.getSystemService(ALARM_SERVICE);
 
-        int hours   = minutesSinceMidnight / 60;
-        int minutes = minutesSinceMidnight - (hours * 60);
-
-        Calendar alarmStartTime = Calendar.getInstance();
-        alarmStartTime.set(Calendar.HOUR_OF_DAY, hours);
-        alarmStartTime.set(Calendar.MINUTE,      minutes);
-        alarmStartTime.set(Calendar.SECOND,      0);
-/*
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,          //alarm type, real time clock wake up device
-                                  alarmStartTime.getTimeInMillis(), //time to first trigger alarm
-                                  getInterval(),                    //interval between repeats
-                                  pendingIntent);                   //Action to perform when the alarm goes off
-*/
-        long futureInMillis = SystemClock.elapsedRealtime() + 30000;
-
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
-
+        //cancel any previous alarms
+        alarmManager.cancel(alarmIntent);
     }
 
-    public static PendingIntent getNotificationAlarmAction(Context context, int requestCode){
-        //explicit intent naming the receiver class
-        Intent alarmIntent = new Intent(context, MMAlarmReceiver.class);
-        alarmIntent.putExtra(MMAlarmReceiver.NOTIFICATION_ID, 1);
-        alarmIntent.putExtra(MMAlarmReceiver.NOTIFICATION,getNotification(context));
 
-        //wake up the explicit Activity when the alarm goes off
-        //return PendingIntent.getActivity (getActivity(), //context
-        //broadcast when the alarm goes off
-        return PendingIntent.getBroadcast(context, //context
-                requestCode,   //request code
-                alarmIntent,   //explicit intent to be broadcast
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        //flags that control which unspecified
-        // parts of the intent can be supplied
-        // when the actual send happens
+    private static Notification buildNotification(Context activity,
+                                                  int notificationID){
+        //want the Notification to wake up the MMMainActivity
+        Intent activityIntent = new Intent(activity, MMMainActivity.class);
 
 
-    }
+        //insert the Intent that will be passed to the app Activity into a Pending Intent.
+        // This wrapper Pending Intent is consumed by the system (AlarmManager??)
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                activity,        //context
+                notificationID,  //ID so the notification can be referenced later
+                activityIntent,  //Intent to wake up our Activity
+                PendingIntent.FLAG_CANCEL_CURRENT); //override any existing
 
-    public static Notification getNotification(Context context){
-                /*  Create a Notification Builder  */
+        //  Create a Notification Builder that will do the actual creation of the Notification
+        //     and insert the PendingIntent into the Notification as it's ContentIntent
         NotificationCompat.Builder builder =
-                (NotificationCompat.Builder) new NotificationCompat.Builder(context)
-
+                (NotificationCompat.Builder) new NotificationCompat.Builder(activity)
+                        .setContentTitle(activity.getResources().getString(R.string.app_name))
+                        .setContentText(activity.getResources().getString(R.string.time_to_take))
                         .setSmallIcon(R.drawable.ground_station_icon)
-                        .setContentTitle(context.getResources().getString(R.string.app_name))
-                        .setContentText(context.getResources().getString(R.string.time_to_take))
-                        //notification is canceled as soon as it is touched by the user
-                        .setAutoCancel(true);
+                        // .setLargeIcon(((BitmapDrawable) activity.getResources().getDrawable(R.drawable.app_icon)).getBitmap())
+                        .setAutoCancel(true)//notification is canceled as soon as it is touched by the user
+                        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                        .setContentIntent(contentIntent);
 
+        //build and return the Notification
         return builder.build();
+    }
+
+    private static PendingIntent buildAlarmIntent(Context activity,
+                                                  int notificationRequestCode,
+                                                  Notification notification){
+        //Start by building an Intent targeting our AlarmReceiver,
+        // and insert the ID and notification into this Intent
+        Intent notificationIntent = new Intent(activity, MMAlarmReceiver.class);
+        notificationIntent.putExtra(MMAlarmReceiver.NOTIFICATION_ID, notificationRequestCode);
+        notificationIntent.putExtra(MMAlarmReceiver.NOTIFICATION, notification);
+        notificationIntent.putExtra(MMAlarmReceiver.ALARM_TYPE, MMAlarmReceiver.schedNotifAlarmType);
+
+        //Insert this intent into a wrapper that is used to schedule an Alarm
+        //When the alarm triggers, the notificationIntent will be Broadcast
+        //Our MMAlarmReceiver will receive the broadcast and know to post the notification
+        return  PendingIntent.getBroadcast( activity,
+                                            notificationRequestCode,
+                                            notificationIntent,
+                                            PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+
+    private static PendingIntent buildAlertIntent(Context activity,
+                                                  int     alertRequestCode,
+                                                  MMMedicationAlert medAlert){
+        //Start by building an Intent targeting our AlarmReceiver,
+        // and insert the ID and notification into this Intent
+        Intent alertIntent = new Intent(activity, MMAlarmReceiver.class);
+        alertIntent.putExtra(MMAlarmReceiver.ALARM_TYPE,           MMAlarmReceiver.alertAlarmType);
+        alertIntent.putExtra(MMMedicationAlert.sMedAlertID,        medAlert.getMedicationAlertID());
+        alertIntent.putExtra(MMMedicationAlert.sMedicationIDTag,   medAlert.getMedicationID());
+        alertIntent.putExtra(MMMedicationAlert.sPatientIDTag,      medAlert.getForPatientID());
+        alertIntent.putExtra(MMMedicationAlert.sNotifyPersonIDTag, medAlert.getForPatientID());
+        alertIntent.putExtra(MMMedicationAlert.sNotifyTypeTag,     medAlert.getNotifyType());
+
+
+        //Insert this intent into a wrapper that is used to schedule an Alarm
+        //When the alarm triggers, the notificationIntent will be Broadcast
+        //Our MMAlarmReceiver will receive the broadcast and know to post the notification
+        return  PendingIntent.getBroadcast( activity,
+                                            alertRequestCode,
+                                            alertIntent,
+                                            PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    public static void sendAlert(Context context,
+                                 long medAlertID,
+                                 long timeTakenMilliseconds,
+                                 long timeDueMilliseconds){
+        MMMedicationAlertManager medicationAlertManager = MMMedicationAlertManager.getInstance();
+        MMMedicationAlert medicationAlert = medicationAlertManager.getMedicationAlert(medAlertID);
+
+        String dateTimeDueString = getDateTimeString(timeDueMilliseconds);
+        String timeTakenString   = getDateTimeString(timeTakenMilliseconds);
+
+        MMPersonManager personManager = MMPersonManager.getInstance();
+        MMPerson notifyPerson = getPerson(medicationAlert.getForPatientID());
+        String personNickname = notifyPerson.getNickname().toString();
+
+        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
+        MMMedication medication = medicationManager.getMedicationFromID(medicationAlert.getMedicationID());
+        String medicationName = medication.getMedicationNickname().toString();
+
+        //"Patient %s has not taken a dose of %s since %s, even though one was due %s";
+
+        String msg = String.format(context.getString(R.string.medication_alert_msg),
+                                   personNickname,
+                                   medicationName,
+                                   timeTakenString,
+                                   dateTimeDueString);
+
+        int alertType = medicationAlert.getNotifyType();
+        if (alertType == MMMedicationAlert.sNOTIFY_BY_TEXT) {
+            sendSMS(context, notifyPerson.getTextAddress().toString(), msg);
+        } else if (alertType == MMMedicationAlert.sNOTIFY_BY_EMAIL){
+            sendEmail(context, notifyPerson.getEmailAddress().toString(), msg);
+        } //else if any other type in the future......
+
+
+    }
+
+
+
+    //************************************/
+    /*         Send Email using Intent   */
+    //************************************/
+
+    protected static void sendEmail(Context context, String toAddress, String msg) {
+
+        String[] TO = {toAddress};     //{"someone@gmail.com"};
+        //String[] CC = {"elisabethhuhn@gmail.com"};
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setData(Uri.parse("mailto:"));
+        emailIntent.setType("text/plain");
+
+
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
+        //emailIntent.putExtra(Intent.EXTRA_CC, CC);
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Missed Medication Dose");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, msg);
+
+        try {
+            context.startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+            ((MMMainActivity)context).finish();
+
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(context,
+                    "There is no email client installed.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    //************************************/
+    /*         Send Text to phone #      */
+    //************************************/
+
+    //---sends an SMS message to another device---
+
+    // but it opens the message app
+    private void sendSMSIntent(Context activity, String phoneNumber, String message)
+    {
+        Intent messageIntent = new Intent(activity, Telephony.Sms.class);
+        PendingIntent pi     = PendingIntent.getActivity(activity, 0, messageIntent, 0);
+        SmsManager smsMgr    = SmsManager.getDefault();
+        smsMgr.sendTextMessage(phoneNumber, null, message, pi, null);
+    }
+
+
+
+    public static void sendSMS(Context context, String phoneNo, String msg){
+        boolean isSMSPermitted = ((MMMainActivity)context).isSMSPermissionGranted();
+
+        if (isSMSPermitted){
+            SmsManager smsManager = SmsManager.getDefault();
+            if (msg.length() > 159) {
+                ArrayList<String> parts = smsManager.divideMessage(msg);
+                smsManager.sendMultipartTextMessage(phoneNo, null, parts, null, null);
+            } else {
+                try {
+                    smsManager.sendTextMessage(phoneNo, null, msg, null, null);
+
+                } catch (Exception ex) {
+                    Toast.makeText(context, ex.getMessage().toString(), Toast.LENGTH_LONG).show();
+                    ex.printStackTrace();
+                }
+            }
+        }
+
 
     }
 

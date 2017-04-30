@@ -141,7 +141,6 @@
 
             </TableRow>
 
-
             <!-- Row :  # of Alerts -->
             <TableRow
 
@@ -182,7 +181,7 @@
                 <!-- Up Button -->
                 <Button
                     style="?android:attr/buttonBarButtonStyle"
-                    android:id="@+id/medicationAlertUpButton"
+                    android:id="@+id/medAlertUpButton"
                     android:text="@string/up_label"
 
                     android:layout_width="0dp"

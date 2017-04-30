@@ -9,24 +9,9 @@
     android:clickable="true"
 
     android:background="?android:attr/selectableItemBackground"
-
     >
 
     <!-- This layout is for a Medication element within a list-->
-    <!-- Medication For Person -->
-    <EditText
-        android:id="@+id/medicationForPersonInput"
-
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_weight="5"
-        android:gravity="center_horizontal"
-
-        android:layout_marginEnd="@dimen/listrow_field_separator"
-
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorHistoryBackground"
-        />
 
     <!-- Medication Nick Name -->
     <EditText
@@ -35,21 +20,6 @@
         android:layout_height="wrap_content"
         android:layout_width="0dp"
         android:layout_weight="10"
-        android:gravity="center_horizontal"
-
-        android:layout_marginEnd="@dimen/listrow_field_separator"
-
-        android:textColor="@color/colorTextBlack"
-        android:background="@color/colorHistoryBackground"
-        />
-
-    <!-- Dose Strategy -->
-    <EditText
-        android:id="@+id/medicationDoseStrategyInput"
-
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_weight="3"
         android:gravity="center_horizontal"
 
         android:layout_marginEnd="@dimen/listrow_field_separator"
@@ -72,7 +42,6 @@
         android:textColor="@color/colorTextBlack"
         android:background="@color/colorHistoryBackground"
         />
-
 
     <!-- Dose Amount -->
     <EditText
@@ -133,6 +102,5 @@
             android:textColor="@color/colorTextBlack"
             android:background="@color/colorHistoryBackground"
             />
-
 
 </LinearLayout>

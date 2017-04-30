@@ -17,7 +17,7 @@ import static android.content.ContentValues.TAG;
  * A service to convert alarms into notifications
  */
 
-public class MMBootAlarmService extends Service {
+public class MMAlarmNotifyService extends Service {
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager notificationManager;
     private PendingIntent pendingIntent;
@@ -37,7 +37,7 @@ public class MMBootAlarmService extends Service {
         Context context = this.getApplicationContext();
 
         //Initialize the DB if necessary
-        MMDatabaseManager databaseManager;
+        MMDatabaseManager databaseManager = null;
         try {
             //initialize the database
             databaseManager = MMDatabaseManager.getInstance(context);
@@ -45,20 +45,23 @@ public class MMBootAlarmService extends Service {
             Log.e(TAG,Log.getStackTraceString(e));
         }
 
-        //Set alarms / notifications for all the currently active people in the DB
-        MMPersonManager personManager = MMPersonManager.getInstance();
-        ArrayList<MMPerson> people = personManager.getPersonList();
+        //asking for personID = MMUtilities.ID_DOES_NOT_EXIST means to return
+        // ALL the MedicationAlerts in the DB
+        ArrayList<MMMedicationAlert> medicationAlerts =
+                databaseManager.getMedicationAlerts(MMUtilities.ID_DOES_NOT_EXIST);
 
-        //no people, no alarms to set
-        if (people == null)return START_NOT_STICKY;
 
-        //loop through all PEOPLE,
-        //  and set an alarm for each schedule
-        MMPerson person;
-        int lastPerson = people.size();
-        int positionPerson = 0;
-        while (positionPerson < lastPerson){
-            person = people.get(positionPerson);
+        //no medication alerts, no alarms to set
+        if (medicationAlerts == null)return START_NOT_STICKY;
+
+        //loop through all medicationAlert,
+        //  and notify the proper person appropriately
+        MMMedicationAlert medicationAlert;
+        int lastMedAlert = medicationAlerts.size();
+        int positionMedAlert = 0;
+
+        while (positionMedAlert < lastMedAlert){
+            medicationAlert = medicationAlerts.get(positionMedAlert);
 
             //loop through all the MEDICATIONs on the person
             //  and set an alarm for each schedule
@@ -89,7 +92,7 @@ public class MMBootAlarmService extends Service {
                     positionMedicaiton++;
                 } //end medication while loop
             }
-            positionPerson++;
+            positionMedAlert++;
         }//end person while loop
 
         // We want this service to continue running until it is explicitly

@@ -239,38 +239,7 @@
 
             </TableRow>
 
-            <!-- Row 6: Project Strategy Type -->
-            <TableRow
 
-                android:layout_height="wrap_content"
-                android:layout_width ="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
-                >
-                <TextView
-                    android:labelFor="@+id/strategy_type_spinner"
-                    android:text="@string/medication_dose_strategy_label"
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_weight="30"
-                    android:gravity="end"
-
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorScreenBackground"
-                    />
-
-                <!--  Spinner to indicate the type of strategy for the points in this project -->
-                <Spinner
-                    android:id            = "@+id/strategy_type_spinner"
-                    android:layout_width  = "0dp"
-                    android:layout_height = "wrap_content"
-                    android:layout_weight="70"
-                    android:layout_marginEnd="16dp"
-                    android:textColor="@color/colorTextBlack"
-                    android:background="@color/colorWhite"
-                    />
-
-            </TableRow>
 
             <!-- Row 7: Medication Dose # Per Day -->
             <TableRow

@@ -16,6 +16,13 @@ public class MMMedicationAlert {
     public static final String sNotifyEmailString = "Email";
     public static final String sNotifyTextString  = "Text";
 
+    public static final String sMedAlertID        = "med_alert_id";
+    public static final String sPatientIDTag      = "patient_id";
+    public static final String sMedicationIDTag   = "medication_id";
+    public static final String sNotifyPersonIDTag = "notify_person_id";
+    public static final String sNotifyTypeTag     = "notify_type";
+
+
 
     //************************************/
     /*    Static (class) Variables       */
@@ -72,14 +79,18 @@ public class MMMedicationAlert {
     public long  getNotifyPersonID()          {  return mNotifyPersonID;  }
     public void  setNotifyPersonID(long notifyPersonID) {  mNotifyPersonID = notifyPersonID;  }
 
-    public int   getTypeNotify()               { return mTypeNotify; }
-    public void  setTypeNotify(int typeNotify) { mTypeNotify = typeNotify;  }
+    public int   getNotifyType()               { return mTypeNotify; }
+    public void  setNotifyType(int typeNotify) { mTypeNotify = typeNotify;  }
 
     public int   getOverdueTime()                       { return mOverdueTime; }
-    public void  setOverdueTime(int overdueTime) { mOverdueTime = overdueTime; }
     public int   getOverdueDays()    {return  mOverdueTime/(24 * 60);}
     public int   getOverdueHours()   {return (mOverdueTime - (getOverdueDays() * 24 * 60))/60;}
-    public int   getOverdueMinutes() {return (mOverdueTime - (getOverdueDays() * 24 * 60) - (getOverdueDays() * 60));}
+    public int   getOverdueMinutes() {return (mOverdueTime - (getOverdueDays() * 24 * 60) - (getOverdueHours() * 60));}
+
+    public void  setOverdueTime(int overdueTime) { mOverdueTime = overdueTime; }
+    public void  setOverdueTime(int days, int hours, int minutes){
+        mOverdueTime = (days * 24 * 60) + (hours * 60) + (minutes);
+    }
 
 
     //************************************/
@@ -118,7 +129,7 @@ public class MMMedicationAlert {
                 String.valueOf(this.getMedicationID())        + ", " +
                 String.valueOf(this.getForPatientID())        + ", " +
                 String.valueOf(this.getNotifyPersonID())      + ", " +
-                String.valueOf(this.getTypeNotify())          + ", " +
+                String.valueOf(this.getNotifyType())          + ", " +
                 String.valueOf(this.getOverdueTime())         +
                 System.getProperty("line.separator");
     }

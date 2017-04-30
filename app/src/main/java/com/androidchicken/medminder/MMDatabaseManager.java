@@ -454,20 +454,20 @@ public class MMDatabaseManager {
 
     public Cursor getAllMedicationAlertsCursor(long personID){
         return mDatabaseHelper.getObject(mDatabase,
-                                        TABLE_MEDICATION_ALERT,
-                                        null,    //get the whole object
-                                        getMedicationAlertWhereClause(personID),
-                                        null, null, null, null);
+                TABLE_MEDICATION_ALERT,
+                null,    //get the whole object
+                getMedicationAlertWhereClause(personID),
+                null, null, null, null);
 
     }
 
     //gets the MedicationAlerts linked to this person
-    public ArrayList<MMMedicationAlert> getAllMedicationAlerts(long personID){
-        if (personID == 0) return null;
-
+    //if personID is MMUtilities.ID_DOES_NOT_EXIST,
+    // then all the MMMedicationAlerts in the DB are returned
+    public ArrayList<MMMedicationAlert> getMedicationAlerts(long personID){
         Cursor cursor = getAllMedicationAlertsCursor(personID);
 
-        //create a medicationAlert object from the Cursor object
+        //create a medicationAlert object from the Cursor row
         MMMedicationAlertManager medicationAlertManager = MMMedicationAlertManager.getInstance();
 
         int position = 0;
@@ -486,6 +486,7 @@ public class MMDatabaseManager {
         cursor.close();
         return medicationAlerts;
     }
+
 
 
     public MMMedicationAlert getMedicationAlert(long medicationAlertID){
@@ -513,7 +514,6 @@ public class MMDatabaseManager {
     //*********************************     Delete    ***************************
     //The return code indicates how many rows affected
     public int removeMedicationAlert(long medicationAlertID){
-
         return mDatabaseHelper.remove(  mDatabase,
                                         TABLE_MEDICATION_ALERT,
                                         getMedicationAlertIDWhereClause(medicationAlertID),
@@ -533,8 +533,9 @@ public class MMDatabaseManager {
 
     //This gets all medicationAlerts linked to this person
     private String getMedicationAlertWhereClause(long personID){
+        if (personID == MMUtilities.ID_DOES_NOT_EXIST) return null;
 
-        return MMDataBaseSqlHelper.MEDICATION_FOR_PERSON_ID + " = '" +
+        return MMDataBaseSqlHelper.MEDICATION_ALERT_FOR_PATIENT_ID + " = '" +
                                                                      String.valueOf(personID) + "'";
     }
 
@@ -639,6 +640,18 @@ public class MMDatabaseManager {
                 null, null, null, null);//args, group, row grouping, order
     }
 
+    public Cursor getAllDosesCursor(long medicationID, String orderClause){
+        //get the dose row from the DB
+        return mDatabaseHelper.getObject(
+                mDatabase,        //the db to access
+                TABLE_DOSE,       //table name
+                null,             //get the whole dose
+                getDosesMedicationWhereClause(medicationID), //where clause
+                null, null, null, //args, group, row grouping,
+                orderClause);//column to order result set
+
+    }
+
     public ArrayList<MMDose> getAllDoses(long concurrentDoseID){
 
         ArrayList<MMDose> doses = new ArrayList<>();
@@ -707,6 +720,13 @@ public class MMDatabaseManager {
         return MMDataBaseSqlHelper.DOSE_ID + " = '" + String.valueOf(doseID) + "'";
     }
 
+    //This gets all the Doses for a single medication
+    private String getDosesMedicationWhereClause(long medicationID){
+        return MMDataBaseSqlHelper.DOSE_OF_MEDICATION_ID + " = '" +
+                                                                String.valueOf(medicationID) + "'";
+    }
+
+
     //***********************************************/
     /*     Schedule Medications CRUD methods        */
     //***********************************************/
@@ -742,8 +762,6 @@ public class MMDatabaseManager {
                                             null,    //get the whole object
                                             getSchedMedForPersonWhereClause(personID),
                                             null, null, null, orderClause);
-
-
 
     }
 

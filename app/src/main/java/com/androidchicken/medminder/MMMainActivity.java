@@ -1,14 +1,20 @@
 package com.androidchicken.medminder;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 public class MMMainActivity extends AppCompatActivity {
 
@@ -21,6 +27,9 @@ public class MMMainActivity extends AppCompatActivity {
     public  static final String sExportTag        = "EXPORT";
     private static final String sScheduleListTag  = "SCHEDULE_LIST";
     public  static final String sHistoryTitleTag  = "HISTORY_TITLE_LIST";
+
+
+    public static final int SMS_PERMISSIONS_REQUEST_CODE = 0;
 
 
     @Override
@@ -44,6 +53,21 @@ public class MMMainActivity extends AppCompatActivity {
                     .commit();
         }
 
+        int buildVersion = Build.VERSION.SDK_INT;
+
+        int permissionCheck =
+                ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+           // MMUtilities.showStatus(this, R.string.med_alert_text_permission);
+            PackageManager pm = this.getPackageManager();
+
+            if (pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
+                MMUtilities.showStatus(this, R.string.telephony_supported);
+            } else {
+                MMUtilities.showStatus(this, R.string.teelphony_not_supported);
+            }
+        }
+
 
         //Put Home on the title bar
         if (getSupportActionBar() != null) {
@@ -51,6 +75,55 @@ public class MMMainActivity extends AppCompatActivity {
         }
 
     }
+
+
+
+    public  boolean isSMSPermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            int permissionCheck =
+                            ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS);
+            if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                //Permission has been granted
+                return true;
+            } else {
+                //Permission has not yet been granted. Ask for it
+
+                ActivityCompat.requestPermissions(this,
+                                                  new String[]{Manifest.permission.SEND_SMS},
+                                                  SMS_PERMISSIONS_REQUEST_CODE);
+
+                return false;
+            }
+        }
+        else { //permission is automatically granted on sdk<23 upon installation
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[],
+                                           int[] grantResults) {
+        switch (requestCode) {
+
+            case SMS_PERMISSIONS_REQUEST_CODE: {
+
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Permission to send text granted", Toast.LENGTH_SHORT).show();
+                    //send sms here call your method
+                   // sendSms(String phoneNo, String msg);
+                } else {
+                    Toast.makeText(this, "Permission to send text denied", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
 
 
     /***************************************************************/
@@ -101,6 +174,10 @@ public class MMMainActivity extends AppCompatActivity {
                 MMUtilities.showHint(view, msg);
                 ((MMMedicationFragment) fragment).handleUpButton();
             }
+        } else if (fragment instanceof MMMedicationAlertFragment) {
+            //Add a new Medication Alert
+            MMUtilities.showHint(view, getString(R.string.add_medicaition_alert));
+            ((MMMedicationAlertFragment) fragment).handleUpButton();
         } else {
             //do nothing
             Snackbar.make(view, getString(R.string.add_noting), Snackbar.LENGTH_LONG)

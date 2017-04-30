@@ -95,7 +95,6 @@
 
             </TableRow>
 
-
             <!-- Row 3: Person Exists? -->
             <TableRow
                 android:layout_height="wrap_content"

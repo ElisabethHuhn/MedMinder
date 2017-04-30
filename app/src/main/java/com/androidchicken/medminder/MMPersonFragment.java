@@ -342,21 +342,8 @@ public class MMPersonFragment extends Fragment {
         //set up the labels for the medication list
         field_container = v.findViewById(R.id.medicationTitleRow);
 
-
-        label = (EditText) (field_container.findViewById(R.id.medicationForPersonInput));
-        label.setText(R.string.medication_for_label);
-        label.setEnabled(false);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-
         label = (EditText) (field_container.findViewById(R.id.medicationNickNameInput));
         label.setText(R.string.medication_nick_name_label);
-        label.setEnabled(false);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
-
-
-        label = (EditText) (field_container.findViewById(R.id.medicationDoseStrategyInput));
-        label.setText(R.string.medication_dose_strategy_label);
         label.setEnabled(false);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 

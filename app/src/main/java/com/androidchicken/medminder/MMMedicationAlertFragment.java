@@ -1,17 +1,12 @@
 package com.androidchicken.medminder;
 
 
-import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,25 +15,45 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static android.content.Context.ALARM_SERVICE;
+import java.util.ArrayList;
+
 import static com.androidchicken.medminder.MMHomeFragment.sSELECTED_DIALOG_NOT_VISIBLE;
 
 
 /**
  * The screen for displaying Medication Alerts for a given patient
  */
-public class MMMedicationAlertFragment extends Fragment {
+public class MMMedicationAlertFragment extends Fragment  {
 
     //**********************************************/
     /*        UI Widget Views                      */
     //**********************************************/
+    Spinner                 mMedSpinner = null;
+    ArrayList<MMMedication> mMedications = null;
+    ArrayList<String>       mMedicationNames = null;
+    int                     mMedSelected = (int)MMUtilities.ID_DOES_NOT_EXIST;
+
+    Spinner             mPersonSpinner = null;
+    ArrayList<MMPerson> mPersons = null;
+    ArrayList<String>   mPersonNames = null;
+    int                 mPersonSelected = (int)MMUtilities.ID_DOES_NOT_EXIST;
+
+    Spinner             mTypeSpinner = null;
+    ArrayList<String>   mTypeNames = null;
+    int                 mTypeSelected = (int)MMUtilities.ID_DOES_NOT_EXIST;
 
 
+    EditText mMedIDInput;
+    EditText mPersonIDInput;
 
 
 
@@ -132,7 +147,7 @@ public class MMMedicationAlertFragment extends Fragment {
 
 
         //Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_medication, container, false);
+        View v = inflater.inflate(R.layout.fragment_medication_alert, container, false);
 
         //Wire up the UI widgets so they can handle events later
         wireWidgets(v);
@@ -140,6 +155,8 @@ public class MMMedicationAlertFragment extends Fragment {
 
         initializeRecyclerView(v);
         initializeUI(v);
+
+        ((MMMainActivity)getActivity()).isSMSPermissionGranted();
 
         return v;
     }
@@ -182,7 +199,9 @@ public class MMMedicationAlertFragment extends Fragment {
             }
         });
 
-        Button upAlarmNumber = (Button) v.findViewById(R.id.medicationAlertUpButton);
+
+
+        Button upAlarmNumber = (Button) v.findViewById(R.id.medAlertUpButton);
         upAlarmNumber.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -214,7 +233,7 @@ public class MMMedicationAlertFragment extends Fragment {
 
 
         label = (TextView) (field_container.findViewById(R.id.medAlertPersonInput));
-        label.setText(R.string.medication_for_label);
+        label.setText(R.string.medication_alert_notify);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
 
@@ -321,9 +340,10 @@ public class MMMedicationAlertFragment extends Fragment {
         //
 
         MMMedicationAlertCursorAdapter adapter = getAdapter(v);
+        int last = adapter.getItemCount();
 
         TextView numAlerts = (TextView) v.findViewById(R.id.medAlertNumInput);
-        numAlerts.setText(adapter.getItemCount());
+        numAlerts.setText(String.valueOf(last));
     }
 
     //************************************************/
@@ -346,24 +366,9 @@ public class MMMedicationAlertFragment extends Fragment {
 
 
 
-    //*********************************************************/
-    //      Utility Functions using passed arguments          //
-    //*********************************************************/
-
-
-
-
-
-
-
-
-
-
     //********************************************/
     //*********    Event Handlers       **********/
     //********************************************/
-
-
     private void onExit(){
         Toast.makeText(getActivity(),
                 R.string.exit_label,
@@ -372,7 +377,7 @@ public class MMMedicationAlertFragment extends Fragment {
         MMMedicationAlertCursorAdapter adapter = getAdapter(getView());
         if (adapter != null) adapter.closeCursor();
 
-        ((MMMainActivity) getActivity()).switchToPersonScreen(mPersonID);
+        ((MMMainActivity) getActivity()).switchToHomeScreen(mPersonID);
     }
 
     public void handleUpButton(){
@@ -386,21 +391,6 @@ public class MMMedicationAlertFragment extends Fragment {
         size++;
 
         addAlertDialog(mSelectedPosition);
-
-
-/*
-            //Enable the Alarm receiver. It will stay enabled across reboots
-            ComponentName receiver = new ComponentName(getActivity(), MMAlarmReceiver.class);
-            PackageManager pm = getActivity().getPackageManager();
-
-            pm.setComponentEnabledSetting(receiver,
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                    PackageManager.DONT_KILL_APP);
-
-            //create an Alarm to generate a notification for this scheduled dose
-            MMUtilities.setNotificationAlarm(getActivity(), schedule.getTimeDue());
-*/
-
     }
 
     public void handleDownButton(){
@@ -447,54 +437,163 @@ public class MMMedicationAlertFragment extends Fragment {
     }
 
 
-
     //***********************************/
     //****    Add Alert Dialogue    *****/
     //***********************************/
     //Build and display the alert dialog
     private void addAlertDialog(int selectedPosition){
-        
-/*
 
-        //Get the medications this patient is taking
-        int last     = 0;
-        int medicationPosition = 0;
-        ArrayList<MMMedication> medications = null;
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
-            MMPerson person = MMUtilities.getPerson(mPersonID);
-            if (person != null) {
-                medications = person.getMedications();
-                last = medications.size();
-            }
-        }
-
-        if (medications == null)return;
-*/
+        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return;
 
         //
         //Build the (Dialog) layout and it's contained views
         // that define the ConcurrentDose and its contained Doses
         //
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View v = inflater.inflate(R.layout.list_row_medication_alerts, null);
-        LinearLayout layout = (LinearLayout) v.findViewById(R.id.medAlertLine);
+        //Lint screams about the null here, but a dialog does not know it's parent at inflate time.
+        // Thus using null here is correct. Just ignore the lint. I could suppress the lint warning,
+        // but ..... for some reason I'm reluctant to suppress warnings.
+        View v = inflater.inflate(R.layout.dialog_medication_alerts, null);
+        LinearLayout layout = (LinearLayout) v.findViewById(R.id.dMedAlertLine);
 
 
-        // TODO: 4/22/2017 add the listeners to the fields 
-        // TODO: 4/22/2017 make fields spinners if possible 
+        mMedIDInput               = (EditText) v.findViewById(R.id.dMedAlertMedID) ;
+        mPersonIDInput            = (EditText) v.findViewById(R.id.dMedAlertPersonID) ;
+        EditText notifyDay        = (EditText) v.findViewById(R.id.dMedAlertOverdueDayInput) ;
+        EditText notifyHour       = (EditText) v.findViewById(R.id.dMedAlertOverdueHourInput) ;
+        EditText notifyMinute     = (EditText) v.findViewById(R.id.dMedAlertOverdueMinuteInput) ;
 
-       
-            
 
+        mMedIDInput.setFocusable(false);
+        mPersonIDInput.setFocusable(false);
+
+        loadSpinnerData(v);
+
+        int positiveButtonText;
+        int dialogTitle;
+        int dialogMessage;
+        if (mSelectedPosition == sSELECTED_DIALOG_NOT_VISIBLE){
+            //The up button was selected
+            // and we want to create a new Alert
+            //have to set the ID fields to match the names being displayed in the spinners
+            int medPosition = mMedSpinner.getSelectedItemPosition();
+            MMMedication medication = mMedications.get(medPosition);
+            mMedIDInput.setText(String.valueOf(medication.getMedicationID()));
+
+            int personPosition = mPersonSpinner.getSelectedItemPosition();
+            MMPerson person    = mPersons.get(personPosition);
+            mPersonIDInput.setText(String.valueOf(person.getPersonID()));
+
+           //let the loadSpinnerData() pick the default type
+
+            //by default: one hour overdue before reminder
+            notifyDay.setText("1");
+            notifyHour.setText("00");
+            notifyMinute.setText("00");
+
+            dialogTitle        = R.string.create_medication_alert;
+            dialogMessage      = R.string.med_alert_defaults;
+            positiveButtonText = R.string.create_label;
+        } else {
+            //A medication Alert (from the recycler view) was selected,
+            // so the user wants to modify it.
+            //The (selected position) Medication Alert is loaded into the dialog.
+            //Then need to set the spinner selections to the selected MedicationAlert
+
+            MMMedicationAlertCursorAdapter adapter = getAdapter(getView());
+            MMMedicationAlert medicationAlert = adapter.getMedAlertAt(mSelectedPosition);
+
+
+
+            //Put the medication ID in the dialog
+            long selectedMedID      = medicationAlert.getMedicationID();
+            mMedIDInput.setText(String.valueOf(selectedMedID));
+
+            //find the selected MedicationAlert in the spinner list
+            //mMedications is the list of objects that the spinner list was built from
+            //so it's in the same order as the spinner list
+            int selectedMedPosition = (int)MMUtilities.ID_DOES_NOT_EXIST;
+            int lastMed             = mMedications.size();
+            int positionMed         = 0;
+            MMMedication medication;
+
+            while (positionMed < lastMed){
+                medication = mMedications.get(positionMed);
+                if (selectedMedID == medication.getMedicationID()){
+                    selectedMedPosition = positionMed;
+                    //No need to loop through the rest of the list
+                    positionMed = lastMed;
+                }
+                positionMed++;
+            }
+            if (selectedMedPosition == ((int)MMUtilities.ID_DOES_NOT_EXIST)){
+                MMUtilities.errorHandler(getActivity(), R.string.med_not_found );
+                return; //can not create or update the medication alert
+            }
+            //set the initial position of the spinner
+            mMedSpinner.setSelection(selectedMedPosition);
+
+
+
+            //put the notified person's ID in the dialog view
+            long selectedPersonID = medicationAlert.getNotifyPersonID();
+            mPersonIDInput.setText(String.valueOf(selectedPersonID));
+
+            //Then determine what position to set the spinner
+            //the mPersons list is a list of the Person Objects, and
+            // is in the same order as the spinner dropdown list of person names
+            int selectedPersonPosition = (int)MMUtilities.ID_DOES_NOT_EXIST;
+            int lastPerson             = mPersons.size();
+            int positionPerson         = 0;
+            MMPerson person;
+            while (positionPerson < lastPerson){
+                person = mPersons.get(positionPerson);
+                if (selectedPersonID == person.getPersonID()){
+                    selectedPersonPosition = positionPerson;
+                    //no need to loop through the rest of the person list, so skip to the end
+                    positionPerson = lastPerson;
+                }
+
+                positionPerson++;
+            }
+            if (selectedPersonPosition == ((int)MMUtilities.ID_DOES_NOT_EXIST)){
+                MMUtilities.errorHandler(getActivity(), R.string.person_not_found);
+                return;  //can not create or update the medication alert
+            }
+            //set the initial position of the spinner
+            mPersonSpinner.setSelection(selectedPersonPosition);
+
+            //set the initial position of the spinner
+            mTypeSpinner.setSelection(medicationAlert.getNotifyType());
+
+            //Set the fields for how long the dose must be overdue before the Alert goes off
+            int day    = medicationAlert.getOverdueDays();
+            int hour   = medicationAlert.getOverdueHours();
+            int minute = medicationAlert.getOverdueMinutes();
+            notifyDay   .setText(String.valueOf(day));
+            notifyHour  .setText(String.valueOf(hour));
+            notifyMinute.setText(String.valueOf(minute));
+
+            //load up the text fields in the dialog itself
+            positiveButtonText = R.string.update;
+            dialogTitle        = R.string.update_medication_alert;
+            dialogMessage      = R.string.med_alert_values;
+        }
+
+
+        MMPersonManager personManager = MMPersonManager.getInstance();
+        MMPerson patient = personManager.getPerson(mPersonID);
+        patient.getNickname();
+        String dialogMsg = String.format(getString(dialogMessage) , patient.getNickname());
 
         //Create the AlertDialog to display the current doses to the user
         //and allow the user to update the amounts
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder .setView(v) //The View we just built for the Alert Dialog
-                .setTitle(R.string.create_medication_alert)
+                .setTitle(dialogTitle)
                 .setIcon(R.drawable.ground_station_icon)
-                .setMessage(R.string.med_alert_defaults)
-                .setPositiveButton(R.string.create_label,
+                .setMessage(dialogMsg)
+                .setPositiveButton(positiveButtonText,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 //which is a constant on DialogInterface
@@ -508,15 +607,15 @@ public class MMMedicationAlertFragment extends Fragment {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // do nothing
-                        Toast.makeText(getActivity(),
-                                "Pressed Cancel",
-                                Toast.LENGTH_SHORT).show();
+                        MMUtilities.showStatus(getActivity(), R.string.pressed_cancel);
+
                         mSelectedPosition = sSELECTED_DIALOG_NOT_VISIBLE; //set flag for dialog gone
+                        mPersonSelected = (int)MMUtilities.ID_DOES_NOT_EXIST; //and nothing is selected
+                        mMedSelected    = (int)MMUtilities.ID_DOES_NOT_EXIST;
                     }
                 })
                 .show();
     }
-
 
     private void onSaveSelected(DialogInterface dialog, int which){
         //This routine called from the POSITIVE button of the dialog that
@@ -529,30 +628,230 @@ public class MMMedicationAlertFragment extends Fragment {
 
         //Get the pointers to the views in the Dialog
         LinearLayout layout =
-                (LinearLayout) ((AlertDialog) dialog).findViewById(R.id.medAlertLine);
-
-        //Add a new medication Alert
-        MMMedicationAlert medicationAlert = new MMMedicationAlert();
-
-        TextView medNicknameInput = (TextView)((AlertDialog)dialog).
-                                                        findViewById(R.id.medAlertMedNickNameInput);
-        TextView patientInput     = (TextView)((AlertDialog)dialog).
-                                                            findViewById(R.id.medAlertPersonInput);
-        TextView typeInput        = (TextView)((AlertDialog)dialog).
-                                                              findViewById(R.id.medAlertTypeInput);
-        TextView overdueTimeInput = (TextView)((AlertDialog)dialog).
-                                                        findViewById(R.id.medAlertOverdueTimeInput);
+                (LinearLayout) ((AlertDialog) dialog).findViewById(R.id.dMedAlertLine);
 
 
-        // TODO: 4/22/2017 build the medication Alert
+        EditText medIDInput      = (EditText)((AlertDialog)dialog).
+                                                                  findViewById(R.id.dMedAlertMedID);
+        EditText personIDInput   = (EditText)((AlertDialog)dialog).
+                                                               findViewById(R.id.dMedAlertPersonID);
+        EditText overdueDay      = (EditText)((AlertDialog)dialog).
+                                                        findViewById(R.id.dMedAlertOverdueDayInput);
+        EditText overdueHour     = (EditText)((AlertDialog)dialog).
+                                                       findViewById(R.id.dMedAlertOverdueHourInput);
+        EditText overdueMinute   = (EditText)((AlertDialog)dialog).
+                                                     findViewById(R.id.dMedAlertOverdueMinuteInput);
 
+        MMMedicationAlertCursorAdapter adapter = getAdapter(getView());
+        MMMedicationAlert medicationAlert;
+        int message;
+        if (mSelectedPosition == sSELECTED_DIALOG_NOT_VISIBLE){
+            //create a new MedicationAlert
+            medicationAlert = new MMMedicationAlert();
+            message = R.string.med_alert_created;
+        } else {
+            //update the MedicationAlert at mSelectedPosition
+            medicationAlert = adapter.getMedAlertAt(mSelectedPosition);
+            message = R.string.med_alert_updated;
+        }
+
+        medicationAlert.setForPatientID(mPersonID);
+        medicationAlert.setMedicationID(Long.valueOf(medIDInput.getText().toString()));
+        medicationAlert.setNotifyPersonID(Long.valueOf(personIDInput.getText().toString()));
+
+/*
+        int notifyType = MMMedicationAlert.sNOTIFY_BY_TEXT;
+        String notifyTypeSelection = mTypeSpinner.getSelectedItem().toString();
+
+        if (notifyTypeSelection.equals(sNotifyEmailString)){
+            notifyType = MMMedicationAlert.sNOTIFY_BY_EMAIL;
+        }
+*/
+        int notifyTypePosition = mTypeSpinner.getSelectedItemPosition();
+        medicationAlert.setNotifyType(notifyTypePosition);
+
+        medicationAlert.setOverdueTime(Integer.valueOf(overdueDay.getText().toString()),
+                                       Integer.valueOf(overdueHour.getText().toString()),
+                                       Integer.valueOf(overdueMinute.getText().toString()));
+
+        MMMedicationAlertManager medicationAlertManager = MMMedicationAlertManager.getInstance();
+
+        if ((notifyTypePosition == MMMedicationAlert.sNOTIFY_BY_TEXT)&&
+            //We need permission to send a text. Assure that we have it.
+            (!((MMMainActivity)getActivity()).isSMSPermissionGranted())) {
+                message =  R.string.med_alert_text_permission;
+                //showSMSPermissionsDialog();
+        } else {
+            medicationAlertManager.addMedicationAlert(medicationAlert);
+        }
+
+        MMUtilities.showStatus(getActivity(), message);
 
         //reset the selected position so we'll know the dialog is finished
         mSelectedPosition = sSELECTED_DIALOG_NOT_VISIBLE;
+        mMedSelected      = (int)MMUtilities.ID_DOES_NOT_EXIST;
+        mPersonSelected   = (int)MMUtilities.ID_DOES_NOT_EXIST;
 
-        MMMedicationAlertCursorAdapter adapter = getAdapter(getView());
-        //reinitialize the cursor
-        adapter.reinitializeCursor(mPersonID);
+        adapter = getAdapter(getView());
+
+        //Restart the fragment so the Medication Alert will show
+        adapter.closeCursor();
+        ((MMMainActivity)getActivity()).switchToMedicationAlertScreen(mPersonID);
+    }
+
+
+    private void showSMSPermissionsDialog(){
+        //Create the AlertDialog to display the current doses to the user
+        //and allow the user to update the amounts
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder //.setView(v) //The View we just built for the Alert Dialog
+                .setTitle(R.string.sms_permission_title)
+                .setIcon(R.drawable.ground_station_icon)
+                .setMessage(R.string.med_alert_text_permission)
+                .setPositiveButton(R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //which is a constant on DialogInterface
+                                //      = BUTTON_POSITIVE or
+                                //      = BUTTON_NEGATIVE or
+                                //      = BUTTON_NEUTRAL
+                                //Save these values
+                                MMUtilities.showStatus(getActivity(), R.string.pressed_ok);
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                        MMUtilities.showStatus(getActivity(), R.string.pressed_cancel);
+                    }
+                })
+                .show();
+    }
+
+    //*******************************/
+    //     Spinner Methods         //
+    //******************************/
+    //There are three spinners in the dialog view: medication, person to notify, and notify type.
+    private void loadSpinnerData(View v) {
+        mMedSpinner    = (Spinner) v.findViewById(R.id.dMedAlertMedNickNameSpinner) ;
+        mPersonSpinner = (Spinner) v.findViewById(R.id.dMedAlertPersonSpinner);
+        mTypeSpinner   = (Spinner) v.findViewById(R.id.dMedAlertTypeSpinner) ;
+
+
+        MMPersonManager personManager = MMPersonManager.getInstance();
+        MMPerson patient = personManager.getPerson(mPersonID);
+
+        //build spinner dropdown of medication names
+        mMedications = patient.getMedications();
+
+        int lastMed = mMedications.size();
+        int positionMed = 0;
+        MMMedication medication;
+        mMedicationNames = new ArrayList<>();
+
+        while (positionMed < lastMed){
+            medication = mMedications.get(positionMed);
+            mMedicationNames.add(medication.getMedicationNickname().toString());
+
+            positionMed++;
+        }
+
+        //build spinner dropdown of person names
+        mPersons = personManager.getPersonList();
+        int lastPerson = mPersons.size();
+        int positionPerson = 0;
+        MMPerson person;
+        mPersonNames = new ArrayList<>();
+
+
+        while (positionPerson < lastPerson){
+            person = mPersons.get(positionPerson);
+            mPersonNames.add(person.getNickname().toString());
+
+            positionPerson++;
+        }
+
+        //build spinner dropdown of notification types
+        mTypeNames = new ArrayList<>();
+        mTypeNames.add(MMMedicationAlert.sNotifyEmailString);
+        mTypeNames.add(MMMedicationAlert.sNotifyTextString);
+
+
+
+        // Creating adapter for Med spinner
+        ArrayAdapter<String> medAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_item,
+                mMedicationNames);
+
+        // Creating adapter for Med spinner
+        ArrayAdapter<String> personAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_item,
+                mPersonNames);
+
+        // Creating adapter for Notification Type
+        ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_item,
+                mTypeNames);
+
+
+        // Drop down layout style - list view with radio button
+        medAdapter   .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        personAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeAdapter  .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // attaching data adapter to spinner
+
+
+        mMedSpinner   .setAdapter(medAdapter);
+        mPersonSpinner.setAdapter(personAdapter);
+        mTypeSpinner  .setAdapter(typeAdapter);
+
+
+        //attach the listener to the spinner
+        mPersonSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                mPersonSelected        = position;
+                MMPerson notifyPerson  = mPersons.get(position);
+                long notifyPersonID    = notifyPerson.getPersonID();
+                mPersonIDInput.setText(String.valueOf(notifyPersonID));
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        //attach the listener to the spinner
+        mMedSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                mMedSelected          = position;
+                MMMedication alertMed = mMedications.get(position);
+                long notifyMedID      = alertMed.getMedicationID();
+                mMedIDInput.setText(String.valueOf(notifyMedID));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        //attach the listener to the spinner
+        mTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                mTypeSelected        = position;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
 
@@ -582,6 +881,7 @@ public class MMMedicationAlertFragment extends Fragment {
         Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
 
         mSelectedPosition = position;
+        addAlertDialog(position);
 
         //adapter.notifyItemChanged(position);
 
@@ -592,64 +892,6 @@ public class MMMedicationAlertFragment extends Fragment {
     //*********************************/
     //     Alarms and  Notifications  //
     //********************************/
-    private void cancelOneAlarm(int minutesSinceMidnight){
-        //If this is the only schedule due at this time
-        // Remove any alarms for this schedule
-        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
-        int howManyMedsDue = schedMedManager.howManyDueAt(minutesSinceMidnight);
-
-        //if there is only one medication dose due at this time, delete the alarm
-        //if there are more than one due at this time, leave the existing alarm in place
-        if (howManyMedsDue == 1) {
-            //The alarm is based on when the dose is due
-            cancelNotificationAlarms(minutesSinceMidnight);
-        }
-    }
-
-    private void cancelNotificationAlarms(int minutesSinceMidnight){
-        //get the PendingIntent that describes the action we desire,
-        // so that it can be performed when the alarm goes off
-        PendingIntent pendingIntent = getNotificationAlarmAction(minutesSinceMidnight);
-
-        AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(ALARM_SERVICE);
-
-        //cancel any previous alarms
-        alarmManager.cancel(pendingIntent);
-    }
-
-    private PendingIntent getNotificationAlarmAction(int requestCode){
-        //explicit intent naming the receiver class
-        Intent alarmIntent = new Intent(getActivity(), MMAlarmReceiver.class);
-        alarmIntent.putExtra(MMAlarmReceiver.NOTIFICATION_ID, 1);
-        alarmIntent.putExtra(MMAlarmReceiver.NOTIFICATION,getNotification());
-
-        //wake up the explicit Activity when the alarm goes off
-        //return PendingIntent.getActivity (getActivity(), //context
-        //broadcast when the alarm goes off
-        return PendingIntent.getBroadcast(getActivity(), //context
-                                          requestCode,   //request code
-                                          alarmIntent,   //explicit intent to be broadcast
-                                          PendingIntent.FLAG_UPDATE_CURRENT);
-                                                         //flags that control which unspecified
-                                                         // parts of the intent can be supplied
-                                                         // when the actual send happens
-
-
-    }
-
-    private Notification getNotification(){
-                /*  Create a Notification Builder  */
-        NotificationCompat.Builder builder =
-                (NotificationCompat.Builder) new NotificationCompat.Builder(getActivity())
-                        .setSmallIcon(R.drawable.ground_station_icon)
-                        .setContentTitle(getString(R.string.app_name))
-                        .setContentText(getString(R.string.time_to_take))
-                        //notification is canceled as soon as it is touched by the user
-                        .setAutoCancel(true);
-
-        return builder.build();
-
-    }
 
 
 }

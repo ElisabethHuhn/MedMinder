@@ -79,7 +79,6 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     public static final String MEDICATION_BRAND_NAME     = "med_brand_name";
     public static final String MEDICATION_GENERIC_NAME   = "med_generic_name";
     public static final String MEDICATION_NICK_NAME      = "med_nick_name";
-    public static final String MEDICATION_DOSE_STRATEGY  = "med_dose_strategy";
     public static final String MEDICATION_DOSE_AMOUNT    = "med_dose_amount";
     public static final String MEDICATION_DOSE_UNITS     = "med_dose_units";
     public static final String MEDICATION_DOSE_NUM_PER_DAY = "med_number_per_day";
@@ -94,7 +93,6 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
             MEDICATION_BRAND_NAME     + " TEXT, "     +
             MEDICATION_GENERIC_NAME   + " TEXT, "     +
             MEDICATION_NICK_NAME      + " TEXT, "     +
-            MEDICATION_DOSE_STRATEGY  + " INTEGER, "  +
             MEDICATION_DOSE_AMOUNT    + " INTEGER, "  +
             MEDICATION_DOSE_UNITS     + " INTEGER, "  +
             MEDICATION_DOSE_NUM_PER_DAY + " INTEGER, "  +
@@ -121,7 +119,7 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
 
     //create  table
     private static final String CREATE_TABLE_MEDICATION_ALERT = "CREATE TABLE " +
-            TABLE_MEDICATION +"(" +
+            TABLE_MEDICATION_ALERT +"(" +
             KEY_ID                            + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             MEDICATION_ALERT_ID               + " INTEGER, "  +
             MEDICATION_ALERT_MEDICATION_ID    + " INTEGER, "  +
@@ -218,11 +216,8 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     //****************************************************/
     //****************************************************/
     //****************************************************/
-
-
-
     private Context mContext;
-    private SQLiteDatabase mDatabase;
+
 
 
     //****************************************************/

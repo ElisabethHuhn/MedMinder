@@ -11,7 +11,7 @@
     <dimen name="button_start_margin"       >16dp</dimen>
     <dimen name="button_end_margin"         >16dp</dimen>
     <dimen name="button_interum_margin"     >8dp</dimen>
-    <dimen name="listrow_field_separator"   >8dp</dimen>
+    <dimen name="listrow_field_separator"   >4dp</dimen>
 
 
 </resources>

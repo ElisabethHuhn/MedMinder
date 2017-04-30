@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:id="@+id/dMedAlertLine"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusable="true"
+    android:clickable="true"
+
+    android:background="?android:attr/selectableItemBackground"
+
+    >
+
+    <!-- This layout is for a Medication element within a list-->
+    <!-- Patient who is taking the Medication  -->
+
+    <!-- Medication ID, Nick Name -->
+    <TableRow
+        android:layout_width=  "match_parent"
+        android:layout_height= "wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop=    "4dp"
+        >
+
+        <TextView
+            android:id=           "@+id/dMedAlertMedNickNameLabel"
+            android:labelFor=     "@+id/dMedAlertMedNickNameSpinner"
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="25"
+            android:gravity=      "end"
+
+            android:freezesText="true"
+
+            android:focusable="false"
+
+            android:text="@string/medication_nick_name_label"
+            android:textColor=    "@color/colorTextBlack"
+            android:background=   "@color/colorLabelBackground"
+            />
+        <EditText
+            android:id=           "@+id/dMedAlertMedID"
+
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="20"
+            android:gravity="center_horizontal"
+
+            android:freezesText="true"
+
+            android:inputType=    "text"
+            android:imeOptions=   "flagNoExtractUi"
+
+            android:layout_marginEnd="4dp"
+
+            android:textColor=    "@color/colorTextBlack"
+            android:background=   "@color/colorGray"
+            />
+
+        <Spinner
+            android:id="@id/dMedAlertMedNickNameSpinner"
+
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="55"
+            android:gravity="center_horizontal"
+
+            android:freezesText="true"
+
+            android:inputType="textAutoComplete"
+            android:imeOptions=   "flagNoExtractUi"
+
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorHistoryBackground"
+            />
+    </TableRow>
+
+    <!-- Person Notified ID, name -->
+    <TableRow
+        android:layout_width=  "match_parent"
+        android:layout_height= "wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop=    "4dp"
+        >
+
+        <TextView
+            android:id=           "@+id/dMedAlertPersonLabel"
+            android:labelFor=     "@+id/dMedAlertPersonSpinner"
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="25"
+            android:gravity=      "end"
+
+            android:freezesText="true"
+
+            android:focusable="false"
+
+            android:text="@string/notified_label"
+            android:textColor=    "@color/colorTextBlack"
+            android:background=   "@color/colorLabelBackground"
+            />
+
+        <EditText
+            android:id=           "@+id/dMedAlertPersonID"
+
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="20"
+            android:gravity="center_horizontal"
+
+            android:freezesText="true"
+
+            android:inputType=    "text"
+            android:imeOptions=   "flagNoExtractUi"
+
+            android:layout_marginEnd="4dp"
+
+            android:textColor=    "@color/colorTextBlack"
+            android:background=   "@color/colorGray"
+            />
+        <Spinner
+            android:id="@id/dMedAlertPersonSpinner"
+
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="55"
+
+            android:gravity="center_horizontal"
+
+            android:freezesText="true"
+
+            android:inputType=    "textAutoComplete"
+            android:imeOptions=   "flagNoExtractUi"
+
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorHistoryBackground"
+            />
+    </TableRow>
+
+    <!-- Notification Type -->
+    <TableRow
+        android:layout_width=  "match_parent"
+        android:layout_height= "wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop=    "4dp"
+        >
+
+        <TextView
+            android:id=           "@+id/dMedAlertTypeLabel"
+            android:labelFor=     "@+id/dMedAlertTypeSpinner"
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="25"
+            android:gravity=      "end"
+
+            android:freezesText="true"
+
+            android:focusable="false"
+
+            android:text="@string/notify_type_label"
+            android:textColor=    "@color/colorTextBlack"
+            android:background=   "@color/colorLabelBackground"
+            />
+
+        <Spinner
+            android:id="@id/dMedAlertTypeSpinner"
+
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="75"
+
+            android:gravity="center_horizontal"
+
+            android:freezesText="true"
+
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorHistoryBackground"
+            />
+
+    </TableRow>
+
+    <!-- Notify overdue hint -->
+    <TableRow
+        android:layout_width=  "match_parent"
+        android:layout_height= "wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:paddingTop=    "4dp"
+        >
+
+        <TextView
+            android:id=           "@+id/dMedAlertOverdueHintLabel"
+
+            android:layout_height="wrap_content"
+            android:layout_width= "wrap_content"
+
+            android:gravity=      "center_horizontal"
+
+            android:freezesText="true"
+
+            android:focusable="false"
+
+            android:text="@string/notify_hint"
+            android:textColor=    "@color/colorTextBlack"
+            android:background=   "@color/colorWhite"
+            />
+
+    </TableRow>
+
+    <!-- Notify when overdue by (day) -->
+    <TableRow
+        android:layout_width=  "match_parent"
+        android:layout_height= "wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop=    "4dp"
+        >
+
+        <TextView
+            android:id=           "@+id/dMedAlertOverdueDayLabel"
+            android:labelFor=     "@+id/dMedAlertOverdueDayInput"
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="25"
+            android:gravity=      "end"
+
+            android:freezesText="true"
+
+            android:focusable="false"
+
+            android:text="@string/notify_day_label"
+            android:textColor=    "@color/colorTextBlack"
+            android:background=   "@color/colorLabelBackground"
+            />
+        <EditText
+            android:id="@id/dMedAlertOverdueDayInput"
+
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="75"
+
+            android:gravity="center_horizontal"
+
+            android:freezesText="true"
+
+            android:inputType=    "number"
+            android:imeOptions=   "flagNoExtractUi"
+
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorHistoryBackground"
+            />
+    </TableRow>
+
+    <!-- Notify when overdue by (hour) -->
+    <TableRow
+        android:layout_width=  "match_parent"
+        android:layout_height= "wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop=    "4dp"
+        >
+
+        <TextView
+            android:id=           "@+id/dMedAlertOverdueHourLabel"
+            android:labelFor=     "@+id/dMedAlertOverdueHourInput"
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="25"
+            android:gravity=      "end"
+
+            android:freezesText="true"
+
+            android:focusable="false"
+
+            android:text="@string/notify_hour_label"
+            android:textColor=    "@color/colorTextBlack"
+            android:background=   "@color/colorLabelBackground"
+            />
+        <EditText
+            android:id="@id/dMedAlertOverdueHourInput"
+
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="75"
+
+            android:gravity="center_horizontal"
+
+            android:freezesText="true"
+
+            android:inputType=    "number"
+            android:imeOptions=   "flagNoExtractUi"
+
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorHistoryBackground"
+            />
+    </TableRow>
+
+    <!-- Notify when overdue by (minute) -->
+    <TableRow
+        android:layout_width=  "match_parent"
+        android:layout_height= "wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop=    "4dp"
+        >
+
+        <TextView
+            android:id=           "@+id/dMedAlertOverdueMinuteLabel"
+            android:labelFor=     "@+id/dMedAlertOverdueMinuteInput"
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="25"
+            android:gravity=      "end"
+
+            android:freezesText="true"
+
+            android:focusable="false"
+
+            android:text="@string/notify_minute_label"
+            android:textColor=    "@color/colorTextBlack"
+            android:background=   "@color/colorLabelBackground"
+            />
+        <EditText
+            android:id="@id/dMedAlertOverdueMinuteInput"
+
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="75"
+
+            android:gravity="center_horizontal"
+
+            android:freezesText="true"
+
+            android:inputType=    "number"
+            android:imeOptions=   "flagNoExtractUi"
+
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorHistoryBackground"
+            />
+    </TableRow>
+
+</TableLayout>

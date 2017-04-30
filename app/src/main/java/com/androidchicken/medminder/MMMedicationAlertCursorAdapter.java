@@ -79,7 +79,7 @@ public class MMMedicationAlertCursorAdapter extends RecyclerView.Adapter<MMMedic
         holder.medName   .setText(medication.getMedicationNickname().toString());
         holder.personName.setText(person.getNickname().toString());
 
-        int notifyTypeInt = medicationAlert.getTypeNotify();
+        int notifyTypeInt = medicationAlert.getNotifyType();
 
         String type = MMMedicationAlert.sNotifyTextString;
         if (notifyTypeInt == MMMedicationAlert.sNOTIFY_BY_EMAIL) type = MMMedicationAlert.sNotifyEmailString;
@@ -90,8 +90,8 @@ public class MMMedicationAlertCursorAdapter extends RecyclerView.Adapter<MMMedic
         int days    = medicationAlert.getOverdueDays();
         int hours   = medicationAlert.getOverdueHours();
         int minutes = medicationAlert.getOverdueMinutes();
-        String hmsFormat = "%d hours : %d minutes : %d seconds";
-        String overdueTimeString = String.format(hmsFormat, days, hours, minutes);
+        String hmsMask = "%d:%d:%d";
+        String overdueTimeString = String.format(hmsMask, days, hours, minutes);
 
         holder.notifyTime.setText(overdueTimeString);
     }
@@ -126,6 +126,10 @@ public class MMMedicationAlertCursorAdapter extends RecyclerView.Adapter<MMMedic
         return returnValue;
     }
 
+    public MMMedicationAlert getMedAlertAt(int position){
+        MMMedicationAlertManager medicationAlertManager = MMMedicationAlertManager.getInstance();
+        return medicationAlertManager.getMedicationAlertFromCursor(mMedicationAlertCursor, position);
+    }
 
     public Cursor getCursor(){return mMedicationAlertCursor;}
 

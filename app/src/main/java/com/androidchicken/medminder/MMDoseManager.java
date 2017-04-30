@@ -61,6 +61,20 @@ public class MMDoseManager {
 
     }//end public add()
 
+    //get the most recent time this medication was taken
+    public MMDose getMostRecentDose(long medicationID){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        //get all doses for this medication, and order by time taken
+        Cursor cursor = databaseManager.getAllDosesCursor(medicationID,
+                                                          MMDataBaseSqlHelper.DOSE_TIME_TAKEN);
+        //we want the most recent, so get the last one
+        MMDoseManager doseManager = MMDoseManager.getInstance();
+        MMDose recentDose = getDoseFromCursor(cursor, (cursor.getCount()-1));
+
+        cursor.close();
+        return recentDose;
+    }
+
 
     public int removeDose(long doseID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();

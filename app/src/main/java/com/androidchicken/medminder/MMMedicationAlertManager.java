@@ -3,6 +3,8 @@ package com.androidchicken.medminder;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import java.util.ArrayList;
+
 /**
  * Created by Elisabeth Huhn on 4/21/17
  *
@@ -63,6 +65,13 @@ public class MMMedicationAlertManager {
 
     //***********************  CREATE **************************************
 
+    //The routine that actually adds the instance to DB
+    public long addMedicationAlert(MMMedicationAlert medicationAlert){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        return databaseManager.addMedicationAlert(medicationAlert);
+    }
+
+
 
 
     //***********************  READ **************************************
@@ -73,19 +82,18 @@ public class MMMedicationAlertManager {
         return databaseManager.getAllMedicationAlertsCursor(personID);
     }
 
-/* Convert the rest of these routines as needed
-    public ArrayList<MMMedication> getMedicationAlertsFromDB(MMPerson person){
-        long personID = person.getPersonID();
-
-        //get all medications in the DB that are linked to this Person
+    public ArrayList<MMMedicationAlert> getMedicationAlerts(long personID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        return databaseManager.getAllMedications(personID);
+        //if the personID is the MMUtilities.ID_DOES_NOT_EXIST, then
+        // all MMMedicationAlerts in the DB will be in the returned list
+        return databaseManager.getMedicationAlerts(personID);
     }
 
-    public MMMedication getMedicationAlertsFromID(long medicationID){
+    public MMMedicationAlert getMedicationAlert(long medAlertID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        return databaseManager.getMedication(medicationID);
+        return databaseManager.getMedicationAlert(medAlertID);
     }
+
 
     //***********************  UPDATE **************************************
 
@@ -136,7 +144,7 @@ public class MMMedicationAlertManager {
         return returnCode;
     }//end public remove position
 
-*/
+
     public boolean removeMedicationAlertFromDB(long medicationAlertID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         long returnCode = databaseManager.removeMedicationAlert(medicationAlertID);
@@ -162,7 +170,7 @@ public class MMMedicationAlertManager {
         values.put(MMDataBaseSqlHelper.MEDICATION_ALERT_MEDICATION_ID,  medicationAlert.getMedicationID());
         values.put(MMDataBaseSqlHelper.MEDICATION_ALERT_FOR_PATIENT_ID, medicationAlert.getForPatientID());
         values.put(MMDataBaseSqlHelper.MEDICATION_ALERT_NOTIFY_PERSON_ID,medicationAlert.getNotifyPersonID());
-        values.put(MMDataBaseSqlHelper.MEDICATION_ALERT_TYPE_NOTIFY,     medicationAlert.getTypeNotify());
+        values.put(MMDataBaseSqlHelper.MEDICATION_ALERT_TYPE_NOTIFY,     medicationAlert.getNotifyType());
         values.put(MMDataBaseSqlHelper.MEDICATION_ALERT_OVERDUE_TIME, medicationAlert.getOverdueTime());
 
         return values;
@@ -194,7 +202,7 @@ public class MMMedicationAlertManager {
                 (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_ALERT_FOR_PATIENT_ID)));
         medicationAlert.setNotifyPersonID(cursor.getLong
                 (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_ALERT_NOTIFY_PERSON_ID)));
-        medicationAlert.setTypeNotify(cursor.getInt
+        medicationAlert.setNotifyType(cursor.getInt
                 (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_ALERT_TYPE_NOTIFY)));
         medicationAlert.setOverdueTime(cursor.getInt
                 (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_ALERT_OVERDUE_TIME)));

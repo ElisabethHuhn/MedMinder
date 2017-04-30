@@ -87,7 +87,7 @@ public class MMSchedMedManager {
     //that pertain to this personID
     public Cursor getAllSchedMedsForPersonCursor(long personID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        String orderClause = "SCHED_MED_TIME_DUE";
+        String orderClause = MMDataBaseSqlHelper.SCHED_MED_TIME_DUE;   // "SCHED_MED_TIME_DUE";
         return databaseManager.getAllSchedMedsForPersonCursor(personID, orderClause);
     }
 
