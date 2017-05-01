@@ -173,7 +173,6 @@ public class MMMedicationManager {
         if (returnCode) {
             //ask the databaseManager to remove it from the DB as well
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-            // TODO: 11/5/2016 removePoint returns int of the # removed. May want to adjust this returnCode based on it
             databaseManager.removeMedication(medication.getMedicationID());
         }
         return returnCode;

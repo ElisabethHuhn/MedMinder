@@ -45,11 +45,6 @@ public class MMUtilities {
     /*    Static (class) Constants       */
     //************************************/
 
-    // TODO: 3/22/2017  this eventually needs to be a user setting
-    //# of minutes prior to scheduled due time that notification is giving to take dose
-    public static final int WITHIN_DOSE_WINDOW = 5;
-    public static final long MINUTES_IN_DAY = 24 * 60;
-
 
     public static final boolean BUTTON_DISABLE = false;
     public static final boolean BUTTON_ENABLE  = true;
@@ -65,7 +60,7 @@ public class MMUtilities {
     //************************************/
     /*    Static (class) Variables       */
     //************************************/
-
+    private static MMUtilities ourInstance ;
 
     //************************************/
     /*    Member (instance) Variables    */
@@ -76,6 +71,32 @@ public class MMUtilities {
     //************************************/
     /*         Static Methods            */
     //************************************/
+    public static MMUtilities getInstance() {
+        if (ourInstance == null){
+            ourInstance = new MMUtilities();
+        }
+        return ourInstance;
+    }
+
+
+
+    //************************************/
+    /*         CONSTRUCTOR               */
+    //************************************/
+    private MMUtilities() {
+    }
+
+
+    //************************************/
+    /*    Member setter/getter Methods   */
+    //************************************/
+
+
+    //************************************/
+    /*          Member Methods           */
+    //************************************/
+
+
 /*
     //generate a guarenteed unique ID
     public static int getUniqueID(){
@@ -468,21 +489,25 @@ public class MMUtilities {
         String medicationName = medication.getMedicationNickname().toString();
 
         //"Patient %s has not taken a dose of %s since %s, even though one was due %s";
+        //   <string name="medication_alert_msg">Patient %s has not taken a dose of %s since %s, even though one was due %s</string>
 
-        String msg = String.format(context.getString(R.string.medication_alert_msg),
+/*
+        //String msg = String.format(context.getString(R.string.medication_alert_msg),
+        String msg = String.format("Patient %s has not taken a dose of %s since %s, even though one was due %s",
                                    personNickname,
                                    medicationName,
                                    timeTakenString,
                                    dateTimeDueString);
-
+*/
+        String msg = "Patient " + personNickname + " has not taken a dose of " + medicationName +
+                     " since " + timeTakenString +
+                     ", even though one was due "  + dateTimeDueString + ".";
         int alertType = medicationAlert.getNotifyType();
         if (alertType == MMMedicationAlert.sNOTIFY_BY_TEXT) {
             sendSMS(context, notifyPerson.getTextAddress().toString(), msg);
         } else if (alertType == MMMedicationAlert.sNOTIFY_BY_EMAIL){
             sendEmail(context, notifyPerson.getEmailAddress().toString(), msg);
         } //else if any other type in the future......
-
-
     }
 
 
@@ -490,8 +515,7 @@ public class MMUtilities {
     //************************************/
     /*         Send Email using Intent   */
     //************************************/
-
-    protected static void sendEmail(Context context, String toAddress, String msg) {
+    public static void sendEmail(Context context, String toAddress, String msg) {
 
         String[] TO = {toAddress};     //{"someone@gmail.com"};
         //String[] CC = {"elisabethhuhn@gmail.com"};
@@ -523,8 +547,7 @@ public class MMUtilities {
     //---sends an SMS message to another device---
 
     // but it opens the message app
-    private void sendSMSIntent(Context activity, String phoneNumber, String message)
-    {
+    private void sendSMSIntent(Context activity, String phoneNumber, String message)  {
         Intent messageIntent = new Intent(activity, Telephony.Sms.class);
         PendingIntent pi     = PendingIntent.getActivity(activity, 0, messageIntent, 0);
         SmsManager smsMgr    = SmsManager.getDefault();
@@ -555,22 +578,6 @@ public class MMUtilities {
 
     }
 
-
-
-    //************************************/
-    /*         CONSTRUCTOR               */
-    //************************************/
-
-
-
-    //************************************/
-    /*    Member setter/getter Methods   */
-    //************************************/
-
-
-    //************************************/
-    /*          Member Methods           */
-    //************************************/
 
 
 }

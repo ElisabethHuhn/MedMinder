@@ -11,25 +11,25 @@ import android.database.Cursor;
  */
 
 public class MMDoseManager {
-    /************************************/
-    /********* Static Constants *********/
-    /************************************/
-    public static final int DOSE_NOT_FOUND = -1;
+    //***********************************/
+    //******** Static Constants *********/
+    //***********************************/
 
 
-    /************************************/
-    /********* Static Variables *********/
-    /************************************/
+
+    //***********************************/
+    //******** Static Variables *********/
+    //***********************************/
     private static MMDoseManager ourInstance ;
 
-    /************************************/
-    /********* Member Variables *********/
-    /************************************/
+    //***********************************/
+    //******** Member Variables *********/
+    //***********************************/
 
 
-    /************************************/
-    /********* Static Methods   *********/
-    /************************************/
+    //***********************************/
+    //******** Static Methods   *********/
+    //***********************************/
     public static MMDoseManager getInstance() {
         if (ourInstance == null){
             ourInstance = new MMDoseManager();
@@ -38,20 +38,20 @@ public class MMDoseManager {
     }
 
 
-    /************************************/
-    /********* Constructors     *********/
-    /************************************/
+    //***********************************/
+    //******** Constructors     *********/
+    //***********************************/
     private MMDoseManager() {
     }
 
-    /************************************/
-    /********* Setters/Getters  *********/
-    /************************************/
+    //***********************************/
+    //******** Setters/Getters  *********/
+    //***********************************/
 
 
-    /*******************************************/
-    /********* Public Member Methods   *********/
-    /*******************************************/
+    //******************************************/
+    //******** Public Member Methods   *********/
+    //******************************************/
 
     //This routine not only adds to the in memory list, but also to the DB
     public void add(MMDose newDose){
@@ -68,7 +68,6 @@ public class MMDoseManager {
         Cursor cursor = databaseManager.getAllDosesCursor(medicationID,
                                                           MMDataBaseSqlHelper.DOSE_TIME_TAKEN);
         //we want the most recent, so get the last one
-        MMDoseManager doseManager = MMDoseManager.getInstance();
         MMDose recentDose = getDoseFromCursor(cursor, (cursor.getCount()-1));
 
         cursor.close();
@@ -81,18 +80,18 @@ public class MMDoseManager {
         return databaseManager.removeDose(doseID);
     }
 
-    /********************************************/
-    /********* Private Member Methods   *********/
-    /********************************************/
+    //*******************************************/
+    //******** Private Member Methods   *********/
+    //*******************************************/
 
 
 
 
 
 
-    /********************************************/
-    /********* Public Member Methods    *********/
-    /********************************************/
+    //*******************************************/
+    //******** Public Member Methods    *********/
+    //*******************************************/
 
 
 

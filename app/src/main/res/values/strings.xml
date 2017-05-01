@@ -172,8 +172,6 @@
     <string name="medication_alert_type"            >Email/Text</string>
     <string name="medication_alert_notify"          >Notify</string>
     <string name="medication_alert_time_overdue"    >When D:H:M</string>
-    <string name="medication_alert_msg"
-        >Patient %s has not taken a dose of %s since %s, even though one was due %s</string>
 
 
     <!-- exception messages -->

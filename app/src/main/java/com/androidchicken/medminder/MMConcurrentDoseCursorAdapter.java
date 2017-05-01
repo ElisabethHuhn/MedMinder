@@ -129,8 +129,6 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
         MMConcurrentDose concurrentDoses = concurrentDoseManager
                                 .getConcurrentDoseFromCursor(mConcurrentDoseCursor, position);
         //and all of it's embedded Doses
-        // TODO: 1/27/2017 These are not added to the permanent in memory list, so are transient
-        // TODO: 2/3/2017 It might be better to create memory objects and save them rather than recreate from DB each time
         concurrentDoses = concurrentDoseManager.getDosesForCDFromDB(concurrentDoses);
 
         if (concurrentDoses != null) {

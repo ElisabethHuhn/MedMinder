@@ -14,27 +14,27 @@ import java.util.ArrayList;
  */
 
 public class MMMedicationAlertManager {
-    /************************************/
-    /********* Static Constants  ********/
-    /************************************/
+    //***********************************/
+    //******** Static Constants  ********/
+    //***********************************/
 
 
 
 
-    /************************************/
-    /********* Static Variables  ********/
-    /************************************/
+    //***********************************/
+    //******** Static Variables  ********/
+    //***********************************/
     private static MMMedicationAlertManager ourInstance ;
 
-    /**************************************/
-    /********* Member Variables   *********/
-    /**************************************/
+    //*************************************/
+    //******** Member Variables   *********/
+    //*************************************/
     //The medication lists exist on the Persons, rather than on a list here
     //private ArrayList<MMMedicationAlert> mMedicationAlertList;
 
-    /************************************/
-    /********* Static Methods   *********/
-    /************************************/
+    //***********************************/
+    //******** Static Methods   *********/
+    //***********************************/
     public static MMMedicationAlertManager getInstance() {
         if (ourInstance == null){
             ourInstance = new MMMedicationAlertManager();
@@ -43,9 +43,9 @@ public class MMMedicationAlertManager {
     }
 
 
-    /************************************/
-    /********* Constructors     *********/
-    /************************************/
+    //***********************************/
+    //******** Constructors     *********/
+    //***********************************/
     private MMMedicationAlertManager() {
 
         //The medication list already exists on the Person instance
@@ -53,15 +53,15 @@ public class MMMedicationAlertManager {
 
     }
 
-    /*******************************************/
-    /********* Public Member Methods   *********/
-    /*******************************************/
+    //******************************************/
+    //******** Public Member Methods   *********/
+    //******************************************/
 
 
 
-    /*******************************************/
-    /*********     CRUD Methods        *********/
-    /*******************************************/
+    //******************************************/
+    //********     CRUD Methods        *********/
+    //******************************************/
 
     //***********************  CREATE **************************************
 
@@ -138,7 +138,6 @@ public class MMMedicationAlertManager {
         if (returnCode) {
             //ask the databaseManager to remove it from the DB as well
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-            // TODO: 11/5/2016 removePoint returns int of the # removed. May want to adjust this returnCode based on it
             databaseManager.removeMedication(medication.getMedicationID());
         }
         return returnCode;
@@ -153,17 +152,17 @@ public class MMMedicationAlertManager {
     }
 
 
-    /********************************************/
-    /********* Private Member Methods   *********/
-    /********************************************/
+    //*******************************************/
+    //******** Private Member Methods   *********/
+    //*******************************************/
 
 
-    //***********************  COPY **************************************
+    //**********************  COPY **************************************
 
 
-    /********************************************/
-    /****  Translation utility Methods   ********/
-    /********************************************/
+    //*******************************************/
+    //***  Translation utility Methods   ********/
+    //*******************************************/
     public ContentValues getCVFromMedicationAlert(MMMedicationAlert medicationAlert){
         ContentValues values = new ContentValues();
         values.put(MMDataBaseSqlHelper.MEDICATION_ALERT_ID,             medicationAlert.getMedicationAlertID());

@@ -463,7 +463,6 @@ public class MMPersonFragment extends Fragment {
             if (person == null){
                 String message = getString(R.string.person_does_not_exist) + mPersonID;
                 MMUtilities.errorHandler(getActivity(), message);
-                // TODO: 2/21/2017 How should this error be handled???
                 mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
                 person = new MMPerson(mPersonID);
             }

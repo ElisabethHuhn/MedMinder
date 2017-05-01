@@ -48,11 +48,6 @@ public class MMConcurrentDoseManager {
 
         mConcurrentDosesList = new ArrayList<>();
 
-        //This is where we would read the list from the database
-        // TODO: 10/17/2016   get the list of projects from the DB
-
-        // TODO: 10/17/2016 create dummy concurrentDose data if none exists
-        //but for now, just make up some data
     }
 
     /************************************/
