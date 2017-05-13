@@ -128,7 +128,7 @@ public class MMPerson {
             "Nickname, "      +
             "EmailAddress, "  +
             "TextAddress, "   +
-            "MedOrder  "      +
+            "Current  "      +
             System.getProperty("line.separator");
         return msg;
     }
@@ -141,6 +141,56 @@ public class MMPerson {
                 String.valueOf(this.getTextAddress())  +
                 System.getProperty("line.separator");
     }
+
+    public String toString() {
+        return
+            System.getProperty("line.separator") +
+            "PERSON:"        + System.getProperty("line.separator") +
+            "PersonID:     " + String.valueOf(mPersonID)     + System.getProperty("line.separator") +
+            "Nickname:     " + String.valueOf(mNickname)     + System.getProperty("line.separator") +
+            "EmailAddress: " + String.valueOf(mEmailAddress) + System.getProperty("line.separator") +
+            "TextAddress:  " + String.valueOf(mTextAddress)  + System.getProperty("line.separator") +
+            "Current?      " + String.valueOf(mCurrentlyExists) + System.getProperty("line.separator");
+    }
+
+    public String shortString(){
+        StringBuilder message = new StringBuilder();
+
+        message.append(getNameString());
+        message.append(" is ");
+        if (!isCurrentlyExists()){
+            message.append("NOT ");
+        }
+        message.append("currently active.");
+        message.append(System.getProperty("line.separator"));
+
+        if (!mEmailAddress.toString().isEmpty()) {
+            message.append(" Email Address is ");
+            message.append(mEmailAddress);
+        }
+        if (!mEmailAddress.toString().isEmpty() && !mTextAddress.toString().isEmpty()){
+            message.append(" and ");
+        }
+        if (!mTextAddress.toString().isEmpty()) {
+            message.append(" Text number is ");
+            message.append(mTextAddress);
+        }
+        return message.toString();
+    }
+
+
+
+    public String getNameString(){
+        StringBuilder message = new StringBuilder();
+
+        message.append("PERSON:  (ID ");
+        message.append(String.valueOf(mPersonID));
+        message.append(")  ");
+        message.append(mNickname);
+
+        return message.toString();
+    }
+
 
 
 }

@@ -149,7 +149,8 @@ public class MMSchedCursorAdapter extends RecyclerView.Adapter<MMSchedCursorAdap
         c.set(Calendar.SECOND, 0);
         Date d1 = c.getTime();
 
-        String timeString = MMUtilities.getTimeString(MMUtilities.getTimeFormatString(mIs24Format), d1);
+        String timeString = MMUtilities.getInstance()
+                .getTimeString(MMUtilities.getInstance().getTimeFormatString(mIs24Format), d1);
 
         holder.medicationTime    .setText(timeString);
     }

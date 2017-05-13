@@ -95,6 +95,7 @@ public class MMHistoryTitleLineFragment extends Fragment {
         } else {
             mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
         }
+        ((MMMainActivity)getActivity()).setPatientID(mPersonID);
     }
 
 
@@ -152,13 +153,13 @@ public class MMHistoryTitleLineFragment extends Fragment {
     //**********************************************/
     private void wireWidgets(View v){
 
-
-
-
         //Fill the sample ConcurrentDose title line with the position Indicators
         if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return;
-        mPerson = MMUtilities.getPerson(mPersonID);
+
+        MMPersonManager personManager = MMPersonManager.getInstance();
+        mPerson = personManager.getPerson(mPersonID);
         if (mPerson == null)return;
+
         mMedications = mPerson.getMedications();
         int last = mMedications.size();
         if (last == 0)return;
@@ -179,7 +180,7 @@ public class MMHistoryTitleLineFragment extends Fragment {
 
     private void addDateTimeFieldsToView(View v, int sizeInDp){
 
-        int padding = MMUtilities.convertPixelsToDp(getActivity(), sizeInDp);
+        int padding = MMUtilities.getInstance().convertPixelsToDp(getActivity(), sizeInDp);
 
         LinearLayout layout = (LinearLayout) v.findViewById(R.id.medHistoryLayout);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -211,7 +212,7 @@ public class MMHistoryTitleLineFragment extends Fragment {
             }
         });
 
-        String timeString = MMUtilities.getTimeString();
+        String timeString = MMUtilities.getInstance().getTimeString();
 
         mTimeInput.setText(timeString);
 
@@ -223,7 +224,7 @@ public class MMHistoryTitleLineFragment extends Fragment {
 
         EditText edtView;
 
-        int padding = MMUtilities.convertPixelsToDp(getActivity(), sizeInDp);
+        int padding = MMUtilities.getInstance().convertPixelsToDp(getActivity(), sizeInDp);
 
         //
         //add EditText to the dose layout
@@ -343,7 +344,8 @@ public class MMHistoryTitleLineFragment extends Fragment {
         //determine if a person is yet associated with the fragment
         if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
             //if there is a person corresponding to the patientID, put the name up on the screen
-            MMPerson person = MMUtilities.getPerson(mPersonID);
+            MMPersonManager personManager = MMPersonManager.getInstance();
+            MMPerson person = personManager.getPerson(mPersonID);
 
             if (person != null) {
                 TextView patientNickName = (TextView) v.findViewById(R.id.patientNickNameLabel);
@@ -381,8 +383,6 @@ public class MMHistoryTitleLineFragment extends Fragment {
 
     //called from onClick(), executed when a concurrent dose is selected from list
     private void onSelect(int position){
-        int temp = 1;
-        temp++;
 
     }
 

@@ -24,7 +24,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -126,6 +125,7 @@ public class MMMedicationFragment extends Fragment {
             mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
             mPosition = -1;
         }
+        ((MMMainActivity)getActivity()).setPatientID(mPersonID);
 
     }
 
@@ -138,6 +138,7 @@ public class MMMedicationFragment extends Fragment {
             //the fragment is being restored so restore the person ID
             mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
             mPosition = savedInstanceState.getInt(MMPerson.sPersonMedicationPositionTag);
+            ((MMMainActivity)getActivity()).setPatientID(mPersonID);
         }
 
 
@@ -151,7 +152,8 @@ public class MMMedicationFragment extends Fragment {
         initializeUI(v);
 
         //hide the soft keyboard if it is visible
-        MMUtilities.hideSoftKeyboard(getActivity());
+        MMUtilities utilities = MMUtilities.getInstance();
+        utilities.hideSoftKeyboard(getActivity());
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         //set the title bar subtitle
@@ -196,7 +198,8 @@ public class MMMedicationFragment extends Fragment {
 
 
         //hide the soft keyboard if it is visible
-        MMUtilities.hideSoftKeyboard(getActivity());
+        MMUtilities utilities = MMUtilities.getInstance();
+        utilities.hideSoftKeyboard(getActivity());
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         setUISaved();
@@ -493,7 +496,8 @@ public class MMMedicationFragment extends Fragment {
         if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
             throw new RuntimeException(getString(R.string.no_person_med));
         }
-        MMPerson person = MMUtilities.getPerson(mPersonID);
+        MMPersonManager personManager = MMPersonManager.getInstance();
+        MMPerson person = personManager.getPerson(mPersonID);
 
         CharSequence nickname;
         if (person == null) {
@@ -640,9 +644,8 @@ public class MMMedicationFragment extends Fragment {
         Button medicationSaveButton =
                 (Button) v.findViewById(R.id.medicationSaveButton);
 
-        MMUtilities.enableButton(getActivity(),
-                medicationSaveButton,
-                isEnabled);
+        MMUtilities utilities = MMUtilities.getInstance();
+        utilities.enableButton(getActivity(), medicationSaveButton, isEnabled);
     }
 
     private void    setUpDownEnabled(){
@@ -747,7 +750,8 @@ public class MMMedicationFragment extends Fragment {
                                 schedMedManager.addScheduleMedication(scheduleMedication);
 
                                 //issue an alarm for this new time
-                                MMUtilities.scheduleNotification(getActivity(), timeOfDay);
+                                MMUtilities utilities = MMUtilities.getInstance();
+                                utilities.createScheduleNotification(getActivity(), timeOfDay);
 
                                 //Now update the UI list
                                 reinitializeCursor(scheduleMedication.getOfMedicationID());
@@ -767,7 +771,8 @@ public class MMMedicationFragment extends Fragment {
                 //need to be able to differentiate between the three cases.
                 if (!userPressedOKinTimePicker) {
                     //need to set an Alarm for the old time as the user pressed cancel
-                    MMUtilities.scheduleNotification(getActivity(), minutesSinceMidnight);
+                    MMUtilities utilities = MMUtilities.getInstance();
+                    utilities.createScheduleNotification(getActivity(), minutesSinceMidnight);
                 }
             }
         });
@@ -785,7 +790,8 @@ public class MMMedicationFragment extends Fragment {
 
     private MMMedication getMedicationInstance(long personID, int position){
         //If personID can't be found in the list, person will be null
-        MMPerson person = MMUtilities.getPerson(personID);
+        MMPersonManager personManager = MMPersonManager.getInstance();
+        MMPerson person = personManager.getPerson(personID);
         if (person == null)return null;
         if (position < 0)return null; //means we are adding the medication
 
@@ -822,12 +828,11 @@ public class MMMedicationFragment extends Fragment {
         View v = getView();
         if (v == null)return;
 
-        Toast.makeText(getActivity(),
-                R.string.save_label,
-                Toast.LENGTH_SHORT).show();
+        MMUtilities.getInstance().showStatus(getActivity(), R.string.save_label);
 
         //get rid of the soft keyboard if it is visible
-        MMUtilities.hideSoftKeyboard(getActivity());
+        MMUtilities utilities = MMUtilities.getInstance();
+        utilities.hideSoftKeyboard(getActivity());
 
         //Person medication is the medication in the Person's medication list
         //update it with values from this screen
@@ -876,14 +881,15 @@ public class MMMedicationFragment extends Fragment {
         //Add the medication to the person if necessary, but definitely add to the DB
         //add the scheduleMedications to the DB as well
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-        MMPerson person = MMUtilities.getPerson(mPersonID);
+        MMPersonManager personManager = MMPersonManager.getInstance();
+        MMPerson person = personManager.getPerson(mPersonID);
         //Add the medication to the person, and to the DB
         boolean addToDBToo = true;
         if (person == null) {
-            MMUtilities.errorHandler(getActivity(), R.string.exception_medication_not_added);
+            MMUtilities.getInstance().errorHandler(getActivity(), R.string.exception_medication_not_added);
         } else {
             if (!medicationManager.addToPerson(person, medication, addToDBToo)) {
-                MMUtilities.errorHandler(getActivity(), R.string.exception_medication_not_added);
+                MMUtilities.getInstance().errorHandler(getActivity(), R.string.exception_medication_not_added);
             } else {
 
                 //update the medicationID on the UI
@@ -892,7 +898,7 @@ public class MMMedicationFragment extends Fragment {
                 medIDInput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
 
                 //Tell the user everything went well
-                Toast.makeText(getActivity(), R.string.save_successful, Toast.LENGTH_SHORT).show();
+                MMUtilities.getInstance().showStatus(getActivity(), R.string.save_successful);
 
                 //disable the save button because we just saved
                 saveButtonEnable(MMUtilities.BUTTON_DISABLE);
@@ -926,9 +932,7 @@ public class MMMedicationFragment extends Fragment {
     }
 
     private void onExit(){
-        Toast.makeText(getActivity(),
-                R.string.exit_label,
-                Toast.LENGTH_SHORT).show();
+        MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
 
         if (isUIChanged) {
             areYouSureExit();
@@ -961,10 +965,11 @@ public class MMMedicationFragment extends Fragment {
             onSave();
 
             //Enable the Alarm receiver. It will stay enabled across reboots
-            MMUtilities.enableAlarmReceiver(getActivity());
+            MMUtilities utilities = MMUtilities.getInstance();
+            utilities.enableAlarmReceiver(getActivity());
 
             //create an Alarm to generate a notification for this scheduled dose
-            MMUtilities.scheduleNotification(getActivity(), schedule.getTimeDue());
+            utilities.createScheduleNotification(getActivity(), schedule.getTimeDue());
         }
     }
 
@@ -1057,7 +1062,7 @@ public class MMMedicationFragment extends Fragment {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 //Leave even though project has chaged
-                                //Toast.makeText(getActivity(), R.string.exit_label, Toast.LENGTH_SHORT).show();
+                                //MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
                                 switchToExit();
 
                             }
@@ -1065,9 +1070,8 @@ public class MMMedicationFragment extends Fragment {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // do nothing
-                        Toast.makeText(getActivity(),
-                                "Pressed Cancel",
-                                Toast.LENGTH_SHORT).show();
+                        MMUtilities.getInstance().showStatus(getActivity(), R.string.pressed_cancel);
+
                     }
                 })
                 .setIcon(R.drawable.ground_station_icon)
@@ -1095,7 +1099,8 @@ public class MMMedicationFragment extends Fragment {
         //if there are more than one due at this time, leave the existing alarm in place
         if (howManyMedsDue == 1) {
             //The alarm is based on when the dose is due
-            MMUtilities.cancelNotificationAlarms(getActivity(), minutesSinceMidnight);
+            MMUtilities utilities = MMUtilities.getInstance();
+            utilities.cancelNotificationAlarms(getActivity(), minutesSinceMidnight);
         }
     }
 

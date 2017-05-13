@@ -93,6 +93,37 @@ public class MMScheduleMedication {
                System.getProperty("line.separator");
     }
 
+    public String toString(){
+        //convert to milliseconds
+        long timeDue = getTimeDue() * 60 * 1000;
+        //// TODO: 5/8/2017 24hour format needs to be in preferences
+        boolean is24Format = false;
+        String clockTime = MMUtilities.getInstance().getTimeString(timeDue, is24Format);
+
+        MMPerson person = MMPersonManager.getInstance().getPerson(mForPersonID);
+
+        MMMedication medication =
+                MMMedicationManager.getInstance().getMedicationFromID(mOfMedicationID);
+
+        return
+            System.getProperty("line.separator") +
+            "SCHEDULE FOR MEDICATION:"    + System.getProperty("line.separator") +
+            "SchedMedID:   " + String.valueOf(mForPersonID)      + System.getProperty("line.separator") +
+            "MedicationID: " + medication.getMedicationNickname()+ System.getProperty("line.separator") +
+            "PersonID:     " + person.getNickname()              + System.getProperty("line.separator") +
+            "TimeDue:      " + clockTime                         + System.getProperty("line.separator") ;
+    }
+
+    public String shortString(){
+        //convert to milliseconds
+        long timeDue = getTimeDue() * 60 * 1000;
+        //// TODO: 5/8/2017 24hour format needs to be in preferences
+        boolean is24Format = false;
+        String clockTime = MMUtilities.getInstance().getTimeString(timeDue, is24Format);
+
+        return
+            clockTime   ;
+    }
 
 
     /**********************************************/
@@ -110,6 +141,8 @@ public class MMScheduleMedication {
             return schedule1.getTimeDue() - schedule2.getTimeDue();
         }
     }
+
+
 
 
 }

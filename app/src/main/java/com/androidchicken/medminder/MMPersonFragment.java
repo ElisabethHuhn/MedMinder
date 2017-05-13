@@ -22,7 +22,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 /**
@@ -81,6 +80,7 @@ public class MMPersonFragment extends Fragment {
         } else {
             mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
         }
+        ((MMMainActivity)getActivity()).setPatientID(mPersonID);
 
     }
 
@@ -93,6 +93,7 @@ public class MMPersonFragment extends Fragment {
         if (savedInstanceState != null){
             //the fragment is being restored so restore the person ID
             mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
+            ((MMMainActivity)getActivity()).setPatientID(mPersonID);
         }
 
 
@@ -138,18 +139,18 @@ public class MMPersonFragment extends Fragment {
         //The following kludge is necessary because the RecyclerView list
         // disappears in Landscape mode unless the soft keyboard is visible
         // I never could figure out the right way to fix it.
+        MMUtilities utilities = MMUtilities.getInstance();
         if (getOrientation() == Configuration.ORIENTATION_LANDSCAPE) {
 
             //get rid of the soft keyboard if it is visible
             View v = getView();
             if (v != null) {
                 EditText personNickNameInput = (EditText) (v.findViewById(R.id.personNickNameInput));
-                MMUtilities.showSoftKeyboard(getActivity(), personNickNameInput);
+                utilities.showSoftKeyboard(getActivity(), personNickNameInput);
             }
         } else {
-
             //get rid of the soft keyboard if it is visible
-            MMUtilities.hideSoftKeyboard(getActivity());
+            utilities.hideSoftKeyboard(getActivity());
         }
 
 
@@ -161,6 +162,7 @@ public class MMPersonFragment extends Fragment {
 
 
     }
+
     public int getOrientation(){
         int orientation = Configuration.ORIENTATION_PORTRAIT;
         if (getResources().getDisplayMetrics().widthPixels >
@@ -462,7 +464,7 @@ public class MMPersonFragment extends Fragment {
             person = personManager.getPerson(mPersonID);
             if (person == null){
                 String message = getString(R.string.person_does_not_exist) + mPersonID;
-                MMUtilities.errorHandler(getActivity(), message);
+                MMUtilities.getInstance().errorHandler(getActivity(), message);
                 mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
                 person = new MMPerson(mPersonID);
             }
@@ -499,12 +501,10 @@ public class MMPersonFragment extends Fragment {
     }
 
     private void onSave(){
-        Toast.makeText(getActivity(),
-                R.string.save_label,
-                Toast.LENGTH_SHORT).show();
+        MMUtilities.getInstance().showStatus(getActivity(), R.string.save_label);
 
         //get rid of the soft keyboard
-        MMUtilities.hideSoftKeyboard(getActivity());
+        MMUtilities.getInstance().hideSoftKeyboard(getActivity());
 
         View v = getView();
         if (v == null)return;
@@ -516,8 +516,8 @@ public class MMPersonFragment extends Fragment {
 
 
         CharSequence nickname = personNickNameInput.getText();
-        if (nickname == null){
-            MMUtilities.errorHandler(getActivity(), R.string.person_not_valid);
+        if (nickname.toString().isEmpty()){
+            MMUtilities.getInstance().errorHandler(getActivity(), R.string.person_not_valid);
             return;
         }
         //If this person already exists, we do NOT want to create a new Person object
@@ -566,8 +566,9 @@ public class MMPersonFragment extends Fragment {
         boolean addToDBToo = true;
         long returnCode = personManager.addPerson(person, addToDBToo);
         if (returnCode != MMDatabaseManager.sDB_ERROR_CODE) {
-            Toast.makeText(getActivity(), R.string.save_successful, Toast.LENGTH_SHORT).show();
-            //MMUtilities.enableButton(getActivity(), getAddMedButton(getView()), MMUtilities.BUTTON_ENABLE);
+            MMUtilities.getInstance().errorHandler(getActivity(), R.string.save_successful);
+        } else {
+            MMUtilities.getInstance().errorHandler(getActivity(), R.string.save_unsuccessful);
         }
         //if the person is newly created, the ID is assigned on DB add
         mPersonID = returnCode;
@@ -590,9 +591,7 @@ public class MMPersonFragment extends Fragment {
     }
 
     private void onExit(){
-        Toast.makeText(getActivity(),
-                R.string.exit_label,
-                Toast.LENGTH_SHORT).show();
+        MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
 
         //if something has changed in the UI, ask first
         if (isUIChanged){
@@ -621,7 +620,6 @@ public class MMPersonFragment extends Fragment {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 //Leave even though project has chaged
-                                //Toast.makeText(getActivity(), R.string.exit_label, Toast.LENGTH_SHORT).show();
                                 switchToExit();
 
                             }
@@ -629,9 +627,8 @@ public class MMPersonFragment extends Fragment {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // do nothing
-                        Toast.makeText(getActivity(),
-                                "Pressed Cancel",
-                                Toast.LENGTH_SHORT).show();
+                        MMUtilities.getInstance().showStatus(getActivity(), R.string.pressed_cancel);
+
                     }
                 })
                 .setIcon(R.drawable.ground_station_icon)
@@ -704,9 +701,8 @@ public class MMPersonFragment extends Fragment {
         Button personSaveButton =
                 (Button) v.findViewById(R.id.personSaveButton);
 
-        MMUtilities.enableButton(getActivity(),
-                                 personSaveButton,
-                                 isEnabled);
+        MMUtilities utilities = MMUtilities.getInstance();
+        utilities.enableButton(getActivity(), personSaveButton, isEnabled);
     }
 
 

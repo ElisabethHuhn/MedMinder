@@ -8,9 +8,11 @@
 
     <string name="save_label"         >Save</string>
     <string name="save_successful"    >Save Successful</string>
+    <string name="save_unsuccessful"        >Save not successful</string>
+
     <string name="exit_label"         >Exit</string>
     <string name="hint_label"         >Hint</string>
-    <string name="cancle_label"       >Cancel</string>
+    <string name="cancel_label"       >Cancel</string>
     <string name="exception_medication_not_added">Could not add medication</string>
     <string name="exportHistoryLabel" >Export</string>
     <string name="list_label"         >Title</string>
@@ -22,9 +24,13 @@
     <string name="up_label"           >"▲"</string>
     <string name="down_label"         >"▼"</string>
 
+    <string name="one_string"         >1</string>
+    <string name="zero_string"        >00</string>
+
 
     <!--      Notifications            -->
     <string name="time_to_take"        >Time to take</string>
+    <string name="time_to_send_alert"  >Time to send Overdue Alert</string>
 
 
     <!--      Actions                  -->
@@ -64,8 +70,8 @@
     <string name="medication_for_name"          >Person Name</string>
 
     <string name="medication_dose_strategy_label">Strategy</string>
-    <string name="medication_dose_amount_label" >Amount</string>
-    <string name="medication_dose_units_label"  >Units</string>
+    <string name="medication_dose_amount_label" >Amt</string>
+    <string name="medication_dose_units_label"  >Unit</string>
     <string name="medication_num_label"         ># per day</string>
     <string name="number_hash_tag"              >#</string>
 
@@ -145,23 +151,44 @@
     <string name="error_parsing_date_time"      >Error parsing Date and / or Time</string>
     <string name="show_meds_help_label"         >Meds Help</string>
 
+
     <string name="input_received"    >Input received</string>
 
 
     <!--      Export SCREEN                  -->
     <!--  -->
-    <string name="start_date"       >Start Date:</string>
-    <string name="end_date"         >End Date:</string>
-    <string name="directory_path"   >Directory Path:</string>
-    <string name="sub_directory"    >Sub-Directory:</string>
-    <string name="filename_suffix"  >File Name Suffix:</string>
-    <string name="export_filename"  >File Name</string>
-    <string name="suffix_hint"      >Appended if file name exists</string>
-    <string name="error_writing_file">ERROR writing file. Data not saved</string>
+    <string name="start_date_label"                 >Start:</string>
+    <string name="end_date_label"                   >End:</string>
+    <string name="directory_path_label"             >Dir Path:</string>
+    <string name="sub_directory_label"              >Sub-Dir:</string>
+    <string name="filename_extent_label"            >File Suffix:</string>
+    <string name="export_filename_label"            >File Name</string>
+    <string name="export_file_extent"               >.txt</string>
+    <string name="extent_hint"                      >Appended if file name exists</string>
+    <string name="error_writing_file"               >ERROR writing file. Data not saved</string>
     <string name="error_unable_to_create_file">ERROR unable to create file. Data not saved</string>
-    <string name="export_label"     >Export</string>
-
-
+    <string name="error_unable_to_access_storage"   >ERROR: unable to access storage. Data not saved</string>
+    <string name="export_label"               >Export</string>
+    <string name="export_prescription_label"  >Export Prescript</string>
+    <string name="export_history_label"       >Export History</string>
+    <string name="email_not_defined"          >Patient email address not defined</string>
+    <string name="export_title_prescriptions" >Prescriptions for: %s</string>
+    <string name="export_title_history"       >History of Doses taken for %s</string>
+    <string name="export_day_hint"            >DD</string>
+    <string name="export_month_hint"          >MM</string>
+    <string name="export_year_hint"           >YY</string>
+    <string name="export_day_error"           >Too many days for your month</string>
+    <string name="export_month_error"         >Months must be less than or eaual to 12</string>
+    <string name="export_year_error"          >Years must be less than or equal to 99</string>
+    <string name="export_radio_email_history"   >Email History</string>
+    <string name="export_radio_email_prescript" >Email Prescription</string>
+    <string name="export_radio_file_history"    >Write to File History</string>
+    <string name="export_radio_file_prescript"  >Write to File Prescription</string>
+    <string name="export_dialog_title"          >Export Options</string>
+    <string name="export_dialog_message"        >Please Select:</string>
+    <string name="export_file_written"          >Export file has been written</string>
+    <string name="export_prescriptions"         >Prescriptions</string>
+    <string name="export_history"               >History</string>
 
     <!--      Schedule List SCREEN                  -->
 
@@ -204,6 +231,7 @@
     <string name="notify_day_label"         >Days</string>
     <string name="notify_hour_label"        >Hours</string>
     <string name="notify_minute_label"      >Minutes</string>
+    <string name="error_time_entry"         >Days, Hours, and Minutes must be integers</string>
 
 
     <string name="delete_person"            >Delete Person</string>
@@ -234,6 +262,10 @@
     <string name="no_context_eException"    >Can not create database without a context</string>
     <string name="not_initialized_exception">Attempt to access the database before it has been initialized</string>
     <string name="not_opened_exception"     >Attempt to access the database before it has been opened</string>
+
+
+    <!-- programming errors and exceptions -->
+    <string name="prog_error_views_not_found"   >Programming Error: Views not found</string>
 
 
 </resources>

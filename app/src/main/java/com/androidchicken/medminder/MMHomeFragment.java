@@ -3,7 +3,6 @@ package com.androidchicken.medminder;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -30,15 +29,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
-import static com.androidchicken.medminder.MMUtilities.getTimeString;
 
 
 /**
@@ -83,20 +79,6 @@ public class MMHomeFragment extends Fragment {
     //**********************************************/
     /*          Static Methods                     */
     //**********************************************/
-    //need to pass a person into the fragment
-    public static MMHomeFragment newInstance(long personID){
-        //create a bundle to hold the arguments
-        Bundle args = new Bundle();
-
-        //It will be some work to make all of the data model serializable
-        //so for now, just pass the person values
-        args.putLong         (MMPerson.sPersonIDTag,personID);
-
-        MMHomeFragment fragment = new MMHomeFragment();
-
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     //**********************************************/
     /*          Constructor                        */
@@ -123,13 +105,6 @@ public class MMHomeFragment extends Fragment {
             Log.e(TAG,Log.getStackTraceString(e));
         }
 
-        Bundle args = getArguments();
-
-        if (args != null) {
-            mPersonID = args.getLong(MMPerson.sPersonIDTag);
-        } else {
-            mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
-        }
     }
 
 
@@ -138,29 +113,14 @@ public class MMHomeFragment extends Fragment {
                              ViewGroup container,
                              Bundle savedInstanceState) {
 
-        //First, get the mPersonID set properly
         if (savedInstanceState != null){
             //the fragment is being restored so restore the person ID
-            mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
-            mSelectedPosition = savedInstanceState.getInt(sSelectedPositionTag);
+             mSelectedPosition = savedInstanceState.getInt(sSelectedPositionTag);
             //The rest of the saved state in the bundle will be used later
             // to recreate the Dose views and the isUIChanged flag
         }
 
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
-            //see if there is anything stored in shared preferences from the last time Home ran
-            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-            long defaultValue = MMUtilities.ID_DOES_NOT_EXIST;
-            mPersonID = sharedPref.getLong(MMPerson.sPersonIDTag, defaultValue);
-        }
 
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST) {
-            //Store the PersonID for the next time the Home Fragment runs
-            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putLong(MMPerson.sPersonIDTag, mPersonID);
-            editor.apply();
-        }
 
 
         //Inflate the layout for this fragment
@@ -174,7 +134,8 @@ public class MMHomeFragment extends Fragment {
 
 
         //hide the soft keyboard
-        MMUtilities.hideSoftKeyboard(getActivity());
+        MMUtilities utilities = MMUtilities.getInstance();
+        utilities.hideSoftKeyboard(getActivity());
 
         //start the medButton animation
         startMedButtonBlink(v);
@@ -195,7 +156,7 @@ public class MMHomeFragment extends Fragment {
             if (mSelectedPosition != sSELECTED_DIALOG_NOT_VISIBLE){
                 //Can't put the dialog back up
                 //onSelectDoseDialog(mSelectedPosition);
-                MMUtilities.errorHandler(getActivity(), R.string.reselect_dose);
+                MMUtilities.getInstance().errorHandler(getActivity(), R.string.reselect_dose);
             }
         }
 
@@ -206,9 +167,6 @@ public class MMHomeFragment extends Fragment {
     public void onSaveInstanceState(Bundle savedInstanceState){
         // Save custom values into the bundle
 
-        //Save the PersonID of this screen
-        savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
-
         //Save the isUIChanged flag
         savedInstanceState.putBoolean(sIsUIChangedTag, isUIChanged);
 
@@ -216,7 +174,7 @@ public class MMHomeFragment extends Fragment {
         savedInstanceState.putInt(sSelectedPositionTag, mSelectedPosition);
 
         //the dose time and amounts
-        if ((mPersonID != MMUtilities.ID_DOES_NOT_EXIST) &&
+        if ((getPersonID() != MMUtilities.ID_DOES_NOT_EXIST) &&
             (mTimeInput != null)) {
                 savedInstanceState.putString(sDoseTimeTag, mTimeInput.getText().toString());
 
@@ -251,7 +209,7 @@ public class MMHomeFragment extends Fragment {
 
         if (mSelectedPosition != sSELECTED_DIALOG_NOT_VISIBLE){
             //put the dialog back up
-            Toast.makeText(getActivity(), "Please re-select the dose", Toast.LENGTH_SHORT).show();
+            MMUtilities.getInstance().showStatus(getActivity(), R.string.reselect_dose);
             mSelectedPosition = sSELECTED_DIALOG_NOT_VISIBLE;
             //onSelectDoseDialog(mSelectedPosition);
         }
@@ -268,7 +226,7 @@ public class MMHomeFragment extends Fragment {
         editPatientButton.setText(R.string.patient_edit_profile_label);
         //the order of images here is left, top, right, bottom
         // editPatientButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
+        if (getPersonID() != MMUtilities.ID_DOES_NOT_EXIST){
             //if there is a person active, enable the button
             editPatientButton.setEnabled(true);
             editPatientButton.setTextColor(ContextCompat.getColor(getActivity(),
@@ -277,16 +235,14 @@ public class MMHomeFragment extends Fragment {
         editPatientButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.patient_edit_profile_label,
-                        Toast.LENGTH_SHORT).show();
+                MMUtilities.getInstance().showStatus(getActivity(), R.string.patient_edit_profile_label);
                 //switch to person screen
                 // But the switching happens on the container Activity
-                if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
+                if (getPersonID() == MMUtilities.ID_DOES_NOT_EXIST) {
                     ((MMMainActivity) getActivity()).switchToPersonScreen();
                 } else {
                     //pre-populate
-                    ((MMMainActivity) getActivity()).switchToPersonScreen(mPersonID);
+                    ((MMMainActivity) getActivity()).switchToPersonScreen(getPersonID());
                 }
 
             }
@@ -301,13 +257,11 @@ public class MMHomeFragment extends Fragment {
         selectPatientButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.select_patient_label,
-                        Toast.LENGTH_SHORT).show();
+                MMUtilities.getInstance().showStatus (getActivity(), R.string.select_patient_label);
                 //switch to person screen
                 // But it has to know where to come back to
                 ((MMMainActivity)getActivity()).
-                        switchToPersonListScreen(MMMainActivity.sHomeTag, mPersonID);
+                        switchToPersonListScreen(MMMainActivity.sHomeTag, ((MMMainActivity)getActivity()).getPatientID());
             }
         });
 
@@ -319,13 +273,11 @@ public class MMHomeFragment extends Fragment {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return;
-                Toast.makeText(getActivity(),
-                        R.string.save_label,
-                        Toast.LENGTH_SHORT).show();
+                if (getPersonID() == MMUtilities.ID_DOES_NOT_EXIST)return;
+                MMUtilities.getInstance().showStatus(getActivity(), R.string.save_label);
 
                 onSave();
-                ((MMMainActivity) getActivity()).switchToHomeScreen(mPersonID);
+                ((MMMainActivity) getActivity()).switchToHomeScreen(getPersonID());
 
             }
         });
@@ -339,9 +291,9 @@ public class MMHomeFragment extends Fragment {
         showMedsHelpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return;
+                if (getPersonID() == MMUtilities.ID_DOES_NOT_EXIST)return;
                 //Show the medication positions for the history list
-                ((MMMainActivity) getActivity()).switchToHistoryTitleScreen(mPersonID);
+                ((MMMainActivity) getActivity()).switchToHistoryTitleScreen(getPersonID());
 
             }
         });
@@ -357,9 +309,9 @@ public class MMHomeFragment extends Fragment {
         medAlertsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return;
+                if (getPersonID() == MMUtilities.ID_DOES_NOT_EXIST)return;
                 //Show the medication positions for the history list
-                ((MMMainActivity) getActivity()).switchToMedicationAlertScreen(mPersonID);
+                ((MMMainActivity) getActivity()).switchToMedicationAlertScreen(getPersonID());
 
             }
         });
@@ -369,9 +321,9 @@ public class MMHomeFragment extends Fragment {
 
 
         //Medication Buttons
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
+        if (getPersonID() != MMUtilities.ID_DOES_NOT_EXIST){
 
-            MMPerson person = MMUtilities.getPerson(mPersonID);
+            MMPerson person = getPerson();
 
             if (person != null) {
 
@@ -435,10 +387,11 @@ public class MMHomeFragment extends Fragment {
 
         //4) Get the list of ConcurrentDose Instances from the ConcurrentDoseManager
 
-        //      get the singleton list container
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
-        //      then go get our list of concurrentDoses
-        Cursor concurrentDoseCursor = concurrentDoseManager.getAllConcurrentDosesCursor(mPersonID);
+        //      get  list of concurrentDoses
+        Cursor concurrentDoseCursor =
+                concurrentDoseManager.getAllConcurrentDosesCursor(
+                                                ((MMMainActivity)getActivity()).getPatientID());
 
         //5) Use the data to Create and set out concurrentDose Adapter
         //     even though we're giving the Adapter the list,
@@ -446,15 +399,15 @@ public class MMHomeFragment extends Fragment {
         //     the items in the list.
         int numbMeds = 0; //initialize to person not yet existing
 
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
-            MMPerson person = MMUtilities.getPerson(mPersonID);
+        if (getPersonID() != MMUtilities.ID_DOES_NOT_EXIST){
+            MMPerson person = getPerson();
             if (person != null) {
                 numbMeds = person.getMedications().size();
             }
         }
         MMConcurrentDoseCursorAdapter adapter =
                 new MMConcurrentDoseCursorAdapter(getActivity(),
-                                                  mPersonID,
+                                                  ((MMMainActivity)getActivity()).getPatientID(),
                                                   numbMeds,
                                                   concurrentDoseCursor);
         recyclerView.setAdapter(adapter);
@@ -485,16 +438,13 @@ public class MMHomeFragment extends Fragment {
 
                 }
             }));
-
-
-
     }
 
     private void   initializeUI(View v){
         //determine if a person is yet associated with the fragment
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
+        if (getPersonID() != MMUtilities.ID_DOES_NOT_EXIST){
             //if there is a person corresponding to the patientID, put the name up on the screen
-            MMPerson person = MMUtilities.getPerson(mPersonID);
+            MMPerson person = getPerson();
 
             if (person != null) {
                 TextView patientNickName = (TextView) v.findViewById(R.id.patientNickNameLabel);
@@ -517,7 +467,11 @@ public class MMHomeFragment extends Fragment {
 
 
     public long getPersonID(){
-        return mPersonID;
+        return ((MMMainActivity)getActivity()).getPatientID();
+    }
+
+    private MMPerson getPerson(){
+        return MMPersonManager.getInstance().getPerson(getPersonID());
     }
 
     //**********************************************/
@@ -526,7 +480,7 @@ public class MMHomeFragment extends Fragment {
 
     private void   addDateTimeFieldsToView(View v, Bundle savedInstanceState, int sizeInDp){
 
-        int padding = MMUtilities.convertPixelsToDp(getActivity(), sizeInDp);
+        int padding = MMUtilities.getInstance().convertPixelsToDp(getActivity(), sizeInDp);
 
         LinearLayout layout = (LinearLayout) v.findViewById(R.id.medInputLayout);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -545,7 +499,7 @@ public class MMHomeFragment extends Fragment {
         mTimeInput.setGravity(Gravity.CENTER);
         mTimeInput.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
         mTimeInput.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
-        mTimeInput.setFocusable(false);
+        mTimeInput.setFocusable(true);
 
 
         //Time input for this dose
@@ -560,7 +514,7 @@ public class MMHomeFragment extends Fragment {
 
         String timeString;
         if (savedInstanceState == null) {
-            timeString = MMUtilities.getTimeString();
+            timeString = MMUtilities.getInstance().getTimeString();
         } else {
             timeString = savedInstanceState.getString(sDoseTimeTag);
         }
@@ -578,7 +532,7 @@ public class MMHomeFragment extends Fragment {
         Button medButton;
         EditText edtView;
 
-        int padding = MMUtilities.convertPixelsToDp(getActivity(), sizeInDp);
+        int padding = MMUtilities.getInstance().convertPixelsToDp(getActivity(), sizeInDp);
 
         //
         //Add the button to the button layout
@@ -674,9 +628,8 @@ public class MMHomeFragment extends Fragment {
                         //stop the blinking
                         medButton.clearAnimation();
 
-                        CharSequence msg = getString(R.string.patient_medication_button) +
-                                " "+ String.valueOf(position+1);
-                        Toast.makeText(getActivity(),msg, Toast.LENGTH_SHORT).show();
+                        CharSequence msg = getString(R.string.patient_medication_button) + " "+ String.valueOf(position+1);
+                        MMUtilities.getInstance().showStatus(getActivity(),msg.toString());
 
                         //Show the amount taken
                         showDose(position);
@@ -687,7 +640,7 @@ public class MMHomeFragment extends Fragment {
                     }
                     position++;
                 }
-                MMUtilities.errorHandler(getActivity(), R.string.patient_no_med_but);
+                MMUtilities.getInstance().errorHandler(getActivity(), R.string.patient_no_med_but);
 
             }
         });
@@ -695,9 +648,7 @@ public class MMHomeFragment extends Fragment {
             @Override
             public boolean onLongClick(View v) {
 
-                Toast.makeText(getActivity(),
-                        R.string.person_med_long_click,
-                        Toast.LENGTH_SHORT).show();
+                MMUtilities.getInstance().showStatus(getActivity(), R.string.person_med_long_click);
 
                 setUIChanged();
                 return true;
@@ -708,9 +659,10 @@ public class MMHomeFragment extends Fragment {
 
     private void   startMedButtonBlink(View v){
         //if (true)return;
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return;
+        if (getPersonID() == MMUtilities.ID_DOES_NOT_EXIST)return;
 
-        MMPerson person = MMUtilities.getPerson(mPersonID);
+
+        MMPerson person = getPerson();
         if (person == null)return;
 
         if (mMedButtons == null){
@@ -718,7 +670,8 @@ public class MMHomeFragment extends Fragment {
         }
 
         Calendar calendar = Calendar.getInstance();
-        long currentTimeMinutesSinceMidnight = getMinutesFromCalendar(calendar);
+        long currentTimeMinutesSinceMidnight =
+                MMUtilities.getInstance().getMinutesFromCalendar(calendar);
 
         ArrayList<MMMedication> medications = person.getMedications();
         int lastMed = medications.size();
@@ -747,7 +700,7 @@ public class MMHomeFragment extends Fragment {
 
                     //takes into account whether it's was taken today
                     //zero if the first dose of the day has not yet been taken
-                    lastTakenMinutes = getLastTakenMinutes(timeTaken);
+                    lastTakenMinutes = MMUtilities.getInstance().getLastTakenMinutes(timeTaken);
                 }
                 //so we have the time the dose was taken. When is/was the next dose due?
 
@@ -783,28 +736,6 @@ public class MMHomeFragment extends Fragment {
         }//end while medication loop
     }
 
-    private long   getLastTakenMinutes(long timeTaken){
-
-        //compare whether the last dose was taken today
-        Date lastTaken = new Date(timeTaken);
-
-        Date now = new Date();
-
-        SimpleDateFormat fmt   = new SimpleDateFormat("yyyyMMdd");
-        boolean firstDoseOfDay = !(fmt.format(lastTaken).equals(fmt.format(now)));
-
-        long lastTakenMinutes = 0;
-        if (!firstDoseOfDay) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(lastTaken);
-            lastTakenMinutes = getMinutesFromCalendar(calendar);
-        }
-        return lastTakenMinutes;
-    }
-
-    private long   getMinutesFromCalendar (Calendar calendar){
-        return (calendar.get(Calendar.HOUR_OF_DAY) * 60) + calendar.get(Calendar.MINUTE);
-    }
 
     private void   animateButton(Button medButton){
         // Change alpha from fully visible to invisible
@@ -823,8 +754,9 @@ public class MMHomeFragment extends Fragment {
     }
 
     private void   showDose(int position){
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
-            MMPerson person = MMUtilities.getPerson(mPersonID);
+        if (getPersonID() != MMUtilities.ID_DOES_NOT_EXIST){
+
+            MMPerson person = getPerson();
 
             if (person != null) {
 
@@ -889,7 +821,7 @@ public class MMHomeFragment extends Fragment {
     }
 
     private MMMedication getMedicationFromPersonID(long personID, int position){
-        MMPerson person = MMUtilities.getPerson(personID);
+        MMPerson person = MMPersonManager.getInstance().getPerson(personID);
         return getMedicationFromPerson(person, position);
     }
 
@@ -937,9 +869,8 @@ public class MMHomeFragment extends Fragment {
         Button personSaveButton =
                 (Button) v.findViewById(R.id.homeSaveButton);
 
-        MMUtilities.enableButton(getActivity(),
-                personSaveButton,
-                isEnabled);
+        MMUtilities utilities = MMUtilities.getInstance();
+        utilities.enableButton(getActivity(), personSaveButton, isEnabled);
     }
 
     //***********************************************************/
@@ -979,16 +910,25 @@ public class MMHomeFragment extends Fragment {
     private long onSave(){
 
         //Creates in memory structure to save all the doses taken concurrently
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return MMDatabaseManager.sDB_ERROR_CODE;
+        if (getPersonID() == MMUtilities.ID_DOES_NOT_EXIST)return MMDatabaseManager.sDB_ERROR_CODE;
 
-        MMPerson person = MMUtilities.getPerson(mPersonID);
+        MMPerson person = getPerson();
 
         if (person == null) return MMDatabaseManager.sDB_ERROR_CODE;
 
+        String timeString = mTimeInput.getText().toString();
+        //assume 12 hour format
+        // TODO: 5/11/2017 need better solution to 24 hour format
+        Date milliDate = MMUtilities.getInstance().convertStringToTime(timeString, false);
+        long milliSeconds = milliDate.getTime();
+        long startWithMidnight = MMUtilities.getInstance().getStartTimeToday();
+        milliSeconds = milliSeconds + startWithMidnight;
+
+/*
         Calendar c = Calendar.getInstance();
         long milliSeconds = c.getTimeInMillis();     // = c.get(Calendar.SECOND);
-
-        MMConcurrentDose concurrentDoses = new MMConcurrentDose(mPersonID, milliSeconds);
+*/
+        MMConcurrentDose concurrentDoses = new MMConcurrentDose(getPersonID(), milliSeconds);
         ArrayList<MMDose> doses = new ArrayList<>();
         concurrentDoses.setDoses(doses);
 
@@ -1007,14 +947,30 @@ public class MMHomeFragment extends Fragment {
                 if (!amtTakenString.isEmpty()) {
                     amtTaken = Integer.valueOf(amtTakenString);
                     if (amtTaken > 0) {
-                        MMDose dose = new MMDose(medications.get(positionMed).getMedicationID(),
-                                mPersonID,
-                                concurrentDoses.getConcurrentDoseID(),
-                                positionMed,
-                                milliSeconds,
-                                amtTaken);
+                        MMDose dose = new MMDose(   medications.get(positionMed).getMedicationID(),
+                                                    getPersonID(),
+                                                    concurrentDoses.getConcurrentDoseID(),
+                                                    positionMed,
+                                                    milliSeconds,
+                                                    amtTaken);
                         doses.add(dose);
                     }
+                }
+                
+
+                //for each medAlert for this medication:
+                MMMedicationAlertManager medAlertManager = MMMedicationAlertManager.getInstance();
+                ArrayList<MMMedicationAlert> medAlerts =
+                        medAlertManager.getMedicationAlerts(getPersonID(), medication.getMedicationID());
+                int lastMedAlert = medAlerts.size();
+                int positionMedAlert = 0;
+                MMMedicationAlert medAlert;
+                while (positionMedAlert < lastMedAlert) {
+                    medAlert = medAlerts.get(positionMedAlert);
+                    long medAlertID = medAlert.getMedicationAlertID();
+
+                    MMUtilities.getInstance().createAlertAlarm(getActivity(), medAlertID);
+                    positionMedAlert++;
                 }
                 positionButton++;
             }
@@ -1024,7 +980,7 @@ public class MMHomeFragment extends Fragment {
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
         long cDoseID = concurrentDoseManager.add(concurrentDoses);
 
-        reinitializeCursor(mPersonID);
+        reinitializeCursor(getPersonID());
         /*
         */
         MMConcurrentDoseCursorAdapter adapter = getAdapter(getView());
@@ -1047,9 +1003,7 @@ public class MMHomeFragment extends Fragment {
     }
 
     private void onDelete(){
-        Toast.makeText(getActivity(),
-                R.string.delete_title,
-                Toast.LENGTH_SHORT).show();
+        MMUtilities.getInstance().showStatus(getActivity(), R.string.delete_title);
 
         areYouSureDelete();
     }
@@ -1090,20 +1044,21 @@ public class MMHomeFragment extends Fragment {
         TextView doseDate = (TextView) v.findViewById(R.id.doseDateLabel);
         doseDate.setEnabled  (false);
         doseDate.setFocusable(false);
-        doseDate.setText(MMUtilities.getDateString(selectedConcurrentDose.getStartTime()));
+        doseDate.setText(MMUtilities.getInstance().getDateString(selectedConcurrentDose.getStartTime()));
 
         EditText doseTime = (EditText) v.findViewById(R.id.doseTimeInput);
         doseTime.setEnabled  (false);
         doseTime.setFocusable(false);
-        doseTime.setText(getTimeString(selectedConcurrentDose.getStartTime()));
+        doseTime.setText(MMUtilities.getInstance().getTimeString(selectedConcurrentDose.getStartTime()));
 
 
         //Get the medications this patient is taking
         int last     = 0;
         int medicationPosition = 0;
         ArrayList<MMMedication> medications = null;
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
-            MMPerson person = MMUtilities.getPerson(mPersonID);
+        if (getPersonID() != MMUtilities.ID_DOES_NOT_EXIST){
+
+            MMPerson person = getPerson();
             if (person != null) {
                 medications = person.getMedications();
                 last = medications.size();
@@ -1116,7 +1071,7 @@ public class MMHomeFragment extends Fragment {
         //ArrayList<EditText> doseEditTexts = new ArrayList<>();
         EditText edtView;
         int sizeInDp = 2;
-        int padding = MMUtilities.convertPixelsToDp(getActivity(), sizeInDp);
+        int padding = MMUtilities.getInstance().convertPixelsToDp(getActivity(), sizeInDp);
 
         //Create an EditText for each medication this patient takes
         //Each EditText corresponds positionally to the Medication the Patient takes
@@ -1137,7 +1092,7 @@ public class MMHomeFragment extends Fragment {
             }
 
             //actually create the EditText view in the utility
-            edtView = MMUtilities.createDoseEditText(getActivity(), padding);
+            edtView = MMUtilities.getInstance().createDoseEditText(getActivity(), padding);
 
             //show the amount of this dose in the View
             edtView.setText(String.valueOf(amount));
@@ -1169,9 +1124,7 @@ public class MMHomeFragment extends Fragment {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // do nothing
-                        Toast.makeText(getActivity(),
-                                "Pressed Cancel",
-                                Toast.LENGTH_SHORT).show();
+                        MMUtilities.getInstance().showStatus(getActivity(), R.string.pressed_cancel);
                         mSelectedPosition = sSELECTED_DIALOG_NOT_VISIBLE; //set flag for dialog gone
                     }
                 })
@@ -1212,7 +1165,7 @@ public class MMHomeFragment extends Fragment {
             dosageDate = dateFormat.parse(doseDateString.toString());
             dosageTime = timeFormat.parse(doseTimeString.toString());
         } catch (Exception e) {
-            MMUtilities.errorHandler(getActivity(), R.string.error_parsing_date_time);
+            MMUtilities.getInstance().errorHandler(getActivity(), R.string.error_parsing_date_time);
             dosageDate = null;
             dosageTime = null;
         }
@@ -1229,13 +1182,14 @@ public class MMHomeFragment extends Fragment {
         int dosePosition = 0;
         int medicationPosition = 0;
         ArrayList<MMMedication> medications = null;
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
-            MMPerson person = MMUtilities.getPerson(mPersonID);
+        if (getPersonID() != MMUtilities.ID_DOES_NOT_EXIST){
+
+            MMPerson person = getPerson();
             if (person != null) {
                 medications    = person.getMedications();
                 lastMedication = medications.size();
             } else {
-                medications    = new ArrayList<MMMedication>();
+                medications    = new ArrayList<>();
                 lastMedication = 0;
             }
         }
@@ -1296,7 +1250,7 @@ public class MMHomeFragment extends Fragment {
                 amt = Integer.valueOf(amtString);
                 if (amt > 0) {
                     dose = new MMDose(medications.get(medicationPosition).getMedicationID(),
-                            mPersonID,
+                            getPersonID(),
                             selectedConcurrentDose.getConcurrentDoseID(),
                             medicationPosition,
                             dateTimeMilliseconds,
@@ -1330,7 +1284,6 @@ public class MMHomeFragment extends Fragment {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 //Leave even though project has chaged
-                                //Toast.makeText(getActivity(), R.string.exit_label, Toast.LENGTH_SHORT).show();
                                 performDelete();
 
                             }
@@ -1338,9 +1291,8 @@ public class MMHomeFragment extends Fragment {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // do nothing
-                        Toast.makeText(getActivity(),
-                                "Pressed Cancel",
-                                Toast.LENGTH_SHORT).show();
+                        MMUtilities.getInstance().showStatus(getActivity(), R.string.pressed_cancel);
+
                     }
                 })
                 .setIcon(R.drawable.ground_station_icon)
@@ -1348,9 +1300,7 @@ public class MMHomeFragment extends Fragment {
     }
 
     private void performDelete(){
-        Toast.makeText(getActivity(),
-                R.string.delete_concurrent_dose,
-                Toast.LENGTH_SHORT).show();
+        MMUtilities.getInstance().showStatus(getActivity(), R.string.delete_concurrent_dose);
 
     }
 

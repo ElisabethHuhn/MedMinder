@@ -47,11 +47,12 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
             LinearLayout layout = (LinearLayout) v.findViewById(R.id.doseHistoryLine);
             EditText edtView;
             int sizeInDp = 2;
-            int padding = MMUtilities.convertPixelsToDp(mContext, sizeInDp);
+            int padding = MMUtilities.getInstance().convertPixelsToDp(mContext, sizeInDp);
             int last = mNumberMeds;
             int position = 0;
             while (position < last){
-                edtView = MMUtilities.createDoseEditText(mContext, padding);
+                MMUtilities utilities = MMUtilities.getInstance();
+                edtView = utilities.createDoseEditText(mContext, padding);
                 doseMeds.add(edtView);
                 layout.addView(edtView);
                 position++;
@@ -136,8 +137,8 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
             ArrayList<MMDose> doses = concurrentDoses.getDoses();
 
             if (doses != null) {
-                holder.doseDate.setText(MMUtilities.getDateString(concurrentDoses.getStartTime()));
-                holder.doseTime.setText(MMUtilities.getTimeString(concurrentDoses.getStartTime()));
+                holder.doseDate.setText(MMUtilities.getInstance().getDateString(concurrentDoses.getStartTime()));
+                holder.doseTime.setText(MMUtilities.getInstance().getTimeString(concurrentDoses.getStartTime()));
 
                 MMPersonManager personManager = MMPersonManager.getInstance();
                 MMPerson person = personManager.getPerson(mPersonID);

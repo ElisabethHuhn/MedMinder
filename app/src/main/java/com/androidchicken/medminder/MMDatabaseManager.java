@@ -461,12 +461,41 @@ public class MMDatabaseManager {
 
     }
 
+
+    public Cursor getAllMedicationAlertsCursor(long personID, long medicationID){
+        return mDatabaseHelper.getObject(mDatabase,
+                                         TABLE_MEDICATION_ALERT,
+                                         null,    //get the whole object
+                                         getMedicationAlertWhereClause(personID, medicationID),
+                                         null, null, null, null);
+
+    }
+
+
     //gets the MedicationAlerts linked to this person
     //if personID is MMUtilities.ID_DOES_NOT_EXIST,
     // then all the MMMedicationAlerts in the DB are returned
     public ArrayList<MMMedicationAlert> getMedicationAlerts(long personID){
         Cursor cursor = getAllMedicationAlertsCursor(personID);
 
+        return createMedAlertsFromCursor(cursor);
+    }
+
+
+    //gets the MedicationAlerts linked to this person for this medication
+    // if personID     is MMUtilities.ID_DOES_NOT_EXIST, returns null
+    // if medicationID is MMUtilities.ID_DOES_NOT_EXIST, returns null
+    public ArrayList<MMMedicationAlert> getMedicationAlerts(long personID, long medicationID){
+        if ((personID     == MMUtilities.ID_DOES_NOT_EXIST) ||
+            (medicationID == MMUtilities.ID_DOES_NOT_EXIST)   ){
+            return null;
+        }
+        Cursor cursor = getAllMedicationAlertsCursor(personID, medicationID);
+
+        return createMedAlertsFromCursor(cursor);
+    }
+
+    private ArrayList<MMMedicationAlert> createMedAlertsFromCursor(Cursor cursor){
         //create a medicationAlert object from the Cursor row
         MMMedicationAlertManager medicationAlertManager = MMMedicationAlertManager.getInstance();
 
@@ -539,6 +568,16 @@ public class MMDatabaseManager {
                                                                      String.valueOf(personID) + "'";
     }
 
+
+    //This gets all medicationAlerts linked to this person
+    private String getMedicationAlertWhereClause(long personID, long medicationID){
+        if (personID == MMUtilities.ID_DOES_NOT_EXIST) return null;
+
+        return MMDataBaseSqlHelper.MEDICATION_ALERT_FOR_PATIENT_ID + " = '" +
+                String.valueOf(personID) + "' AND " +
+                MMDataBaseSqlHelper.MEDICATION_ALERT_MEDICATION_ID + " = '" +
+                String.valueOf(medicationID) + "'";
+    }
 
 
 

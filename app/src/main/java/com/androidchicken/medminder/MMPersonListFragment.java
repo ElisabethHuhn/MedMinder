@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * Created by Elisabeth Huhn on 2/14/17, adpated from MMPersonAdapter
@@ -95,6 +94,7 @@ public class MMPersonListFragment extends Fragment {
             mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
 
         }
+        ((MMMainActivity)getActivity()).setPatientID(mPersonID);
 
     }
 
@@ -112,7 +112,8 @@ public class MMPersonListFragment extends Fragment {
         initializeRecyclerView(v);
 
         //get rid of soft keyboard if it is visible
-        MMUtilities.hideSoftKeyboard(getActivity());
+        MMUtilities utilities = MMUtilities.getInstance();
+        utilities.hideSoftKeyboard(getActivity());
 
         //set the title bar subtitle
         ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person_list);
@@ -248,9 +249,7 @@ public class MMPersonListFragment extends Fragment {
 
 
     private void onExit(){
-        Toast.makeText(getActivity(),
-                R.string.exit_label,
-                Toast.LENGTH_SHORT).show();
+        MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
 
         MMPersonCursorAdapter adapter = getAdapter(getView());
         adapter.closeCursor();
@@ -291,9 +290,8 @@ public class MMPersonListFragment extends Fragment {
         MMPerson selectedPerson =
                 personManager.getPersonFromCursor(adapter.getCursor(), position);
 
-        Toast.makeText(getActivity(),
-                selectedPerson.getNickname() + " is selected!",
-                Toast.LENGTH_SHORT).show();
+        MMUtilities.getInstance().showStatus(getActivity(),
+                selectedPerson.getNickname() + " is selected!");
 
         //switch to the dose taken for the selected patient
         ((MMMainActivity) getActivity()).switchToPersonListReturn(mReturnFragmentTag,

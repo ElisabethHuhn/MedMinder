@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.provider.Telephony;
+import android.os.Environment;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -28,11 +28,12 @@ import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 import static android.content.Context.ALARM_SERVICE;
+import static com.androidchicken.medminder.MMAlarmReceiver.scheduleNotificationID;
 
 /**
  * Created by elisabethhuhn on 10/12/2016.
@@ -109,45 +110,40 @@ public class MMUtilities {
 */
 
     //convert pixels to dp
-    public static int convertPixelsToDp(Context context, int sizeInDp) {
+    public  int convertPixelsToDp(Context context, int sizeInDp) {
         //int sizeInDp = 10; //padding between buttons
         float scale = context.getResources().getDisplayMetrics().density;
         return (int) (sizeInDp * scale + 0.5f); // dpAsPixels;
     }
 
     //Just a stub for now, but figure out what to do
-    public static void errorHandler(Context context, String message) {
+    public  void errorHandler(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
-    public static void errorHandler(Context context, int messageResource) {
+    public  void errorHandler(Context context, int messageResource) {
         errorHandler(context, context.getString(messageResource));
     }
 
-    public static void showStatus(Context context, String message){
+    public  void showStatus(Context context, String message){
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
-    public static void showStatus(Context context, int messageResource){
+    public  void showStatus(Context context, int messageResource){
         showStatus(context, context.getString(messageResource));
     }
 
 
-    public static void showHint(View view, String msg){
+    public  void showHint(View view, String msg){
         Snackbar.make(view, msg, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
-
-    //************************************/
-    /*         Date / Time Utilities     */
-    //************************************/
-
 
 
     //****************************************/
     /*    ConcurrentDose row list builder    */
     //****************************************/
 
-    public static EditText createDoseEditText(Context context, int padding){
+    public  EditText createDoseEditText(Context context, int padding){
         EditText edtView;
         LinearLayout.LayoutParams lp =
                 new LinearLayout.LayoutParams(0,//width
@@ -178,13 +174,18 @@ public class MMUtilities {
     }
 
 
+    //************************************/
+    /*         Date / Time Utilities     */
+    //************************************/
+
+
     //The only reason these are here is so that the app
     // will use a consistent method of displaying dates
-    public static String getDateTimeString(){
+    public  String getDateTimeString(){
         return DateFormat.getDateTimeInstance().format(new Date());
     }
 
-    public static String getDateTimeString(long milliSeconds){
+    public  String getDateTimeString(long milliSeconds){
         Date date = new Date(milliSeconds);
         /*
         SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a", Locale.US);
@@ -193,40 +194,53 @@ public class MMUtilities {
         return DateFormat.getDateTimeInstance().format(date);
     }
 
-    public static String getDateString(){
+    public String getDateTimeStr(long milliseconds){
+        Date date = new Date(milliseconds);
+        //SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a", Locale.US);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM yy HH:mm", Locale.US);
+
+        return dateFormat.format(date);
+    }
+
+    public  String getDateString(){
         return  DateFormat.getDateInstance().format(new Date());
     }
 
-    public static String getDateString(long milliSeconds){
+    public  String getDateString(long milliSeconds){
         Date date = new Date(milliSeconds);
         return DateFormat.getDateInstance().format(date);
     }
 
 
-    public static String getTimeString(){
+    public  String getTimeString(){
         return getTimeString(getTimeFormatString(false), new Date());
     }
 
-    public static String getTimeString(long milliSeconds){
+    public  String getTimeString(long milliSeconds){
         boolean is24Format = false;
         return getTimeString(getTimeFormatString(is24Format), new Date(milliSeconds));
     }
 
-    public static String getTimeString(boolean is24format){
+    public  String getTimeString(boolean is24format){
          return getTimeString(getTimeFormatString(is24format), new Date());
     }
 
 
-    public static String getTimeString(long milliSeconds, boolean is24format){
+    public  String getTimeString(long milliSeconds, boolean is24format){
         return getTimeString(getTimeFormatString(is24format), new Date(milliSeconds));
     }
 
-    public static String getTimeString(String timeFormat, Date date){
+    public  String getTimeString(String timeFormat, Date date){
         SimpleDateFormat dateFormat = new SimpleDateFormat(timeFormat, Locale.US);
         return dateFormat.format(date);
     }
 
-    public static String getTimeFormatString(boolean is24format){
+    public SimpleDateFormat getTimeFormat(boolean is24format){
+        String timeFormat = getTimeFormatString(is24format);
+        return new SimpleDateFormat(timeFormat, Locale.US);
+    }
+
+    public  String getTimeFormatString(boolean is24format){
         CharSequence timeFormat = "h:mm a";
         if (is24format){
             timeFormat = "H:mm a";
@@ -234,24 +248,80 @@ public class MMUtilities {
         return timeFormat.toString();
     }
 
+
+    public String getTimeStamp(){
+        return new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+    }
+
+    public Date convertStringToTime(String timeString, boolean is24Format){
+        Date date = null;
+        SimpleDateFormat format = getTimeFormat(is24Format);
+        try {
+            date = format.parse(timeString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
+
+    public String convertTimeToString(Date date, boolean is24format){
+        SimpleDateFormat timeFormat = getTimeFormat(is24format);
+        String timeString = null;
+        try {
+            timeString = timeFormat.format(date);
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+        return timeString;
+    }
+
+    public long getStartTimeToday(){
+
+        try {
+            DateFormat justDay       = new SimpleDateFormat("yyyyMMdd");
+            Date thisMorningMidnight = justDay.parse(justDay.format(new Date()));
+            return thisMorningMidnight.getTime();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return 0;
+
+    }
+
+    public long   getLastTakenMinutes(long timeTaken){
+
+        //compare whether the last dose was taken today
+        Date lastTaken = new Date(timeTaken);
+
+        Date now = new Date();
+
+        SimpleDateFormat fmt   = new SimpleDateFormat("yyyyMMdd");
+        boolean firstDoseOfDay = !(fmt.format(lastTaken).equals(fmt.format(now)));
+
+        long lastTakenMinutes = 0;
+        if (!firstDoseOfDay) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(lastTaken);
+            lastTakenMinutes = getMinutesFromCalendar(calendar);
+        }
+        return lastTakenMinutes;
+    }
+
+
+    public long   getMinutesFromCalendar (Calendar calendar){
+        return (calendar.get(Calendar.HOUR_OF_DAY) * 60) + calendar.get(Calendar.MINUTE);
+    }
+
     //************************************/
     /*    get Data Object instances      */
     //************************************/
-    public static MMPerson getPerson(long personID){
-        MMPersonManager personManager = MMPersonManager.getInstance();
-        return personManager.getPerson(personID);
-    }
-
-    public static MMMedication getMedication(long medicationID){
-        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-        return medicationManager.getMedicationFromID(medicationID);
-    }
 
 
     //************************************/
     /*         Widget Utilities          */
     //************************************/
-    public static void enableButton(Context context, Button button, boolean enable){
+    public  void enableButton(Context context, Button button, boolean enable){
         button.setEnabled(enable);
         if (enable == BUTTON_ENABLE) {
             button.setTextColor(ContextCompat.getColor(context, R.color.colorTextBlack));
@@ -260,7 +330,7 @@ public class MMUtilities {
         }
     }
 
-    public static void showSoftKeyboard(FragmentActivity context, EditText textField){
+    public  void showSoftKeyboard(FragmentActivity context, EditText textField){
         //Give the view the focus, then show the keyboard
 
         textField.requestFocus();
@@ -271,7 +341,7 @@ public class MMUtilities {
 
     }
 
-    public static void hideSoftKeyboard(FragmentActivity context){
+    public  void hideSoftKeyboard(FragmentActivity context){
         //hide the soft keyboard
         // Check if no view has focus:
         View view = context.getCurrentFocus();
@@ -285,7 +355,7 @@ public class MMUtilities {
 
     }
 
-    public static void toggleSoftKeyboard(FragmentActivity context){
+    public  void toggleSoftKeyboard(FragmentActivity context){
         //hide the soft keyboard
         // Check if no view has focus:
         View view = context.getCurrentFocus();
@@ -300,7 +370,7 @@ public class MMUtilities {
     }
 
 
-    public static void clearFocus(FragmentActivity context){
+    public  void clearFocus(FragmentActivity context){
         //hide the soft keyboard
         // Check if no view has focus:
         View view = context.getCurrentFocus();
@@ -321,10 +391,11 @@ public class MMUtilities {
 
 
 
-    //*****************************************/
-    /*      Alarm / Notification Utilities    */
-    //*****************************************/
-    public static void enableAlarmReceiver(Context activity){
+    //*****************************************************/
+    /*  For scheduling notifications that a dose is due   */
+    /*          Alarm / Notification Utilities            */
+    //*****************************************************/
+    public void enableAlarmReceiver(Context activity){
         //Enable the Alarm receiver. It will stay enabled across reboots
         ComponentName receiver = new ComponentName(activity, MMAlarmReceiver.class);
         PackageManager pm = activity.getPackageManager();
@@ -336,39 +407,16 @@ public class MMUtilities {
 
 
 
-    public static void createAlertAlarm(Context activity, MMMedicationAlert medAlert){
-        //get the last dose of this medication for this patient
-        MMDoseManager doseManager = MMDoseManager.getInstance();
-        MMDose mostRecentDose = doseManager.getMostRecentDose(medAlert.getMedicationID());
-
-        long lastTaken;
-        if (mostRecentDose == null){
-            lastTaken = System.currentTimeMillis();
-        } else {
-            lastTaken = mostRecentDose.getTimeTaken();
-        }
-
-        //calculate when the Alert should be sent (in milliseconds since Jan 1, 1970)
-        long timeOverdueMillisec = (medAlert.getOverdueTime() * 60 * 1000);
-        timeOverdueMillisec = timeOverdueMillisec + lastTaken;
-
-        //build the Pending Intent which will be activated when the Alarm triggers
-        int alertRequestcode = MMAlarmReceiver.alertRequestCode;
-        PendingIntent alertIntent = buildAlertIntent(activity, alertRequestcode, medAlert);
-
-        AlarmManager alarmManager = (AlarmManager) activity.getSystemService((Context.ALARM_SERVICE));
-        alarmManager.set(AlarmManager.RTC_WAKEUP, timeOverdueMillisec, alertIntent);
-    }
-
-    public static void scheduleNotification(Context activity, long timeOfDayMillisec) {
+    public void createScheduleNotification(Context activity, long timeOfDayMillisec) {
         //start by building the Notification
-        int notificationID = MMAlarmReceiver.scheduleNotificationID;
-        Notification notification = buildNotification(activity, notificationID);
+        int requestCode = scheduleNotificationID;
+        Notification notification = buildSchedNotification(activity, requestCode);
 
         //But we need to set an Alarm Intent to send to the Alarm Manager.
-        PendingIntent alarmIntent = buildAlarmIntent(activity, notificationID, notification);
+        PendingIntent alarmIntent = buildScheduleAlarmIntent(activity, requestCode, notification);
         // When the Alarm fires, it will broadcast the PendingIntent
         // that will be picked up by our AlarmReceiver
+
 
 
         AlarmManager alarmManager = (AlarmManager) activity.getSystemService(Context.ALARM_SERVICE);
@@ -382,13 +430,36 @@ public class MMUtilities {
                                   alarmIntent);             //Action to perform when the alarm goes off
     }
 
+    private  PendingIntent buildScheduleAlarmIntent(Context activity,
+                                                    int notificationRequestCode,
+                                                    Notification notification){
 
-    public static void cancelNotificationAlarms(Context activity, int minutesSinceMidnight){
+        //Start by building an Intent targeting our AlarmReceiver,
+        // and insert the ID and notification into this Intent
+        Intent notificationIntent = new Intent(activity, MMAlarmReceiver.class);
+        notificationIntent.putExtra(MMAlarmReceiver.NOTIFICATION_ID, notificationRequestCode);
+        notificationIntent.putExtra(MMAlarmReceiver.NOTIFICATION, notification);
+        notificationIntent.putExtra(MMAlarmReceiver.ALARM_TYPE, MMAlarmReceiver.schedNotifAlarmType);
+
+
+        //Insert this intent into a wrapper that is used to schedule an Alarm
+        //When the alarm triggers, the notificationIntent will be Broadcast
+        //Our MMAlarmReceiver will receive the broadcast and know to post the notification
+        return  PendingIntent.getBroadcast( activity,
+                notificationRequestCode,
+                notificationIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+
+
+
+    public void cancelNotificationAlarms(Context activity, int minutesSinceMidnight){
         //get the PendingIntent that describes the action we desire,
         // so that it can be performed when the alarm goes off
-        int notificationID = MMAlarmReceiver.scheduleNotificationID;
-        Notification notification = buildNotification(activity, notificationID);
-        PendingIntent alarmIntent = buildAlarmIntent(activity, notificationID, notification);
+        int notificationID = scheduleNotificationID;
+        Notification notification = buildSchedNotification(activity, notificationID);
+        PendingIntent alarmIntent = buildScheduleAlarmIntent(activity, notificationID, notification);
 
         AlarmManager alarmManager = (AlarmManager) activity.getSystemService(ALARM_SERVICE);
 
@@ -397,8 +468,14 @@ public class MMUtilities {
     }
 
 
-    private static Notification buildNotification(Context activity,
-                                                  int notificationID){
+    private  Notification buildSchedNotification(Context activity, int requestCode) {
+        return buildNotification(activity, requestCode, MMUtilities.ID_DOES_NOT_EXIST);
+    }
+
+    private  Notification buildNotification(Context activity,
+                                                  int requestCode,
+                                                  long medAlertID){
+
         //want the Notification to wake up the MMMainActivity
         Intent activityIntent = new Intent(activity, MMMainActivity.class);
 
@@ -406,17 +483,26 @@ public class MMUtilities {
         //insert the Intent that will be passed to the app Activity into a Pending Intent.
         // This wrapper Pending Intent is consumed by the system (AlarmManager??)
         PendingIntent contentIntent = PendingIntent.getActivity(
-                activity,        //context
-                notificationID,  //ID so the notification can be referenced later
-                activityIntent,  //Intent to wake up our Activity
-                PendingIntent.FLAG_CANCEL_CURRENT); //override any existing
+                                    activity,        //context
+                                    requestCode,     //requestCode
+                                    activityIntent,  //Intent to wake up our Activity
+                                    PendingIntent.FLAG_CANCEL_CURRENT); //override any existing
+
+        int textMessage;
+        if (requestCode == scheduleNotificationID){
+            textMessage = R.string.time_to_take;
+        } else {
+            textMessage = R.string.time_to_send_alert;
+            activityIntent.putExtra(MMAlarmReceiver.ALARM_TYPE,   MMAlarmReceiver.alertAlarmType);
+            activityIntent.putExtra(MMMedicationAlert.sMedAlertID, medAlertID);
+        }
 
         //  Create a Notification Builder that will do the actual creation of the Notification
         //     and insert the PendingIntent into the Notification as it's ContentIntent
         NotificationCompat.Builder builder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(activity)
                         .setContentTitle(activity.getResources().getString(R.string.app_name))
-                        .setContentText(activity.getResources().getString(R.string.time_to_take))
+                        .setContentText(activity.getResources().getString(textMessage))
                         .setSmallIcon(R.drawable.ground_station_icon)
                         // .setLargeIcon(((BitmapDrawable) activity.getResources().getDrawable(R.drawable.app_icon)).getBitmap())
                         .setAutoCancel(true)//notification is canceled as soon as it is touched by the user
@@ -427,95 +513,109 @@ public class MMUtilities {
         return builder.build();
     }
 
-    private static PendingIntent buildAlarmIntent(Context activity,
-                                                  int notificationRequestCode,
-                                                  Notification notification){
+
+
+    //*****************************************************/
+    /*       For sending a text that a dose is overdue    */
+    /*          Alarm / Notification Utilities            */
+    //*****************************************************/
+
+
+    public void createAlertAlarm(Context activity, long medAlertID){
+        MMMedicationAlert medAlert =
+                            MMMedicationAlertManager.getInstance().getMedicationAlert(medAlertID);
+        if (medAlert == null)return;
+
+        //Figure out when the Alarm should fire
+
+
+        //get the last dose of this medication for this patient
+        MMDoseManager doseManager = MMDoseManager.getInstance();
+        MMDose mostRecentDose = doseManager.getMostRecentDose(medAlertID);
+
+        long lastTaken;
+        if (mostRecentDose == null){
+            lastTaken = System.currentTimeMillis();
+        } else {
+            lastTaken = mostRecentDose.getTimeTaken();
+        }
+
+        //calculate when the Alert should be sent (in milliseconds since Jan 1, 1970)
+        long timeOverdueMillisec = (medAlert.getOverdueTime() * 60 * 1000);
+        timeOverdueMillisec = timeOverdueMillisec + lastTaken;
+
+        //build the Pending Intent which will be activated when the Alarm triggers
+        //Note that the same requestCode is used here as for the Notification above
+        PendingIntent alertIntent = buildAlertAlarmIntent(activity, medAlertID);
+
+        AlarmManager alarmManager = (AlarmManager) activity.getSystemService((Context.ALARM_SERVICE));
+        alarmManager.set(AlarmManager.RTC_WAKEUP, timeOverdueMillisec, alertIntent);
+    }
+
+
+    private  PendingIntent buildAlertAlarmIntent(Context activity,
+                                            long  medAlertID){
+
         //Start by building an Intent targeting our AlarmReceiver,
         // and insert the ID and notification into this Intent
-        Intent notificationIntent = new Intent(activity, MMAlarmReceiver.class);
-        notificationIntent.putExtra(MMAlarmReceiver.NOTIFICATION_ID, notificationRequestCode);
-        notificationIntent.putExtra(MMAlarmReceiver.NOTIFICATION, notification);
-        notificationIntent.putExtra(MMAlarmReceiver.ALARM_TYPE, MMAlarmReceiver.schedNotifAlarmType);
+        Intent alarmIntent = new Intent(activity, MMAlarmReceiver.class);
+        alarmIntent.putExtra(MMAlarmReceiver.ALARM_TYPE, MMAlarmReceiver.alertAlarmType);
+        alarmIntent.putExtra(MMAlarmReceiver.MED_ALERT_ID, medAlertID);
+
+
 
         //Insert this intent into a wrapper that is used to schedule an Alarm
-        //When the alarm triggers, the notificationIntent will be Broadcast
-        //Our MMAlarmReceiver will receive the broadcast and know to post the notification
+        //When the alarm triggers, the alarmIntent will be Broadcast
+        //Our MMAlarmReceiver will receive the broadcast and know to text/email the alert
         return  PendingIntent.getBroadcast( activity,
-                                            notificationRequestCode,
-                                            notificationIntent,
+                                            MMAlarmReceiver.alertRequestCode,
+                                            alarmIntent,
                                             PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
 
-    private static PendingIntent buildAlertIntent(Context activity,
-                                                  int     alertRequestCode,
-                                                  MMMedicationAlert medAlert){
-        //Start by building an Intent targeting our AlarmReceiver,
-        // and insert the ID and notification into this Intent
-        Intent alertIntent = new Intent(activity, MMAlarmReceiver.class);
-        alertIntent.putExtra(MMAlarmReceiver.ALARM_TYPE,           MMAlarmReceiver.alertAlarmType);
-        alertIntent.putExtra(MMMedicationAlert.sMedAlertID,        medAlert.getMedicationAlertID());
-        alertIntent.putExtra(MMMedicationAlert.sMedicationIDTag,   medAlert.getMedicationID());
-        alertIntent.putExtra(MMMedicationAlert.sPatientIDTag,      medAlert.getForPatientID());
-        alertIntent.putExtra(MMMedicationAlert.sNotifyPersonIDTag, medAlert.getForPatientID());
-        alertIntent.putExtra(MMMedicationAlert.sNotifyTypeTag,     medAlert.getNotifyType());
+    public  void sendAlert(Context context,
+                           long medAlertID,
+                           long timeTakenMilliseconds){
 
-
-        //Insert this intent into a wrapper that is used to schedule an Alarm
-        //When the alarm triggers, the notificationIntent will be Broadcast
-        //Our MMAlarmReceiver will receive the broadcast and know to post the notification
-        return  PendingIntent.getBroadcast( activity,
-                                            alertRequestCode,
-                                            alertIntent,
-                                            PendingIntent.FLAG_CANCEL_CURRENT);
-    }
-
-    public static void sendAlert(Context context,
-                                 long medAlertID,
-                                 long timeTakenMilliseconds,
-                                 long timeDueMilliseconds){
         MMMedicationAlertManager medicationAlertManager = MMMedicationAlertManager.getInstance();
         MMMedicationAlert medicationAlert = medicationAlertManager.getMedicationAlert(medAlertID);
 
-        String dateTimeDueString = getDateTimeString(timeDueMilliseconds);
         String timeTakenString   = getDateTimeString(timeTakenMilliseconds);
 
         MMPersonManager personManager = MMPersonManager.getInstance();
-        MMPerson notifyPerson = getPerson(medicationAlert.getForPatientID());
+        MMPerson notifyPerson = personManager.getPerson(medicationAlert.getForPatientID());
         String personNickname = notifyPerson.getNickname().toString();
 
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
         MMMedication medication = medicationManager.getMedicationFromID(medicationAlert.getMedicationID());
         String medicationName = medication.getMedicationNickname().toString();
 
-        //"Patient %s has not taken a dose of %s since %s, even though one was due %s";
-        //   <string name="medication_alert_msg">Patient %s has not taken a dose of %s since %s, even though one was due %s</string>
+        // TODO: 5/6/2017 Use string format here
+        String lineSep = System.getProperty("line.separator");
+        String msg;
+        if (timeTakenMilliseconds > 0) {
+             msg = "Patient: <" + personNickname + "> has not taken a dose of " + medicationName +
+                   lineSep + "since " + timeTakenString + ". ";
+        } else {
+            msg = "Patient: <" + personNickname + "> has never taken a dose of " + medicationName ;
+        }
 
-/*
-        //String msg = String.format(context.getString(R.string.medication_alert_msg),
-        String msg = String.format("Patient %s has not taken a dose of %s since %s, even though one was due %s",
-                                   personNickname,
-                                   medicationName,
-                                   timeTakenString,
-                                   dateTimeDueString);
-*/
-        String msg = "Patient " + personNickname + " has not taken a dose of " + medicationName +
-                     " since " + timeTakenString +
-                     ", even though one was due "  + dateTimeDueString + ".";
+
         int alertType = medicationAlert.getNotifyType();
         if (alertType == MMMedicationAlert.sNOTIFY_BY_TEXT) {
-            sendSMS(context, notifyPerson.getTextAddress().toString(), msg);
+            sendSMSviaAPI(context, notifyPerson.getTextAddress().toString(), msg);
         } else if (alertType == MMMedicationAlert.sNOTIFY_BY_EMAIL){
-            sendEmail(context, notifyPerson.getEmailAddress().toString(), msg);
+            String subject = "Missed Medication Dose";
+            sendEmail(context, subject, notifyPerson.getEmailAddress().toString(), msg);
         } //else if any other type in the future......
     }
-
 
 
     //************************************/
     /*         Send Email using Intent   */
     //************************************/
-    public static void sendEmail(Context context, String toAddress, String msg) {
+    public void sendEmail(Context context, String subject, String toAddress, String msg) {
 
         String[] TO = {toAddress};     //{"someone@gmail.com"};
         //String[] CC = {"elisabethhuhn@gmail.com"};
@@ -526,7 +626,7 @@ public class MMUtilities {
 
         emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
         //emailIntent.putExtra(Intent.EXTRA_CC, CC);
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Missed Medication Dose");
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
         emailIntent.putExtra(Intent.EXTRA_TEXT, msg);
 
         try {
@@ -540,44 +640,55 @@ public class MMUtilities {
     }
 
 
+/*
+http://stackoverflow.com/questions/2020088/sending-email-in-android-using-javamail-api-without-using-the-default-built-in-a/2033124#2033124
+
+    public void sendEmailNoIntent (){
+        try {
+            GMailSender sender = new GMailSender("username@gmail.com", "password");
+            sender.sendMail("This is Subject",
+                    "This is Body",
+                    "user@gmail.com",
+                    "user@yahoo.com");
+        } catch (Exception e) {
+            Log.e("SendMail", e.getMessage(), e);
+        }
+    }
+*/
+
     //************************************/
     /*         Send Text to phone #      */
     //************************************/
 
-    //---sends an SMS message to another device---
 
-    // but it opens the message app
-    private void sendSMSIntent(Context activity, String phoneNumber, String message)  {
-        Intent messageIntent = new Intent(activity, Telephony.Sms.class);
-        PendingIntent pi     = PendingIntent.getActivity(activity, 0, messageIntent, 0);
-        SmsManager smsMgr    = SmsManager.getDefault();
-        smsMgr.sendTextMessage(phoneNumber, null, message, pi, null);
+    public void sendSMSviaAPI(Context activity, String phoneNo, String msg){
+        msg = "sendSMSviaAPI: " + msg;
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage(phoneNo, null, msg, null, null);
     }
 
 
+    //************************************/
+    /*             File utilities        */
+    //************************************/
 
-    public static void sendSMS(Context context, String phoneNo, String msg){
-        boolean isSMSPermitted = ((MMMainActivity)context).isSMSPermissionGranted();
-
-        if (isSMSPermitted){
-            SmsManager smsManager = SmsManager.getDefault();
-            if (msg.length() > 159) {
-                ArrayList<String> parts = smsManager.divideMessage(msg);
-                smsManager.sendMultipartTextMessage(phoneNo, null, parts, null, null);
-            } else {
-                try {
-                    smsManager.sendTextMessage(phoneNo, null, msg, null, null);
-
-                } catch (Exception ex) {
-                    Toast.makeText(context, ex.getMessage().toString(), Toast.LENGTH_LONG).show();
-                    ex.printStackTrace();
-                }
-            }
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
         }
-
-
+        return false;
     }
 
-
+    /* Checks if external storage is available to at least read */
+    public boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return true;
+        }
+        return false;
+    }
 
 }

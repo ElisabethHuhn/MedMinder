@@ -68,15 +68,14 @@ public class MMPersonManager {
     // potentially (third boolean parameter) to the DB
     public long addPerson(MMPerson newPerson, boolean addToDBToo){
         long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
-        boolean listReturnCode = false;
 
         //There may be more people in the DB than are in memory
         if ((mPersonList == null) || (mPersonList.size() == 0)){
             mPersonList = new ArrayList<>();
         }
 
-        listReturnCode = mPersonList.add(newPerson);
-        if (!listReturnCode)return returnCode;
+        mPersonList.add(newPerson);
+
 
         if (addToDBToo){
 

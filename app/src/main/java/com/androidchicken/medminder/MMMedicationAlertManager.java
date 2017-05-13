@@ -89,6 +89,14 @@ public class MMMedicationAlertManager {
         return databaseManager.getMedicationAlerts(personID);
     }
 
+    public ArrayList<MMMedicationAlert> getMedicationAlerts(long personID, long medicationID){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        //if the personID is the MMUtilities.ID_DOES_NOT_EXIST, then
+        // all MMMedicationAlerts in the DB will be in the returned list
+        return databaseManager.getMedicationAlerts(personID, medicationID);
+    }
+
+
     public MMMedicationAlert getMedicationAlert(long medAlertID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getMedicationAlert(medAlertID);

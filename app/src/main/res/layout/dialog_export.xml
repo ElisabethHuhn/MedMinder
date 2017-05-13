@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <RadioGroup
+        xmlns:android="http://schemas.android.com/apk/res/android"
+
+        android:id="@+id/radioExport"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:clickable="true"
+
+        android:background="?android:attr/selectableItemBackground">
+
+        <RadioButton
+            android:id="@+id/radioEHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/export_radio_email_history"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/radioEPrescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/export_radio_email_prescript" />
+
+        <RadioButton
+            android:id="@+id/radioFHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/export_radio_file_history" />
+
+        <RadioButton
+        android:id="@+id/radioFPrescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/export_radio_file_prescript" />
+
+</RadioGroup>

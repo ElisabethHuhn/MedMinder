@@ -65,7 +65,7 @@
 
         </TableRow>
 
-        <!-- Exit, Export, Select Patient buttons -->
+        <!-- Exit, Select Patient buttons -->
         <TableRow
             android:layout_height="match_parent"
             android:layout_width ="match_parent"
@@ -73,6 +73,7 @@
 
             >
 
+            <!-- Exit -->
             <Button
                 style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/exitButton"
@@ -92,6 +93,7 @@
                 android:textColor="@color/colorTextBlack"
                 />
 
+            <!-- Export  -->
             <Button
                 style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/exportButton"
@@ -110,6 +112,8 @@
                 android:textColor="@color/colorTextBlack"
                 />
 
+
+            <!-- Select Patient -->
             <Button
                 style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/selectPatientButton"
@@ -130,96 +134,12 @@
 
         </TableRow>
 
-        <!-- Row : Filter Start Date -->
-        <TableRow
-              android:layout_width=  "match_parent"
-              android:layout_height= "wrap_content"
-              android:layout_gravity="center_horizontal"
-              android:paddingTop=    "10dp"
-            >
-            <TextView
-                android:id=           "@+id/filterStartDateLabel"
-                android:labelFor=     "@+id/filterStartDate"
-                android:layout_height="wrap_content"
-                android:layout_width= "0dp"
-                android:layout_weight="25"
-                android:gravity=      "end"
-
-                android:freezesText="true"
-
-                android:focusable="false"
-
-                android:textColor=    "@color/colorTextBlack"
-                android:background=   "@color/colorLabelBackground"
-                />
-            <EditText
-                android:id=           "@id/filterStartDate"
-
-                android:layout_height="wrap_content"
-                android:layout_width= "0dp"
-                android:layout_weight="75"
-                android:gravity="center_horizontal"
-
-                android:freezesText="true"
-
-                android:inputType=    "text"
-                android:imeOptions=   "flagNoExtractUi"
-
-                android:layout_marginEnd="16dp"
-
-                android:textColor=    "@color/colorTextBlack"
-                android:background=   "@color/colorInputBackground"
-                />
-        </TableRow>
-
-        <!-- Row : Filter End Date -->
-        <TableRow
-                  android:layout_width=  "match_parent"
-                  android:layout_height= "wrap_content"
-                  android:layout_gravity="center_horizontal"
-                  android:paddingTop=    "10dp"
-            >
-            <TextView
-                android:id=           "@+id/filterEndDateLabel"
-                android:labelFor=     "@+id/filterEndDate"
-                android:layout_height="wrap_content"
-                android:layout_width= "0dp"
-                android:layout_weight="25"
-                android:gravity=      "end"
-
-                android:freezesText="true"
-
-                android:focusable="false"
-
-                android:textColor=    "@color/colorTextBlack"
-                android:background=   "@color/colorLabelBackground"
-                />
-            <EditText
-                android:id=           "@id/filterEndDate"
-
-                android:layout_height="wrap_content"
-                android:layout_width= "0dp"
-                android:layout_weight="75"
-                android:gravity="center_horizontal"
-
-                android:freezesText="true"
-
-                android:inputType=    "text"
-                android:imeOptions=   "flagNoExtractUi"
-
-                android:layout_marginEnd="16dp"
-
-                android:textColor=    "@color/colorTextBlack"
-                android:background=   "@color/colorInputBackground"
-                />
-        </TableRow>
-
         <!-- Row : Directory Path -->
         <TableRow
             android:layout_width=  "match_parent"
             android:layout_height= "wrap_content"
             android:layout_gravity="center_horizontal"
-            android:paddingTop=    "10dp"
+            android:paddingTop=    "5dp"
             >
             <TextView
                 android:id=           "@+id/directoryPathLabel"
@@ -233,6 +153,7 @@
 
                 android:focusable="false"
 
+                android:text="@string/directory_path_label"
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorLabelBackground"
                 />
@@ -256,56 +177,12 @@
                 />
         </TableRow>
 
-        <!-- Row : App Subdirectory -->
-        <TableRow
-            android:layout_width=  "match_parent"
-            android:layout_height= "wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingTop=    "10dp"
-            >
-            <TextView
-                android:id=           "@+id/subDirectoryLabel"
-                android:labelFor=     "@+id/subDirectory"
-                android:layout_height="wrap_content"
-                android:layout_width= "0dp"
-                android:layout_weight="25"
-                android:gravity=      "end"
-
-                android:freezesText="true"
-
-                android:focusable="false"
-
-                android:textColor=    "@color/colorTextBlack"
-                android:background=   "@color/colorLabelBackground"
-                />
-            <EditText
-                android:id=           "@id/subDirectory"
-
-                android:layout_height="wrap_content"
-                android:layout_width= "0dp"
-                android:layout_weight="75"
-                android:gravity="center_horizontal"
-
-                android:freezesText="true"
-
-                android:inputType=    "text"
-                android:imeOptions=   "flagNoExtractUi"
-
-                android:layout_marginEnd="16dp"
-
-                android:textColor=    "@color/colorTextBlack"
-                android:background=   "@color/colorInputBackground"
-                />
-
-
-        </TableRow>
-
         <!-- Row : File Name -->
         <TableRow
             android:layout_width=  "match_parent"
             android:layout_height= "wrap_content"
             android:layout_gravity="center_horizontal"
-            android:paddingTop=    "10dp"
+            android:paddingTop=    "5dp"
             >
             <TextView
                 android:id=           "@+id/fileNameLabel"
@@ -319,6 +196,7 @@
 
                 android:focusable="false"
 
+                android:text="@string/export_filename_label"
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorLabelBackground"
                 />
@@ -342,16 +220,16 @@
                 />
         </TableRow>
 
-        <!-- Row : File Suffix -->
+        <!-- Row : File Extent -->
         <TableRow
             android:layout_width=  "match_parent"
             android:layout_height= "wrap_content"
             android:layout_gravity="center_horizontal"
-            android:paddingTop=    "10dp"
+            android:paddingTop=    "5dp"
             >
             <TextView
-                android:id=           "@+id/fileSuffixLabel"
-                android:labelFor=     "@+id/fileSuffix"
+                android:id=           "@+id/fileExtentLabel"
+                android:labelFor=     "@+id/fileExtent"
                 android:layout_height="wrap_content"
                 android:layout_width= "0dp"
                 android:layout_weight="25"
@@ -361,11 +239,12 @@
 
                 android:focusable="false"
 
+                android:text="@string/filename_extent_label"
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorLabelBackground"
                 />
             <EditText
-                android:id=           "@id/fileSuffix"
+                android:id=           "@id/fileExtent"
 
                 android:layout_height="wrap_content"
                 android:layout_width= "0dp"
@@ -379,6 +258,171 @@
 
                 android:layout_marginEnd="16dp"
 
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+        </TableRow>
+
+        <!-- Row : Filter Start Date -->
+        <TableRow
+            android:layout_width=  "match_parent"
+            android:layout_height= "wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop=    "15dp"
+            >
+            <TextView
+                android:id=           "@+id/filterStartDateLabel"
+                android:labelFor=     "@+id/filterStartDay"
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity=      "end"
+
+                android:freezesText="true"
+
+                android:focusable="false"
+
+                android:text="@string/start_date_label"
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorLabelBackground"
+                />
+            <EditText
+                android:id=           "@id/filterStartDay"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "number"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginEnd="2dp"
+
+                android:hint="@string/export_day_hint"
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+            <EditText
+                android:id=           "@+id/filterStartMonth"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "number"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginEnd="2dp"
+
+                android:hint="@string/export_month_hint"
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+            <EditText
+                android:id=           "@+id/filterStartYear"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "number"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginEnd="16dp"
+
+                android:hint="@string/export_year_hint"
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+        </TableRow>
+
+        <!-- Row : Filter End Date -->
+        <TableRow
+            android:layout_width=  "match_parent"
+            android:layout_height= "wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop=    "5dp"
+            >
+            <TextView
+                android:id=           "@+id/filterEndDateLabel"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity=      "end"
+
+                android:freezesText="true"
+
+                android:focusable="false"
+
+                android:text="@string/end_date_label"
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorLabelBackground"
+                />
+
+            <EditText
+                android:id=           "@+id/filterEndDay"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "number"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginEnd="2dp"
+
+                android:hint="@string/export_day_hint"
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+            <EditText
+                android:id=           "@+id/filterEndMonth"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "number"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginEnd="2dp"
+
+                android:hint="@string/export_month_hint"
+                android:textColor=    "@color/colorTextBlack"
+                android:background=   "@color/colorInputBackground"
+                />
+            <EditText
+                android:id=           "@+id/filterEndYear"
+
+                android:layout_height="wrap_content"
+                android:layout_width= "0dp"
+                android:layout_weight="25"
+                android:gravity="center_horizontal"
+
+                android:freezesText="true"
+
+                android:inputType=    "number"
+                android:imeOptions=   "flagNoExtractUi"
+
+                android:layout_marginEnd="16dp"
+
+                android:hint="@string/export_year_hint"
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorInputBackground"
                 />

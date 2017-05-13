@@ -33,14 +33,14 @@ public class MMMedication {
     //************************************/
     /*    Member (instance) Variables    */
     //************************************/
-    private long         mMedicationID;
-    private CharSequence mBrandName;
-    private CharSequence mGenericName;
-    private CharSequence mMedicationNickname;
     private long         mForPersonID;
+    private long         mMedicationID;
+    private CharSequence mMedicationNickname;
+    private int          mDoseNumPerDay;
     private int          mDoseAmount;
     private CharSequence mDoseUnits;
-    private int          mDoseNumPerDay;
+    private CharSequence mBrandName;
+    private CharSequence mGenericName;
     private boolean      mCurrentlyTaken;
 
     private ArrayList<MMScheduleMedication> mSchedules;
@@ -82,21 +82,19 @@ public class MMMedication {
     //************************************/
     /*    Member setter/getter Methods   */
     //************************************/
+
+    public long         getForPersonID()                 { return mForPersonID; }
+    public void         setForPersonID(long forPersonID) {  mForPersonID = forPersonID; }
+
     public long         getMedicationID()                  {  return mMedicationID; }
     public void         setMedicationID(long medicationID) { mMedicationID = medicationID; }
-
-    public CharSequence getBrandName()                       {  return mBrandName;   }
-    public void         setBrandName(CharSequence brandName) { mBrandName = brandName; }
-
-    public CharSequence getGenericName()                         {  return mGenericName;    }
-    public void         setGenericName(CharSequence genericName) { mGenericName = genericName; }
 
     public CharSequence getMedicationNickname() {return mMedicationNickname; }
     public void         setMedicationNickname(CharSequence medicationNickname) {
                                                   mMedicationNickname = medicationNickname; }
 
-    public long         getForPersonID()                 { return mForPersonID; }
-    public void         setForPersonID(long forPersonID) {  mForPersonID = forPersonID; }
+    public int          getDoseNumPerDay()                  { return mDoseNumPerDay;   }
+    public void         setDoseNumPerDay(int doseNumPerDay) { mDoseNumPerDay = doseNumPerDay; }
 
     public int          getDoseAmount()               { return mDoseAmount; }
     public void         setDoseAmount(int doseAmount) { mDoseAmount = doseAmount;  }
@@ -104,8 +102,13 @@ public class MMMedication {
     public CharSequence getDoseUnits()                       { return mDoseUnits; }
     public void         setDoseUnits(CharSequence doseUnits) { mDoseUnits = doseUnits; }
 
-    public int          getDoseNumPerDay()         { return mDoseNumPerDay;   }
-    public void         setDoseNumPerDay(int doseNumPerDay) { mDoseNumPerDay = doseNumPerDay; }
+
+    public CharSequence getBrandName()                       {  return mBrandName;   }
+    public void         setBrandName(CharSequence brandName) { mBrandName = brandName; }
+
+    public CharSequence getGenericName()                         {  return mGenericName;    }
+    public void         setGenericName(CharSequence genericName) { mGenericName = genericName; }
+
 
     public boolean      isCurrentlyTaken() {return mCurrentlyTaken;}
     public void         setCurrentlyTaken(boolean isTaken) {mCurrentlyTaken = isTaken;}
@@ -132,21 +135,22 @@ public class MMMedication {
     //************************************/
     /*    Default Attribute Values       */
     //************************************/
+
+    public static long         getDefaultForPersonID()         { return -1L; }
+
     public static long         getDefaultMedicationID()       {  return -1L; }
-
-    public static CharSequence getDefaultBrandName()          {  return "";   }
-
-    public static CharSequence getDefaultGenericName()        {  return "";    }
 
     public static CharSequence getDefaultMedicationNickname() {return "Med Nick Name"; }
 
-    public static long         getDefaultForPersonID()         { return -1L; }
+    public static int          getDefaultDoseNumPerDay()       { return 0;   }
 
     public static int          getDefaultDoseAmount()          { return 1; }
 
     public static CharSequence getDefaultDoseUnits()           { return "mg"; }
 
-    public static int          getDefaultDoseNumPerDay()       { return 0;   }
+    public static CharSequence getDefaultBrandName()          {  return "";   }
+
+    public static CharSequence getDefaultGenericName()        {  return "";    }
 
     public static boolean      getDefaultCurrentlyTaken()      {return true;}
 
@@ -170,32 +174,93 @@ public class MMMedication {
 
     public String cdfHeaders(){
         String msg =
-                "MedicationID, "  +
-                "BrandName, "     +
-                "GenericName, "   +
-                "Nickname, "      +
                 "PersonID, "      +
-                "Order, "         +
+                "MedicationID, "  +
+                "Nickname, "      +
+                "NumPerDay "      +
                 "DoseAmount, "    +
                 "DoseUnits"       +
-                "NumPerDay "      +
+                "BrandName, "     +
+                "GenericName, "   +
+                "Current"         +
                 System.getProperty("line.separator");
         return msg;
     }
 
     //Convert point to comma delimited file for exchange
     public String convertToCDF() {
-        return  String.valueOf(this.getMedicationID())        + ", " +
-                String.valueOf(this.getBrandName())           + ", " +
-                String.valueOf(this.getGenericName())         + ", " +
+
+        return  String.valueOf(this.getForPersonID())         + ", " +
+                String.valueOf(this.getMedicationID())        + ", " +
                 String.valueOf(this.getMedicationNickname() ) + ", " +
-                String.valueOf(this.getForPersonID())         + ", " +
+                String.valueOf(this.getDoseNumPerDay()        + ", " +
+
                 String.valueOf(this.getDoseAmount())          + ", " +
                 String.valueOf(this.getDoseUnits())           + ", " +
-                String.valueOf(this.getDoseNumPerDay()            +
-                        // TODO: 2/18/2017 list schedules
+
+                String.valueOf(this.getBrandName())           + ", " +
+                String.valueOf(this.getGenericName())         + ", " +
+
+                String.valueOf(this.isCurrentlyTaken())       +
+
+                         // TODO: 2/18/2017 list schedules
                 "Show schedule times too" +
                 System.getProperty("line.separator"));
+    }
+
+    public String toString() {
+        MMPerson person = MMPersonManager.getInstance().getPerson(mForPersonID);
+        return
+                System.getProperty("line.separator") +
+                        "MEDICATION:"    + System.getProperty("line.separator") +
+                        "PersonID:     " + person.getNickname()              + System.getProperty("line.separator") +
+                        "MedicationID: " + String.valueOf(mMedicationID)     + System.getProperty("line.separator") +
+                        "Nickname:     " + String.valueOf(mMedicationNickname) + System.getProperty("line.separator") +
+                        "NumPerDay:    " + String.valueOf(mDoseNumPerDay)    + System.getProperty("line.separator") +
+                        "DoseAmount:   " + String.valueOf(mDoseAmount)       + System.getProperty("line.separator") +
+                        "DoseUnits:    " + String.valueOf(mDoseUnits)        + System.getProperty("line.separator") +
+                        "BrandName:    " + String.valueOf(mBrandName)        + System.getProperty("line.separator") +
+                        "GenericName:  " + String.valueOf(mGenericName)      + System.getProperty("line.separator") +
+                        "Current?      " + String.valueOf(mCurrentlyTaken)   + System.getProperty("line.separator");
+    }
+
+    public String shortString() {
+        MMPerson person = MMPersonManager.getInstance().getPerson(mForPersonID);
+
+        StringBuilder message = new StringBuilder();
+
+        message.append(System.getProperty("line.separator"));
+        message.append("MEDICATION: ID ");
+        message.append(String.valueOf(mMedicationID));
+        message.append(" : ");
+        message.append(mMedicationNickname);
+        if (!mBrandName.toString().isEmpty()) {
+            message.append("BrandName ");
+            message.append(mBrandName);
+        }
+        if (!mGenericName.toString().isEmpty()) {
+            message.append("GenericName  ");
+            message.append(mGenericName);
+        }
+        message.append(" is currently ");
+        if (!isCurrentlyTaken()){
+            message.append("NOT ");
+        }
+        message.append("being taken.");
+        message.append(System.getProperty("line.separator"));
+
+
+        message.append("Dosage is ");
+        message.append(String.valueOf(mDoseAmount));
+        message.append(" ");
+        message.append(String.valueOf(mDoseUnits));
+        message.append(" ");
+        if (mDoseNumPerDay > 0) {
+            message.append(String.valueOf(mDoseNumPerDay));
+            message.append(" times per day at ");
+        }
+
+        return message.toString();
     }
 
 

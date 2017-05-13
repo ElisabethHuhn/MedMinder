@@ -121,7 +121,7 @@ public class MMConcurrentDose {
         String msg =
                        String.valueOf(this.getConcurrentDoseID()) + ", " +
                        String.valueOf( this.getForPerson())       + ", " +
-                       MMUtilities.getDateTimeString(getStartTime())     ;
+                               MMUtilities.getInstance().getDateTimeString(getStartTime())     ;
 
         //concatenate dose values
 

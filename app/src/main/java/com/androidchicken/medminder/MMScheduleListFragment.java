@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * Created by Elisabeth Huhn on 3/10/17, adpated from MMPersonListFragment
@@ -34,9 +33,9 @@ public class MMScheduleListFragment extends Fragment {
     private long mPersonID;
 
 
-    /**********************************************************/
+    //*********************************************************/
     //          Fragment Lifecycle Functions                  //
-    /**********************************************************/
+    //*********************************************************/
     public static MMScheduleListFragment newInstance(long personID){
         //create a bundle to hold the arguments
         Bundle args = new Bundle();
@@ -78,6 +77,7 @@ public class MMScheduleListFragment extends Fragment {
         } else {
             mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
         }
+        ((MMMainActivity)getActivity()).setPatientID(mPersonID);
     }
 
 
@@ -90,6 +90,7 @@ public class MMScheduleListFragment extends Fragment {
         if (savedInstanceState != null){
             //the fragment is being restored so restore the person ID
             mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
+            ((MMMainActivity)getActivity()).setPatientID(mPersonID);
         }
 
 
@@ -102,7 +103,8 @@ public class MMScheduleListFragment extends Fragment {
         initializeRecyclerView(v);
 
         //get rid of soft keyboard if it is visible
-        MMUtilities.hideSoftKeyboard(getActivity());
+        MMUtilities utilities = MMUtilities.getInstance();
+        utilities.hideSoftKeyboard(getActivity());
 
 
         //9) return the view
@@ -113,7 +115,8 @@ public class MMScheduleListFragment extends Fragment {
     public void onResume(){
 
         super.onResume();
-        MMUtilities.clearFocus(getActivity());
+        MMUtilities utilities = MMUtilities.getInstance();
+        utilities.clearFocus(getActivity());
 
         //set the title bar subtitle
         ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_schedule_list);
@@ -262,9 +265,7 @@ public class MMScheduleListFragment extends Fragment {
 
     private void onExit(){
 
-        Toast.makeText(getActivity(),
-                R.string.exit_label,
-                Toast.LENGTH_SHORT).show();
+        MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
 
         MMSchedMedCursorAdapter adapter = getAdapter(getView());
         adapter.closeCursor();
@@ -284,9 +285,9 @@ public class MMScheduleListFragment extends Fragment {
     }
 
 
-    /**********************************************************/
+    //*********************************************************/
     //      Utility Functions used in handling events         //
-    /**********************************************************/
+    //*********************************************************/
 
     //called from onClick(), executed when a schedule is selected
     private void onSelect(int position){

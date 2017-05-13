@@ -97,7 +97,7 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
 
         int timeMinutes = schedMed.getTimeDue();
         long timeMilliseconds = timeMinutes * 60 * 1000;
-        String timeString = MMUtilities.getTimeString(timeMilliseconds, mIs24Format);
+        String timeString = MMUtilities.getInstance().getTimeString(timeMilliseconds, mIs24Format);
         holder.medicationTime    .setText(timeString);
 
         long medicationID = schedMed.getOfMedicationID();

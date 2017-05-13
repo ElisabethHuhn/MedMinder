@@ -81,7 +81,8 @@ public class MMBootAlarmService extends Service {
                             while (positionSchedule < lastSchedule){
                                 schedule = schedules.get(positionSchedule);
                                 //create an Alarm to generate a notification for this scheduled dose
-                                MMUtilities.scheduleNotification(context, schedule.getTimeDue());
+                                MMUtilities utilities = MMUtilities.getInstance();
+                                utilities.createScheduleNotification(context, schedule.getTimeDue());
                                 positionSchedule++;
                             }//end schedule while loop
                         }

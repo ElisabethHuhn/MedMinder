@@ -1,6 +1,8 @@
 package com.androidchicken.medminder;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,7 +16,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 public class MMMainActivity extends AppCompatActivity {
 
@@ -30,6 +31,9 @@ public class MMMainActivity extends AppCompatActivity {
 
 
     public static final int SMS_PERMISSIONS_REQUEST_CODE = 0;
+    public static final int FILE_PERMISSIONS_REQUEST_CODE = 1;
+
+    public long mPatientID = MMUtilities.ID_DOES_NOT_EXIST;
 
 
     @Override
@@ -62,9 +66,9 @@ public class MMMainActivity extends AppCompatActivity {
             PackageManager pm = this.getPackageManager();
 
             if (pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
-                MMUtilities.showStatus(this, R.string.telephony_supported);
+                MMUtilities.getInstance().showStatus(this, R.string.telephony_supported);
             } else {
-                MMUtilities.showStatus(this, R.string.teelphony_not_supported);
+                MMUtilities.getInstance().showStatus(this, R.string.teelphony_not_supported);
             }
         }
 
@@ -100,6 +104,17 @@ public class MMMainActivity extends AppCompatActivity {
         }
     }
 
+    public void isFilePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int hasWriteExternalStoragePermission =
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (hasWriteExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                                FILE_PERMISSIONS_REQUEST_CODE);
+            }
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[],
@@ -110,14 +125,27 @@ public class MMMainActivity extends AppCompatActivity {
 
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Permission to send text granted", Toast.LENGTH_SHORT).show();
+                    MMUtilities.getInstance().showStatus(this, "Permission to send text granted");
+
                     //send sms here call your method
                    // sendSms(String phoneNo, String msg);
                 } else {
-                    Toast.makeText(this, "Permission to send text denied", Toast.LENGTH_SHORT).show();
+                    MMUtilities.getInstance().showStatus(this, "Permission to send text DENIED");
                 }
                 return;
             }
+
+            case FILE_PERMISSIONS_REQUEST_CODE: {
+
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    MMUtilities.getInstance().showStatus(this, "Permission to write file");
+                } else {
+                    MMUtilities.getInstance().showStatus(this, "Permission to write file denied");
+                }
+                return;
+            }
+
 
             // other 'case' lines to check for other
             // permissions this app might request
@@ -125,10 +153,32 @@ public class MMMainActivity extends AppCompatActivity {
     }
 
 
+    // TODO: 5/11/2017 All fragments should refer here to get PersonID
+    public long getPatientID()  {
+        if (mPatientID == MMUtilities.ID_DOES_NOT_EXIST) {
+            //see if there is anything stored in shared preferences
+            SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+            long defaultValue = MMUtilities.ID_DOES_NOT_EXIST;
+            mPatientID = sharedPref.getLong(MMPerson.sPersonIDTag, defaultValue);
+        }
+        return mPatientID;
+    }
 
-    /***************************************************************/
-    /*********** Methods dealing with the FAB          *************/
-    /***************************************************************/
+    public void setPatientID (long patientID){
+        long oldPatientID = mPatientID;
+        if (oldPatientID != patientID) {
+            mPatientID = patientID;
+            //Store the PersonID for the next time
+            SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putLong(MMPerson.sPersonIDTag, mPatientID);
+            editor.apply();
+        }
+    }
+
+    //**************************************************************/
+    //********** Methods dealing with the FAB          *************/
+    //**************************************************************/
     private void initializeFAB(){
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -145,22 +195,23 @@ public class MMMainActivity extends AppCompatActivity {
 
         if (fragment instanceof MMHomeFragment) {
             //Add a new person
-            MMUtilities.showHint(view, getString(R.string.add_person));
+            MMUtilities.getInstance().showHint(view, getString(R.string.add_person));
             switchToPersonScreen();
 
         } else if (fragment instanceof MMPersonListFragment) {
             //Add a new person
-            MMUtilities.showHint(view, getString(R.string.add_person));
+            MMUtilities.getInstance().showHint(view, getString(R.string.add_person));
             switchToPersonScreen();
 
         } else if (fragment instanceof MMPersonFragment) {
             //Add a new medication
             long personID = ((MMPersonFragment) fragment).getPersonID();
-            MMPerson person = MMUtilities.getPerson(personID);
+            MMPersonManager personManager = MMPersonManager.getInstance();
+            MMPerson person = personManager.getPerson(personID);
 
             String msg =
                     String.format(getString(R.string.add_medication), person.getNickname());
-            MMUtilities.showHint(view, msg);
+            MMUtilities.getInstance().showHint(view, msg);
 
             switchToMedicationScreen(personID);
 
@@ -171,12 +222,12 @@ public class MMMainActivity extends AppCompatActivity {
             if (medication != null) {
                 String msg = String.format(getString(R.string.add_schedule),
                         medication.getMedicationNickname());
-                MMUtilities.showHint(view, msg);
+                MMUtilities.getInstance().showHint(view, msg);
                 ((MMMedicationFragment) fragment).handleUpButton();
             }
         } else if (fragment instanceof MMMedicationAlertFragment) {
             //Add a new Medication Alert
-            MMUtilities.showHint(view, getString(R.string.add_medicaition_alert));
+            MMUtilities.getInstance().showHint(view, getString(R.string.add_medicaition_alert));
             ((MMMedicationAlertFragment) fragment).handleUpButton();
         } else {
             //do nothing
@@ -197,9 +248,9 @@ public class MMMainActivity extends AppCompatActivity {
     }
 
 
-    /***************************************************************/
-    /********************          Menu Methods        *************/
-    /***************************************************************/
+    //**************************************************************/
+    //*******************          Menu Methods        *************/
+    //**************************************************************/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -217,7 +268,7 @@ public class MMMainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         } else  if (id == R.id.action_export) {
-            switchToExportScreen();
+            switchToExportScreen(mPatientID);
             return true;
         } else  if (id == R.id.action_list_schedules) {
             switchToScheduleListScreen();
@@ -228,16 +279,16 @@ public class MMMainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /***************************************************************/
-    /******************** Routines to switch fragments *************/
-    /***************************************************************/
+    //**************************************************************/
+    //******************* Routines to switch fragments *************/
+    //**************************************************************/
 
     private Fragment getCurrentFragment(){
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
         return fm.findFragmentById(R.id.fragment_container);
     }
 
-    /****** Routine to actually switch the screens *******/
+    //***** Routine to actually switch the screens *******/
     private void switchScreen(Fragment fragment, String tag) {
         //Need the Fragment Manager to do the swap for us
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
@@ -333,6 +384,7 @@ public class MMMainActivity extends AppCompatActivity {
     }
 
     public void switchToHomeScreen(long personID){
+        setPatientID(personID);
         //replace the fragment with the Home UI
 
         //Need the Fragment Manager to do the swap for us
@@ -437,6 +489,8 @@ public class MMMainActivity extends AppCompatActivity {
     }
 
     public void switchToPersonListReturn(CharSequence returnFragmentTag, long personID){
+
+        mPatientID = personID;
 
         if (returnFragmentTag.equals(sHomeTag)){
             switchToHomeScreen(personID);
