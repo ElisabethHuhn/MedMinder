@@ -108,40 +108,37 @@ public class MMDatabaseManager {
     public static synchronized MMDatabaseManager initializeInstance(Context context) throws RuntimeException {
         if (sManagerInstance == null){
             try {
-                //Note the hard coded strings here.
-                // todo: figure out how to access the string resources from the DatabaseManager
-                if (context == null) throw new RuntimeException(sNoContextException);
                 //create the singleton Database Manager
                 sManagerInstance = new MMDatabaseManager();
 
-                //create and store it's singleton connection to the database
-                //The helper is the database connection
-                //It's a singleton to keep the app thread safe
-                sManagerInstance.setDatabaseHelper(new MMDataBaseSqlHelper(context));
-
-                //Now that we have the connection, create the database as well
-                sManagerInstance.setDatabase (sManagerInstance.getDatabaseHelper().getWritableDatabase());
-            }catch (Exception e) {
+            } catch (Exception e) {
                 Log.e(TAG, Log.getStackTraceString(e));
             }
+        }
 
-        } else if (sManagerInstance.getDatabaseHelper() == null){
-            //if here, we had a Database Manager, but no connection to a database
-            //Something is definitely fishy, but maybe we can recover
+        if (sManagerInstance.getDatabaseHelper() == null){
+
+            //Note the hard coded strings here.
+            // todo: figure out how to access the string resources from the DatabaseManager without a context
             if (context == null) throw new RuntimeException(sNoContextException);
 
-            //all the constructor does is save the context
-            sManagerInstance.setDatabaseHelper( new MMDataBaseSqlHelper(context));
-            //opening the database will create the tables if they do not
-            //  already exist. It will also force an upgrade if the system
-            //  detects a new version of the DB since the last time it was opened
-            sManagerInstance.setDatabase(sManagerInstance.getDatabaseHelper().getWritableDatabase());
+            try{
+                //all the constructor does is save the context
+                sManagerInstance.setDatabaseHelper( new MMDataBaseSqlHelper(context));
+            } catch (Exception e) {
+                Log.e(TAG, Log.getStackTraceString(e));
+            }
+        }
 
-        } else if (sManagerInstance.getDatabase() == null){
-            //again, if we had a database manager, and a database helper/connection
-            // we certainly should have had an instance of the database
-            //something is fishy, but attempt recovery
-            sManagerInstance.setDatabase(sManagerInstance.getDatabaseHelper().getWritableDatabase());
+        if (sManagerInstance.getDatabase() == null){
+
+            if (context == null) throw new RuntimeException(sNoContextException);
+
+            try{
+                sManagerInstance.setDatabase(sManagerInstance.getDatabaseHelper().getWritableDatabase());
+            } catch (Exception e) {
+                Log.e(TAG, Log.getStackTraceString(e));
+            }
         }
 
         return sManagerInstance;
@@ -585,22 +582,23 @@ public class MMDatabaseManager {
     //***********************************************/
     /*        Concurrent Dose CRUD methods          */
     //***********************************************/
-    public Cursor getAllConcurrentDosesCursor(long personID){
+    public Cursor getAllConcurrentDosesCursor(long personID, String orderClause){
         return mDatabaseHelper.getObject(  mDatabase,
                                         TABLE_CONCURRENT_DOSE,
                                         null,    //get the whole object
                                         getConcurrentDosesWhereClause(personID),
-                                        null, null, null, null);
+                                        null, null, null,
+                                        orderClause);   //order by clause
 
 
     }
 
 
     //gets the ConcurrentDoses linked to this person
-    public ArrayList<MMConcurrentDose> getAllConcurrentDoses(long personID){
+    public ArrayList<MMConcurrentDose> getAllConcurrentDoses(long personID, String orderClause){
         if (personID == 0) return null;
 
-        Cursor cursor = getAllConcurrentDosesCursor(personID);
+        Cursor cursor = getAllConcurrentDosesCursor(personID, orderClause);
 
         //create a concurrentDose object from the Cursor object
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();

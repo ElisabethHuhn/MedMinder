@@ -16,20 +16,7 @@
     >
     <!-- Each field needs a weight that matches the weight of the header -->
         <!-- This layout is for a Person element within a list-->
-        <!-- ID weight = 6-->
-        <TextView
-                android:id="@+id/personMainID"
 
-                android:layout_height="wrap_content"
-                android:layout_width= "0dp"
-                android:layout_weight="6"
-                android:gravity="center"
-
-                android:layout_marginEnd="@dimen/listrow_field_separator"
-
-                android:textColor="@color/colorTextBlack"
-                android:background="@color/colorHistoryBackground"
-                />
 
         <!-- Nickname 12 -->
         <EditText
@@ -37,7 +24,7 @@
 
             android:layout_height="wrap_content"
             android:layout_width="0dp"
-            android:layout_weight="12"
+            android:layout_weight="20"
             android:gravity="center"
 
             android:layout_marginEnd="@dimen/listrow_field_separator"
@@ -54,7 +41,7 @@
 
                 android:layout_height="wrap_content"
                 android:layout_width="0dp"
-                android:layout_weight="15"
+                android:layout_weight="35"
                 android:gravity="center"
 
                 android:layout_marginEnd="@dimen/listrow_field_separator"
@@ -71,7 +58,7 @@
 
                 android:layout_height="wrap_content"
                 android:layout_width= "0dp"
-                android:layout_weight="15"
+                android:layout_weight="20"
                 android:gravity="center"
 
                 android:layout_marginEnd="@dimen/listrow_field_separator"

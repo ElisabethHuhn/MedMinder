@@ -4,8 +4,6 @@
     xmlns:tools=  "http://schemas.android.com/tools"
     tools:context="com.androidchicken.medminder.MMMainActivityFragment"
 
-    android:id=   "@+id/content_main"
-
     android:baselineAligned="false"
     android:layout_width=   "match_parent"
     android:layout_height=  "match_parent"
@@ -31,7 +29,7 @@
             android:layout_gravity="top|center_vertical"
             >
 
-            <!-- Row 1: Person Screen Label -->
+            <!-- Row 1: Settings Screen Label -->
             <TableRow
                 android:layout_height="wrap_content"
                 android:layout_width ="match_parent"
@@ -39,7 +37,7 @@
                 android:gravity="center"
                 >
                 <TextView
-                    android:text="@string/person_screen_label"
+                    android:text="@string/title_settings"
                     android:layout_height="wrap_content"
                     android:layout_width ="wrap_content"
                     android:gravity="center"
@@ -63,7 +61,7 @@
                 <!-- Save Person -->
                 <Button
                     style="?android:attr/buttonBarButtonStyle"
-                    android:id="@+id/personSaveButton"
+                    android:id="@+id/settingsSaveButton"
                     android:text="@string/save_label"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -79,23 +77,7 @@
 
             </TableRow>
 
-            <!-- Row 3: Person Exists? -->
-            <TableRow
-                android:layout_height="wrap_content"
-                android:layout_width ="match_parent"
-                android:paddingTop="10dp"
-                android:gravity="center"
-                >
-
-                <android.support.v7.widget.SwitchCompat
-                    android:id="@+id/switchExists"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/exists_label"/>
-
-            </TableRow>
-
-            <!-- Row 4: Person ID and Nickname -->
+            <!-- Person ID and Nickname -->
             <TableRow
                   android:layout_width=  "match_parent"
                   android:layout_height= "wrap_content"
@@ -103,8 +85,8 @@
                   android:paddingTop=    "10dp"
                 >
                 <TextView
-                    android:id=           "@+id/personIDLabel"
-                    android:labelFor=     "@+id/personNickNameInput"
+                    android:id=           "@+id/settingPersonIDLabel"
+                    android:labelFor=     "@+id/settingPersonNickNameInput"
                     android:layout_height="wrap_content"
                     android:layout_width= "0dp"
                     android:layout_weight="25"
@@ -114,12 +96,87 @@
 
                     android:focusable="false"
 
+                    android:text="@string/settings_current_patient"
                     android:textColor=    "@color/colorTextBlack"
                     android:background=   "@color/colorLabelBackground"
                     />
 
                 <EditText
-                    android:id=           "@id/personNickNameInput"
+                    android:id=           "@id/settingPersonNickNameInput"
+
+                    android:layout_height="wrap_content"
+                    android:layout_width= "0dp"
+                    android:layout_weight="75"
+                    android:gravity="center_horizontal"
+
+                    android:focusable="false"
+
+                    android:freezesText="true"
+
+                    android:inputType=    "text"
+                    android:imeOptions=   "flagNoExtractUi"
+
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="16dp"
+
+                    android:textColor=    "@color/colorTextBlack"
+                    android:background=   "@color/colorGray"
+                    />
+
+            </TableRow>
+
+
+            <!-- Default time due for schedule objects -->
+            <TableRow
+                android:layout_width=  "match_parent"
+                android:layout_height= "wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop=    "10dp"
+                >
+                <TextView
+
+                    android:layout_height="wrap_content"
+                    android:layout_width= "0dp"
+                    android:layout_weight="25"
+                    android:gravity=      "center_horizontal"
+
+                    android:freezesText="true"
+
+                    android:focusable="false"
+
+                    android:text="@string/settings_default_time_due"
+                    android:textColor=    "@color/colorTextBlack"
+                    android:background=   "@color/colorLabelBackground"
+                    />
+
+
+            </TableRow>
+            <TableRow
+                android:layout_width=  "match_parent"
+                android:layout_height= "wrap_content"
+                android:layout_gravity="center_horizontal"
+
+                >
+
+                <TextView
+                    android:id=           "@+id/settingDefaultTimeDueLabel"
+                    android:labelFor=     "@+id/settingDefaultTimeDueInput"
+                    android:layout_height="wrap_content"
+                    android:layout_width= "0dp"
+                    android:layout_weight="25"
+                    android:gravity=      "end"
+
+                    android:freezesText="true"
+
+                    android:focusable="false"
+
+                    android:text="@string/settings_default_time"
+                    android:textColor=    "@color/colorTextBlack"
+                    android:background=   "@color/colorLabelBackground"
+                    />
+
+                <EditText
+                    android:id=           "@id/settingDefaultTimeDueInput"
 
                     android:layout_height="wrap_content"
                     android:layout_width= "0dp"
@@ -140,148 +197,91 @@
 
             </TableRow>
 
-            <!-- Row 5: Person Email Address -->
-            <TableRow
-                  android:layout_width=  "match_parent"
-                  android:layout_height= "wrap_content"
-                  android:layout_gravity="center_horizontal"
-                  android:paddingTop=    "10dp"
-                >
-                <TextView
-                    android:id=           "@+id/personEmailAddrLabel"
-                    android:labelFor=     "@+id/personEmailAddrInput"
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="25"
-                    android:gravity=      "end"
 
-                    android:freezesText="true"
-
-                    android:focusable="false"
-
-                    android:textColor=    "@color/colorTextBlack"
-                    android:background=   "@color/colorLabelBackground"
-                    />
-                <EditText
-                    android:id=           "@id/personEmailAddrInput"
-
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="75"
-                    android:gravity="center_horizontal"
-
-                    android:freezesText="true"
-
-                    android:inputType=    "textEmailAddress"
-                    android:imeOptions=   "flagNoExtractUi"
-
-                    android:layout_marginEnd="16dp"
-
-                    android:textColor=    "@color/colorTextBlack"
-                    android:background=   "@color/colorInputBackground"
-                    />
-            </TableRow>
-
-            <!-- Row 6: Person Text Address -->
-            <TableRow
-                  android:layout_width=  "match_parent"
-                  android:layout_height= "wrap_content"
-                  android:layout_gravity="center_horizontal"
-                  android:paddingTop=    "10dp"
-                >
-                <TextView
-                    android:id=           "@+id/personTextAddrLabel"
-                    android:labelFor=     "@+id/personTextAddrInput"
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="25"
-                    android:gravity=      "end"
-
-                    android:freezesText="true"
-
-                    android:focusable="false"
-
-                    android:textColor=    "@color/colorTextBlack"
-                    android:background=   "@color/colorLabelBackground"
-                    />
-                <EditText
-                    android:id=           "@id/personTextAddrInput"
-
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="75"
-                    android:gravity="center_horizontal"
-
-                    android:freezesText="true"
-
-                    android:inputType=    "text"
-                    android:imeOptions=   "flagNoExtractUi"
-
-                    android:layout_marginEnd="16dp"
-
-                    android:textColor=    "@color/colorTextBlack"
-                    android:background=   "@color/colorInputBackground"
-                    />
-            </TableRow>
-
-            <!-- Row 7: Scroll Hint -->
+            <!-- Clock format: 24hour? -->
             <TableRow
                 android:layout_height="wrap_content"
                 android:layout_width ="match_parent"
                 android:paddingTop="10dp"
                 android:gravity="center"
                 >
-                <TextView
-                    android:text="@string/horizontal_scroll_hint"
-                    android:layout_height="wrap_content"
-                    android:layout_width ="wrap_content"
-                    android:gravity="center"
 
-                    android:background="@color/colorScreenBackground"
-                    />
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/switch24Format"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_24format"/>
 
             </TableRow>
 
+
+            <!-- Show deleted People? -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width ="match_parent"
+                android:paddingTop="10dp"
+                android:gravity="center"
+                >
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/switchShowDeletedPeople"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_show_deleted_people"/>
+
+            </TableRow>
+
+            <!-- Show deleted Medications? -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width ="match_parent"
+                android:paddingTop="10dp"
+                android:gravity="center"
+                >
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/switchShowDeletedMeds"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_show_deleted_meds"/>
+
+            </TableRow>
+
+            <!-- Sound with medications? -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width ="match_parent"
+                android:paddingTop="10dp"
+                android:gravity="center"
+                >
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/switchSoundWithMedNotif"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_notification_sound"/>
+
+            </TableRow>
+
+            <!-- Vibration with Medications Notifications? -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width ="match_parent"
+                android:paddingTop="10dp"
+                android:gravity="center"
+                >
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/switchVibrateWithMedNotif"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_notification_vibrate"/>
+
+            </TableRow>
+
+
         </TableLayout>
 
-        <!-- Title Row and list of Medications -->
-        <HorizontalScrollView
-            android:layout_height="wrap_content"
-            android:layout_width= "match_parent"
-            android:fillViewport= "true"
-            android:layout_gravity="center_horizontal"
-            >
-            <!-- Title row and list of Medications taken by the person -->
-            <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:orientation="vertical"
-                android:fillViewport= "true"
-                >
-                <!-- Title Row: Medications taken by the person -->
-                <include android:id="@+id/medicationTitleRow" layout="@layout/list_row_medication"/>
-
-                <!-- RecyclerView of Medications -->
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/medicationList"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                     >
-                </android.support.v7.widget.RecyclerView>
-
-            </LinearLayout>
-
-        </HorizontalScrollView>
-
-        <TextView
-            android:text="@string/horizontal_scroll_hint"
-            android:layout_height="wrap_content"
-            android:layout_width ="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center"
-
-            android:background="@color/colorScreenBackground"
-            />
 
     </LinearLayout>
 

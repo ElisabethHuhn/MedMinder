@@ -20,7 +20,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -66,7 +65,7 @@ public class MMMedicationAlertFragment extends Fragment  {
     //**********************************************/
     /*        Passed Arguments to this Fragment    */
     //**********************************************/
-    private long  mPersonID;
+
     private int   mSelectedPosition = sSELECTED_DIALOG_NOT_VISIBLE;
 
 
@@ -88,23 +87,6 @@ public class MMMedicationAlertFragment extends Fragment  {
     //**********************************************/
 
 
-    //need to pass a medication into the fragment
-    //position is the index of the medication in the person list
-    //-1 indicates add new medication
-    public static MMMedicationAlertFragment newInstance(long personID){
-        //create a bundle to hold the arguments
-        Bundle args = new Bundle();
-
-        //It will be some work to make all of the data model serializable
-        //so for now, just pass the person values
-        args.putLong        (MMPerson.sPersonIDTag,personID);
-
-        MMMedicationAlertFragment fragment = new MMMedicationAlertFragment();
-
-        fragment.setArguments(args);
-
-        return fragment;
-    }
 
     //**********************************************/
     /*          Constructor                        */
@@ -125,28 +107,12 @@ public class MMMedicationAlertFragment extends Fragment  {
 
         super.onCreate(savedInstanceState);
 
-        Bundle args = getArguments();
-
-        if (args != null) {
-            mPersonID = args.getLong(MMPerson.sPersonIDTag);
-        } else {
-            mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
-        }
-        ((MMMainActivity)getActivity()).setPatientID(mPersonID);
-
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        if (savedInstanceState != null){
-            //the fragment is being restored so restore the person ID
-            mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
-            ((MMMainActivity)getActivity()).setPatientID(mPersonID);
-        }
-
 
         //Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_medication_alert, container, false);
@@ -163,14 +129,7 @@ public class MMMedicationAlertFragment extends Fragment  {
         return v;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState){
-        // Save custom values into the bundle
-        savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
 
-        // Always call the superclass so it can save the view hierarchy state
-        super.onSaveInstanceState(savedInstanceState);
-    }
 
     @Override
     public void onResume(){
@@ -189,19 +148,20 @@ public class MMMedicationAlertFragment extends Fragment  {
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
     }
 
+
+    //*************************************************************/
+    /*  Convenience Methods for accessing things on the Activity  */
+    //*************************************************************/
+
+    private long     getPatientID(){return ((MMMainActivity)getActivity()).getPatientID();}
+
+    private MMPerson getPerson()    {return ((MMMainActivity)getActivity()).getPerson();}
+
+
     //********************************************/
     //*******   Initialization Methods  **********/
     //********************************************/
     private void wireWidgets(View v){
-
-        Button medicationExitButton = (Button) v.findViewById(R.id.medicationExitButton);
-        medicationExitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onExit();
-            }
-        });
-
 
 
         Button upAlarmNumber = (Button) v.findViewById(R.id.medAlertUpButton);
@@ -280,7 +240,7 @@ public class MMMedicationAlertFragment extends Fragment  {
 
         //4) Get the Cursor of MedicationAlert DB rows from the DB.
         MMMedicationAlertManager medicationAlertManager = MMMedicationAlertManager.getInstance();
-        Cursor cursor = medicationAlertManager.getAllMedicationAlertsCursor(mPersonID);
+        Cursor cursor = medicationAlertManager.getAllMedicationAlertsCursor(getPatientID());
         if (cursor == null)return;
 
         //5) Use the data to Create and set out SchedMed Adapter
@@ -320,12 +280,12 @@ public class MMMedicationAlertFragment extends Fragment  {
         //
         //Patient ID and Nickname
         //
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
+        if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST){
             throw new RuntimeException(getString(R.string.no_person_alert));
         }
 
-        MMPersonManager personManager = MMPersonManager.getInstance();
-        MMPerson person = personManager.getPerson(mPersonID);
+
+        MMPerson person = getPerson();
 
         CharSequence nickname;
         if (person == null) {
@@ -335,9 +295,6 @@ public class MMMedicationAlertFragment extends Fragment  {
         }
         TextView forPersonNickname = (TextView) v.findViewById(R.id.medAlertForPersonNickName);
         forPersonNickname.setText(nickname);
-
-        TextView forPersonID       = (TextView) v.findViewById(R.id.medAlertForPersonIDInput);
-        forPersonID      .setText(Long.valueOf(mPersonID).toString().trim());
 
         //
         //# of alerts for this patient
@@ -373,13 +330,12 @@ public class MMMedicationAlertFragment extends Fragment  {
     //********************************************/
     //*********    Event Handlers       **********/
     //********************************************/
-    private void onExit(){
-        MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
+    public void onExit(){
+        //MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
 
         MMMedicationAlertCursorAdapter adapter = getAdapter(getView());
         if (adapter != null) adapter.closeCursor();
-
-        ((MMMainActivity) getActivity()).switchToHomeScreen(mPersonID);
+        ((MMMainActivity) getActivity()).switchToHomeScreen();
     }
 
     public void handleUpButton(){
@@ -429,7 +385,7 @@ public class MMMedicationAlertFragment extends Fragment  {
             int last = Integer.valueOf(medNumInput.getText().toString());
             last--;
             medNumInput.setText(String.valueOf(last));
-            adapter.reinitializeCursor(mPersonID);
+            adapter.reinitializeCursor(getPatientID());
 
         } else {
             msg = msg + " unable to delete";
@@ -445,7 +401,7 @@ public class MMMedicationAlertFragment extends Fragment  {
     //Build and display the alert dialog
     private void addAlertDialog(int selectedPosition){
 
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return;
+        if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST)return;
 
         //
         //Build the (Dialog) layout and it's contained views
@@ -582,9 +538,7 @@ public class MMMedicationAlertFragment extends Fragment  {
             dialogMessage      = R.string.med_alert_values;
         }
 
-
-        MMPersonManager personManager = MMPersonManager.getInstance();
-        MMPerson patient = personManager.getPerson(mPersonID);
+        MMPerson patient = getPerson();
         patient.getNickname();
         String dialogMsg = String.format(getString(dialogMessage) , patient.getNickname());
 
@@ -629,8 +583,7 @@ public class MMMedicationAlertFragment extends Fragment  {
         //      = BUTTON_NEUTRAL
 
         //Get the pointers to the views in the Dialog
-        LinearLayout layout =
-                (LinearLayout) ((AlertDialog) dialog).findViewById(R.id.dMedAlertLine);
+        //LinearLayout layout = (LinearLayout) ((AlertDialog) dialog).findViewById(R.id.dMedAlertLine);
 
 
         EditText medIDInput      = (EditText)((AlertDialog)dialog).
@@ -683,7 +636,7 @@ public class MMMedicationAlertFragment extends Fragment  {
             message = R.string.med_alert_updated;
         }
 
-        medicationAlert.setForPatientID(mPersonID);
+        medicationAlert.setForPatientID(getPatientID());
         medicationAlert.setMedicationID(Long.valueOf(medIDInput.getText().toString()));
         medicationAlert.setNotifyPersonID(Long.valueOf(personIDInput.getText().toString()));
 
@@ -725,7 +678,7 @@ public class MMMedicationAlertFragment extends Fragment  {
 
         //Restart the fragment so the Medication Alert will show
         adapter.closeCursor();
-        ((MMMainActivity)getActivity()).switchToMedicationAlertScreen(mPersonID);
+        ((MMMainActivity)getActivity()).switchToMedicationAlertScreen();
     }
 
 
@@ -738,9 +691,7 @@ public class MMMedicationAlertFragment extends Fragment  {
         mPersonSpinner = (Spinner) v.findViewById(R.id.dMedAlertPersonSpinner);
         mTypeSpinner   = (Spinner) v.findViewById(R.id.dMedAlertTypeSpinner) ;
 
-
-        MMPersonManager personManager = MMPersonManager.getInstance();
-        MMPerson patient = personManager.getPerson(mPersonID);
+        MMPerson patient = getPerson();
 
         //build spinner dropdown of medication names
         mMedications = patient.getMedications();
@@ -758,7 +709,8 @@ public class MMMedicationAlertFragment extends Fragment  {
         }
 
         //build spinner dropdown of person names
-        mPersons = personManager.getPersonList();
+
+        mPersons = MMPersonManager.getInstance().getPersonList();
         int lastPerson = mPersons.size();
         int positionPerson = 0;
         MMPerson person;

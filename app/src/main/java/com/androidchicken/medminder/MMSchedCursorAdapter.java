@@ -7,9 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import java.util.Calendar;
-import java.util.Date;
-
 /**
  * Created by Elisabeth Huhn on 2/25/2017.
  *
@@ -23,6 +20,7 @@ public class MMSchedCursorAdapter extends RecyclerView.Adapter<MMSchedCursorAdap
     private Cursor  mSchedMedCursor;
     private boolean mIs24Format;
     private long    mMedicationID;
+    private int     mStrategy;
 
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -44,6 +42,9 @@ public class MMSchedCursorAdapter extends RecyclerView.Adapter<MMSchedCursorAdap
         this.mSchedMedCursor = schedMedCursor;
         this.mIs24Format     = is24Format;
         this.mMedicationID   = medicationID;
+
+        MMMedication medication = MMMedicationManager.getInstance().getMedicationFromID(medicationID);
+        mStrategy = medication.getDoseStrategy();
     }
 
     @Override
@@ -140,17 +141,11 @@ public class MMSchedCursorAdapter extends RecyclerView.Adapter<MMSchedCursorAdap
         //If you can do this better, have at it.
         long timeMilliseconds = timeMinutes * 60 * 1000;
 
-        int hours   = timeMinutes / 60;
-        int minutes = timeMinutes - (hours*60);
+        String timeString = MMUtilities.getInstance().getTimeString(timeMilliseconds, mIs24Format);
 
-        Calendar c = Calendar.getInstance();
-        c.set(Calendar.HOUR_OF_DAY, hours);
-        c.set(Calendar.MINUTE, minutes);
-        c.set(Calendar.SECOND, 0);
-        Date d1 = c.getTime();
-
-        String timeString = MMUtilities.getInstance()
-                .getTimeString(MMUtilities.getInstance().getTimeFormatString(mIs24Format), d1);
+        if (mStrategy == MMMedication.sAS_NEEDED){
+            timeString = MMMedicationFragment.AS_NEEDED_STRATEGY;
+        }
 
         holder.medicationTime    .setText(timeString);
     }

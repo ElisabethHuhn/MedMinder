@@ -24,15 +24,10 @@
         android:orientation=  "vertical"
         >
 
-        <!-- Screen Label and Add Person Button -->
-        <LinearLayout
-            android:layout_width= "match_parent"
-            android:layout_height="wrap_content"
-            android:orientation=  "vertical"
-            >
+        <!-- Screen Label  -->
 
-            <!-- Row: Person Screen Label -->
-            <TextView
+        <!-- Row: Person Screen Label -->
+        <TextView
                 android:id="@+id/personListScreenLabel"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
@@ -50,39 +45,6 @@
                 android:background="@color/colorScreenBackground"
                 />
 
-            <!-- Row: Buttons -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_gravity="center_horizontal"
-                android:paddingBottom="8dp"
-                >
-
-                <Button
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:id=  "@+id/exitButton"
-                    android:text="@string/exit_label"
-
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
-
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-
-                    android:background="@color/colorButton1Background"
-                    android:textColor="@color/colorTextBlack"
-                    />
-
-
-            </LinearLayout>
-
-
-        </LinearLayout>
 
         <!-- Scrolling list of persons -->
         <HorizontalScrollView

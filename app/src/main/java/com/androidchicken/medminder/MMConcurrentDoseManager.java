@@ -82,7 +82,8 @@ public class MMConcurrentDoseManager {
     //that pertain to this personID
     public Cursor getAllConcurrentDosesCursor (long personID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        return databaseManager.getAllConcurrentDosesCursor(personID);
+        String orderClause = MMDataBaseSqlHelper.CONCURRENT_DOSE_TIME;
+        return databaseManager.getAllConcurrentDosesCursor(personID, orderClause);
     }
 
 
@@ -103,7 +104,7 @@ public class MMConcurrentDoseManager {
 
 
     //The routine that actually adds the instance both to in memory list and to DB
-    private long addConcurrentDose(MMConcurrentDose newConcurrentDose, boolean addToDBToo){
+    public long addConcurrentDose(MMConcurrentDose newConcurrentDose, boolean addToDBToo){
         long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
         boolean listReturnCode = mConcurrentDosesList.add(newConcurrentDose);
         if (!listReturnCode)return returnCode;
@@ -156,7 +157,7 @@ public class MMConcurrentDoseManager {
         ContentValues values = new ContentValues();
         values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_ID,             concurrentDose.getConcurrentDoseID());
         values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_FOR_PERSON_ID,  concurrentDose.getForPerson());
-        values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_START_TIME,     concurrentDose.getStartTime());
+        values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_TIME,     concurrentDose.getStartTime());
 
         return values;
     }
@@ -188,7 +189,7 @@ public class MMConcurrentDoseManager {
                 (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.CONCURRENT_DOSE_FOR_PERSON_ID)));
 
         concurrentDoses.setStartTime
-                (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.CONCURRENT_DOSE_START_TIME)));
+                (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.CONCURRENT_DOSE_TIME)));
 
         concurrentDoses.setDoses(new ArrayList<MMDose>());
 

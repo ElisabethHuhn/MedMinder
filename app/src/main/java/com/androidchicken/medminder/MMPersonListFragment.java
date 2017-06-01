@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -33,21 +32,19 @@ public class MMPersonListFragment extends Fragment {
 
 
     private CharSequence mReturnFragmentTag = null;
-    private long         mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
 
 
-    /***********************************************/
+    //**********************************************/
     /*          Static Methods                     */
-    /***********************************************/
+    //**********************************************/
     //need to pass a return destination into the fragment
-    public static MMPersonListFragment newInstance(CharSequence returnTag, long personID){
+    public static MMPersonListFragment newInstance(CharSequence returnTag){
         //create a bundle to hold the arguments
         Bundle args = new Bundle();
 
         //It will be some work to make all of the data model serializable
         //so for now, just pass the person values
         args.putCharSequence  (RETURN_TAG, returnTag);
-        args.putLong(MMPerson.sPersonIDTag, personID);
 
         MMPersonListFragment fragment = new MMPersonListFragment();
 
@@ -57,9 +54,9 @@ public class MMPersonListFragment extends Fragment {
 
 
 
-    /**********************************************************/
+    //*********************************************************/
     //          Fragment Lifecycle Functions                  //
-    /**********************************************************/
+    //*********************************************************/
 
     //Constructor
     public MMPersonListFragment() {
@@ -77,7 +74,7 @@ public class MMPersonListFragment extends Fragment {
 
         //Initialize the DB if necessary
         try {
-            MMDatabaseManager databaseManager = MMDatabaseManager.getInstance(getActivity());
+            MMDatabaseManager.getInstance(getActivity());
         }catch (Exception e) {
             Log.e(TAG,Log.getStackTraceString(e));
         }
@@ -86,15 +83,11 @@ public class MMPersonListFragment extends Fragment {
 
         if (args != null) {
             mReturnFragmentTag = args.getCharSequence(RETURN_TAG);
-            mPersonID          = args.getLong(MMPerson.sPersonIDTag);
-
         } else {
             //Do not really know what to do here. Go to the Home fragment, but its arbitrary
             mReturnFragmentTag = MMMainActivity.sHomeTag;
-            mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
-
         }
-        ((MMMainActivity)getActivity()).setPatientID(mPersonID);
+
 
     }
 
@@ -138,15 +131,7 @@ public class MMPersonListFragment extends Fragment {
     }
 
     private void wireWidgets(View v){
-        //Exit Button
-        Button exitButton = (Button) v.findViewById(R.id.exitButton);
-        exitButton.setText(R.string.exit_label);
-        exitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               onExit();
-            }
-        });
+
 
     }
 
@@ -158,10 +143,6 @@ public class MMPersonListFragment extends Fragment {
 
         //set up the labels for the medication list
         field_container = v.findViewById(R.id.personTitleRow);
-
-        label = (TextView) (field_container.findViewById(R.id.personMainID));
-        label.setText(R.string.person_id_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.personNickNameInput));
         label.setText(R.string.person_nick_name_label);
@@ -248,20 +229,25 @@ public class MMPersonListFragment extends Fragment {
     }
 
 
-    private void onExit(){
-        MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
+    public void onExit(){
+        //MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
 
         MMPersonCursorAdapter adapter = getAdapter(getView());
         adapter.closeCursor();
 
         //switch to person screen
         // But the switching happens on the container Activity
-        ((MMMainActivity) getActivity()).switchToPersonListReturn(mReturnFragmentTag, mPersonID);
+        ((MMMainActivity) getActivity()).switchToPersonListReturn(mReturnFragmentTag);
     }
 
-    public long getPersonID(){
-        return mPersonID;
-    }
+
+    //*************************************************************/
+    /*  Convenience Methods for accessing things on the Activity  */
+    //*************************************************************/
+
+    private long     getPatientID(){return ((MMMainActivity)getActivity()).getPatientID();}
+
+    private MMPerson getPerson()    {return ((MMMainActivity)getActivity()).getPerson();}
 
 
     private RecyclerView getRecyclerView(View v){
@@ -272,9 +258,9 @@ public class MMPersonListFragment extends Fragment {
         return (MMPersonCursorAdapter) getRecyclerView(v).getAdapter();
     }
 
-    /**********************************************************/
+    //*********************************************************/
     //      Utility Functions used in handling events         //
-    /**********************************************************/
+    //*********************************************************/
 
     //called from onClick(), executed when a person is selected
     private void onSelect(int position){
@@ -293,8 +279,10 @@ public class MMPersonListFragment extends Fragment {
         MMUtilities.getInstance().showStatus(getActivity(),
                 selectedPerson.getNickname() + " is selected!");
 
+        //Set the patient ID from the item selected
+        ((MMMainActivity)getActivity()).setPatientID(selectedPerson.getPersonID());
+
         //switch to the dose taken for the selected patient
-        ((MMMainActivity) getActivity()).switchToPersonListReturn(mReturnFragmentTag,
-                                                                selectedPerson.getPersonID());
+        ((MMMainActivity) getActivity()).switchToPersonListReturn(mReturnFragmentTag);
     }
 }

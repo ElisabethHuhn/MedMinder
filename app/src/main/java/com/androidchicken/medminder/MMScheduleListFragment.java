@@ -11,7 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -30,27 +29,10 @@ public class MMScheduleListFragment extends Fragment {
      *
      */
 
-    private long mPersonID;
-
 
     //*********************************************************/
     //          Fragment Lifecycle Functions                  //
     //*********************************************************/
-    public static MMScheduleListFragment newInstance(long personID){
-        //create a bundle to hold the arguments
-        Bundle args = new Bundle();
-
-        //It will be some work to make all of the data model serializable
-        //so for now, just pass the person values
-        args.putLong        (MMPerson.sPersonIDTag,personID);
-
-        MMScheduleListFragment fragment = new MMScheduleListFragment();
-
-        fragment.setArguments(args);
-
-        return fragment;
-    }
-
 
     //Constructor
     public MMScheduleListFragment() {
@@ -64,20 +46,6 @@ public class MMScheduleListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
-
-        Bundle args = getArguments();
-
-        if (args != null) {
-            //initialize the DB, providing it with a context if necessary
-            MMDatabaseManager.getInstance(getActivity());
-
-            //Get the ID of the person passed to this screen
-            mPersonID = args.getLong(MMPerson.sPersonIDTag);
-
-        } else {
-            mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
-        }
-        ((MMMainActivity)getActivity()).setPatientID(mPersonID);
     }
 
 
@@ -85,13 +53,6 @@ public class MMScheduleListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
-
-
-        if (savedInstanceState != null){
-            //the fragment is being restored so restore the person ID
-            mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
-            ((MMMainActivity)getActivity()).setPatientID(mPersonID);
-        }
 
 
         View v = inflater.inflate(R.layout.fragment_schedule_list, container, false);
@@ -126,25 +87,19 @@ public class MMScheduleListFragment extends Fragment {
     }
 
 
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState){
-        // Save custom values into the bundle
-        savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
-        // Always call the superclass so it can save the view hierarchy state
-        super.onSaveInstanceState(savedInstanceState);
-    }
+    //*************************************************************/
+    /*  Convenience Methods for accessing things on the Activity  */
+    //*************************************************************/
+
+    private long     getPatientID(){return ((MMMainActivity)getActivity()).getPatientID();}
+
+    private MMPerson getPerson()    {return ((MMMainActivity)getActivity()).getPerson();}
 
 
+    //****************************/
+    /*  Initialization Methods   */
+    //****************************/
     private void wireWidgets(View v){
-        //Exit Button
-        Button exitButton = (Button) v.findViewById(R.id.exitButton);
-        exitButton.setText(R.string.exit_label);
-        exitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               onExit();
-            }
-        });
 
         //Person ID and name
         TextView personLabel      = (TextView) v.findViewById(R.id.personIDLabel);
@@ -153,17 +108,17 @@ public class MMScheduleListFragment extends Fragment {
 
         personLabel.setText(R.string.person_label);
         MMPerson person = null;
-        String message = String.format(getString(R.string.person_does_not_exist), mPersonID);
+        String message =
+                String.format(getString(R.string.person_does_not_exist), getPatientID());
         personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorLightPink));
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST) {
-            MMPersonManager personManager = MMPersonManager.getInstance();
-            person = personManager.getPerson(mPersonID);
+        if (getPatientID() != MMUtilities.ID_DOES_NOT_EXIST) {
+            person = getPerson();
         }
         if (person != null){
             personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
             message = person.getNickname().toString();
         }
-        personIDOutput.setText(String.valueOf(mPersonID));
+        personIDOutput.setText(String.valueOf(getPatientID()));
         personNameOutput.setText(message);
     }
 
@@ -214,19 +169,21 @@ public class MMScheduleListFragment extends Fragment {
         //4) Get the set of Schedule Instances from the Database
         MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
         Cursor cursor;
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
+        if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST){
             //no particular person, get all schedules
             cursor = schedMedManager.getAllSchedMedsCursor();
         } else {
-            cursor = schedMedManager.getAllSchedMedsForPersonCursor(mPersonID);
+            cursor = schedMedManager.getAllSchedMedsForPersonCursor(getPatientID());
         }
 
         //5) Use the data to Create and set out schedule Adapter
         //     even though we're giving the Adapter the list,
         //     Adapter uses the ScheduleManager to maintain the list and
         //     the items in the list.
+
+        boolean is24Format = MMSettings.getInstance().getClock24Format((MMMainActivity)getActivity());
         MMSchedMedCursorAdapter adapter =
-                new MMSchedMedCursorAdapter(cursor, MMUtilities.is24Format(), mPersonID);
+                                    new MMSchedMedCursorAdapter(cursor, is24Format, getPatientID());
         recyclerView.setAdapter(adapter);
 
         //6) create and set the itemAnimator
@@ -263,9 +220,9 @@ public class MMScheduleListFragment extends Fragment {
 
 
 
-    private void onExit(){
+    public void onExit(){
 
-        MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
+        //MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
 
         MMSchedMedCursorAdapter adapter = getAdapter(getView());
         adapter.closeCursor();

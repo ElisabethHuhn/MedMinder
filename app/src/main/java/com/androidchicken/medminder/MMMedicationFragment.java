@@ -19,14 +19,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.util.ArrayList;
 
+import static com.androidchicken.medminder.MMMedication.sAS_NEEDED;
+import static com.androidchicken.medminder.MMMedication.sSET_SCHEDULE_FOR_MEDICATION;
 import static com.androidchicken.medminder.R.id.medicationDoseAmountInput;
 import static com.androidchicken.medminder.R.id.medicationDoseNumInput;
 
@@ -34,14 +39,12 @@ import static com.androidchicken.medminder.R.id.medicationDoseNumInput;
 /**
  * The main UI screen for maintaining (CRUD) a Medication
  */
-public class MMMedicationFragment extends Fragment {
-/*
-    public static final int sSET_SCHEDULE_FOR_MEDICATION = 0;
-    public static final int sAS_NEEDED = 1;
+public class MMMedicationFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
-    private static final String SCHEDULE_STRATEGY  = "Schedule Medication Doses";
-    private static final String AS_NEEDED_STRATEGY = "Take as needed";
-*/
+
+    public static final String SCHEDULE_STRATEGY  = "Schedule Medication Doses";
+    public static final String AS_NEEDED_STRATEGY = "Take as needed";
+
     //**********************************************/
     /*        UI Widget Views                      */
     //**********************************************/
@@ -60,8 +63,16 @@ public class MMMedicationFragment extends Fragment {
     //**********************************************/
     /*        Passed Arguments to this Fragment    */
     //**********************************************/
-    private long     mPersonID;
+
     private int      mPosition;
+
+    //**********************************************************/
+    //*****  Strategy types for Spinner Widgets     **********/
+    //**********************************************************/
+    private static String[] mStrategyTypes  = new String[]{SCHEDULE_STRATEGY, AS_NEEDED_STRATEGY };
+
+    private int      mSelectedStrategyTypePosition = sSET_SCHEDULE_FOR_MEDICATION;
+    private int      mOldPosition = sSET_SCHEDULE_FOR_MEDICATION;
 
 
 
@@ -118,15 +129,10 @@ public class MMMedicationFragment extends Fragment {
         Bundle args = getArguments();
 
         if (args != null) {
-            mPersonID = args.getLong(MMPerson.sPersonIDTag);
             mPosition = args.getInt(MMPerson.sPersonMedicationPositionTag);
-
         } else {
-            mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
             mPosition = -1;
         }
-        ((MMMainActivity)getActivity()).setPatientID(mPersonID);
-
     }
 
 
@@ -136,9 +142,7 @@ public class MMMedicationFragment extends Fragment {
 
         if (savedInstanceState != null){
             //the fragment is being restored so restore the person ID
-            mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
             mPosition = savedInstanceState.getInt(MMPerson.sPersonMedicationPositionTag);
-            ((MMMainActivity)getActivity()).setPatientID(mPersonID);
         }
 
 
@@ -148,6 +152,7 @@ public class MMMedicationFragment extends Fragment {
         //Wire up the UI widgets so they can handle events later
         wireWidgets(v);
         wireListTitleWidgets(v);
+        wireStrategySpinner(v);
         initializeRecyclerView(v);
         initializeUI(v);
 
@@ -176,7 +181,6 @@ public class MMMedicationFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
         // Save custom values into the bundle
-        savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
         savedInstanceState.putInt(MMPerson.sPersonMedicationPositionTag, mPosition);
 
         //Save the isUIChanged flag
@@ -204,6 +208,20 @@ public class MMMedicationFragment extends Fragment {
 
         setUISaved();
     }
+
+
+    //*************************************************************/
+    /*  Convenience Methods for accessing things on the Activity  */
+    //*************************************************************/
+
+    private long     getPatientID(){
+        return ((MMMainActivity)getActivity()).getPatientID();
+    }
+
+    private MMPerson getPerson(){
+        return MMPersonManager.getInstance().getPerson(getPatientID());
+    }
+
 
     //********************************************/
     //*******   Initialization Methods  **********/
@@ -388,7 +406,7 @@ public class MMMedicationFragment extends Fragment {
         upDoseNumber.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                handleUpButton();
+                onUpButton();
             }
         });
 
@@ -396,9 +414,33 @@ public class MMMedicationFragment extends Fragment {
         downDoseNumber.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                handleDownButton();
+                onDownButton();
             }
         });
+    }
+
+    private void wireStrategySpinner(View v){
+        //set the default
+        mSelectedStrategyTypePosition = sSET_SCHEDULE_FOR_MEDICATION;
+        mOldPosition = mSelectedStrategyTypePosition;
+
+        //Then initialize the spinner itself
+        Spinner spinner = (Spinner) v.findViewById(R.id.strategy_type_spinner);
+
+        // Create an ArrayAdapter using the Activities context AND
+        // the string array and a default spinner layout
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
+                android.R.layout.simple_spinner_item,
+                mStrategyTypes);
+
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+
+        //attach the listener to the spinner
+        spinner.setOnItemSelectedListener(this);
+
     }
 
     private void wireListTitleWidgets(View v){
@@ -445,16 +487,16 @@ public class MMMedicationFragment extends Fragment {
 
         //4) Get the Cursor of ScheduleMedication DB rows from the DB.
         // The medication knows how to do this
-        MMMedication medication = getMedicationInstance(mPersonID, mPosition);
+        MMMedication medication = getMedicationInstance(getPatientID(), mPosition);
         if (medication == null)return;
 
         Cursor scheduleCursor = medication.getSchedulesCursor();
 
         //5) Use the data to Create and set out SchedMed Adapter
-        MMSchedCursorAdapter adapter
-                = new MMSchedCursorAdapter(scheduleCursor,
-                                           MMUtilities.is24Format(),
-                                           medication.getMedicationID());
+        boolean is24format = MMSettings.getInstance().getClock24Format((MMMainActivity)getActivity());
+        MMSchedCursorAdapter adapter= new MMSchedCursorAdapter(scheduleCursor,
+                                                                   is24format,
+                                                                   medication.getMedicationID());
         recyclerView.setAdapter(adapter);
 
         //initialize the UI for number per day equal to the number of existing schedules
@@ -493,26 +535,28 @@ public class MMMedicationFragment extends Fragment {
     }
 
     private void initializeUI(View v){
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
-            throw new RuntimeException(getString(R.string.no_person_med));
+        if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST){
+            MMUtilities.getInstance().errorHandler(getActivity(), R.string.no_person_med);
+            return;
+            //throw new RuntimeException(getString(R.string.no_person_med));
         }
-        MMPersonManager personManager = MMPersonManager.getInstance();
-        MMPerson person = personManager.getPerson(mPersonID);
 
         CharSequence nickname;
-        if (person == null) {
+        if (getPerson() == null) {
             nickname = getString(R.string.no_person_med);
         } else {
-            nickname = person.getNickname().toString().trim();
+            nickname = getPerson().getNickname().toString().trim();
         }
         TextView medicationForPerson = (TextView) v.findViewById(R.id.medicationForPersonNickName);
         medicationForPerson.       setText(nickname);
         //mMedNickNameLastInput = nickname;
 
         EditText medicationForInput = (EditText) v.findViewById(R.id.medicationForPersonIDInput);
-        medicationForInput.        setText(Long.valueOf(mPersonID).toString().trim());
+        medicationForInput.        setText(Long.valueOf(getPatientID()).toString().trim());
 
-        MMMedication medication = getMedicationInstance(mPersonID, mPosition);
+        MMMedication medication = getMedicationInstance(getPatientID(), mPosition);
+
+        CharSequence selectedStrategyType;
 
         EditText medIDInput          = (EditText) v.findViewById(R.id.medicationIdInput);
         EditText medBrandNameInput   = (EditText) v.findViewById(R.id.medicationBrandNameInput);
@@ -528,25 +572,32 @@ public class MMMedicationFragment extends Fragment {
 
             CharSequence brand = MMMedication.getDefaultBrandName().toString().trim();
             medBrandNameInput.setText(brand);
-
+            //mMedBrandNameLastInput = brand;
 
             CharSequence generic = MMMedication.getDefaultGenericName().toString().trim();
              medGenericNameInput.setText(generic);
+           // mMedGenericNameLastInput = generic;
 
             CharSequence medNick = MMMedication.getDefaultMedicationNickname().toString().trim();
               medNickNameInput.setText(medNick);
+            //mMedNickNameLastInput = medNick;
+
+            CharSequence strategy = String.valueOf(MMMedication.getDefaultDoseStrategy());
+            //mMedicationDoseStrategyInput.setText(strategy);
+            // mMedDoseStrategyLastInput = strategy;
+            selectedStrategyType = strategy.toString();
 
            CharSequence amt = String.valueOf(MMMedication.getDefaultDoseAmount());
            medDoseAmountInput.setText(amt);
-
+           // mMedDoseAmountLastInput = amt;
 
             CharSequence units = MMMedication.getDefaultDoseUnits().toString().trim();
             medDoseUnitsInput.setText(units);
-
+            //mMedDoseUnitsLastInput = units;
 
             CharSequence numPerDay = String.valueOf(MMMedication.getDefaultDoseNumPerDay());
             medDoseNumInput.setText(numPerDay);
-
+            //mMedDoseNumLastInput = numPerDay;
 
         } else {
             medIDInput         .setText(String.valueOf( medication.getMedicationID()));
@@ -554,7 +605,7 @@ public class MMMedicationFragment extends Fragment {
 
             CharSequence brand = medication.getBrandName().toString().trim();
             medBrandNameInput  .setText(brand);
-
+            //mMedBrandNameLastInput = brand;
 
             CharSequence generic = medication.getGenericName().toString().trim();
             medGenericNameInput.setText(generic);
@@ -562,19 +613,37 @@ public class MMMedicationFragment extends Fragment {
 
             CharSequence medNick = medication.getMedicationNickname().toString().trim();
             medNickNameInput   .setText(medNick);
+           // mMedNickNameLastInput = medNick;
+
+            CharSequence strategy = String.valueOf(medication.getDoseStrategy());
+            //mMedicationDoseStrategyInput.setText(strategy);
+            //mMedDoseStrategyLastInput = strategy;
+            selectedStrategyType = strategy.toString();
 
             CharSequence amt = String.valueOf(medication.getDoseAmount());
             medDoseAmountInput.setText(amt);
+            //mMedDoseAmountLastInput = amt;
 
             CharSequence units = medication.getDoseUnits().toString().trim();
             medDoseUnitsInput  .setText(units);
-
+            //mMedDoseUnitsLastInput = units;
 
             CharSequence numPerDay = String.valueOf(medication.getDoseNumPerDay());
             medDoseNumInput.setText(numPerDay);
-
+           // mMedDoseNumLastInput = numPerDay;
         }
 
+
+
+        if (selectedStrategyType.equals(SCHEDULE_STRATEGY)) {
+            mSelectedStrategyTypePosition = sSET_SCHEDULE_FOR_MEDICATION;
+        } else if (selectedStrategyType == AS_NEEDED_STRATEGY) {
+            mSelectedStrategyTypePosition = sAS_NEEDED;
+        }
+        Spinner spinner = (Spinner) v.findViewById(R.id.strategy_type_spinner);
+        spinner.setSelection(mSelectedStrategyTypePosition);
+
+        mOldPosition = mSelectedStrategyTypePosition;
 
 
         //set the switch to whether the Person exists
@@ -674,6 +743,13 @@ public class MMMedicationFragment extends Fragment {
         }
     }
     private boolean isUpDownEnabled(){
+        int strategy = mSelectedStrategyTypePosition;
+
+        if (strategy != sSET_SCHEDULE_FOR_MEDICATION) {
+            //This button doesn't do anything if the strategy isn't set
+            //Toast.makeText(getActivity(),R.string.wrong_strategy, Toast.LENGTH_SHORT).show();
+            return false;
+        }
         return !isUIChanged;
     }
 
@@ -704,10 +780,6 @@ public class MMMedicationFragment extends Fragment {
         return (MMSchedCursorAdapter)  getRecyclerView(v).getAdapter();
     }
 
-    public long getPersonID(){
-        return mPersonID;
-    }
-
 
     //********************************************/
     //*********     Schedule Methods    **********/
@@ -728,42 +800,45 @@ public class MMMedicationFragment extends Fragment {
         final TimePickerDialog timePickerDialog =
                 new TimePickerDialog( getActivity(), new TimePickerDialog.OnTimeSetListener() {
 
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        userPressedOKinTimePicker = true;
-                        ArrayList<MMScheduleMedication> schedules =
-                                                            getSchedules(mPersonID, mPosition);
-                        if (schedules == null)return;
+                @Override
+                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                    //this routine executes when OK is pressed
+                    userPressedOKinTimePicker = true;
+                    ArrayList<MMScheduleMedication> schedules = getSchedules(getPatientID(), mPosition);
+                    if (schedules == null)return;
 
-                        int last = schedules.size();
-                        int position = 0;
-                        MMScheduleMedication scheduleMedication;
-                        while (position < last){
-                            scheduleMedication = schedules.get(position);
-                            if (schedMedID == scheduleMedication.getSchedMedID()){
-                                //timeOfDay is number of MINUTES since midnight
-                                int timeOfDay = (hourOfDay * 60) + minute;
-                                //update the time to take the med, and
-                                scheduleMedication.setTimeDue(timeOfDay);
-                                //update the DB row with this schedule
-                                MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
-                                schedMedManager.addScheduleMedication(scheduleMedication);
+                    //look for the particular schedule being updated
+                    int last = schedules.size();
+                    int position = 0;
+                    MMScheduleMedication scheduleMedication;
+                    while (position < last){
+                        scheduleMedication = schedules.get(position);
+                        if (schedMedID == scheduleMedication.getSchedMedID()){
+                            //timeOfDay is number of MINUTES since midnight
+                            //get the new time from the time picker
+                            int timeOfDay = (hourOfDay * 60) + minute;
+                            //update the schedule with the new time to take the med, and
+                            scheduleMedication.setTimeDue(timeOfDay);
+                            //update the DB row with this schedule
+                            MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+                            schedMedManager.addScheduleMedication(scheduleMedication);
 
-                                //issue an alarm for this new time
-                                MMUtilities utilities = MMUtilities.getInstance();
-                                utilities.createScheduleNotification(getActivity(), timeOfDay);
+                            //issue an alarm for this new time
+                            MMUtilities utilities = MMUtilities.getInstance();
+                            utilities.createScheduleNotification(getActivity(), timeOfDay);
 
-                                //Now update the UI list
-                                reinitializeCursor(scheduleMedication.getOfMedicationID());
-                                return;
-                            }
-                            position++;
+                            //Now update the UI list
+                            reinitializeCursor(scheduleMedication.getOfMedicationID());
+                            return;
                         }
+                        position++;
                     }
-                },
-                hour,
-                minute,
-                is24Format);
+            }
+        },
+        hour,
+        minute,
+        is24Format);
+
         timePickerDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
@@ -785,7 +860,7 @@ public class MMMedicationFragment extends Fragment {
     //      Utility Functions using passed arguments          //
     //*********************************************************/
     public MMMedication getMedicationInstance(){
-        return getMedicationInstance(mPersonID, mPosition);
+        return getMedicationInstance(getPatientID(), mPosition);
     }
 
     private MMMedication getMedicationInstance(long personID, int position){
@@ -812,13 +887,54 @@ public class MMMedicationFragment extends Fragment {
         return medication;
     }
 
-
     private ArrayList<MMScheduleMedication> getSchedules(long personID, int position){
         MMMedication medication = getMedicationInstance(personID, position);
         if (medication == null)return null;
 
         return medication.getSchedules();
     }
+
+
+    //********************************************/
+    //*********     Spinner Callbacks   **********/
+    //********************************************/
+    public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
+        mOldPosition = mSelectedStrategyTypePosition;
+        mSelectedStrategyTypePosition = position;
+       //mSelectedStrategyType = (String) parent.getItemAtPosition(position);
+
+        if (mOldPosition != mSelectedStrategyTypePosition) {
+            View numView = getView();
+            if (numView == null)return;
+
+            TextView medDoseNumInput     = (TextView) numView.findViewById(medicationDoseNumInput);
+            int lastShed     = Integer.valueOf(medDoseNumInput.getText().toString());
+            int positionShed = 0;
+            if (mSelectedStrategyTypePosition == sSET_SCHEDULE_FOR_MEDICATION){
+                //just switched from as needed to set schedule
+                //Create schedules for the # doses per day
+                while (positionShed < lastShed){
+                    onUpButton();
+                    positionShed++;
+                }
+            } else {
+                //Switched from scheduled to as needed
+                //Get rid of hte schedules and alarms
+                while (positionShed < lastShed){
+                    onDownButton();
+                    positionShed++;
+                }
+
+            }
+            setUIChanged();
+        }
+
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+        //for now, do nothing
+    }
+
 
 
     //********************************************/
@@ -836,12 +952,12 @@ public class MMMedicationFragment extends Fragment {
 
         //Person medication is the medication in the Person's medication list
         //update it with values from this screen
-        MMMedication medication = getMedicationInstance(mPersonID, mPosition);
+        MMMedication medication = getMedicationInstance(getPatientID(), mPosition);
 
         if (medication == null) {
             //we are creating this medication for the first time
             medication = new MMMedication(MMUtilities.ID_DOES_NOT_EXIST);
-            medication.setForPersonID(mPersonID);
+            medication.setForPersonID(getPatientID());
         }
 
         //get handles for the UI widgets
@@ -853,10 +969,15 @@ public class MMMedicationFragment extends Fragment {
         EditText medDoseAmountInput  = (EditText) v.findViewById(medicationDoseAmountInput);
 
         //Set the medication as belonging to the person
-        medication.setForPersonID       (mPersonID);
+        medication.setForPersonID       (getPatientID());
         medication.setMedicationNickname(medNickNameInput.   getText().toString().trim());
         medication.setBrandName         (medBrandNameInput.  getText().toString().trim());
         medication.setGenericName       (medGenericNameInput.getText().toString().trim());
+
+        // TODO: 3/14/2017 only one of these should be retained
+        medication.setDoseStrategy (
+                //Integer.valueOf(mMedicationDoseStrategyInput.getText().toString().trim()));
+                mSelectedStrategyTypePosition);
 
         medication.setDoseUnits         (medDoseUnitsInput.  getText().toString().trim());
         medication.setDoseAmount   (
@@ -876,19 +997,16 @@ public class MMMedicationFragment extends Fragment {
                     getColor(getActivity(), R.color.colorScreenDeletedBackground));
         }
 
-
-
         //Add the medication to the person if necessary, but definitely add to the DB
         //add the scheduleMedications to the DB as well
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-        MMPersonManager personManager = MMPersonManager.getInstance();
-        MMPerson person = personManager.getPerson(mPersonID);
+
         //Add the medication to the person, and to the DB
         boolean addToDBToo = true;
-        if (person == null) {
+        if (getPerson() == null) {
             MMUtilities.getInstance().errorHandler(getActivity(), R.string.exception_medication_not_added);
         } else {
-            if (!medicationManager.addToPerson(person, medication, addToDBToo)) {
+            if (!medicationManager.addToPerson(getPerson(), medication, addToDBToo)) {
                 MMUtilities.getInstance().errorHandler(getActivity(), R.string.exception_medication_not_added);
             } else {
 
@@ -905,7 +1023,7 @@ public class MMMedicationFragment extends Fragment {
 
 
                 //update position with this medications position
-                ArrayList<MMMedication> medications = person.getMedications();
+                ArrayList<MMMedication> medications = getPerson().getMedications();
                 MMMedication checkMed;
                 int last = medications.size();
                 int position = 0;
@@ -923,15 +1041,12 @@ public class MMMedicationFragment extends Fragment {
 
                 //reinitialize the schedule list
                 reinitializeCursor(medicationID);
-
-
             }
         }
         setUISaved();
-
     }
 
-    private void onExit(){
+    public void onExit(){
         MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
 
         if (isUIChanged) {
@@ -941,7 +1056,7 @@ public class MMMedicationFragment extends Fragment {
         }
     }
 
-    public void handleUpButton(){
+    public void onUpButton(){
         if (!isUpDownEnabled())return;
         View v = getView();
         if (v == null)return;
@@ -951,13 +1066,16 @@ public class MMMedicationFragment extends Fragment {
         int size = Integer.valueOf(medDoseNumInput.getText().toString());
         size++;
 
-        //Create a new schedule with time = 6AM
-        MMMedication medication = getMedicationInstance(mPersonID, mPosition);
+        //Create a new schedule with default time taken from the preferences
+        MMMedication medication = getMedicationInstance(getPatientID(), mPosition);
         if (medication != null) {
             medDoseNumInput.setText(String.valueOf(size));
             long medicationID = medication.getMedicationID();
+
+            long timeDue = MMSettings.getInstance().getDefaultTimeDue((MMMainActivity)getActivity());
+
             MMScheduleMedication schedule =
-                    new MMScheduleMedication(medicationID,mPersonID,(6*60));
+                    new MMScheduleMedication(medicationID,getPatientID(), (int)timeDue);
             medication.addSchedule(schedule);
 
             //shouldn't have to reinitialize cursor because onSave() will do it for us
@@ -973,15 +1091,15 @@ public class MMMedicationFragment extends Fragment {
         }
     }
 
-    public void handleDownButton(){
+    public void onDownButton(){
         if (!isUpDownEnabled())return;
         View v = getView();
         if (v == null)return;
 
-
         //Decrement the value in the UI
         TextView medDoseNumInput = (TextView) v.findViewById(medicationDoseNumInput);
 
+        // TODO: 5/15/2017 Which schedule should be deleted?
         //get rid of the last schedule
         int last = Integer.valueOf(medDoseNumInput.getText().toString());
         int position = 0;
@@ -991,7 +1109,7 @@ public class MMMedicationFragment extends Fragment {
         MMScheduleMedication latestTimeSchedule = null;
         MMScheduleMedication schedule;
 
-        MMMedication medication = getMedicationInstance(mPersonID, mPosition);
+        MMMedication medication = getMedicationInstance(getPatientID(), mPosition);
         if (medication == null)return;
         ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
 
@@ -1030,6 +1148,12 @@ public class MMMedicationFragment extends Fragment {
     //called from onClick(), executed when a Schedule is selected
     private void onSelect(int position){
 
+        //  if the strategy is asNeeded, do not respond to selection
+        MMMedication medication = getMedicationInstance(getPatientID(), mPosition);
+        if (mSelectedStrategyTypePosition == sAS_NEEDED){
+            return;
+        }
+
         //Need the schedule being updated, so ask the Adapter
         MMSchedCursorAdapter adapter = getAdapter(getView());
         adapter.notifyItemChanged(position);
@@ -1043,7 +1167,8 @@ public class MMMedicationFragment extends Fragment {
 
         int hours = schedule.getTimeDue()/60;
         int minutes = schedule.getTimeDue() - (hours * 60);
-        showPicker(schedule.getSchedMedID(), hours, minutes, MMUtilities.is24Format() );
+        boolean is24format = MMSettings.getInstance().getClock24Format((MMMainActivity)getActivity());
+        showPicker(schedule.getSchedMedID(), hours, minutes, is24format );
 
         //The schedule itself and its alarms are actually updated in the TimePicker callbacks
     }
@@ -1082,8 +1207,10 @@ public class MMMedicationFragment extends Fragment {
         MMSchedCursorAdapter adapter = getAdapter(getView());
         if (adapter != null) adapter.closeCursor();
 
-        ((MMMainActivity) getActivity()).switchToPersonScreen(mPersonID);   //switchToPopBackstack();
+        ((MMMainActivity) getActivity()).switchToPersonScreen();   //switchToPopBackstack();
     }
+
+
 
 
     //*********************************/

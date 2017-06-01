@@ -72,27 +72,6 @@
             android:paddingTop="10dp"
 
             >
-
-            <!-- Exit -->
-            <Button
-                style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/exitButton"
-                android:text="@string/exit_label"
-
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center|center_vertical"
-                android:layout_gravity="start"
-                android:layout_weight="10"
-
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="2dp"
-
-                android:background="@color/colorButton1Background"
-                android:textColor="@color/colorTextBlack"
-                />
-
             <!-- Export  -->
             <Button
                 style="?android:attr/buttonBarButtonStyle"
@@ -107,26 +86,6 @@
 
                 android:layout_marginStart="2dp"
                 android:layout_marginEnd="2dp"
-
-                android:background="@color/colorButton1Background"
-                android:textColor="@color/colorTextBlack"
-                />
-
-
-            <!-- Select Patient -->
-            <Button
-                style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/selectPatientButton"
-                android:text="@string/select_patient_label"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center|center_vertical"
-                android:layout_gravity="end"
-                android:layout_weight="10"
-
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="8dp"
 
                 android:background="@color/colorButton1Background"
                 android:textColor="@color/colorTextBlack"

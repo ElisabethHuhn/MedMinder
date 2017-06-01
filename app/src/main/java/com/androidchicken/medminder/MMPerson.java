@@ -9,21 +9,9 @@ import java.util.ArrayList;
  */
 
 public class MMPerson {
-    /*************************************/
+    //************************************/
     /*    Static (class) Constants       */
-    /*************************************/
-    public static final int DURATION_QUARTER_HOUR = 1;
-    public static final int DURATION_THIRD_HOUR   = 2;
-    public static final int DURATION_HALF_HOUR    = 3;
-    public static final int DURATION_HOUR         = 4;
-    public static final int DURATION_DAILY        = 5;
-
-
-    public static final int ORDER_MEDICATION_NICKNAME   = 1;
-    public static final int ORDER_MEDICATION_GENERIC    = 2;
-    public static final int ORDER_MEDICATION_BRAND      = 3;
-    public static final int ORDER_MEDICATION_BY_SETTING = 4;
-
+    //************************************/
 
     //Tags for attributes
     public static final String sPersonTag           = "PERSON_OBJECT";
@@ -38,14 +26,14 @@ public class MMPerson {
     public static final String sPersonMedicationPositionTag = "PERSON_MED_POSITION";
 
 
-    /*************************************/
+    //************************************/
     /*    Static (class) Variables       */
-    /*************************************/
+    //************************************/
 
 
-    /*************************************/
+    //************************************/
     /*    Member (instance) Variables    */
-    /*************************************/
+    //************************************/
     private long         mPersonID;
     private CharSequence mNickname;
     private CharSequence mEmailAddress;
@@ -54,14 +42,14 @@ public class MMPerson {
     private ArrayList<MMMedication> mMedications;
 
 
-    /*************************************/
+    //************************************/
     /*         Static Methods            */
-    /*************************************/
+    //************************************/
 
 
-    /*************************************/
+    //************************************/
     /*         CONSTRUCTOR               */
-    /*************************************/
+    //************************************/
 
     public MMPerson( ) {
         initializeDefaultVariables();
@@ -73,11 +61,11 @@ public class MMPerson {
     }
 
 
-
+    // TODO: 5/16/2017 remember to correct the defaults of person
     private void initializeDefaultVariables(){
         mPersonID     = MMUtilities.ID_DOES_NOT_EXIST;
         mNickname     = "Nickname";
-        mEmailAddress = "Email@gmail.com";
+        mEmailAddress = "elisabethhuhn@gmail.com";
         mTextAddress  = "6783587040";
         mCurrentlyExists = true;
         mMedications  = null;
@@ -85,14 +73,27 @@ public class MMPerson {
 
 
 
-    /*************************************/
+    //************************************/
     /*    Member setter/getter Methods   */
-    /*************************************/
+    //************************************/
     public long getPersonID()            {  return mPersonID; }
     public void setPersonID(long personID){ mPersonID = personID;}
 
     public CharSequence getNickname()                      { return mNickname;  }
     public void         setNickname(CharSequence nickname) { mNickname = nickname; }
+
+    public String getNameString(){
+        StringBuilder message = new StringBuilder();
+
+        message.append("PERSON:  (ID ");
+        message.append(String.valueOf(mPersonID));
+        message.append(")  ");
+        message.append(mNickname);
+
+        return message.toString();
+    }
+
+
 
     public CharSequence getEmailAddress()                          { return mEmailAddress;  }
     public void         setEmailAddress(CharSequence emailAddress) { mEmailAddress = emailAddress; }
@@ -117,20 +118,20 @@ public class MMPerson {
         return true;
     }
 
-    /*************************************/
+    //************************************/
     /*          Member Methods           */
-    /*************************************/
+    //************************************/
 
 
     public String cdfHeaders(){
-        String msg =
+        return
             "PersonID, "      +
             "Nickname, "      +
             "EmailAddress, "  +
             "TextAddress, "   +
             "Current  "      +
             System.getProperty("line.separator");
-        return msg;
+
     }
 
     //Convert point to comma delimited file for exchange
@@ -177,20 +178,5 @@ public class MMPerson {
         }
         return message.toString();
     }
-
-
-
-    public String getNameString(){
-        StringBuilder message = new StringBuilder();
-
-        message.append("PERSON:  (ID ");
-        message.append(String.valueOf(mPersonID));
-        message.append(")  ");
-        message.append(mNickname);
-
-        return message.toString();
-    }
-
-
 
 }

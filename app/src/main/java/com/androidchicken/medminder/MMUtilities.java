@@ -30,7 +30,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import static android.content.Context.ALARM_SERVICE;
 import static com.androidchicken.medminder.MMAlarmReceiver.scheduleNotificationID;
@@ -93,21 +95,12 @@ public class MMUtilities {
     //************************************/
 
 
+
     //************************************/
     /*          Member Methods           */
     //************************************/
 
 
-/*
-    //generate a guarenteed unique ID
-    public static int getUniqueID(){
-        long temp = System.currentTimeMillis();
-        int  tempID = (int) temp;
-        long temp2 = System.currentTimeMillis() & 0xfffffff;
-        int  tempID2 = (int) temp2;
-        return (int) (System.currentTimeMillis() & 0xfffffff);
-    }
-*/
 
     //convert pixels to dp
     public  int convertPixelsToDp(Context context, int sizeInDp) {
@@ -187,10 +180,6 @@ public class MMUtilities {
 
     public  String getDateTimeString(long milliSeconds){
         Date date = new Date(milliSeconds);
-        /*
-        SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a", Locale.US);
-        return dateFormat.format(date);
-        */
         return DateFormat.getDateTimeInstance().format(date);
     }
 
@@ -198,6 +187,8 @@ public class MMUtilities {
         Date date = new Date(milliseconds);
         //SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a", Locale.US);
         SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM yy HH:mm", Locale.US);
+        TimeZone gmtTz   = TimeZone.getTimeZone("GMT");
+        dateFormat.setTimeZone(gmtTz);
 
         return dateFormat.format(date);
     }
@@ -211,33 +202,236 @@ public class MMUtilities {
         return DateFormat.getDateInstance().format(date);
     }
 
+    public long getTimezoneOffset() {
+        TimeZone tz = TimeZone.getDefault();
+        Calendar cal = GregorianCalendar.getInstance(tz);
+        long offsetInMillis = (long) tz.getOffset(cal.getTimeInMillis());
 
-    public  String getTimeString(){
-        return getTimeString(getTimeFormatString(false), new Date());
+        return offsetInMillis;
     }
 
-    public  String getTimeString(long milliSeconds){
+    public long getDSTOffset() {
+        //Creaate a calendar with this time now
+        Calendar nowCal = Calendar.getInstance();
+
+        //This offset indicates the number of milliseconds due to DST in effect
+        // as of the date of the Calendar
+        long dstOffset = nowCal.get(Calendar.DST_OFFSET);
+
+        return dstOffset;
+    }
+
+
+
+
+    // TODO: 5/28/2017 Get rid of these debug methods
+
+
+    public boolean testDate(MMMainActivity activity){
         boolean is24Format = false;
-        return getTimeString(getTimeFormatString(is24Format), new Date(milliSeconds));
+        boolean returnCode = true;
+
+        //get the value of the offset between GMT and the local timezone
+        long tzOffset = getTimezoneOffset();
+
+        //Creaate a calendar with this time now
+        Calendar nowCal = Calendar.getInstance();
+
+        //This offset indicates the number of milliseconds due to DST in effect
+        // as of the date of the Calendar
+        long dstOffset = nowCal.get(Calendar.DST_OFFSET);
+
+
+        // convert milliseconds to Strings [separating Time and Date during the conversion]
+        // Re-convert Strings back to milliseconds
+        // then add them back together
+        long nowTime = nowCal.getTimeInMillis();
+        String nowTimeString = getTimeString(activity, nowTime);
+        String nowDateString = getDateString(nowTime);
+        //ASSERT nowTimeSTring should be since midnight in local time zone [pure time at epoch 1970]
+        //ASSERT nowDateString should be today's date, local time zone
+        //RESULT for Time: Success
+        //RESULT for Date: Success
+
+
+
+        //Convert back to milliseconds  [pure time at epoch 1970]
+        Date nowTimeRevertedDate     = convertStringToTimeDate(activity, nowTimeString, true);
+        long nowTimeReverted         = nowTimeRevertedDate.getTime();
+        String nowTimeRevMSSTring    = getTimeString(activity, nowTimeReverted);
+
+        //Date = milliseconds Today at midnight
+        Date nowDateRevertedDate     = convertStringToTimeDate(activity, nowDateString, false);
+        long nowDateReverted         = nowDateRevertedDate.getTime();
+        String nowDateRevDateString  = getTimeString(activity, nowDateReverted);
+        String nowRevDateString      = getDateString(nowDateReverted);
+        //Result for Time - Correct EST!!!! for Jan 1, 1970 [Because that is what is in effect in January!!!]
+        //Result for Date - Correct Midnight EDT for today's date
+
+        //Add to get milliseconds, then convert milliseconds to Strings
+        long   nowTimeRevertedSum    = nowTimeReverted + nowDateReverted;
+        String incorrectTimeString   = getTimeString(activity, nowTimeReverted);
+        //RESULT: - Wrong by GMT offset - Can not do math with local timezone
+        //          But also can not add EST Date to EDT Time and expect to get something meaningful
+
+        //Need offset for local timezone from GMT: GMT = local - offsetTZ
+        //Need offset for DST as the time is for standard time in Jan 1 1970:
+        // IF current time has DST, Time = Time + offset
+        long   nowTimeRevertedWOffset = (nowTimeReverted  + tzOffset) +
+                                        (nowDateReverted - dstOffset);
+        String nowTimeRevOffsetString = getTimeString(activity, nowTimeRevertedWOffset);
+        //RESULT: CORRECT!!! the offsets are properly applied
+
+        String nowDateRevertedString = getDateString(nowTimeReverted);
+        //Result for Date - Correct
+
+
+        //Experiment more with separating time and date then adding them back together
+        //Create a new Calendar corresponding to last night's midnight
+        Calendar calMidnight             = getCalAtMidnight(nowTime);
+
+        long msAtMidnightLocal           = calMidnight.getTimeInMillis();
+        String midnightLocalTimeString   = getTimeString(activity, msAtMidnightLocal);
+        String midnightLocalDateString   = getDateString(msAtMidnightLocal);
+
+        Date midnightLocalDate           = convertStringToTimeDate(activity, midnightLocalDateString, false);
+        long msAtMidnightLocalRev        = midnightLocalDate.getTime();
+        String msAtMidnightGMTRevString  = getTimeString(activity, msAtMidnightLocalRev);
+
+
+        long msAtMidnightGMT             = msAtMidnightLocal - tzOffset + dstOffset;
+        String midnightGMTTimeString     = getTimeString(activity, msAtMidnightGMT);
+
+        String midnightDateString        = getDateString(msAtMidnightGMT);
+        //ASSERT Should see local and GMT
+        //RESULT Time Local: Correct
+        //Result Time GMT:   Correct, but it requires both offsets
+        //Result Date:       Correct
+
+
+
+
+        //convert String to milliseconds since midnight
+        long msSinceMidnightGMT = convertStringToMilliSinceMidnightGMT(activity, nowTimeString);
+        long msSinceMidnightLocal = nowTime - msAtMidnightGMT ;
+        //ASSERT: msSinceMidnightGMT   == msSinceMidnightLocal - tzOffset
+        //ASSERT: msSinceMidnightLocal == msSinceMidnightGMT   + tzOffset
+        //RESULT: msSinceMidnightGMT <  >,     msSinceMidnightLocal   <  >
+
+        String msSinceMidnightGMTString    = getTimeString(activity, msSinceMidnightGMT);
+        String msSinceMidnightLocalString  = getTimeString(activity, msSinceMidnightLocal);
+        //RESULT:  msSinceMidnightGMTString <  >,     msSinceMidnightLocalString <  >
+
+
+        //convert the two Date strings into milliseconds
+        Date dateNow      = convertStringToTimeDate(activity, nowDateString, false);
+        Date dateMidnight = convertStringToTimeDate(activity, midnightDateString, false);
+        //RESULT: Success - midnight of today's date EDT
+        long msDateNowEDT      = dateNow.getTime();
+        long msDateMidnightEDT = dateMidnight.getTime();
+        //RESULT; both correct for Midnight EDT
+
+
+        //Add milliseconds to get a value for now
+        long msAgainNowGMT = (msDateNowEDT - tzOffset) + msSinceMidnightGMT;
+        Date againDate = new Date(msAgainNowGMT);
+
+        String timeAgainString = getTimeString(activity, msAgainNowGMT);
+        String dateAgainString = getDateString(msAgainNowGMT);
+        //RESULT Time again String:
+        //RESULT Date again String: Correct
+
+
+        long checkMsAgainNowGMT  = (msDateNowEDT - tzOffset) + (msSinceMidnightLocal - tzOffset);
+        Date checkAgainDate = new Date(checkMsAgainNowGMT);
+        String checkTimeAgainString = getTimeString(activity, checkMsAgainNowGMT);
+        String checkDateAgainString = getDateString(checkMsAgainNowGMT);
+        //RESULT Time again String:
+        //RESULT Date again String: Correct
+
+        String timesetString = getTimeString(activity, nowTime);
+        timesetString        = getTimeString(activity, msAtMidnightLocal);
+        timesetString        = getTimeString(activity, msSinceMidnightGMT);
+        timesetString        = getTimeString(activity, msSinceMidnightLocal);
+        timesetString        = getTimeString(activity, msAgainNowGMT);
+        timesetString        = getTimeString(activity, checkMsAgainNowGMT);
+
+
+
+
+        return returnCode;
     }
 
-    public  String getTimeString(boolean is24format){
-         return getTimeString(getTimeFormatString(is24format), new Date());
+
+
+
+
+
+
+
+    public Calendar getCalAtMidnight(long millisec){
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(millisec);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE,      0);
+        cal.set(Calendar.SECOND,      0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal;
     }
 
+
+
+
+
+    //This method is used to get current time as a string
+    public  String getTimeString(MMMainActivity activity){
+        boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
+        String timeFormat = getTimeFormatString(is24Format);
+        Date date = new Date();
+        return getTimeString(timeFormat, date);
+    }
+
+    //This method is used to get the string corresponding to a value of milliseconds since 1970
+    public  String getTimeString(MMMainActivity activity, long milliSeconds){
+        boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
+        return getTimeString(milliSeconds, is24Format);
+    }
 
     public  String getTimeString(long milliSeconds, boolean is24format){
-        return getTimeString(getTimeFormatString(is24format), new Date(milliSeconds));
+        String timeFormat = getTimeFormatString(is24format);
+        Date dateFromMilli = new Date(milliSeconds);
+/*
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(milliSeconds);
+        Date dateFromCalendar = c.getTime();
+
+        long offsetMsTz = getTimezoneOffset();
+        long offsetMs   = offsetMsTz + milliSeconds;
+        Date dateWithOffset = new Date(offsetMs);
+
+        c.set(Calendar.HOUR_OF_DAY, hours);
+        c.set(Calendar.MINUTE, minutes);
+        c.set(Calendar.SECOND, 0);
+        dateFromCalendar = c.getTime();
+*/
+
+        return getTimeString(timeFormat, dateFromMilli);
     }
 
-    public  String getTimeString(String timeFormat, Date date){
-        SimpleDateFormat dateFormat = new SimpleDateFormat(timeFormat, Locale.US);
+    private String getTimeString(String timeFormat, Date date){
+        SimpleDateFormat dateFormat = new SimpleDateFormat(timeFormat, Locale.getDefault());
+
         return dateFormat.format(date);
     }
 
+
+
+
+
+
     public SimpleDateFormat getTimeFormat(boolean is24format){
         String timeFormat = getTimeFormatString(is24format);
-        return new SimpleDateFormat(timeFormat, Locale.US);
+        return new SimpleDateFormat(timeFormat, Locale.getDefault());
     }
 
     public  String getTimeFormatString(boolean is24format){
@@ -248,38 +442,87 @@ public class MMUtilities {
         return timeFormat.toString();
     }
 
-
-    public String getTimeStamp(){
-        return new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+    public SimpleDateFormat getDateFormat(){
+        return new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
     }
 
-    public Date convertStringToTime(String timeString, boolean is24Format){
+
+
+
+
+    public Date convertStringToTimeDate(MMMainActivity activity,
+                                        String timeSinceMidnightString,
+                                        boolean isTimeFlag){
+        //Get the clock format
+        boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
+
         Date date = null;
-        SimpleDateFormat format = getTimeFormat(is24Format);
+
+        SimpleDateFormat timeFormat;
+
+        if (isTimeFlag){
+            timeFormat = getTimeFormat(is24Format);
+        } else {
+            timeFormat = getDateFormat();
+        }
+        //TimeZone gmtTz   = TimeZone.getTimeZone("GMT");
+        //timeFormat.setTimeZone(gmtTz);
+
         try {
-            date = format.parse(timeString);
+            date = timeFormat.parse(timeSinceMidnightString);
         } catch (Exception e) {
+            MMUtilities.getInstance().errorHandler(activity, R.string.error_parsing_date_time);
             e.printStackTrace();
         }
+
         return date;
     }
 
-    public String convertTimeToString(Date date, boolean is24format){
-        SimpleDateFormat timeFormat = getTimeFormat(is24format);
-        String timeString = null;
-        try {
-            timeString = timeFormat.format(date);
-        } catch (Exception e) {
 
-            e.printStackTrace();
-        }
-        return timeString;
+
+    //Time string is since midnight, result gives today at that time
+    public long convertStringToMilliSinceMidnightToday(MMMainActivity activity,
+                                                       String timeSinceMidnightString){
+        long msSinceMidnight =
+                convertStringToMilliSinceMidnightGMT(activity, timeSinceMidnightString);
+        if (msSinceMidnight == 0)return 0;
+
+        long startWithMidnight = MMUtilities.getInstance().getStartMidnightToday();
+        return (msSinceMidnight + startWithMidnight);
     }
 
-    public long getStartTimeToday(){
+
+    //Time string is since midnight, result gives milliseconds since midnight only
+    public long convertStringToMilliSinceMidnightGMT(MMMainActivity activity,
+                                                     String timeSinceMidnightString){
+        boolean isTimeFlag = true;
+        Date date = convertStringToTimeDate(activity, timeSinceMidnightString, isTimeFlag);
+        if (date == null){
+            return 0;
+        }
+
+        return date.getTime();
+    }
+
+    //Time string is since midnight
+    public long convertStringToMinutesSinceMidnight(MMMainActivity activity,
+                                                    String timeSinceMidnightString){
+        long msSinceMidnight =
+                            convertStringToMilliSinceMidnightGMT(activity, timeSinceMidnightString);
+        if (msSinceMidnight == 0)return 0;
+
+        return msSinceMidnight / 60000;
+    }
+
+
+
+    public long getStartMidnightToday(){
 
         try {
             DateFormat justDay       = new SimpleDateFormat("yyyyMMdd");
+            TimeZone gmtTz   = TimeZone.getTimeZone("GMT");
+            justDay.setTimeZone(gmtTz);
+
             Date thisMorningMidnight = justDay.parse(justDay.format(new Date()));
             return thisMorningMidnight.getTime();
         } catch (Exception e){
@@ -289,7 +532,8 @@ public class MMUtilities {
 
     }
 
-    public long   getLastTakenMinutes(long timeTaken){
+
+    public long getLastTakenMinutes(long timeTaken){
 
         //compare whether the last dose was taken today
         Date lastTaken = new Date(timeTaken);
@@ -309,7 +553,7 @@ public class MMUtilities {
     }
 
 
-    public long   getMinutesFromCalendar (Calendar calendar){
+    public long getMinutesFromCalendar (Calendar calendar){
         return (calendar.get(Calendar.HOUR_OF_DAY) * 60) + calendar.get(Calendar.MINUTE);
     }
 
@@ -377,16 +621,6 @@ public class MMUtilities {
         if (view != null) {
             view.clearFocus();
         }
-    }
-
-
-    //************************************/
-    /*         Clock Utilities          */
-    //************************************/
-    public static boolean is24Format() {
-        // TODO: 4/21/2017 This needs to go into preferences
-        // TODO: 4/21/2017  There probably needs to be some central preferences handling
-        return HOUR12FORMAT;
     }
 
 

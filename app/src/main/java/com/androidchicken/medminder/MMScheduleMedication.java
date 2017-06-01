@@ -13,6 +13,8 @@ public class MMScheduleMedication {
     /*    Static (class) Constants       */
     /*************************************/
 
+    public static final int MAX_TIME_DUE = 24 * 60;
+    public static final int TIME_AS_NEEDED = MAX_TIME_DUE + 1;
 
     /*************************************/
     /*    Static (class) Variables       */
@@ -93,12 +95,11 @@ public class MMScheduleMedication {
                System.getProperty("line.separator");
     }
 
-    public String toString(){
+    public String toString(MMMainActivity activity){
         //convert to milliseconds
         long timeDue = getTimeDue() * 60 * 1000;
-        //// TODO: 5/8/2017 24hour format needs to be in preferences
-        boolean is24Format = false;
-        String clockTime = MMUtilities.getInstance().getTimeString(timeDue, is24Format);
+
+        String clockTime = MMUtilities.getInstance().getTimeString(activity, timeDue);
 
         MMPerson person = MMPersonManager.getInstance().getPerson(mForPersonID);
 
@@ -114,15 +115,13 @@ public class MMScheduleMedication {
             "TimeDue:      " + clockTime                         + System.getProperty("line.separator") ;
     }
 
-    public String shortString(){
+    public String shortString(MMMainActivity activity){
         //convert to milliseconds
         long timeDue = getTimeDue() * 60 * 1000;
-        //// TODO: 5/8/2017 24hour format needs to be in preferences
-        boolean is24Format = false;
-        String clockTime = MMUtilities.getInstance().getTimeString(timeDue, is24Format);
 
-        return
-            clockTime   ;
+        String clockTime = MMUtilities.getInstance().getTimeString(activity, timeDue);
+
+        return clockTime   ;
     }
 
 

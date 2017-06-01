@@ -38,6 +38,9 @@
     <string name="action_export"        >Export</string>
     <string name="action_list_schedules">List Schedules</string>
     <string name="action_home"          >Home</string>
+    <string name="action_switch_patient">Switch Patient</string>
+    <string name="action_edit_patient"  >Edit Patient</string>
+    <string name="action_med_alert"     >Text/Email Alerts</string>
 
     <!--      Add New object                  -->
     <string name="add_person"           >Add New Person</string>
@@ -57,6 +60,7 @@
     <string name="title_export_history"     >Export History</string>
     <string name="title_schedule_list"      >Medication Schedule List</string>
     <string name="title_history_title_line" >History Title Line Definition</string>
+    <string name="title_settings"           >Settings</string>
 
 
     <!--      Medication SCREEN                  -->
@@ -146,7 +150,7 @@
     <string name="patient_medication_button"    >Med</string>
     <string name="patient_no_med_but"           >No Med Button Pushed</string>
     <string name="dose_default_date"            >00/00/0000</string>
-    <string name="dose_default_time"            >00/00 00:00</string>
+    <string name="dose_default_time"            >00:00 am</string>
     <string name="reselect_dose"                >Re-select Dose to edit</string>
     <string name="error_parsing_date_time"      >Error parsing Date and / or Time</string>
     <string name="show_meds_help_label"         >Meds Help</string>
@@ -192,6 +196,18 @@
 
     <!--      Schedule List SCREEN                  -->
 
+
+    <!--      Settings SCREEN                  -->
+    <string name="settings_current_patient"     >Patient</string>
+    <string name="settings_default_time_due"    >Default Time Due for scheduled medications</string>
+    <string name="settings_default_time"        >Time</string>
+    <string name="settings_incorrect_format"    >Time field incorrect, resetting....</string>
+    <string name="settings_24format"            >Is Clock 24 hour format?</string>
+    <string name="settings_show_deleted_people" >Show Deleted Persons?</string>
+    <string name="settings_show_deleted_meds"   >Show Deleted Medications?</string>
+    <string name="settings_notification_vibrate">Vibrate with Medication Notifications?</string>
+    <string name="settings_notification_sound"  >Sound with Medication Notifications?</string>
+
     <!--      Medication Alert SCREEN                  -->
     <!--  -->
     <string name="medication_alert_screen_label"    >Medication Alerts</string>
@@ -206,7 +222,8 @@
     <string name="telephony_supported"      >Telephony SUPPORTED</string>
     <string name="teelphony_not_supported"  >Telephony NOT supported</string>
     <string name="Alert_not_saved"          >Alert NOT saved</string>
-    <string name="person_does_not_exist"    >Person does not exist. ID = %d</string>
+    <string name="person_not_exist"         >Person does not exist</string>
+    <string name="person_does_not_exist"    >Person does not exist. ID = %d, will create new one</string>
     <string name="no_person_med"            >There has to be a Person to add a Medication</string>
     <string name="no_persons_defined"       >No persons defined</string>
     <string name="no_person_alert"          >Need Patient for Alert</string>
@@ -259,7 +276,7 @@
     <string name="med_alert_updated"        >Medication Alert Updated</string>
 
     <!-- database exceptions -->
-    <string name="no_context_eException"    >Can not create database without a context</string>
+    <string name="no_context_exception"     >Can not create database without a context</string>
     <string name="not_initialized_exception">Attempt to access the database before it has been initialized</string>
     <string name="not_opened_exception"     >Attempt to access the database before it has been opened</string>
 

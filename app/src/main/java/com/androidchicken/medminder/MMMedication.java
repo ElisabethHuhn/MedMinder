@@ -24,6 +24,8 @@ public class MMMedication {
 
     public static final String MEDICATION_ID = "medication_id";
 
+    public static final int sSET_SCHEDULE_FOR_MEDICATION = 0;
+    public static final int sAS_NEEDED = 1;
 
     //************************************/
     /*    Static (class) Variables       */
@@ -36,6 +38,7 @@ public class MMMedication {
     private long         mForPersonID;
     private long         mMedicationID;
     private CharSequence mMedicationNickname;
+    private int          mDoseStrategy;
     private int          mDoseNumPerDay;
     private int          mDoseAmount;
     private CharSequence mDoseUnits;
@@ -48,6 +51,7 @@ public class MMMedication {
     //************************************/
     /*         Static Methods            */
     //************************************/
+
 
 
     //************************************/
@@ -70,6 +74,7 @@ public class MMMedication {
         mBrandName    = getDefaultBrandName();
         mGenericName  = getDefaultGenericName();
         mMedicationNickname = getDefaultMedicationNickname();
+        mDoseStrategy = getDefaultDoseStrategy();//scheduled
         mDoseAmount   = getDefaultDoseAmount();
         mDoseUnits    = getDefaultDoseUnits();
         mDoseNumPerDay= getDefaultDoseNumPerDay();
@@ -92,6 +97,9 @@ public class MMMedication {
     public CharSequence getMedicationNickname() {return mMedicationNickname; }
     public void         setMedicationNickname(CharSequence medicationNickname) {
                                                   mMedicationNickname = medicationNickname; }
+
+    public int          getDoseStrategy()          {  return mDoseStrategy;  }
+    public void         setDoseStrategy(int doseStrategy) {  mDoseStrategy = doseStrategy;  }
 
     public int          getDoseNumPerDay()                  { return mDoseNumPerDay;   }
     public void         setDoseNumPerDay(int doseNumPerDay) { mDoseNumPerDay = doseNumPerDay; }
@@ -142,6 +150,8 @@ public class MMMedication {
 
     public static CharSequence getDefaultMedicationNickname() {return "Med Nick Name"; }
 
+    public static int          getDefaultDoseStrategy()  {  return sSET_SCHEDULE_FOR_MEDICATION;  }
+
     public static int          getDefaultDoseNumPerDay()       { return 0;   }
 
     public static int          getDefaultDoseAmount()          { return 1; }
@@ -177,6 +187,7 @@ public class MMMedication {
                 "PersonID, "      +
                 "MedicationID, "  +
                 "Nickname, "      +
+                "Strategy, "      +
                 "NumPerDay "      +
                 "DoseAmount, "    +
                 "DoseUnits"       +
@@ -187,12 +198,22 @@ public class MMMedication {
         return msg;
     }
 
+    private String getStrategyString() {
+        if (getDoseStrategy() == sAS_NEEDED){
+            return "as needed";
+        } else {
+            return "schedule";
+        }
+    }
+
     //Convert point to comma delimited file for exchange
     public String convertToCDF() {
+
 
         return  String.valueOf(this.getForPersonID())         + ", " +
                 String.valueOf(this.getMedicationID())        + ", " +
                 String.valueOf(this.getMedicationNickname() ) + ", " +
+                getDoseStrategy()                             + ", " +
                 String.valueOf(this.getDoseNumPerDay()        + ", " +
 
                 String.valueOf(this.getDoseAmount())          + ", " +
@@ -216,6 +237,7 @@ public class MMMedication {
                         "PersonID:     " + person.getNickname()              + System.getProperty("line.separator") +
                         "MedicationID: " + String.valueOf(mMedicationID)     + System.getProperty("line.separator") +
                         "Nickname:     " + String.valueOf(mMedicationNickname) + System.getProperty("line.separator") +
+                        "Strategy      " + getStrategyString()               + System.getProperty("line.separator") +
                         "NumPerDay:    " + String.valueOf(mDoseNumPerDay)    + System.getProperty("line.separator") +
                         "DoseAmount:   " + String.valueOf(mDoseAmount)       + System.getProperty("line.separator") +
                         "DoseUnits:    " + String.valueOf(mDoseUnits)        + System.getProperty("line.separator") +
@@ -249,6 +271,9 @@ public class MMMedication {
         message.append("being taken.");
         message.append(System.getProperty("line.separator"));
 
+        message.append("Dose Strategy is ");
+        message.append(getStrategyString());
+        message.append(System.getProperty("line.separator"));
 
         message.append("Dosage is ");
         message.append(String.valueOf(mDoseAmount));

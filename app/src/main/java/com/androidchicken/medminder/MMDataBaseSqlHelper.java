@@ -79,6 +79,7 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     public static final String MEDICATION_BRAND_NAME     = "med_brand_name";
     public static final String MEDICATION_GENERIC_NAME   = "med_generic_name";
     public static final String MEDICATION_NICK_NAME      = "med_nick_name";
+    public static final String MEDICATION_DOSE_STRATEGY  = "med_dose_strategy";
     public static final String MEDICATION_DOSE_AMOUNT    = "med_dose_amount";
     public static final String MEDICATION_DOSE_UNITS     = "med_dose_units";
     public static final String MEDICATION_DOSE_NUM_PER_DAY = "med_number_per_day";
@@ -93,6 +94,7 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
             MEDICATION_BRAND_NAME     + " TEXT, "     +
             MEDICATION_GENERIC_NAME   + " TEXT, "     +
             MEDICATION_NICK_NAME      + " TEXT, "     +
+            MEDICATION_DOSE_STRATEGY  + " INTEGER, "  +
             MEDICATION_DOSE_AMOUNT    + " INTEGER, "  +
             MEDICATION_DOSE_UNITS     + " INTEGER, "  +
             MEDICATION_DOSE_NUM_PER_DAY + " INTEGER, "  +
@@ -142,7 +144,7 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     // Column Names
     public static final String CONCURRENT_DOSE_ID              = "conc_dose_id";
     public static final String CONCURRENT_DOSE_FOR_PERSON_ID   = "conc_dose_for_person_id";
-    public static final String CONCURRENT_DOSE_START_TIME      = "conc_dose_start_time";
+    public static final String CONCURRENT_DOSE_TIME            = "conc_dose_start_time";
 
 
 
@@ -151,7 +153,7 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
             KEY_ID                          + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             CONCURRENT_DOSE_ID              + " INTEGER, " +
             CONCURRENT_DOSE_FOR_PERSON_ID   + " INTEGER, " +
-            CONCURRENT_DOSE_START_TIME      + " INTEGER, " +
+            CONCURRENT_DOSE_TIME            + " INTEGER, " +
             KEY_CREATED_AT                  + " INTEGER " + ")";
 
 

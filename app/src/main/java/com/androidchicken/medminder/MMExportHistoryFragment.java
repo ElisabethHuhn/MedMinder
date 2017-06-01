@@ -34,7 +34,7 @@ import static com.androidchicken.medminder.R.id.directoryPath;
  * This is the UI for defining a filter for Exporting Doses Taken History
  */
 
-public class MainExportHistoryFragment extends Fragment {
+public class MMExportHistoryFragment extends Fragment {
     private static final String TAG = "ExportHistoryFragment";
 
     private static final int EXPORT_PRESCRIPTIONS = 0;
@@ -61,8 +61,6 @@ public class MainExportHistoryFragment extends Fragment {
     //**********************************************/
     /*          Member Variables                   */
     //**********************************************/
-
-    private long     mPersonID;
     private boolean  isUIChanged = false;
 
     CharSequence mCDFileName ;
@@ -72,26 +70,13 @@ public class MainExportHistoryFragment extends Fragment {
     //**********************************************/
     /*          Static Methods                     */
     //**********************************************/
-    //need to pass a person into the fragment
-    public static MainExportHistoryFragment newInstance(long personID){
-        //create a bundle to hold the arguments
-        Bundle args = new Bundle();
 
-        //It will be some work to make all of the data model serializable
-        //so for now, just pass the person values
-        args.putLong         (MMPerson.sPersonIDTag,personID);
-
-        MainExportHistoryFragment fragment = new MainExportHistoryFragment();
-
-        fragment.setArguments(args);
-        return fragment;
-    }
 
 
     //**********************************************/
     /*          Constructor                        */
     //**********************************************/
-    public MainExportHistoryFragment() {
+    public MMExportHistoryFragment() {
     }
 
     //**********************************************/
@@ -113,16 +98,6 @@ public class MainExportHistoryFragment extends Fragment {
             Log.e(TAG,Log.getStackTraceString(e));
         }
 
-        Bundle args = getArguments();
-
-        if (args != null) {
-            mPersonID = args.getLong(MMPerson.sPersonIDTag);
-            ((MMMainActivity) getActivity()).setPatientID(mPersonID);
-        } else {
-            mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
-            ((MMMainActivity)getActivity()).setPatientID(mPersonID);
-        }
-
     }
 
 
@@ -133,7 +108,6 @@ public class MainExportHistoryFragment extends Fragment {
 
         if (savedInstanceState != null){
             //the fragment is being restored so restore the person ID
-            mPersonID     = savedInstanceState.getLong(MMPerson.sPersonIDTag);
             mCDFileName   = savedInstanceState.getString(sCDF_FILENAME_TAG);
             mCDFPath      = savedInstanceState.getString(sCDF_PATH_TAG);
 
@@ -159,7 +133,6 @@ public class MainExportHistoryFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
         // Save custom values into the bundle
-        savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
         savedInstanceState.putString(sCDF_FILENAME_TAG,   mCDFileName.toString());
         savedInstanceState.putString(sCDF_PATH_TAG,       mCDFPath.toString());
 
@@ -186,6 +159,17 @@ public class MainExportHistoryFragment extends Fragment {
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
     }
+
+
+
+    //*************************************************************/
+    /*  Convenience Methods for accessing things on the Activity  */
+    //*************************************************************/
+
+    private long     getPatientID(){return ((MMMainActivity)getActivity()).getPatientID();}
+
+    private MMPerson getPerson()    {return ((MMMainActivity)getActivity()).getPerson();}
+
 
     //**********************************************/
     /*          Member Methods                     */
@@ -231,42 +215,6 @@ public class MainExportHistoryFragment extends Fragment {
                 exportDialog();
             }
         });
-
-
-
-        //Exit Button
-        Button exitButton = (Button) v.findViewById(R.id.exitButton);
-        exitButton.setText(R.string.exit_label);
-        //the order of images here is left, top, right, bottom
-        // exitButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
-        exitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onExit();
-            }
-        });
-
-        //Select Persons Button
-        Button selectPatientButton = (Button) v.findViewById(R.id.selectPatientButton);
-        selectPatientButton.setText(R.string.select_patient_label);
-        //the order of images here is left, top, right, bottom
-        // selectPatientButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_project, 0, 0);
-        selectPatientButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        R.string.select_patient_label,
-                        Toast.LENGTH_SHORT).show();
-                //switch to person screen
-                // But the switching happens on the container Activity
-
-                ((MMMainActivity)getActivity()).
-                        switchToPersonListScreen(MMMainActivity.sExportTag, mPersonID);
-
-            }
-        });
-
-
 
 
         label = (TextView)v.findViewById(R.id.filterStartDateLabel);
@@ -320,8 +268,8 @@ public class MainExportHistoryFragment extends Fragment {
 
     private void   initializeUI(View v){
         //determine if a person is yet associated with the fragment
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
-            MMPerson patient = MMPersonManager.getInstance().getPerson(mPersonID);
+        if (getPatientID() != MMUtilities.ID_DOES_NOT_EXIST){
+            MMPerson patient = MMPersonManager.getInstance().getPerson(getPatientID());
             //if there is a person corresponding to the patientID, put the name up on the screen
             if (patient != null) {
                 //Patient Nick Name
@@ -348,7 +296,7 @@ public class MainExportHistoryFragment extends Fragment {
         directoryPath.setText(mCDFPath);
 
         EditText fileName = (EditText) v.findViewById(R.id.fileName);
-        mCDFileName   = getFileName(mPersonID);
+        mCDFileName   = getFileName(getPatientID());
         fileName.setText(mCDFileName);
 
         EditText fileExtent = (EditText) v.findViewById(R.id.fileExtent);
@@ -377,7 +325,7 @@ public class MainExportHistoryFragment extends Fragment {
         MMUtilities utilities = MMUtilities.getInstance();
 
 
-        MMPerson patient = MMPersonManager.getInstance().getPerson(mPersonID);
+        MMPerson patient = MMPersonManager.getInstance().getPerson(getPatientID());
         if (patient == null) return;
 
         int suffix = R.string.export_history;
@@ -512,11 +460,11 @@ public class MainExportHistoryFragment extends Fragment {
 
     private void switchToExit(){
 
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
+        if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST) {
             ((MMMainActivity) getActivity()).switchToHomeScreen();
         } else {
-            //pre-populate
-            ((MMMainActivity) getActivity()).switchToHomeScreen(mPersonID);
+            //pre-populate with patientID from Activity level
+            ((MMMainActivity) getActivity()).switchToHomeScreen();
         }
 
     }
@@ -524,7 +472,7 @@ public class MainExportHistoryFragment extends Fragment {
     //Build and display the alert dialog
     private void exportDialog(){
 
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return;
+        if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST)return;
 
         //
         //Build the (Dialog) layout and it's contained views
@@ -645,7 +593,7 @@ public class MainExportHistoryFragment extends Fragment {
 
     private File createPersonCDFile(int suffix) throws IOException {
 
-        MMPerson patient = MMPersonManager.getInstance().getPerson(mPersonID);
+        MMPerson patient = MMPersonManager.getInstance().getPerson(getPatientID());
         if (patient == null) return null;
 
         View v = getView();
@@ -722,7 +670,7 @@ public class MainExportHistoryFragment extends Fragment {
             writer = new FileWriter(cdfFile);
 
             String message = null;
-            MMPerson patient = MMPersonManager.getInstance().getPerson(mPersonID);
+            MMPerson patient = MMPersonManager.getInstance().getPerson(getPatientID());
 
             if (flag == EXPORT_PRESCRIPTIONS) {
                 message = getPrescript(patient).toString();
@@ -787,7 +735,7 @@ public class MainExportHistoryFragment extends Fragment {
                             prescription.append(" and ");
                         }
                         schedule = schedules.get(positionSched);
-                        prescription.append(schedule.shortString());
+                        prescription.append(schedule.shortString((MMMainActivity)getActivity()));
 
                         positionSched++;
                     }
@@ -833,43 +781,45 @@ public class MainExportHistoryFragment extends Fragment {
             ArrayList<MMDose> doses;
             MMMedication medication;
             MMDose       dose;
-            int last = medications.size();
-            int position = 0;
+            int lastMed = medications.size();
+            int positionMed = 0;
 
             //list medications as title
-            while (position < last) {
+            if (positionMed < lastMed) {
                 history.append("Position of Medications: ");
                 history.append(lf);
-
-                while (position < last) {
-                    medication = medications.get(position);
-
-                    history.append(String.valueOf(position));
-                    history.append(" ");
-                    history.append(medication.getMedicationNickname());
-                    history.append(lf);
-
-                    position++;
-                }
-
-                history.append(lf);
-                position++;
             }
+
+            while (positionMed < lastMed) {
+                medication = medications.get(positionMed);
+
+                history.append(String.valueOf(positionMed));
+                history.append(" ");
+                history.append(medication.getMedicationNickname());
+                history.append(lf);
+
+                positionMed++;
+            }
+
+            history.append(lf);
+            //reset the positionMed back to the start of the med list
+            positionMed = 0;
+
 
             //Now list the history
             //get all the concurrent doses for this patient
             MMConcurrentDoseManager concurrentDoseManager =  MMConcurrentDoseManager.getInstance();
             concurrentDoseCursor =
-                    concurrentDoseManager.getAllConcurrentDosesCursor(mPersonID);
+                    concurrentDoseManager.getAllConcurrentDosesCursor(getPatientID());
             MMConcurrentDose concurrentDose;
 
 
-            last = concurrentDoseCursor.getCount();
-            position = 0;
-            while (position < last) {
+            int lastCD = concurrentDoseCursor.getCount();
+            int positionCD = 0;
+            while (positionCD < lastCD) {
                 //get the concurrent dose for this position
                 concurrentDose = concurrentDoseManager
-                        .getConcurrentDoseFromCursor(concurrentDoseCursor, position);
+                        .getConcurrentDoseFromCursor(concurrentDoseCursor, positionCD);
 
                 long timeTaken = concurrentDose.getStartTime();
                 if ((startMilli < timeTaken) && (timeTaken < endMilli)) {
@@ -882,6 +832,7 @@ public class MainExportHistoryFragment extends Fragment {
                     //get the medication doses taken at this time
                     doses = concurrentDose.getDoses();
                     //Now list the doses
+                    // TODO: 5/15/2017 Need to coordinate dose list with med list
                     int lastDose = doses.size();
                     int positionDose = 0;
                     while (positionDose < lastDose) {
@@ -898,7 +849,7 @@ public class MainExportHistoryFragment extends Fragment {
                     history.append(lf);
                 }
 
-                position++;
+                positionCD++;
             }
 
         } catch (Exception e) {

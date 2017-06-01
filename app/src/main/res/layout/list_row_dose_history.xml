@@ -17,7 +17,7 @@
     <!-- Layout for concurrent dose history -->
 
     <!-- Date -->
-    <TextView
+    <EditText
         android:id="@+id/doseDateLabel"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
@@ -35,7 +35,7 @@
         android:id="@+id/doseTimeInput"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_weight="2"
+        android:layout_weight="1"
         android:gravity="center"
 
         android:hint="@string/dose_default_time"

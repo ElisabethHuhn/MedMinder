@@ -230,6 +230,7 @@ public class MMMedicationManager {
         values.put(MMDataBaseSqlHelper.MEDICATION_BRAND_NAME,    medication.getBrandName().toString());
         values.put(MMDataBaseSqlHelper.MEDICATION_GENERIC_NAME,  medication.getGenericName().toString());
         values.put(MMDataBaseSqlHelper.MEDICATION_NICK_NAME,     medication.getMedicationNickname().toString());
+        values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_STRATEGY, medication.getDoseStrategy());
         values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_AMOUNT,   medication.getDoseAmount());
         values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_UNITS,    medication.getDoseUnits().toString());
         values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_NUM_PER_DAY,medication.getDoseNumPerDay());
@@ -268,6 +269,8 @@ public class MMMedicationManager {
                 (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_GENERIC_NAME)));
         medication.setMedicationNickname(cursor.getString
                 (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_NICK_NAME)));
+        medication.setDoseStrategy(cursor.getInt
+                (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_STRATEGY)));
         medication.setDoseAmount(cursor.getInt
                 (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_AMOUNT)));
         medication.setDoseUnits(cursor.getString

@@ -29,27 +29,13 @@ import android.widget.TextView;
  */
 public class MMPersonFragment extends Fragment {
 
-
-
-    private long     mPersonID;
     private boolean  isUIChanged = false;
 
 
     //**********************************************/
     //          Static Methods                     */
     //**********************************************/
-    //need to pass a person into the fragment
-    public static MMPersonFragment newInstance(long personID){
-        //create a bundle to hold the arguments
-        Bundle args = new Bundle();
 
-        args.putLong         (MMPerson.sPersonIDTag,personID);
-
-        MMPersonFragment fragment = new MMPersonFragment();
-
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     //**********************************************/
     //          Constructor                        */
@@ -68,20 +54,8 @@ public class MMPersonFragment extends Fragment {
 
         super.onCreate(savedInstanceState);
 
-        Bundle args = getArguments();
-
-        if (args != null) {
-            //initialize the DB, providing it with a context if necessarary
-            MMDatabaseManager.getInstance(getActivity());
-
-            //Get the ID of the person passed to this screen
-            mPersonID = args.getLong(MMPerson.sPersonIDTag);
-
-        } else {
-            mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
-        }
-        ((MMMainActivity)getActivity()).setPatientID(mPersonID);
-
+        //initialize the DB, providing it with a context if necessary
+        MMDatabaseManager.getInstance(getActivity());
     }
 
     @Override
@@ -89,18 +63,10 @@ public class MMPersonFragment extends Fragment {
                              ViewGroup container,
                              Bundle savedInstanceState) {
 
-
-        if (savedInstanceState != null){
-            //the fragment is being restored so restore the person ID
-            mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
-            ((MMMainActivity)getActivity()).setPatientID(mPersonID);
-        }
-
-
         //Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_person, container, false);
 
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST) {
+        if (getPatientID() != MMUtilities.ID_DOES_NOT_EXIST) {
             initializeRecyclerView(v);
         }
 
@@ -176,7 +142,6 @@ public class MMPersonFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
         // Save custom values into the bundle
-        savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
 
         //Save the isUIChanged flag
         savedInstanceState.putBoolean(MMHomeFragment.sIsUIChangedTag, isUIChanged);
@@ -186,22 +151,28 @@ public class MMPersonFragment extends Fragment {
     }
 
 
+    //*************************************************************/
+    /*  Convenience Methods for accessing things on the Activity  */
+    //*************************************************************/
+
+    private long     getPatientID(){
+        return ((MMMainActivity)getActivity()).getPatientID();
+    }
+    private void     setPatientID(long patientID) {
+        ((MMMainActivity)getActivity()).setPatientID(patientID);
+    }
+
+    private MMPerson getPerson(){
+        return MMPersonManager.getInstance().getPerson(getPatientID());
+    }
+
+    //*************************************************************/
+    /*                    Initialization Methods                  */
+    //*************************************************************/
+
     private void wireWidgets(View v){
 
         TextView label;
-
-        //Exit Button
-        Button exitButton = (Button) v.findViewById(R.id.personExitButton);
-        exitButton.setText(R.string.exit_label);
-        //the order of images here is left, top, right, bottom
-        //exitButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
-        exitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onExit();
-            }
-        });
-
 
         //Save Button
         Button saveButton = (Button) v.findViewById(R.id.personSaveButton);
@@ -239,11 +210,6 @@ public class MMPersonFragment extends Fragment {
         label = (TextView)(v.findViewById(R.id.personIDLabel));
         label.setEnabled(false);
         label.setText(R.string.person_label);
-
-        EditText personIDOutput = (EditText) (v.findViewById(R.id.personIdInput));
-        personIDOutput.setEnabled(false);
-        personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorGray));
-
 
         EditText personNickNameInput = (EditText) (v.findViewById(R.id.personNickNameInput));
         personNickNameInput.addTextChangedListener(new TextWatcher() {
@@ -409,10 +375,11 @@ public class MMPersonFragment extends Fragment {
 
         //4) Get the Cursor of Medication Instances for this Person from the DB
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-        Cursor cursor = medicationManager.getAllMedicationsCursor(mPersonID);
+        Cursor cursor = medicationManager.getAllMedicationsCursor(getPatientID());
 
         //5) Use the data to Create and set out medication Adapter
-        MMMedicationCursorAdapter adapter = new MMMedicationCursorAdapter(getActivity(), mPersonID, cursor);
+        MMMedicationCursorAdapter adapter =
+                            new MMMedicationCursorAdapter(getActivity(), getPatientID(), cursor);
         recyclerView.setAdapter(adapter);
 
         //6) create and set the itemAnimator
@@ -446,27 +413,25 @@ public class MMPersonFragment extends Fragment {
 
     }
 
-     private void initializeUI(View v) {
+    private void initializeUI(View v) {
 
-        EditText personIDOutput       = (EditText) (v.findViewById(R.id.personIdInput));
+
         EditText personNickNameInput  = (EditText) (v.findViewById(R.id.personNickNameInput));
         EditText personEmailAddrInput = (EditText) (v.findViewById(R.id.personEmailAddrInput));
         EditText personTextAddrInput  = (EditText) (v.findViewById(R.id.personTextAddrInput));
 
-        MMPerson person;
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
+        MMPerson person = getPerson();
+        if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST) {
             //just create a temporary person object without an id
-            person = new MMPerson(mPersonID);
-            personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorLightPink));
+            person = new MMPerson(getPatientID());
+
         } else {
-            personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
-            MMPersonManager personManager = MMPersonManager.getInstance();
-            person = personManager.getPerson(mPersonID);
+
             if (person == null){
-                String message = getString(R.string.person_does_not_exist) + mPersonID;
+                String message = getString(R.string.person_does_not_exist) + getPatientID();
                 MMUtilities.getInstance().errorHandler(getActivity(), message);
-                mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
-                person = new MMPerson(mPersonID);
+                setPatientID( MMUtilities.ID_DOES_NOT_EXIST);
+                person = new MMPerson(getPatientID());
             }
         }
 
@@ -483,19 +448,9 @@ public class MMPersonFragment extends Fragment {
             v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorScreenDeletedBackground));
         }
 
-
-        //Debug Statments. Remove if you see these
-        String temp = String.valueOf(person.getPersonID());
-        personIDOutput      .setText(temp);
-
-        temp = person.getNickname()    .toString().trim();
-        personNickNameInput .setText(temp);
-
-        temp = person.getEmailAddress().toString().trim();
-        personEmailAddrInput.setText(temp);
-
-        temp = person.getTextAddress() .toString().trim();
-        personTextAddrInput .setText(temp);
+        personNickNameInput .setText(person.getNickname()    .toString().trim());
+        personEmailAddrInput.setText(person.getEmailAddress().toString().trim());
+        personTextAddrInput .setText(person.getTextAddress() .toString().trim());
 
         setUISaved(v);
     }
@@ -509,8 +464,7 @@ public class MMPersonFragment extends Fragment {
         View v = getView();
         if (v == null)return;
 
-        EditText personIDOutput       = (EditText) (v.findViewById(R.id.personIdInput));
-        EditText personNickNameInput  = (EditText) (v.findViewById(R.id.personNickNameInput));
+         EditText personNickNameInput  = (EditText) (v.findViewById(R.id.personNickNameInput));
         EditText personEmailAddrInput = (EditText) (v.findViewById(R.id.personEmailAddrInput));
         EditText personTextAddrInput  = (EditText) (v.findViewById(R.id.personTextAddrInput));
 
@@ -522,12 +476,12 @@ public class MMPersonFragment extends Fragment {
         }
         //If this person already exists, we do NOT want to create a new Person object
         MMPerson person;
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST) {
+        if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST) {
             //but the ID isn't assigned until the DB save
-            person = new MMPerson(mPersonID);
+            person = new MMPerson(getPatientID());
         } else {
             MMPersonManager personManager = MMPersonManager.getInstance();
-            person = personManager.getPerson(mPersonID);
+            person = personManager.getPerson(getPatientID());
         }
 
         SwitchCompat existSwitch = (SwitchCompat) getView().findViewById(R.id.switchExists);
@@ -562,35 +516,30 @@ public class MMPersonFragment extends Fragment {
 
         //so add/update the person to/in permanent storage
         //This adds/updates any medications that are recorded on the Person to the DB
-        MMPersonManager personManager = MMPersonManager.getInstance();
         boolean addToDBToo = true;
-        long returnCode = personManager.addPerson(person, addToDBToo);
+        long returnCode = MMPersonManager.getInstance().addPerson(person, addToDBToo);
         if (returnCode != MMDatabaseManager.sDB_ERROR_CODE) {
             MMUtilities.getInstance().errorHandler(getActivity(), R.string.save_successful);
+            //if the person is newly created, the ID is assigned on DB add
+            setPatientID(returnCode);
+
+            MMMedicationCursorAdapter adapter = getAdapter(getView());
+
+            if (adapter != null) {
+                //because the adapter exists, initializeRecyclerView() has already run
+                //so all we need to reinitialize is the adapter
+                adapter.reinitializeCursor(getPatientID());
+            } else {
+                //we did not have a medication earlier so the entire recyclerView never got initialized
+                initializeRecyclerView(getView());
+            }
+            setUISaved();
         } else {
             MMUtilities.getInstance().errorHandler(getActivity(), R.string.save_unsuccessful);
         }
-        //if the person is newly created, the ID is assigned on DB add
-        mPersonID = returnCode;
-        //update the ID field on the UI
-        personIDOutput.setText(String.valueOf(mPersonID));
-        personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
+     }
 
-
-        MMMedicationCursorAdapter adapter = getAdapter(getView());
-
-        if (adapter != null) {
-            //because the adapter exists, initializeRecyclerView() has already run
-            //so all we need to reinitialize is the adapter
-            adapter.reinitializeCursor(mPersonID);
-        } else {
-            //we did not have a medication earlier so the entire recyclerView never got initialized
-            initializeRecyclerView(getView());
-        }
-        setUISaved();
-    }
-
-    private void onExit(){
+    public void onExit(){
         MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
 
         //if something has changed in the UI, ask first
@@ -599,11 +548,6 @@ public class MMPersonFragment extends Fragment {
         } else {
             switchToExit();
         }
-    }
-
-
-    public long getPersonID(){
-        return mPersonID;
     }
 
 
@@ -639,7 +583,7 @@ public class MMPersonFragment extends Fragment {
         MMMedicationCursorAdapter adapter = getAdapter(getView());
         if (adapter != null)adapter.closeCursor();
 
-        ((MMMainActivity) getActivity()).switchToHomeScreen(mPersonID);   //switchToPopBackstack();
+        ((MMMainActivity) getActivity()).switchToHomeScreen();   //switchToPopBackstack();
 
     }
 
@@ -717,7 +661,7 @@ public class MMPersonFragment extends Fragment {
 
         adapter.notifyItemChanged(position);
 
-        ((MMMainActivity) getActivity()).switchToMedicationScreen(mPersonID, position);
+        ((MMMainActivity) getActivity()).switchToMedicationScreen(position);
     }
 
 

@@ -35,32 +35,18 @@ public class MMHistoryTitleLineFragment extends Fragment {
     /*    These variables will need to survive     */
     /*          configuration change               */
     //**********************************************/
-    private long    mPersonID;
+
 
 
     //These do not need to be restored over configuration change.
     // They will be recreated in wireWidgets()
-    private MMPerson mPerson;
+
     private ArrayList<MMMedication> mMedications;
 
 
     //**********************************************/
     /*          Static Methods                     */
     //**********************************************/
-    //need to pass a person into the fragment
-    public static MMHistoryTitleLineFragment newInstance(long personID){
-        //create a bundle to hold the arguments
-        Bundle args = new Bundle();
-
-        //It will be some work to make all of the data model serializable
-        //so for now, just pass the person values
-        args.putLong         (MMPerson.sPersonIDTag,personID);
-
-        MMHistoryTitleLineFragment fragment = new MMHistoryTitleLineFragment();
-
-        fragment.setArguments(args);
-        return fragment;
-    }
 
 
     //**********************************************/
@@ -88,14 +74,7 @@ public class MMHistoryTitleLineFragment extends Fragment {
             Log.e(TAG,Log.getStackTraceString(e));
         }
 
-        Bundle args = getArguments();
 
-        if (args != null) {
-            mPersonID = args.getLong(MMPerson.sPersonIDTag);
-        } else {
-            mPersonID = MMUtilities.ID_DOES_NOT_EXIST;
-        }
-        ((MMMainActivity)getActivity()).setPatientID(mPersonID);
     }
 
 
@@ -103,13 +82,6 @@ public class MMHistoryTitleLineFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
-
-        //First, get the mPersonID set properly
-        if (savedInstanceState != null){
-            //the fragment is being restored so restore the person ID
-            mPersonID = savedInstanceState.getLong(MMPerson.sPersonIDTag);
-
-        }
 
 
         //Inflate the layout for this fragment
@@ -124,17 +96,7 @@ public class MMHistoryTitleLineFragment extends Fragment {
         return v;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState){
-        // Save custom values into the bundle
 
-        //Save the PersonID of this screen
-        savedInstanceState.putLong(MMPerson.sPersonIDTag, mPersonID);
-
-
-        // Always call the superclass so it can save the view hierarchy state
-        super.onSaveInstanceState(savedInstanceState);
-    }
 
     @Override
     public void onResume(){
@@ -148,19 +110,28 @@ public class MMHistoryTitleLineFragment extends Fragment {
 
     }
 
+
+
+    //*************************************************************/
+    /*  Convenience Methods for accessing things on the Activity  */
+    //*************************************************************/
+
+    private long     getPatientID(){return ((MMMainActivity)getActivity()).getPatientID();}
+
+    private MMPerson getPerson()    {return ((MMMainActivity)getActivity()).getPerson();}
+
+
     //**********************************************/
     /*   Initialization Methods                    */
     //**********************************************/
     private void wireWidgets(View v){
 
         //Fill the sample ConcurrentDose title line with the position Indicators
-        if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST)return;
+        if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST)return;
 
-        MMPersonManager personManager = MMPersonManager.getInstance();
-        mPerson = personManager.getPerson(mPersonID);
-        if (mPerson == null)return;
+        if (getPerson() == null)return;
 
-        mMedications = mPerson.getMedications();
+        mMedications = getPerson().getMedications();
         int last = mMedications.size();
         if (last == 0)return;
 
@@ -212,7 +183,8 @@ public class MMHistoryTitleLineFragment extends Fragment {
             }
         });
 
-        String timeString = MMUtilities.getInstance().getTimeString();
+
+        String timeString = MMUtilities.getInstance().getTimeString((MMMainActivity)getActivity());
 
         mTimeInput.setText(timeString);
 
@@ -342,10 +314,9 @@ public class MMHistoryTitleLineFragment extends Fragment {
 
     private void initializeUI(View v){
         //determine if a person is yet associated with the fragment
-        if (mPersonID != MMUtilities.ID_DOES_NOT_EXIST){
+        if (getPatientID() != MMUtilities.ID_DOES_NOT_EXIST){
             //if there is a person corresponding to the patientID, put the name up on the screen
-            MMPersonManager personManager = MMPersonManager.getInstance();
-            MMPerson person = personManager.getPerson(mPersonID);
+            MMPerson person = getPerson();
 
             if (person != null) {
                 TextView patientNickName = (TextView) v.findViewById(R.id.patientNickNameLabel);
@@ -365,9 +336,7 @@ public class MMHistoryTitleLineFragment extends Fragment {
         }
     }
 
-    public long  getPersonID(){
-        return mPersonID;
-    }
+
 
     //***********************************************************/
     //*********  RecyclerView / Adapter related Methods  ********/
