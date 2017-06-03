@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.InputType;
@@ -19,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -219,25 +221,23 @@ public class MMExportHistoryFragment extends Fragment {
         });
 
 
-
-
         label = (TextView)v.findViewById(R.id.filterStartingDateLabel);
         label.setText(R.string.start_date_label);
 
         label = (TextView) (v.findViewById(R.id.filterEndingDateLabel));
         label.setText(R.string.end_date_label);
 
-        EditText filterEndingDateInput = (EditText) (v.findViewById(R.id.filterEndingDate));
+        final EditText filterEndingDateInput = (EditText) (v.findViewById(R.id.filterEndingDate));
         filterEndingDateInput.addTextChangedListener(textWatcher);
 
-        EditText filterStartingDateInput = (EditText) (v.findViewById(R.id.filterStartingDate));
+        final EditText filterStartingDateInput = (EditText) (v.findViewById(R.id.filterStartingDate));
         filterStartingDateInput.addTextChangedListener(textWatcher);
 
 
         label = (TextView) (v.findViewById(R.id.directoryPathLabel));
         label.setText(R.string.directory_path_label);
 
-        EditText directoryInput = (EditText) (v.findViewById(directoryPath));
+        final EditText directoryInput = (EditText) (v.findViewById(directoryPath));
         directoryInput.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
         //directoryInput.setHint(R.string.person_text_addr_hint);
         directoryInput.addTextChangedListener(textWatcher);
@@ -245,18 +245,105 @@ public class MMExportHistoryFragment extends Fragment {
         label = (TextView) (v.findViewById(R.id.fileNameLabel));
         label.setText(R.string.export_filename_label);
 
-        EditText fileNameInput = (EditText) (v.findViewById(R.id.fileName));
+        final EditText fileNameInput = (EditText) (v.findViewById(R.id.fileName));
         //fileNameInput.setHint(R.string.person_order_hint);
         fileNameInput.addTextChangedListener(textWatcher);
 
         label = (TextView) (v.findViewById(R.id.fileExtentLabel));
         label.setText(R.string.filename_extent_label);
 
-        EditText fileNameExtentInput = (EditText) (v.findViewById(R.id.fileExtent));
+        final EditText fileNameExtentInput = (EditText) (v.findViewById(R.id.fileExtent));
         fileNameExtentInput.setHint(R.string.extent_hint);
         fileNameExtentInput.addTextChangedListener(textWatcher);
 
-    }
+
+        RadioGroup destinationGroup = (RadioGroup) v.findViewById(R.id.radioDestination);
+        final RadioButton emailRadio         = (RadioButton) v.findViewById(R.id.radioEmail) ;
+        final RadioButton textRadio          = (RadioButton) v.findViewById(R.id.radioText) ;
+        final RadioButton fileRadio          = (RadioButton) v.findViewById(R.id.radioFile) ;
+        final RadioButton generalRadio       = (RadioButton) v.findViewById(R.id.radioGeneral);
+        RadioGroup contentGroup = (RadioGroup) v.findViewById(R.id.radioContent);
+        final RadioButton prescriptionRadio  = (RadioButton) v.findViewById(R.id.radioPrescription) ;
+        final RadioButton historyRadio       = (RadioButton) v.findViewById(R.id.radioHistory) ;
+
+        destinationGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId)
+            {
+                if((emailRadio.isChecked())   ||
+                        (textRadio.isChecked())    ||
+                        (generalRadio.isChecked()) ) {
+                    directoryInput.setBackgroundColor(ContextCompat.
+                                                        getColor(getActivity(), R.color.colorGray));
+                    fileNameInput.setBackgroundColor(ContextCompat.
+                                                        getColor(getActivity(), R.color.colorGray));
+                    fileNameExtentInput.setBackgroundColor(ContextCompat.
+                                                        getColor(getActivity(), R.color.colorGray));
+                    directoryInput     .setFocusable(false);
+                    fileNameInput      .setFocusable(false);
+                    fileNameExtentInput.setFocusable(false);
+                } else if(fileRadio.isChecked()) {
+                    directoryInput.setBackgroundColor(ContextCompat.
+                                                        getColor(getActivity(), R.color.colorWhite));
+                    fileNameInput.setBackgroundColor(ContextCompat.
+                                                        getColor(getActivity(), R.color.colorWhite));
+                    fileNameExtentInput.setBackgroundColor(ContextCompat.
+                                                        getColor(getActivity(), R.color.colorWhite));
+                    directoryInput     .setFocusable(true);
+                    fileNameInput      .setFocusable(true);
+                    fileNameExtentInput.setFocusable(true);
+
+                }
+            }
+        });
+
+
+        contentGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId)
+            {
+                if((prescriptionRadio.isChecked())   ) {
+                    filterStartingDateInput.setBackgroundColor(ContextCompat.
+                                                        getColor(getActivity(), R.color.colorGray));
+                    filterEndingDateInput.setBackgroundColor(ContextCompat.
+                                                        getColor(getActivity(), R.color.colorGray));
+
+                    filterStartingDateInput.setFocusable(false);
+                    filterEndingDateInput  .setFocusable(false);
+                } else if(historyRadio.isChecked()) {
+                    filterStartingDateInput.setBackgroundColor(ContextCompat.
+                                                        getColor(getActivity(), R.color.colorWhite));
+                    filterEndingDateInput.setBackgroundColor(ContextCompat.
+                                                        getColor(getActivity(), R.color.colorWhite));
+
+                    filterStartingDateInput.setFocusable(true);
+                    filterEndingDateInput  .setFocusable(true);
+                }
+            }
+        });
+
+
+        directoryInput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
+        fileNameInput.setBackgroundColor (ContextCompat.getColor(getActivity(), R.color.colorGray));
+        fileNameExtentInput.setBackgroundColor(ContextCompat.
+                                                    getColor(getActivity(), R.color.colorGray));
+        filterStartingDateInput.setBackgroundColor(ContextCompat.
+                                                    getColor(getActivity(), R.color.colorGray));
+        filterEndingDateInput.setBackgroundColor(ContextCompat.
+                                                    getColor(getActivity(), R.color.colorGray));
+
+        directoryInput         .setFocusable(false);
+        fileNameInput          .setFocusable(false);
+        fileNameExtentInput    .setFocusable(false);
+        filterStartingDateInput.setFocusable(false);
+        filterEndingDateInput  .setFocusable(false);
+
+
+
+        }
+
 
     private void   initializeUI(View v){
         //determine if a person is yet associated with the fragment
@@ -695,7 +782,8 @@ public class MMExportHistoryFragment extends Fragment {
                         if ((positionSched > 0) && (positionSched != lastSched-1)){
                             prescription.append(", ");
                         }
-                        if (positionSched == lastSched-1){
+                        //put "and" in front of last dose of the day, unless there is only one
+                        if ((positionSched == lastSched-1) && (lastSched != 1)){
                             prescription.append(" and ");
                         }
                         schedule = schedules.get(positionSched);

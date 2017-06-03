@@ -356,6 +356,10 @@ public class MMMainActivity extends AppCompatActivity {
         } else if (id == R.id.action_alert){
             switchToMedicationAlertScreen();
             return true;
+
+        } else if (id == R.id.action_midnight_noon){
+            MMUtilities.getInstance().showStatus(this, R.string.action_midnight_noon);
+            return true;
         }
 
 

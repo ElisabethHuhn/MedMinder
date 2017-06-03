@@ -65,12 +65,12 @@
 
         </LinearLayout>
 
-        <!-- Export Buttton -->
+        <!-- Export Button -->
         <Button
             style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/exportButton"
             android:text="@string/export_label"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
@@ -105,7 +105,7 @@
             android:background=   "@color/colorLabelBackground"
             />
 
-        <!-- Radio Groups: Destination -->
+        <!-- Radio Group: Destination -->
         <RadioGroup
 
             android:id="@+id/radioDestination"

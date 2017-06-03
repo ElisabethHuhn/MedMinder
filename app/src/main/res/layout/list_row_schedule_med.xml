@@ -63,7 +63,7 @@
 
         android:layout_height="wrap_content"
         android:layout_width="0dp"
-        android:layout_weight="10"
+        android:layout_weight="4"
 
         android:focusable="false"
 
@@ -74,5 +74,25 @@
         android:textColor="@color/colorTextBlack"
         android:background="@color/colorWhite"
         />
+
+    <!-- Dose units -->
+    <EditText
+        android:id="@+id/scheduleUnitsOutput"
+        android:text="@string/medication_dose_am"
+
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="4"
+
+        android:focusable="false"
+
+
+        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+        android:gravity="center_horizontal"
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorWhite"
+        />
+
 
 </LinearLayout>

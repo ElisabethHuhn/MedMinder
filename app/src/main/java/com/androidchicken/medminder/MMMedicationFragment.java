@@ -722,8 +722,8 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             }
         });
 
-        timePickerDialog.setTitle(R.string.medication_sched_time_title);
-        timePickerDialog.setMessage(getString(R.string.midnight_noon_info));
+
+        timePickerDialog.setMessage(getString(R.string.medication_sched_time_title));
         timePickerDialog.show();
         return timePickerDialog;
     }

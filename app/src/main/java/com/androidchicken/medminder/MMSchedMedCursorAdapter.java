@@ -26,7 +26,7 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public EditText medicationNickNameOutput;
-        public EditText medicationTime, medicationAmt;
+        public EditText medicationTime, medicationAmt, medicationUnits;
 
 
         public MyViewHolder(View v) {
@@ -34,6 +34,8 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
 
             medicationTime           = (EditText) v.findViewById(R.id.scheduleTimeOutput);
             medicationNickNameOutput = (EditText) v.findViewById(R.id.scheduleMedNameOutput);
+            medicationAmt            = (EditText) v.findViewById(R.id.scheduleMedAmtOutput);
+            medicationUnits          = (EditText) v.findViewById(R.id.scheduleUnitsOutput);
         }
 
     } //end inner class MyViewHolder
@@ -127,7 +129,11 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
         }
 
         int amount = medication.getDoseAmount();
-        holder.medicationAmt.setText(String.valueOf(amount));
+        String amountString = String.valueOf(amount);
+        holder.medicationAmt.setText(amountString);
+
+        String amountUnits = medication.getDoseUnits().toString();
+        holder.medicationUnits.setText(amountUnits);
 
     }
 

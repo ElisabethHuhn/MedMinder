@@ -976,7 +976,7 @@ public class MMHomeFragment extends Fragment {
         // that define the ConcurrentDose and its contained Doses
         //
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View v = inflater.inflate(R.layout.list_row_dose_history_vert, null);
+        View v = inflater.inflate(R.layout.list_row_dose_history_horz, null);
         LinearLayout layout = (LinearLayout) v.findViewById(R.id.doseHistoryLine);
 
 

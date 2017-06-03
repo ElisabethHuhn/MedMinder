@@ -142,6 +142,10 @@ public class MMScheduleListFragment extends Fragment {
         label = (EditText) (field_container.findViewById(R.id.scheduleMedAmtOutput));
         label.setText(R.string.medication_dose_amount_label);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
+        label = (EditText) (field_container.findViewById(R.id.scheduleUnitsOutput));
+        label.setText(R.string.medication_dose_units_label);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
     }
 
     private void initializeRecyclerView(View v){
