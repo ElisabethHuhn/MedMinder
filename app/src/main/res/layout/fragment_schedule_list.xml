@@ -43,7 +43,7 @@
             android:background="@color/colorScreenBackground"
             />
 
-        <!--  Person ID and Nickname -->
+        <!--  Person Nickname -->
         <LinearLayout
             android:layout_width=  "match_parent"
             android:layout_height= "wrap_content"
@@ -66,31 +66,14 @@
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorLabelBackground"
                 />
-            <EditText
-                android:id=           "@+id/personIdInput"
 
-                android:layout_height="wrap_content"
-                android:layout_width= "0dp"
-                android:layout_weight="25"
-                android:gravity="center_horizontal"
-
-                android:freezesText="true"
-
-                android:inputType=    "text"
-                android:imeOptions=   "flagNoExtractUi"
-
-                android:layout_marginEnd="4dp"
-
-                android:textColor=    "@color/colorTextBlack"
-                android:background=   "@color/colorInputBackground"
-                />
 
             <EditText
                 android:id=           "@id/personNickNameInput"
 
                 android:layout_height="wrap_content"
                 android:layout_width= "0dp"
-                android:layout_weight="50"
+                android:layout_weight="75"
                 android:gravity="center_horizontal"
 
                 android:freezesText="true"

@@ -582,23 +582,51 @@ public class MMDatabaseManager {
     //***********************************************/
     /*        Concurrent Dose CRUD methods          */
     //***********************************************/
+    //gets the ConcurrentDoses linked to this person
     public Cursor getAllConcurrentDosesCursor(long personID, String orderClause){
-        return mDatabaseHelper.getObject(  mDatabase,
-                                        TABLE_CONCURRENT_DOSE,
-                                        null,    //get the whole object
-                                        getConcurrentDosesWhereClause(personID),
-                                        null, null, null,
-                                        orderClause);   //order by clause
+        String whereClause = getConcurrentDosesWhereClause(personID) ;
+        return mDatabaseHelper.getObject(   mDatabase,
+                                            TABLE_CONCURRENT_DOSE,
+                                            null,    //get the whole object
+                                            whereClause,
+                                            null, null, null,
+                                            orderClause);   //order by clause
+    }
+
+    public Cursor getAllConcurrentDosesCursor(long personID, long earliestDate, String orderClause){
+        String whereClause = getConcurrentDosesWhereClause(personID) + " AND " +
+                getConcurrentDosesHistoryWhereClause(earliestDate);
+        return mDatabaseHelper.getObject(   mDatabase,
+                                            TABLE_CONCURRENT_DOSE,
+                                            null,    //get the whole object
+                                            whereClause,
+                                            null, null, null,
+                                            orderClause);   //order by clause
+    }
+
+    public Cursor getAllConcurrentDosesCursor(long personID,
+                                              long earliestDate,
+                                              long latestDate,
+                                              String orderClause){
+        String whereClause = getConcurrentDosesWhereClause(personID) + " AND " +
+                             getConcurrentDosesHistoryWhereClause(earliestDate, latestDate) ;
+        return mDatabaseHelper.getObject(   mDatabase,
+                                            TABLE_CONCURRENT_DOSE,
+                                            null,    //get the whole object
+                                            whereClause,
+                                            null, null, null,
+                                            orderClause);   //order by clause
 
 
     }
 
-
     //gets the ConcurrentDoses linked to this person
-    public ArrayList<MMConcurrentDose> getAllConcurrentDoses(long personID, String orderClause){
+    public ArrayList<MMConcurrentDose> getAllConcurrentDoses(long personID,
+                                                             long earliestDate,
+                                                             String orderClause){
         if (personID == 0) return null;
 
-        Cursor cursor = getAllConcurrentDosesCursor(personID, orderClause);
+        Cursor cursor = getAllConcurrentDosesCursor(personID, earliestDate, orderClause);
 
         //create a concurrentDose object from the Cursor object
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
@@ -655,6 +683,16 @@ public class MMDatabaseManager {
                                                                     String.valueOf(personID) + "'";
     }
 
+    private String getConcurrentDosesHistoryWhereClause(long earliestDate){
+        return MMDataBaseSqlHelper.CONCURRENT_DOSE_TIME + " > '" +
+                String.valueOf(earliestDate) + "'";
+    }
+
+    private String getConcurrentDosesHistoryWhereClause(long earliestDate, long latestDate){
+        return
+        MMDataBaseSqlHelper.CONCURRENT_DOSE_TIME + " > '" + String.valueOf(earliestDate) + "' AND " +
+        MMDataBaseSqlHelper.CONCURRENT_DOSE_TIME + " < '" + String.valueOf(latestDate)   + "'";
+    }
 
     private String getConcurrentDosesIDWhereClause(long concurrentDoseID){
         return MMDataBaseSqlHelper.CONCURRENT_DOSE_ID + " = '" +

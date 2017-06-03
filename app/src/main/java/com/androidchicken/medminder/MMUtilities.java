@@ -19,6 +19,7 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -57,6 +58,10 @@ public class MMUtilities {
 
 
     public static final long    ID_DOES_NOT_EXIST = -1;
+
+    public static final long milliPerSecond   = 1000;
+    public static final long secondsPerMinute = 60;
+    public static final long minutesPerHour   = 60;
 
 
 
@@ -170,6 +175,14 @@ public class MMUtilities {
     //************************************/
     /*         Date / Time Utilities     */
     //************************************/
+
+    public long convertMinutesToMilli(long minutes){
+        return minutes * secondsPerMinute * milliPerSecond;
+    }
+
+    public long convertMilliToMinutes(long milli){
+        return milli / (milliPerSecond * secondsPerMinute);
+    }
 
 
     //The only reason these are here is so that the app
@@ -449,6 +462,55 @@ public class MMUtilities {
 
 
 
+    public long convertGMTtoLocal(long milliGMT){
+        long offsetTZ  = getTimezoneOffset();
+        long offsetDST = getDSTOffset();
+        long localTimeMilli = milliGMT + offsetDST - offsetTZ;
+
+        // TODO: 6/2/2017 get rid of debug String
+        boolean is24Format = true;
+        String localTimeString = getTimeString(localTimeMilli, is24Format);
+        return localTimeMilli;
+    }
+
+    public long convertLocaltoGMT(long milliLocal){
+        long offsetTZ  = getTimezoneOffset();
+        long offsetDST = getDSTOffset();
+        long gmtTimeMilli = milliLocal - offsetDST + offsetTZ;
+
+        // TODO: 6/2/2017 get rid of debug String
+        boolean is24Format = true;
+        String gmtTimeString = getTimeString(gmtTimeMilli, is24Format);
+        return gmtTimeMilli;
+    }
+
+    public int convertMinutesGMTtoLocal(int minutesGMT){
+        long timeDueMilli = (long) minutesGMT * MMUtilities.secondsPerMinute * MMUtilities.milliPerSecond;
+        long offsetTZ  = MMUtilities.getInstance().getTimezoneOffset();
+        long offsetDST = MMUtilities.getInstance().getDSTOffset();
+        timeDueMilli = timeDueMilli + offsetTZ - offsetDST;
+
+        // TODO: 6/2/2017 get rid of debug string
+        boolean is24Format = true;
+        String timeString = getTimeString(timeDueMilli, is24Format);
+
+        return (int)(timeDueMilli / (MMUtilities.secondsPerMinute * MMUtilities.milliPerSecond));
+    }
+
+    public int convertMinutesLocaltoGMT(int minutesLocal){
+        long timeDueMilli = (long) minutesLocal * MMUtilities.secondsPerMinute * MMUtilities.milliPerSecond;
+        long offsetTZ  = MMUtilities.getInstance().getTimezoneOffset();
+        long offsetDST = MMUtilities.getInstance().getDSTOffset();
+        timeDueMilli = timeDueMilli - offsetTZ + offsetDST;
+
+        // TODO: 6/2/2017 get rid of debug string
+        boolean is24Format = true;
+        String timeString = getTimeString(timeDueMilli, is24Format);
+
+        return (int)(timeDueMilli / (MMUtilities.secondsPerMinute * MMUtilities.milliPerSecond));
+    }
+
+
 
     public Date convertStringToTimeDate(MMMainActivity activity,
                                         String timeSinceMidnightString,
@@ -587,6 +649,7 @@ public class MMUtilities {
 
     public  void hideSoftKeyboard(FragmentActivity context){
         //hide the soft keyboard
+
         // Check if no view has focus:
         View view = context.getCurrentFocus();
         if (view != null) {
@@ -595,7 +658,14 @@ public class MMUtilities {
                     (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
             //second parameter is flags. We don't need any of them
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+
         }
+
+        //close the keyboard
+        context.getWindow().
+                setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
 
     }
 

@@ -86,6 +86,17 @@ public class MMConcurrentDoseManager {
         return databaseManager.getAllConcurrentDosesCursor(personID, orderClause);
     }
 
+    public Cursor getAllConcurrentDosesCursor (long personID, long earliestDate){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        String orderClause = MMDataBaseSqlHelper.CONCURRENT_DOSE_TIME;
+        return databaseManager.getAllConcurrentDosesCursor(personID, earliestDate, orderClause);
+    }
+
+    public Cursor getAllConcurrentDosesCursor (long personID, long earliestDate, long latestDate){
+        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
+        String orderClause = MMDataBaseSqlHelper.CONCURRENT_DOSE_TIME;
+        return databaseManager.getAllConcurrentDosesCursor(personID, earliestDate, latestDate, orderClause);
+    }
 
     public boolean removeConcurrentDoesFromDB(long concurrentDoseID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();

@@ -560,6 +560,12 @@ public class MMMedicationAlertFragment extends Fragment  {
                                 onSaveSelected(dialog, which);
                             }
                         })
+                .setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                       onDeleteSelected(dialog,  which);
+                    }
+                })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // do nothing
@@ -587,18 +593,18 @@ public class MMMedicationAlertFragment extends Fragment  {
 
 
         EditText medIDInput      = (EditText)((AlertDialog)dialog).
-                                                                  findViewById(R.id.dMedAlertMedID);
+                findViewById(R.id.dMedAlertMedID);
         EditText personIDInput   = (EditText)((AlertDialog)dialog).
-                                                               findViewById(R.id.dMedAlertPersonID);
+                findViewById(R.id.dMedAlertPersonID);
         EditText overdueDay      = (EditText)((AlertDialog)dialog).
-                                                        findViewById(R.id.dMedAlertOverdueDayInput);
+                findViewById(R.id.dMedAlertOverdueDayInput);
         EditText overdueHour     = (EditText)((AlertDialog)dialog).
-                                                       findViewById(R.id.dMedAlertOverdueHourInput);
+                findViewById(R.id.dMedAlertOverdueHourInput);
         EditText overdueMinute   = (EditText)((AlertDialog)dialog).
-                                                     findViewById(R.id.dMedAlertOverdueMinuteInput);
+                findViewById(R.id.dMedAlertOverdueMinuteInput);
 
         if ((medIDInput == null) || (personIDInput == null) ||
-            (overdueDay == null) || (overdueHour == null)   || (overdueMinute == null) ){
+                (overdueDay == null) || (overdueHour == null)   || (overdueMinute == null) ){
             MMUtilities.getInstance().errorHandler(getActivity(), R.string.prog_error_views_not_found);
             return;
         }
@@ -609,8 +615,8 @@ public class MMMedicationAlertFragment extends Fragment  {
         String minuteString = overdueMinute.getText().toString();
 
         if ((dayString.isEmpty())    || (!TextUtils.isDigitsOnly(dayString))   ||
-            (hourString.isEmpty())   || (!TextUtils.isDigitsOnly(hourString))  ||
-            (minuteString.isEmpty()) || (!TextUtils.isDigitsOnly(minuteString)) ){
+                (hourString.isEmpty())   || (!TextUtils.isDigitsOnly(hourString))  ||
+                (minuteString.isEmpty()) || (!TextUtils.isDigitsOnly(minuteString)) ){
             MMUtilities.getInstance().errorHandler(getActivity(), R.string.error_time_entry);
             return;
         }
@@ -650,10 +656,10 @@ public class MMMedicationAlertFragment extends Fragment  {
         MMMedicationAlertManager medicationAlertManager = MMMedicationAlertManager.getInstance();
 
         if ((notifyTypePosition == MMMedicationAlert.sNOTIFY_BY_TEXT)&&
-            //We need permission to send a text. Assure that we have it.
-            (!((MMMainActivity)getActivity()).isSMSPermissionGranted())) {
-                message =  R.string.med_alert_text_permission;
-                //showSMSPermissionsDialog();
+                //We need permission to send a text. Assure that we have it.
+                (!((MMMainActivity)getActivity()).isSMSPermissionGranted())) {
+            message =  R.string.med_alert_text_permission;
+            //showSMSPermissionsDialog();
 
         } else {// TODO: 5/5/2017 need something to check for email permissions here
 
@@ -664,7 +670,51 @@ public class MMMedicationAlertFragment extends Fragment  {
 
             //  set the alert alarm. When it triggers, an alert will be sent
             MMUtilities.getInstance().createAlertAlarm(getActivity(),
-                                                medicationAlert.getMedicationAlertID());
+                    medicationAlert.getMedicationAlertID());
+        }
+
+        MMUtilities.getInstance().showStatus(getActivity(), message);
+
+        //reset the selected position so we'll know the dialog is finished
+        mSelectedPosition = sSELECTED_DIALOG_NOT_VISIBLE;
+        mMedSelected      = (int)MMUtilities.ID_DOES_NOT_EXIST;
+        mPersonSelected   = (int)MMUtilities.ID_DOES_NOT_EXIST;
+
+        adapter = getAdapter(getView());
+
+        //Restart the fragment so the Medication Alert will show
+        adapter.closeCursor();
+        ((MMMainActivity)getActivity()).switchToMedicationAlertScreen();
+    }
+
+    private void onDeleteSelected(DialogInterface dialog, int which){
+        //This routine called from the POSITIVE button of the dialog that
+        // invites the user to update the Dose Amounts
+        //dialog is the AlertDialog built in onSelectDoseDialog()
+        //which is a constant on DialogInterface
+        //      = BUTTON_POSITIVE or
+        //      = BUTTON_NEGATIVE or
+        //      = BUTTON_NEUTRAL
+
+        //Get the pointers to the views in the Dialog
+        //LinearLayout layout = (LinearLayout) ((AlertDialog) dialog).findViewById(R.id.dMedAlertLine);
+
+
+        //delete the MedicationAlert
+        MMMedicationAlertCursorAdapter adapter = getAdapter(getView());
+        MMMedicationAlert medicationAlert;
+
+        //delete the selected MedicationAlert
+        medicationAlert = new MMMedicationAlert();
+
+        MMMedicationAlertManager medicationAlertManager = MMMedicationAlertManager.getInstance();
+
+        int message;
+        if (!medicationAlertManager.removeMedicationAlertFromDB(medicationAlert.getMedicationAlertID())) {
+            message =  R.string.medication_alert_unable_to_delete;
+
+        } else {
+            message = R.string.medication_alert_delete_successful;
         }
 
         MMUtilities.getInstance().showStatus(getActivity(), message);

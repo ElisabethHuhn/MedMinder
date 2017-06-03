@@ -1,5 +1,6 @@
 package com.androidchicken.medminder;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,11 +21,12 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
     private Cursor  mSchedMedCursor;
     private boolean mIs24Format;
     private long    mPersonID;
+    private Context mActivity;
 
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public EditText medicationNickNameOutput;
-        public EditText medicationTime;
+        public EditText medicationTime, medicationAmt;
 
 
         public MyViewHolder(View v) {
@@ -37,8 +39,12 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
     } //end inner class MyViewHolder
 
     //Constructor for MMSchedMedsAdapter
-    public MMSchedMedCursorAdapter(Cursor schedMedCursor, boolean is24Format, long personID){
+    public MMSchedMedCursorAdapter(Context activity,
+                                   Cursor schedMedCursor,
+                                   boolean is24Format,
+                                   long personID){
 
+        this.mActivity       = activity;
         this.mSchedMedCursor = schedMedCursor;
         this.mIs24Format     = is24Format;
         this.mPersonID       = personID;
@@ -96,20 +102,32 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
                 schedMedManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
 
         int timeMinutes = schedMed.getTimeDue();
-        long timeMilliseconds = timeMinutes * 60 * 1000;
+        //long timeMilliseconds = timeMinutes * 60 * 1000;
+        long timeMilliseconds = MMUtilities.getInstance().convertMinutesToMilli(timeMinutes);
         String timeString = MMUtilities.getInstance().getTimeString(timeMilliseconds, mIs24Format);
         holder.medicationTime    .setText(timeString);
 
         long medicationID = schedMed.getOfMedicationID();
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
         MMMedication medication = medicationManager.getMedicationFromID(medicationID);
+
         CharSequence msg;
         if (medication == null){
-            msg = "DOESN'T EXIST";
+            msg = mActivity.getString(R.string.sched_list_med_doesnt_exist);
         } else {
             msg = medication.getMedicationNickname();
         }
         holder.medicationNickNameOutput.setText(msg);
+
+        int strategy = medication.getDoseStrategy();
+        //need to set time as needed
+        if (strategy == MMMedication.sAS_NEEDED){
+            msg = mActivity.getString(R.string.sched_list_as_needed);
+            holder.medicationTime    .setText(msg);
+        }
+
+        int amount = medication.getDoseAmount();
+        holder.medicationAmt.setText(String.valueOf(amount));
 
     }
 

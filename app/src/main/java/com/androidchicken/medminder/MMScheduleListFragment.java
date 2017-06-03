@@ -103,22 +103,22 @@ public class MMScheduleListFragment extends Fragment {
 
         //Person ID and name
         TextView personLabel      = (TextView) v.findViewById(R.id.personIDLabel);
-        EditText personIDOutput   = (EditText) v.findViewById(R.id.personIdInput);
+        //EditText personIDOutput   = (EditText) v.findViewById(R.id.personIdInput);
         EditText personNameOutput = (EditText) v.findViewById(R.id.personNickNameInput);
 
         personLabel.setText(R.string.person_label);
         MMPerson person = null;
         String message =
                 String.format(getString(R.string.person_does_not_exist), getPatientID());
-        personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorLightPink));
+       // personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorLightPink));
         if (getPatientID() != MMUtilities.ID_DOES_NOT_EXIST) {
             person = getPerson();
         }
         if (person != null){
-            personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
+            //personIDOutput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
             message = person.getNickname().toString();
         }
-        personIDOutput.setText(String.valueOf(getPatientID()));
+        //personIDOutput.setText(String.valueOf(getPatientID()));
         personNameOutput.setText(message);
     }
 
@@ -137,6 +137,10 @@ public class MMScheduleListFragment extends Fragment {
 
         label = (EditText) (field_container.findViewById(R.id.scheduleMedNameOutput));
         label.setText(R.string.medication_nick_name_label);
+        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+
+        label = (EditText) (field_container.findViewById(R.id.scheduleMedAmtOutput));
+        label.setText(R.string.medication_dose_amount_label);
         label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
     }
 
@@ -183,7 +187,10 @@ public class MMScheduleListFragment extends Fragment {
 
         boolean is24Format = MMSettings.getInstance().getClock24Format((MMMainActivity)getActivity());
         MMSchedMedCursorAdapter adapter =
-                                    new MMSchedMedCursorAdapter(cursor, is24Format, getPatientID());
+                                    new MMSchedMedCursorAdapter(getActivity(),
+                                                                cursor,
+                                                                is24Format,
+                                                                getPatientID());
         recyclerView.setAdapter(adapter);
 
         //6) create and set the itemAnimator

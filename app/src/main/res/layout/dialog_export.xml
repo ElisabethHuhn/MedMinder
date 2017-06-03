@@ -1,9 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width= "wrap_content"
+    android:orientation="vertical"
+    android:layout_gravity="center_horizontal"
+    >
+
+    <TextView
+        android:id=           "@+id/exportDestinationsLabel"
+
+        android:layout_height="wrap_content"
+        android:layout_width= "match_parent"
+
+        android:gravity=      "center_horizontal"
+
+        android:freezesText="true"
+
+        android:focusable="false"
+
+        android:text="@string/export_destinations"
+        android:textColor=    "@color/colorTextBlack"
+        android:background=   "@color/colorLabelBackground"
+        />
 
     <RadioGroup
-        xmlns:android="http://schemas.android.com/apk/res/android"
 
-        android:id="@+id/radioExport"
+        android:id="@+id/radioDestination"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -13,28 +36,68 @@
         android:background="?android:attr/selectableItemBackground">
 
         <RadioButton
-            android:id="@+id/radioEHistory"
+            android:id="@+id/radioEmail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/export_radio_email_history"
+            android:text="@string/export_radio_email"
             android:checked="true" />
 
         <RadioButton
-            android:id="@+id/radioEPrescription"
+            android:id="@+id/radioText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/export_radio_email_prescript" />
+            android:text="@string/export_radio_text" />
 
         <RadioButton
-            android:id="@+id/radioFHistory"
+            android:id="@+id/radioFile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/export_radio_file_history" />
+            android:text="@string/export_radio_file" />
 
-        <RadioButton
-        android:id="@+id/radioFPrescription"
-        android:layout_width="wrap_content"
+
+    </RadioGroup>
+
+    <TextView
+        android:id=           "@+id/exportContentLabel"
         android:layout_height="wrap_content"
-        android:text="@string/export_radio_file_prescript" />
+        android:layout_width= "match_parent"
+
+        android:gravity=      "center_horizontal"
+
+        android:freezesText="true"
+
+        android:focusable="false"
+
+        android:text="@string/export_destinations"
+        android:textColor=    "@color/colorTextBlack"
+        android:background=   "@color/colorLabelBackground"
+        />
+
+    <RadioGroup
+
+        android:id="@+id/radioContent"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:clickable="true"
+
+        android:background="?android:attr/selectableItemBackground">
+
+        <RadioButton
+            android:id="@+id/radioHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/export_radio_history"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/radioPrescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/export_radio_prescript" />
+
 
 </RadioGroup>
+
+</LinearLayout>

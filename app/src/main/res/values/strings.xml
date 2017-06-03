@@ -27,6 +27,8 @@
     <string name="one_string"         >1</string>
     <string name="zero_string"        >00</string>
 
+    <string name="midnight_noon_info">12:00 am is midnight, 12:00 pm is noon</string>
+
 
     <!--      Notifications            -->
     <string name="time_to_take"        >Time to take</string>
@@ -41,6 +43,7 @@
     <string name="action_switch_patient">Switch Patient</string>
     <string name="action_edit_patient"  >Edit Patient</string>
     <string name="action_med_alert"     >Text/Email Alerts</string>
+    <string name="action_med_help"      >Help with Meds Order</string>
 
     <!--      Add New object                  -->
     <string name="add_person"           >Add New Person</string>
@@ -67,7 +70,7 @@
     <!--  -->
     <string name="medication_screen_label"      >Medication Prescription</string>
     <string name="medication_id_label"          >Medication</string>
-    <string name="medication_nick_name_label"   >Nick Name</string>
+    <string name="medication_nick_name_label"   >Med Name</string>
     <string name="medication_brand_name_label"  >Brand Name</string>
     <string name="medication_generic_name_label">Generic Name</string>
     <string name="medication_for_label"         >Patient</string>
@@ -78,12 +81,10 @@
     <string name="medication_dose_units_label"  >Unit</string>
     <string name="medication_num_label"         ># per day</string>
     <string name="number_hash_tag"              >#</string>
+    <string name="medication_button_after_save" >Must save first before setting schedule</string>
 
-    <string name="medication_add_schedule"      >Save Schedule</string>
-    <string name="medication_update_schedule"   >Update Schedule</string>
-    <string name="medication_maintain_schedule" >Maintain Schedule</string>
-    <string name="medication_save_first"        >Save + proper strategy to enable Add Schedule</string>
-    <string name="medication_not_scheduled"     >Can not set schedule times unless Strategy indicates schedule</string>
+    <string name="medication_sched_time_title"  >Enter time to take dose</string>
+
 
     <string name="medication_brand_name_hint"   >Enter Brand Name</string>
     <string name="medication_generic_name_hint" >Enter Generic Name</string>
@@ -153,7 +154,7 @@
     <string name="dose_default_time"            >00:00 am</string>
     <string name="reselect_dose"                >Re-select Dose to edit</string>
     <string name="error_parsing_date_time"      >Error parsing Date and / or Time</string>
-    <string name="show_meds_help_label"         >Meds Help</string>
+    <string name="show_meds_help_label"         >Meds Order Help</string>
 
 
     <string name="input_received"    >Input received</string>
@@ -173,7 +174,7 @@
     <string name="error_unable_to_create_file">ERROR unable to create file. Data not saved</string>
     <string name="error_unable_to_access_storage"   >ERROR: unable to access storage. Data not saved</string>
     <string name="export_label"               >Export</string>
-    <string name="export_prescription_label"  >Export Prescript</string>
+    <string name="export_prescription_label"  >Export Prescription</string>
     <string name="export_history_label"       >Export History</string>
     <string name="email_not_defined"          >Patient email address not defined</string>
     <string name="export_title_prescriptions" >Prescriptions for: %s</string>
@@ -184,23 +185,38 @@
     <string name="export_day_error"           >Too many days for your month</string>
     <string name="export_month_error"         >Months must be less than or eaual to 12</string>
     <string name="export_year_error"          >Years must be less than or equal to 99</string>
-    <string name="export_radio_email_history"   >Email History</string>
-    <string name="export_radio_email_prescript" >Email Prescription</string>
-    <string name="export_radio_file_history"    >Write to File History</string>
-    <string name="export_radio_file_prescript"  >Write to File Prescription</string>
-    <string name="export_dialog_title"          >Export Options</string>
-    <string name="export_dialog_message"        >Please Select:</string>
-    <string name="export_file_written"          >Export file has been written</string>
-    <string name="export_prescriptions"         >Prescriptions</string>
-    <string name="export_history"               >History</string>
+
+    <string name="export_destinations"        >--------Destination of Exported Information---------</string>
+    <string name="export_radio_email"         >Email</string>
+    <string name="export_radio_text"          >Text</string>
+    <string name="export_radio_file"          >File</string>
+    <string name="export_radio_general"       >General</string>
+    <string name="export_content"             >--------------Content to be Exported--------------</string>
+    <string name="export_radio_history"       >History</string>
+    <string name="export_radio_prescript"     >Prescription</string>
+
+    <string name="export_chooser_title"       >Export to:</string>
+    <string name="export_no_app"             >No app found on your phone which can perform this export</string>
+
+
+    <string name="export_dialog_title"        >Export Options</string>
+    <string name="export_dialog_message"      >Please Select Destination and Content:</string>
+    <string name="export_file_written"        >Export file has been written</string>
+    <string name="export_prescriptions"       >Prescriptions</string>
+    <string name="export_history"             >History</string>
 
     <!--      Schedule List SCREEN                  -->
+    <string name="sched_list_med_doesnt_exist">DOES NOT EXIST</string>
+    <string name="sched_list_as_needed"       >As Needed</string>
+
 
 
     <!--      Settings SCREEN                  -->
     <string name="settings_current_patient"     >Patient</string>
-    <string name="settings_default_time_due"    >Default Time Due for scheduled medications</string>
+    <string name="settings_default_time_due"    >Medications: Default Time Due for schedule</string>
     <string name="settings_default_time"        >Time</string>
+    <string name="settings_earliest_history_date">Home: Earliest date of dose in history list</string>
+    <string name="settings_history_date"        >Date</string>
     <string name="settings_incorrect_format"    >Time field incorrect, resetting....</string>
     <string name="settings_24format"            >Is Clock 24 hour format?</string>
     <string name="settings_show_deleted_people" >Show Deleted Persons?</string>
@@ -211,10 +227,12 @@
     <!--      Medication Alert SCREEN                  -->
     <!--  -->
     <string name="medication_alert_screen_label"    >Medication Alerts</string>
-    <string name="medication_alert_num_label"       ># Alarms</string>
+    <string name="medication_alert_num_label"       ># Alerts</string>
     <string name="medication_alert_type"            >Email/Text</string>
     <string name="medication_alert_notify"          >Notify</string>
     <string name="medication_alert_time_overdue"    >When D:H:M</string>
+    <string name="medication_alert_unable_to_delete">Unable to delete Medication Alert</string>
+    <string name="medication_alert_delete_successful">Deletion Successful</string>
 
 
     <!-- exception messages -->

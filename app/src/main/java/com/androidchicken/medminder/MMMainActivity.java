@@ -345,9 +345,14 @@ public class MMMainActivity extends AppCompatActivity {
             }
             return true;
 
-        } else if (id == R.id.action_edit_patient){
+        } else if (id == R.id.action_edit_patient) {
             switchToPersonScreen();
             return true;
+        } else if (id == R.id.action_med_help){
+            if (getPatientID() != MMUtilities.ID_DOES_NOT_EXIST) {
+                //Show the medication positions for the history list
+                switchToHistoryTitleScreen();
+            }
         } else if (id == R.id.action_alert){
             switchToMedicationAlertScreen();
             return true;
@@ -387,6 +392,10 @@ public class MMMainActivity extends AppCompatActivity {
     private void switchScreen(Fragment fragment, String tag) {
         //Need the Fragment Manager to do the swap for us
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+        //clear the back stack
+        while (fm.getBackStackEntryCount() > 0){
+            fm.popBackStackImmediate();
+        }
 
         //Are any fragments already being displayed?
         Fragment oldFragment = fm.findFragmentById(R.id.fragment_container);
@@ -462,14 +471,6 @@ public class MMMainActivity extends AppCompatActivity {
     public void switchToSettingsScreen(){
         //replace the fragment with the Home UI
 
-        //Need the Fragment Manager to do the swap for us
-        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-
-        //clear the back stack
-        while (fm.getBackStackEntryCount() > 0){
-            fm.popBackStackImmediate();
-        }
-
         Fragment fragment    = new MMSettingsFragment();
         String   tag         = sSettingsTag;
         int      title       = R.string.title_settings;
@@ -486,13 +487,6 @@ public class MMMainActivity extends AppCompatActivity {
     public void switchToHomeScreen(){
         //replace the fragment with the Home UI
 
-        //Need the Fragment Manager to do the swap for us
-        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-
-        //clear the back stack
-        while (fm.getBackStackEntryCount() > 0){
-            fm.popBackStackImmediate();
-        }
 
         Fragment fragment    = new MMHomeFragment();
         String   tag         = sHomeTag;
@@ -512,13 +506,6 @@ public class MMMainActivity extends AppCompatActivity {
     public void switchToHistoryTitleScreen(){
         //replace the fragment with the Home UI
 
-        //Need the Fragment Manager to do the swap for us
-        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-
-        //clear the back stack
-        while (fm.getBackStackEntryCount() > 0){
-            fm.popBackStackImmediate();
-        }
 
         Fragment fragment    = new MMHistoryTitleLineFragment();
         String   tag         = sHistoryTitleTag;
@@ -535,14 +522,6 @@ public class MMMainActivity extends AppCompatActivity {
      */
     public void switchToPersonScreen(){
         //replace the fragment with the Home UI
-
-        //Need the Fragment Manager to do the swap for us
-        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-
-        //clear the back stack
-        while (fm.getBackStackEntryCount() > 0){
-            fm.popBackStackImmediate();
-        }
 
         Fragment fragment    = new MMPersonFragment();
         String   tag         = sPersonTag;
@@ -561,6 +540,7 @@ public class MMMainActivity extends AppCompatActivity {
 
     public void switchToPersonListScreen(CharSequence returnTag){
         //replace the fragment with the list of persons already defined
+
 
         Fragment fragment    = MMPersonListFragment.newInstance(returnTag);
         String   tag         = sPersonListTag;
@@ -591,14 +571,6 @@ public class MMMainActivity extends AppCompatActivity {
     public void switchToMedicationScreen(){
         //replace the fragment with the Home UI
 
-        //Need the Fragment Manager to do the swap for us
-        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-
-        //clear the back stack
-        while (fm.getBackStackEntryCount() > 0){
-            fm.popBackStackImmediate();
-        }
-
         Fragment fragment    = MMMedicationFragment.newInstance(getPatientID(), -1);
         String   tag         = sMedicationTag;
         int      title       = R.string.title_medication;
@@ -609,14 +581,6 @@ public class MMMainActivity extends AppCompatActivity {
 
     public void switchToMedicationScreen(int position){
         //replace the fragment with the Home UI
-
-        //Need the Fragment Manager to do the swap for us
-        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-
-        //clear the back stack
-        while (fm.getBackStackEntryCount() > 0){
-            fm.popBackStackImmediate();
-        }
 
         Fragment fragment    = MMMedicationFragment.newInstance(getPatientID(), position);
         String   tag         = sMedicationTag;
@@ -633,14 +597,6 @@ public class MMMainActivity extends AppCompatActivity {
      */
     public void switchToMedicationAlertScreen(){
         //replace the fragment with the Home UI
-
-        //Need the Fragment Manager to do the swap for us
-        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-
-        //clear the back stack
-        while (fm.getBackStackEntryCount() > 0){
-            fm.popBackStackImmediate();
-        }
 
         Fragment fragment    = new MMMedicationAlertFragment();
         String   tag         = sMedAlertTag;
@@ -672,13 +628,6 @@ public class MMMainActivity extends AppCompatActivity {
      */
     public void switchToExportScreen(){
 
-        //Need the Fragment Manager to do the swap for us
-        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-
-        //clear the back stack
-        while (fm.getBackStackEntryCount() > 0){
-            fm.popBackStackImmediate();
-        }
 
         Fragment fragment    = new MMExportHistoryFragment();
         String   tag         = sExportTag;

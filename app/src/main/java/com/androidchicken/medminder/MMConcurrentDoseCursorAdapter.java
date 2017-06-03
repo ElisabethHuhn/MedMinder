@@ -77,7 +77,7 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
 
         View itemView = LayoutInflater.from(parent.getContext())
-                                      .inflate(R.layout.list_row_dose_history, parent,false);
+                                      .inflate(R.layout.list_row_dose_history_horz, parent,false);
         return new MyViewHolder(itemView);
 
     }
@@ -104,7 +104,8 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
 
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
         //Create a new Cursor with the current contents of DB
-        mConcurrentDoseCursor = concurrentDoseManager.getAllConcurrentDosesCursor(mPersonID);
+        long earliestDate = MMSettings.getInstance().getHistoryDate((MMMainActivity)mActivity);
+        mConcurrentDoseCursor = concurrentDoseManager.getAllConcurrentDosesCursor(mPersonID, earliestDate);
 
         //Tell the RecyclerView to update the User Display
         notifyDataSetChanged();
@@ -120,7 +121,8 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
 
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
         if (mConcurrentDoseCursor == null){
-            mConcurrentDoseCursor = concurrentDoseManager.getAllConcurrentDosesCursor(mPersonID);
+            long earliestDate = MMSettings.getInstance().getHistoryDate((MMMainActivity)mActivity);
+            mConcurrentDoseCursor = concurrentDoseManager.getAllConcurrentDosesCursor(mPersonID, earliestDate);
             //if there is no history for this person, just return
             if (mConcurrentDoseCursor == null)return;
         }

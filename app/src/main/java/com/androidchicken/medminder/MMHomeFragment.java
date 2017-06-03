@@ -132,12 +132,9 @@ public class MMHomeFragment extends Fragment {
         //hide the soft keyboard
         MMUtilities utilities = MMUtilities.getInstance();
         utilities.hideSoftKeyboard(getActivity());
-/*
-        //close the keyboard
-        getActivity().getWindow().
-                setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
- */
+
+
         //start the medButton animation
         startMedButtonBlink(v);
 
@@ -228,25 +225,6 @@ public class MMHomeFragment extends Fragment {
         });
 
 
-        //Show Medications Help Button
-        Button showMedsHelpButton = (Button) v.findViewById(R.id.showMedsHelpButton);
-        showMedsHelpButton.setText(R.string.show_meds_help_label);
-        //the order of images here is left, top, right, bottom
-        //mShowMedsHelpButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
-        showMedsHelpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getPersonID() == MMUtilities.ID_DOES_NOT_EXIST)return;
-                //Show the medication positions for the history list
-                ((MMMainActivity) getActivity()).switchToHistoryTitleScreen();
-
-            }
-        });
-
-
-
-
-
         //Medication Buttons
         if (getPersonID() != MMUtilities.ID_DOES_NOT_EXIST){
 
@@ -259,9 +237,9 @@ public class MMHomeFragment extends Fragment {
                 int last = medications.size();
                 if (last > 0) {
                     //convert pixels to dp
-                    int sizeInDp = 10; //padding between buttons
+                    int paddingBetweenBtsDP = 5; //padding between buttons
 
-                    addDateTimeFieldsToView(v, savedInstanceState, sizeInDp);
+                    addDateTimeFieldsToView(v, savedInstanceState, paddingBetweenBtsDP);
 
                     int position = 0;
 
@@ -272,7 +250,7 @@ public class MMHomeFragment extends Fragment {
                                                savedInstanceState,
                                                position,
                                                medication.getMedicationNickname().toString(),
-                                               sizeInDp);
+                                               paddingBetweenBtsDP);
                         }
                         position++;
                     }
@@ -316,9 +294,13 @@ public class MMHomeFragment extends Fragment {
 
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
         //      get  list of concurrentDoses
+        long earliestDate = MMSettings.getInstance().getHistoryDate((MMMainActivity)getActivity());
+        // TODO: 6/1/2017 get rid of debug statements
+        String earliestString = MMUtilities.getInstance().getDateString(earliestDate);
         Cursor concurrentDoseCursor =
                 concurrentDoseManager.getAllConcurrentDosesCursor(
-                                                ((MMMainActivity)getActivity()).getPatientID());
+                                                ((MMMainActivity)getActivity()).getPatientID(),
+                                                  earliestDate);
 
         //5) Use the data to Create and set out concurrentDose Adapter
         //     even though we're giving the Adapter the list,
@@ -877,8 +859,9 @@ public class MMHomeFragment extends Fragment {
         long tzOffset  = MMUtilities.getInstance().getTimezoneOffset();
         long dstOffset = MMUtilities.getInstance().getDSTOffset();
 
-        //apply the offsets
-        milliSeconds = milliSeconds - dstOffset;//+ tzOffset;
+        //Need to apply the DST offset because Jan 1 uses Standard Time
+        //No time zone offset as we are already in GMT
+        milliSeconds = milliSeconds - dstOffset;
 
         // TODO: 5/30/2017 remove the debug statements
         String checkMilliseconds = MMUtilities.getInstance().
@@ -993,26 +976,20 @@ public class MMHomeFragment extends Fragment {
         // that define the ConcurrentDose and its contained Doses
         //
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View v = inflater.inflate(R.layout.list_row_dose_history, null);
+        View v = inflater.inflate(R.layout.list_row_dose_history_vert, null);
         LinearLayout layout = (LinearLayout) v.findViewById(R.id.doseHistoryLine);
 
 
         EditText doseDate = (EditText) v.findViewById(R.id.doseDateLabel);
-        // TODO: 5/31/2017 remove these statements once the code is fixed
-        //doseDate.setEnabled  (false);
-        //doseDate.setFocusable(false);
         doseDate.setText(MMUtilities.getInstance().getDateString(selectedConcurrentDose.getStartTime()));
 
         EditText doseTime = (EditText) v.findViewById(R.id.doseTimeInput);
-        // TODO: 5/31/2017 remove these statements once the code is fixed
-        //doseTime.setEnabled  (false);
-        //doseTime.setFocusable(false);
         doseTime.setText(MMUtilities.getInstance().
                 getTimeString((MMMainActivity)getActivity(), selectedConcurrentDose.getStartTime()));
 
 
         //Get the medications this patient is taking
-        int last     = 0;
+        int last               = 0;
         int medicationPosition = 0;
         ArrayList<MMMedication> medications = null;
         if (getPersonID() != MMUtilities.ID_DOES_NOT_EXIST){
@@ -1198,11 +1175,7 @@ public class MMHomeFragment extends Fragment {
             timeMilliseconds = dosageTime.getTime();
 
             dateTimeMilliseconds = dateMilliseconds + timeMilliseconds;
-            long tzOffset  = MMUtilities.getInstance().getTimezoneOffset();
-            long dstOffset = MMUtilities.getInstance().getDSTOffset();
-
-            dateTimeMilliseconds = dateTimeMilliseconds + tzOffset - dstOffset;
-
+            dateTimeMilliseconds = MMUtilities.getInstance().convertLocaltoGMT(dateTimeMilliseconds);
         } else {
             dateTimeMilliseconds = selectedConcurrentDose.getStartTime();
         }

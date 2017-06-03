@@ -17,22 +17,22 @@
     tools:context=     "com.androidchicken.medminder.MMMainActivityFragment"
 
     >
-
-    <!-- Container for entire screen -->
-    <TableLayout
-        android:layout_width="match_parent"
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|center_vertical"
+        android:layout_width= "match_parent"
+        android:orientation="vertical"
+        android:layout_gravity="center_horizontal"
         >
-
-
         <!-- Row 1: Patient Name -->
-        <TableRow
+        <LinearLayout
 
             android:layout_height="match_parent"
             android:layout_width="match_parent"
+            android:orientation="horizontal"
             android:gravity="center"
             android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             >
 
             <TextView
@@ -63,40 +63,96 @@
                 android:textColor    = "@color/colorTextBlack"
                 />
 
-        </TableRow>
+        </LinearLayout>
 
-        <!-- Exit, Select Patient buttons -->
-        <TableRow
-            android:layout_height="match_parent"
-            android:layout_width ="match_parent"
-            android:paddingTop="10dp"
+        <!-- Export Buttton -->
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:id="@+id/exportButton"
+            android:text="@string/export_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
 
-            >
-            <!-- Export  -->
-            <Button
-                style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/exportButton"
-                android:text="@string/export_label"
-                android:layout_width="0dp"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:layout_marginBottom="10dp"
+
+            android:background="@color/colorButton1Background"
+            android:textColor="@color/colorTextBlack"
+            />
+
+        <!-- Destination Label -->
+        <TextView
+            android:id=           "@+id/exportDestinationsLabel"
+
+            android:layout_height="wrap_content"
+            android:layout_width= "match_parent"
+
+            android:gravity=      "center_horizontal"
+
+            android:freezesText="true"
+
+            android:focusable="false"
+
+            android:paddingTop="15dp"
+
+            android:text="@string/export_destinations"
+            android:textColor=    "@color/colorTextBlack"
+            android:background=   "@color/colorLabelBackground"
+            />
+
+        <!-- Radio Groups: Destination -->
+        <RadioGroup
+
+            android:id="@+id/radioDestination"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:focusable="true"
+            android:clickable="true"
+
+            android:background="?android:attr/selectableItemBackground">
+
+            <RadioButton
+                android:id="@+id/radioGeneral"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="@string/export_radio_general"
+                android:checked="true" />
 
-                android:gravity="center|center_vertical"
+            <RadioButton
+                android:id="@+id/radioEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/export_radio_email" />
 
-                android:layout_weight="10"
+            <RadioButton
+                android:id="@+id/radioText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/export_radio_text" />
 
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
+            <RadioButton
+                android:id="@+id/radioFile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/export_radio_file" />
 
-                android:background="@color/colorButton1Background"
-                android:textColor="@color/colorTextBlack"
-                />
 
-        </TableRow>
+        </RadioGroup>
+
 
         <!-- Row : Directory Path -->
-        <TableRow
+        <LinearLayout
             android:layout_width=  "match_parent"
             android:layout_height= "wrap_content"
+            android:orientation="horizontal"
             android:layout_gravity="center_horizontal"
             android:paddingTop=    "5dp"
             >
@@ -134,13 +190,14 @@
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorInputBackground"
                 />
-        </TableRow>
+        </LinearLayout>
 
         <!-- Row : File Name -->
-        <TableRow
+        <LinearLayout
             android:layout_width=  "match_parent"
             android:layout_height= "wrap_content"
             android:layout_gravity="center_horizontal"
+            android:orientation="horizontal"
             android:paddingTop=    "5dp"
             >
             <TextView
@@ -177,14 +234,16 @@
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorInputBackground"
                 />
-        </TableRow>
+        </LinearLayout>
 
         <!-- Row : File Extent -->
-        <TableRow
+        <LinearLayout
             android:layout_width=  "match_parent"
             android:layout_height= "wrap_content"
+            android:orientation="horizontal"
             android:layout_gravity="center_horizontal"
             android:paddingTop=    "5dp"
+            android:paddingBottom="10dp"
             >
             <TextView
                 android:id=           "@+id/fileExtentLabel"
@@ -220,18 +279,68 @@
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorInputBackground"
                 />
-        </TableRow>
+        </LinearLayout>
+
+        <!-- Content Label -->
+        <TextView
+            android:id=           "@+id/exportContentLabel"
+            android:layout_height="wrap_content"
+            android:layout_width= "match_parent"
+
+            android:gravity=      "center_horizontal"
+
+            android:freezesText="true"
+
+            android:focusable="false"
+
+            android:paddingTop="15dp"
+
+            android:text="@string/export_content"
+            android:textColor=    "@color/colorTextBlack"
+            android:background=   "@color/colorLabelBackground"
+            />
+        <!-- Radio Group: Content  -->
+        <RadioGroup
+
+            android:id="@+id/radioContent"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:focusable="true"
+            android:clickable="true"
+
+            android:background="?android:attr/selectableItemBackground">
+
+            <RadioButton
+                android:id="@+id/radioPrescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/export_radio_prescript"
+                android:checked="true"
+                />
+
+            <RadioButton
+                android:id="@+id/radioHistory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/export_radio_history"
+                />
+
+
+        </RadioGroup>
+
 
         <!-- Row : Filter Start Date -->
-        <TableRow
+        <LinearLayout
             android:layout_width=  "match_parent"
             android:layout_height= "wrap_content"
             android:layout_gravity="center_horizontal"
-            android:paddingTop=    "15dp"
+            android:paddingTop=    "10dp"
             >
             <TextView
-                android:id=           "@+id/filterStartDateLabel"
-                android:labelFor=     "@+id/filterStartDay"
+                android:id=           "@+id/filterStartingDateLabel"
+                android:labelFor=     "@+id/filterStartingDate"
                 android:layout_height="wrap_content"
                 android:layout_width= "0dp"
                 android:layout_weight="25"
@@ -246,16 +355,16 @@
                 android:background=   "@color/colorLabelBackground"
                 />
             <EditText
-                android:id=           "@id/filterStartDay"
+                android:id=           "@id/filterStartingDate"
 
                 android:layout_height="wrap_content"
                 android:layout_width= "0dp"
-                android:layout_weight="25"
+                android:layout_weight="75"
                 android:gravity="center_horizontal"
 
                 android:freezesText="true"
 
-                android:inputType=    "number"
+                android:inputType=    "date"
                 android:imeOptions=   "flagNoExtractUi"
 
                 android:layout_marginEnd="2dp"
@@ -264,56 +373,19 @@
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorInputBackground"
                 />
-            <EditText
-                android:id=           "@+id/filterStartMonth"
 
-                android:layout_height="wrap_content"
-                android:layout_width= "0dp"
-                android:layout_weight="25"
-                android:gravity="center_horizontal"
-
-                android:freezesText="true"
-
-                android:inputType=    "number"
-                android:imeOptions=   "flagNoExtractUi"
-
-                android:layout_marginEnd="2dp"
-
-                android:hint="@string/export_month_hint"
-                android:textColor=    "@color/colorTextBlack"
-                android:background=   "@color/colorInputBackground"
-                />
-            <EditText
-                android:id=           "@+id/filterStartYear"
-
-                android:layout_height="wrap_content"
-                android:layout_width= "0dp"
-                android:layout_weight="25"
-                android:gravity="center_horizontal"
-
-                android:freezesText="true"
-
-                android:inputType=    "number"
-                android:imeOptions=   "flagNoExtractUi"
-
-                android:layout_marginEnd="16dp"
-
-                android:hint="@string/export_year_hint"
-                android:textColor=    "@color/colorTextBlack"
-                android:background=   "@color/colorInputBackground"
-                />
-        </TableRow>
+        </LinearLayout>
 
         <!-- Row : Filter End Date -->
-        <TableRow
+        <LinearLayout
             android:layout_width=  "match_parent"
             android:layout_height= "wrap_content"
             android:layout_gravity="center_horizontal"
             android:paddingTop=    "5dp"
             >
             <TextView
-                android:id=           "@+id/filterEndDateLabel"
-
+                android:id=           "@+id/filterEndingDateLabel"
+                android:labelFor=     "@+id/filterEndingDate"
                 android:layout_height="wrap_content"
                 android:layout_width= "0dp"
                 android:layout_weight="25"
@@ -329,16 +401,16 @@
                 />
 
             <EditText
-                android:id=           "@+id/filterEndDay"
+                android:id=           "@id/filterEndingDate"
 
                 android:layout_height="wrap_content"
                 android:layout_width= "0dp"
-                android:layout_weight="25"
+                android:layout_weight="75"
                 android:gravity="center_horizontal"
 
                 android:freezesText="true"
 
-                android:inputType=    "number"
+                android:inputType=    "date"
                 android:imeOptions=   "flagNoExtractUi"
 
                 android:layout_marginEnd="2dp"
@@ -347,51 +419,12 @@
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorInputBackground"
                 />
-            <EditText
-                android:id=           "@+id/filterEndMonth"
 
-                android:layout_height="wrap_content"
-                android:layout_width= "0dp"
-                android:layout_weight="25"
-                android:gravity="center_horizontal"
+        </LinearLayout>
 
-                android:freezesText="true"
+    </LinearLayout>
 
-                android:inputType=    "number"
-                android:imeOptions=   "flagNoExtractUi"
-
-                android:layout_marginEnd="2dp"
-
-                android:hint="@string/export_month_hint"
-                android:textColor=    "@color/colorTextBlack"
-                android:background=   "@color/colorInputBackground"
-                />
-            <EditText
-                android:id=           "@+id/filterEndYear"
-
-                android:layout_height="wrap_content"
-                android:layout_width= "0dp"
-                android:layout_weight="25"
-                android:gravity="center_horizontal"
-
-                android:freezesText="true"
-
-                android:inputType=    "number"
-                android:imeOptions=   "flagNoExtractUi"
-
-                android:layout_marginEnd="16dp"
-
-                android:hint="@string/export_year_hint"
-                android:textColor=    "@color/colorTextBlack"
-                android:background=   "@color/colorInputBackground"
-                />
-        </TableRow>
-
-    </TableLayout>
-
-
-
-    </ScrollView>
+</ScrollView>
 
 
 

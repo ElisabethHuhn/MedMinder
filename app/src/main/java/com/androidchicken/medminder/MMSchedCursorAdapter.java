@@ -135,11 +135,10 @@ public class MMSchedCursorAdapter extends RecyclerView.Adapter<MMSchedCursorAdap
                 schedMedManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
 
         int timeMinutes = schedMed.getTimeDue();
-        //I tried just using milliseconds, but somewhere it reset the timezone,
-        // causing the time I got back to be Greenwich.
-        // Thus the need to use the Calendar object kludge
-        //If you can do this better, have at it.
+        //convert to milliseconds
         long timeMilliseconds = timeMinutes * 60 * 1000;
+
+        //timeMilliseconds = timeMilliseconds - offsetTz + offsetDST;
 
         String timeString = MMUtilities.getInstance().getTimeString(timeMilliseconds, mIs24Format);
 

@@ -247,14 +247,15 @@ public class MMMedication {
     }
 
     public String shortString() {
+        String ls = System.getProperty("line.separator");
         MMPerson person = MMPersonManager.getInstance().getPerson(mForPersonID);
 
         StringBuilder message = new StringBuilder();
 
-        message.append(System.getProperty("line.separator"));
-        message.append("MEDICATION: ID ");
+        message.append(ls);
+        message.append("MEDICATION: (ID ");
         message.append(String.valueOf(mMedicationID));
-        message.append(" : ");
+        message.append(") : ");
         message.append(mMedicationNickname);
         if (!mBrandName.toString().isEmpty()) {
             message.append("BrandName ");
@@ -269,13 +270,13 @@ public class MMMedication {
             message.append("NOT ");
         }
         message.append("being taken.");
-        message.append(System.getProperty("line.separator"));
+        message.append(ls);
 
-        message.append("Dose Strategy is ");
+        message.append("Dose Strategy is: ");
         message.append(getStrategyString());
-        message.append(System.getProperty("line.separator"));
+        message.append(ls);
 
-        message.append("Dosage is ");
+        message.append("Dosage is: ");
         message.append(String.valueOf(mDoseAmount));
         message.append(" ");
         message.append(String.valueOf(mDoseUnits));

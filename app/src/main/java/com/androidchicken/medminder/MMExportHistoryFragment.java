@@ -1,6 +1,8 @@
 package com.androidchicken.medminder;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,7 +27,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 import static com.androidchicken.medminder.R.id.directoryPath;
 
@@ -37,11 +38,13 @@ import static com.androidchicken.medminder.R.id.directoryPath;
 public class MMExportHistoryFragment extends Fragment {
     private static final String TAG = "ExportHistoryFragment";
 
-    private static final int EXPORT_PRESCRIPTIONS = 0;
-    private static final int EXPORT_HISTORY       = 1;
+    private static final int EXPORT_HISTORY       = 0;
+    private static final int EXPORT_PRESCRIPTIONS = 1;
 
-    private static final int EXPORT_EMAIL         = 2;
-    private static final int EXPORT_FILE          = 3;
+    private static final int EXPORT_EMAIL         = 0;
+    private static final int EXPORT_SMS           = 1;
+    private static final int EXPORT_FILE          = 2;
+    private static final int EXPORT_GENERAL       = 3;
 
     private static final int START_FILTER = 0;
     private static final int END_FILTER   = 1;
@@ -211,36 +214,25 @@ public class MMExportHistoryFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                //onExport(EXPORT_PRESCRIPTIONS);
-                exportDialog();
+                onExport();
             }
         });
 
 
-        label = (TextView)v.findViewById(R.id.filterStartDateLabel);
+
+
+        label = (TextView)v.findViewById(R.id.filterStartingDateLabel);
         label.setText(R.string.start_date_label);
 
-        EditText filterStartDayInput = (EditText) v.findViewById(R.id.filterStartDay);
-        filterStartDayInput.addTextChangedListener(textWatcher);
-
-        EditText filterStartMonthInput = (EditText) v.findViewById(R.id.filterStartMonth);
-        filterStartMonthInput.addTextChangedListener(textWatcher);
-
-        EditText filterStartYearInput = (EditText) v.findViewById(R.id.filterStartYear);
-        filterStartYearInput.addTextChangedListener(textWatcher);
-
-
-        label = (TextView) (v.findViewById(R.id.filterEndDateLabel));
+        label = (TextView) (v.findViewById(R.id.filterEndingDateLabel));
         label.setText(R.string.end_date_label);
 
-        EditText filterEndDayInput = (EditText) (v.findViewById(R.id.filterEndDay));
-        filterEndDayInput.addTextChangedListener(textWatcher);
+        EditText filterEndingDateInput = (EditText) (v.findViewById(R.id.filterEndingDate));
+        filterEndingDateInput.addTextChangedListener(textWatcher);
 
-        EditText filterEndMonthInput = (EditText) (v.findViewById(R.id.filterEndMonth));
-        filterEndMonthInput.addTextChangedListener(textWatcher);
+        EditText filterStartingDateInput = (EditText) (v.findViewById(R.id.filterStartingDate));
+        filterStartingDateInput.addTextChangedListener(textWatcher);
 
-        EditText filterEndYearInput = (EditText) (v.findViewById(R.id.filterEndYear));
-        filterEndYearInput.addTextChangedListener(textWatcher);
 
         label = (TextView) (v.findViewById(R.id.directoryPathLabel));
         label.setText(R.string.directory_path_label);
@@ -318,7 +310,32 @@ public class MMExportHistoryFragment extends Fragment {
         }
     }
 
-    private void onExport(int whatFlag, int whereFlag) {
+    private void onExport() {
+
+
+        View v = getView();
+        if (v == null)return;
+
+        RadioButton emailRadio         = (RadioButton) v.findViewById(R.id.radioEmail) ;
+        RadioButton textRadio          = (RadioButton) v.findViewById(R.id.radioText) ;
+        RadioButton fileRadio          = (RadioButton) v.findViewById(R.id.radioFile) ;
+        RadioButton generalRadio       = (RadioButton) v.findViewById(R.id.radioGeneral);
+        RadioButton prescriptionRadio  = (RadioButton) v.findViewById(R.id.radioPrescription) ;
+        RadioButton historyRadio       = (RadioButton) v.findViewById(R.id.radioHistory) ;
+
+        //set Defaults
+        int whatFlag  = EXPORT_EMAIL;
+        int whereFlag = EXPORT_PRESCRIPTIONS;
+
+        //Determine what the user specified
+        if (emailRadio       .isChecked()) whereFlag = EXPORT_EMAIL;
+        if (textRadio        .isChecked()) whereFlag = EXPORT_SMS;
+        if (fileRadio        .isChecked()) whereFlag = EXPORT_FILE;
+        if (generalRadio     .isChecked()) whereFlag = EXPORT_GENERAL;
+        if (historyRadio     .isChecked()) whatFlag  = EXPORT_HISTORY;
+        if (prescriptionRadio.isChecked()) whatFlag  = EXPORT_PRESCRIPTIONS;
+
+
         String message = null;
         String subject = null;
         int statusMsg = R.string.export_label;
@@ -337,8 +354,10 @@ public class MMExportHistoryFragment extends Fragment {
                                   patient.getNickname().toString());
             suffix = R.string.export_prescriptions;
         } else if (whatFlag == EXPORT_HISTORY) {
-            long startMilli = getFilter(START_FILTER);
-            long endMilli = getFilter(END_FILTER);
+            //long startMilli = getFilter(START_FILTER);
+            //long endMilli = getFilter(END_FILTER);
+            long startMilli = getDateFilter(START_FILTER);
+            long endMilli = getDateFilter(END_FILTER);
             message = getDoseHistoryTab(patient, startMilli, endMilli).toString();
             statusMsg = R.string.export_history_label;
             subject = String.format(getString(R.string.export_title_history),
@@ -349,6 +368,8 @@ public class MMExportHistoryFragment extends Fragment {
         utilities.showStatus(getActivity(), statusMsg);
 
 
+
+
         if (whereFlag == EXPORT_EMAIL){
             String emailAddr = patient.getEmailAddress().toString();
             if (emailAddr.isEmpty()) {
@@ -356,77 +377,77 @@ public class MMExportHistoryFragment extends Fragment {
                 return;
             }
 
-            MMUtilities.getInstance().sendEmail(getActivity(), subject, emailAddr, message);
+            //MMUtilities.getInstance().sendEmail(getActivity(), subject, emailAddr, message);
+            exportEmail(getActivity(), subject, emailAddr, message );
+
         } else if (whereFlag == EXPORT_FILE){
             writeFile(whatFlag, suffix);
             MMUtilities.getInstance().showStatus(getActivity(), R.string.export_file_written);
+
+        } else if (whereFlag == EXPORT_SMS){
+            exportSMS(getActivity(), subject, message);
+        } else if (whereFlag == EXPORT_GENERAL){
+            exportText(getActivity(), subject, message);
         }
 
     }
 
-    private long getFilter(int flag){
-        EditText dayView, monthView, yearView;
+    private void exportEmail(Context context, String subject, String emailAddr, String body){
+
+        Intent intent2 = new Intent();
+        intent2.setAction(Intent.ACTION_SEND);
+        intent2.setType("message/rfc822");
+        intent2.putExtra(Intent.EXTRA_EMAIL, emailAddr);
+        intent2.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent2.putExtra(Intent.EXTRA_TEXT, getString(R.string.export_chooser_title) );
+        startActivity(intent2);
+    }
+
+    private void exportText(Context context,String subject,String body){
+        Intent exportIntent = new Intent(Intent.ACTION_SEND);
+        exportIntent.setType("text/plain");
+
+        exportIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
+        exportIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
+
+        //always display the chooser
+        if (exportIntent.resolveActivity(context.getPackageManager()) != null)
+            context.startActivity(Intent.createChooser(exportIntent,
+                                                       getString(R.string.export_chooser_title)));
+        else {
+            MMUtilities.getInstance().showStatus(getActivity(), R.string.export_no_app);
+        }
+    }
+
+    private void exportSMS(Context context, String subject, String body){
+        Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+        sendIntent.putExtra("sms_body", body);
+        sendIntent.setType("vnd.android-dir/mms-sms");
+        startActivity(sendIntent);
+    }
+
+    private long getDateFilter(int flag){
+        EditText dateView;
         View v = getView();
         if (v == null)return 0;
 
         if (flag == START_FILTER){
-            dayView   = (EditText) v.findViewById(R.id.filterStartDay);
-            monthView = (EditText) v.findViewById(R.id.filterStartMonth);
-            yearView  = (EditText) v.findViewById(R.id.filterStartYear);
+            dateView   = (EditText) v.findViewById(R.id.filterStartingDate);
         } else {
-            dayView   = (EditText) v.findViewById(R.id.filterEndDay);
-            monthView = (EditText) v.findViewById(R.id.filterEndMonth);
-            yearView  = (EditText) v.findViewById(R.id.filterEndYear);
+            dateView   = (EditText) v.findViewById(R.id.filterEndingDate);
         }
 
-        int day, month, year;
-        String dayString   = dayView  .getText().toString();
-        String monthString = monthView.getText().toString();
-        String yearString  = yearView .getText().toString();
+        String dateString   = dateView  .getText().toString();
+        if (dateString.isEmpty())return -1;
 
-        if ((dayString.isEmpty()) || (monthString.isEmpty()) || (yearString.isEmpty())){
-            if (flag == START_FILTER) return 0;
-            return Long.MAX_VALUE;
-        }
+        boolean isTimeflag = false; //The flag is for a Date, not a Time
+        Date dateDate = MMUtilities.getInstance().
+                     convertStringToTimeDate((MMMainActivity)getActivity(), dateString, isTimeflag);
 
-        day   = Integer.parseInt(dayString );
-        month = Integer.parseInt(monthString );
-        year  = Integer.parseInt(yearString );
-
-         if (year > 99){
-            MMUtilities.getInstance().errorHandler(getActivity(), R.string.export_year_error);
-             if (flag == START_FILTER) return 0;
-             return Long.MAX_VALUE;
-        }
-        year = year + 2000;
-
-
-        if (month > 12){
-            MMUtilities.getInstance().errorHandler(getActivity(), R.string.export_month_error);
-            if (flag == START_FILTER) return 0;
-            return Long.MAX_VALUE;
-        }
-
-
-        if (((month == 2) && (day > 29)) ||
-           (((month == 4)||(month == 6)||(month == 9)||(month == 11)) && (day > 30)) ||
-           (((month == 1)||(month == 3)||(month == 5)||(month == 7)||(month == 8)||(month == 10)
-                         ||(month == 12)) && (day > 31))){
-
-            MMUtilities.getInstance().errorHandler(getActivity(), R.string.export_day_error);
-            if (flag == START_FILTER) return 0;
-            return Long.MAX_VALUE;
-        }
-
-        month--;//months start with 0 in Android
-
-        //Want the limit to be midnight, so set to first millisecond of the next day
-        if (flag == END_FILTER) day++;
-
-        Date date = new GregorianCalendar(year, month, day).getTime();
-        return date.getTime();
+        // TODO: 6/2/2017 remove the debug string
+        String dateTestString = MMUtilities.getInstance().getDateString(dateDate.getTime());
+        return dateDate.getTime();
     }
-
 
     //***********************************/
     //****  Exit Button Dialogue    *****/
@@ -469,68 +490,7 @@ public class MMExportHistoryFragment extends Fragment {
 
     }
 
-    //Build and display the alert dialog
-    private void exportDialog(){
 
-        if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST)return;
-
-        //
-        //Build the (Dialog) layout and it's contained views
-        // that define the ConcurrentDose and its contained Doses
-        //
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        //Lint screams about the null here, but a dialog does not know it's parent at inflate time.
-        // Thus using null here is correct. Just ignore the lint. I could suppress the lint warning,
-        // but ..... for some reason I'm reluctant to suppress warnings.
-        View v = inflater.inflate(R.layout.dialog_export, null);
-
-        //load up the text fields in the dialog itself
-        int positiveButtonText = R.string.ok;
-        int dialogTitle        = R.string.export_dialog_title;
-        int dialogMessage      = R.string.export_dialog_message;
-
-        //Create the AlertDialog to display the current doses to the user
-        //and allow the user to update the amounts
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder .setView(v) //The View we just built for the Alert Dialog
-                .setTitle(dialogTitle)
-                .setIcon(R.drawable.ground_station_icon)
-                .setMessage(dialogMessage)
-                .setPositiveButton(positiveButtonText,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                //which is a constant on DialogInterface
-                                //      = BUTTON_POSITIVE or
-                                //      = BUTTON_NEGATIVE or
-                                //      = BUTTON_NEUTRAL
-                                //Save these values
-                                onExportDialog(dialog, which);
-                            }
-                        })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
-                        MMUtilities.getInstance().showStatus(getActivity(), R.string.pressed_cancel);
-                    }
-                })
-                .show();
-    }
-
-    private void onExportDialog(android.content.DialogInterface dialog, int which){
-/*
-        LinearLayout layout =
-                (LinearLayout) ((AlertDialog) dialog).findViewById(R.id.radioExport);
-*/
-        RadioButton emailHistory      = (RadioButton) ((AlertDialog) dialog).findViewById(R.id.radioEHistory) ;
-        RadioButton emailPrescription = (RadioButton) ((AlertDialog) dialog).findViewById(R.id.radioEPrescription) ;
-        RadioButton fileHistory       = (RadioButton) ((AlertDialog) dialog).findViewById(R.id.radioFHistory) ;
-        RadioButton filePrescription  = (RadioButton) ((AlertDialog) dialog).findViewById(R.id.radioFPrescription) ;
-
-        if (emailHistory     .isChecked()) onExport(EXPORT_HISTORY,       EXPORT_EMAIL);
-        if (emailPrescription.isChecked()) onExport(EXPORT_PRESCRIPTIONS, EXPORT_EMAIL);
-        if (fileHistory      .isChecked()) onExport(EXPORT_HISTORY,       EXPORT_FILE);
-        if (filePrescription .isChecked()) onExport(EXPORT_PRESCRIPTIONS, EXPORT_FILE);
-    }
 
     //*********************************************************/
     //      Methods dealing with whether the UI has changed   //
@@ -675,8 +635,11 @@ public class MMExportHistoryFragment extends Fragment {
             if (flag == EXPORT_PRESCRIPTIONS) {
                 message = getPrescript(patient).toString();
             } else if (flag == EXPORT_HISTORY){
-                long startMilli = getFilter(START_FILTER);
-                long endMilli   = getFilter(END_FILTER);
+                // TODO: 6/2/2017 Remove the old way of getting a DateFilter
+                //long startMilli = getFilter(START_FILTER);
+                //long endMilli   = getFilter(END_FILTER);
+                long startMilli = getDateFilter(START_FILTER);
+                long endMilli   = getDateFilter(END_FILTER);
                 message = getDoseHistoryTab(patient, startMilli, endMilli).toString();
             }
             writer.append(message);
@@ -695,11 +658,12 @@ public class MMExportHistoryFragment extends Fragment {
     //***************************************/
     private StringBuilder getPrescript(MMPerson patient){
         StringBuilder prescription = new StringBuilder();
+        String ls = System.getProperty("line.separator");
 
         try {
             //Export the Patient
             prescription.append(patient.shortString());
-            prescription.append(System.getProperty("line.separator"));
+            prescription.append(ls);
 
 
             //export the list of medications
@@ -709,12 +673,12 @@ public class MMExportHistoryFragment extends Fragment {
             int position = 0;
 
             if (last > 0 ){
-                prescription.append(System.getProperty("line.separator"));
+                prescription.append(ls);
                 prescription.append(patient.getNickname());
                 prescription.append(" takes the following ");
                 prescription.append(String.valueOf(last));
                 prescription.append("  medications:");
-                prescription.append(System.getProperty("line.separator"));
+                prescription.append(ls);
             }
             while (position < last){
                 medication = medications.get(position);
@@ -740,7 +704,7 @@ public class MMExportHistoryFragment extends Fragment {
                         positionSched++;
                     }
 
-                    prescription.append(System.getProperty("line.separator"));
+                    prescription.append(ls);
                 }//end medication
 
                 position++;
@@ -780,7 +744,7 @@ public class MMExportHistoryFragment extends Fragment {
             ArrayList<MMMedication> medications = patient.getMedications();
             ArrayList<MMDose> doses;
             MMMedication medication;
-            MMDose       dose;
+            MMDose dose;
             int lastMed = medications.size();
             int positionMed = 0;
 
@@ -808,9 +772,14 @@ public class MMExportHistoryFragment extends Fragment {
 
             //Now list the history
             //get all the concurrent doses for this patient
-            MMConcurrentDoseManager concurrentDoseManager =  MMConcurrentDoseManager.getInstance();
-            concurrentDoseCursor =
-                    concurrentDoseManager.getAllConcurrentDosesCursor(getPatientID());
+            MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
+            if ((startMilli < 0) || (endMilli < 0)){
+                concurrentDoseCursor = concurrentDoseManager.
+                                                        getAllConcurrentDosesCursor(getPatientID());
+            } else {
+                concurrentDoseCursor = concurrentDoseManager.
+                                 getAllConcurrentDosesCursor(getPatientID(), startMilli, endMilli);
+            }
             MMConcurrentDose concurrentDose;
 
 

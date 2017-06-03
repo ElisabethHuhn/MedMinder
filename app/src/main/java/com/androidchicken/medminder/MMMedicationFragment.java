@@ -30,8 +30,6 @@ import android.widget.TimePicker;
 
 import java.util.ArrayList;
 
-import static com.androidchicken.medminder.MMMedication.sAS_NEEDED;
-import static com.androidchicken.medminder.MMMedication.sSET_SCHEDULE_FOR_MEDICATION;
 import static com.androidchicken.medminder.R.id.medicationDoseAmountInput;
 import static com.androidchicken.medminder.R.id.medicationDoseNumInput;
 
@@ -71,8 +69,8 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     //**********************************************************/
     private static String[] mStrategyTypes  = new String[]{SCHEDULE_STRATEGY, AS_NEEDED_STRATEGY };
 
-    private int      mSelectedStrategyTypePosition = sSET_SCHEDULE_FOR_MEDICATION;
-    private int      mOldPosition = sSET_SCHEDULE_FOR_MEDICATION;
+    private int      mSelectedStrategyTypePosition = MMMedication.sSET_SCHEDULE_FOR_MEDICATION;
+    private int      mOldPosition = MMMedication.sSET_SCHEDULE_FOR_MEDICATION;
 
 
 
@@ -227,15 +225,29 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     //*******   Initialization Methods  **********/
     //********************************************/
     private void wireWidgets(View v){
-
-        Button medicationExitButton = (Button) v.findViewById(R.id.medicationExitButton);
-        medicationExitButton.setOnClickListener(new View.OnClickListener() {
+        TextWatcher textWatcher = new TextWatcher() {
             @Override
-            public void onClick(View v) {
-                onExit();
-            }
-        });
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                //This tells you that text is about to change.
+                // Starting at character "start", the next "count" characters
+                // will be changed with "after" number of characters
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                //This tells you where the text has changed
+                //Starting at character "start", the "before" number of characters
+                // has been replaced with "count" number of characters
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //This tells you that somewhere within editable, it's text has changed
+                setUIChanged();
+            }
+        };
 
         Button medicationSaveButton = (Button) v.findViewById(R.id.medicationSaveButton);
         medicationSaveButton.setOnClickListener(new View.OnClickListener() {
@@ -265,142 +277,20 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         });
 
 
-
-
         EditText medNickNameInput = (EditText) v.findViewById(R.id.medicationNickNameInput);
-        medNickNameInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                //This tells you that text is about to change.
-                // Starting at character "start", the next "count" characters
-                // will be changed with "after" number of characters
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                //This tells you where the text has changed
-                //Starting at character "start", the "before" number of characters
-                // has been replaced with "count" number of characters
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                //This tells you that somewhere within editable, it's text has changed
-                setUIChanged();
-            }
-        });
-
-
+        medNickNameInput.addTextChangedListener(textWatcher);
 
         EditText medBrandNameInput = (EditText) v.findViewById(R.id.medicationBrandNameInput);
-        medBrandNameInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                //This tells you that text is about to change.
-                // Starting at character "start", the next "count" characters
-                // will be changed with "after" number of characters
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                //This tells you where the text has changed
-                //Starting at character "start", the "before" number of characters
-                // has been replaced with "count" number of characters
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                //This tells you that somewhere within editable, it's text has changed
-                setUIChanged();
-            }
-        });
-
-
+        medBrandNameInput.addTextChangedListener(textWatcher);
 
         EditText medGenericNameInput = (EditText) v.findViewById(R.id.medicationGenericNameInput);
-        medGenericNameInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                //This tells you that text is about to change.
-                // Starting at character "start", the next "count" characters
-                // will be changed with "after" number of characters
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                //This tells you where the text has changed
-                //Starting at character "start", the "before" number of characters
-                // has been replaced with "count" number of characters
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                //This tells you that somewhere within editable, it's text has changed
-                setUIChanged();
-            }
-        });
-
-
+        medGenericNameInput.addTextChangedListener(textWatcher);
 
         EditText medDoseAmountInput = (EditText) v.findViewById(medicationDoseAmountInput);
-        medDoseAmountInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                //This tells you that text is about to change.
-                // Starting at character "start", the next "count" characters
-                // will be changed with "after" number of characters
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                //This tells you where the text has changed
-                //Starting at character "start", the "before" number of characters
-                // has been replaced with "count" number of characters
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                //This tells you that somewhere within editable, it's text has changed
-                setUIChanged();
-            }
-        });
-
-
+        medDoseAmountInput.addTextChangedListener(textWatcher);
 
         EditText medDoseUnitsInput = (EditText) v.findViewById(R.id.medicationDoseUnitsInput);
-        medDoseUnitsInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                //This tells you that text is about to change.
-                // Starting at character "start", the next "count" characters
-                // will be changed with "after" number of characters
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                //This tells you where the text has changed
-                //Starting at character "start", the "before" number of characters
-                // has been replaced with "count" number of characters
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                //This tells you that somewhere within editable, it's text has changed
-                setUIChanged();
-            }
-        });
-
-
+        medDoseUnitsInput.addTextChangedListener(textWatcher);
 
         Button upDoseNumber = (Button) v.findViewById(R.id.medicationUpButton);
         upDoseNumber.setOnClickListener(new View.OnClickListener() {
@@ -421,7 +311,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
     private void wireStrategySpinner(View v){
         //set the default
-        mSelectedStrategyTypePosition = sSET_SCHEDULE_FOR_MEDICATION;
+        mSelectedStrategyTypePosition = MMMedication.sSET_SCHEDULE_FOR_MEDICATION;
         mOldPosition = mSelectedStrategyTypePosition;
 
         //Then initialize the spinner itself
@@ -430,8 +320,8 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         // Create an ArrayAdapter using the Activities context AND
         // the string array and a default spinner layout
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_spinner_item,
-                mStrategyTypes);
+                                                          android.R.layout.simple_spinner_item,
+                                                          mStrategyTypes);
 
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -551,14 +441,10 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         medicationForPerson.       setText(nickname);
         //mMedNickNameLastInput = nickname;
 
-        EditText medicationForInput = (EditText) v.findViewById(R.id.medicationForPersonIDInput);
-        medicationForInput.        setText(Long.valueOf(getPatientID()).toString().trim());
-
         MMMedication medication = getMedicationInstance(getPatientID(), mPosition);
 
         CharSequence selectedStrategyType;
 
-        EditText medIDInput          = (EditText) v.findViewById(R.id.medicationIdInput);
         EditText medBrandNameInput   = (EditText) v.findViewById(R.id.medicationBrandNameInput);
         EditText medGenericNameInput = (EditText) v.findViewById(R.id.medicationGenericNameInput);
         EditText medNickNameInput    = (EditText) v.findViewById(R.id.medicationNickNameInput);
@@ -566,82 +452,70 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         EditText medDoseUnitsInput   = (EditText) v.findViewById(R.id.medicationDoseUnitsInput);
         TextView medDoseNumInput     = (TextView) v.findViewById(medicationDoseNumInput);
 
+
+
         if (medication == null) {
-            medIDInput         .setText(String.valueOf(MMUtilities.ID_DOES_NOT_EXIST));
-            medIDInput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorLightPink));
 
             CharSequence brand = MMMedication.getDefaultBrandName().toString().trim();
             medBrandNameInput.setText(brand);
-            //mMedBrandNameLastInput = brand;
 
             CharSequence generic = MMMedication.getDefaultGenericName().toString().trim();
              medGenericNameInput.setText(generic);
-           // mMedGenericNameLastInput = generic;
 
             CharSequence medNick = MMMedication.getDefaultMedicationNickname().toString().trim();
-              medNickNameInput.setText(medNick);
-            //mMedNickNameLastInput = medNick;
+            medNickNameInput.setText(medNick);
 
-            CharSequence strategy = String.valueOf(MMMedication.getDefaultDoseStrategy());
-            //mMedicationDoseStrategyInput.setText(strategy);
-            // mMedDoseStrategyLastInput = strategy;
-            selectedStrategyType = strategy.toString();
+            mSelectedStrategyTypePosition = MMMedication.getDefaultDoseStrategy();
 
-           CharSequence amt = String.valueOf(MMMedication.getDefaultDoseAmount());
-           medDoseAmountInput.setText(amt);
-           // mMedDoseAmountLastInput = amt;
+
+
+            CharSequence amt = String.valueOf(MMMedication.getDefaultDoseAmount());
+            medDoseAmountInput.setText(amt);
+
 
             CharSequence units = MMMedication.getDefaultDoseUnits().toString().trim();
             medDoseUnitsInput.setText(units);
-            //mMedDoseUnitsLastInput = units;
+
 
             CharSequence numPerDay = String.valueOf(MMMedication.getDefaultDoseNumPerDay());
             medDoseNumInput.setText(numPerDay);
-            //mMedDoseNumLastInput = numPerDay;
+
 
         } else {
-            medIDInput         .setText(String.valueOf( medication.getMedicationID()));
-            medIDInput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
 
             CharSequence brand = medication.getBrandName().toString().trim();
             medBrandNameInput  .setText(brand);
-            //mMedBrandNameLastInput = brand;
+
 
             CharSequence generic = medication.getGenericName().toString().trim();
             medGenericNameInput.setText(generic);
-            //mMedGenericNameLastInput = generic;
+
 
             CharSequence medNick = medication.getMedicationNickname().toString().trim();
             medNickNameInput   .setText(medNick);
-           // mMedNickNameLastInput = medNick;
 
-            CharSequence strategy = String.valueOf(medication.getDoseStrategy());
-            //mMedicationDoseStrategyInput.setText(strategy);
-            //mMedDoseStrategyLastInput = strategy;
-            selectedStrategyType = strategy.toString();
+
+
+            mSelectedStrategyTypePosition = medication.getDoseStrategy();
+
 
             CharSequence amt = String.valueOf(medication.getDoseAmount());
             medDoseAmountInput.setText(amt);
-            //mMedDoseAmountLastInput = amt;
+
 
             CharSequence units = medication.getDoseUnits().toString().trim();
             medDoseUnitsInput  .setText(units);
-            //mMedDoseUnitsLastInput = units;
+
 
             CharSequence numPerDay = String.valueOf(medication.getDoseNumPerDay());
             medDoseNumInput.setText(numPerDay);
-           // mMedDoseNumLastInput = numPerDay;
+
         }
 
-
-
-        if (selectedStrategyType.equals(SCHEDULE_STRATEGY)) {
-            mSelectedStrategyTypePosition = sSET_SCHEDULE_FOR_MEDICATION;
-        } else if (selectedStrategyType == AS_NEEDED_STRATEGY) {
-            mSelectedStrategyTypePosition = sAS_NEEDED;
-        }
         Spinner spinner = (Spinner) v.findViewById(R.id.strategy_type_spinner);
         spinner.setSelection(mSelectedStrategyTypePosition);
+        // TODO: 6/2/2017 remove the hard coded selection and
+        //spinner.setSelection(MMMedication.sAS_NEEDED);
 
         mOldPosition = mSelectedStrategyTypePosition;
 
@@ -710,8 +584,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
         if (v == null)return; //onCreateView() hasn't run yet
 
-        Button medicationSaveButton =
-                (Button) v.findViewById(R.id.medicationSaveButton);
+        Button medicationSaveButton = (Button) v.findViewById(R.id.medicationSaveButton);
 
         MMUtilities utilities = MMUtilities.getInstance();
         utilities.enableButton(getActivity(), medicationSaveButton, isEnabled);
@@ -733,23 +606,17 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             downDoseNumber.setBackgroundColor(
                     ContextCompat.getColor(getActivity(),R.color.colorButton1Background));
         } else {
-            upDoseNumber.setEnabled(false);
+            //upDoseNumber.setEnabled(false);
             upDoseNumber.setBackgroundColor(
                     ContextCompat.getColor(getActivity(),R.color.colorButton2Background));
 
-            downDoseNumber.setEnabled(false);
+            //downDoseNumber.setEnabled(false);
             downDoseNumber.setBackgroundColor(
                     ContextCompat.getColor(getActivity(),R.color.colorButton2Background));
         }
     }
     private boolean isUpDownEnabled(){
-        int strategy = mSelectedStrategyTypePosition;
 
-        if (strategy != sSET_SCHEDULE_FOR_MEDICATION) {
-            //This button doesn't do anything if the strategy isn't set
-            //Toast.makeText(getActivity(),R.string.wrong_strategy, Toast.LENGTH_SHORT).show();
-            return false;
-        }
         return !isUIChanged;
     }
 
@@ -814,9 +681,12 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
                     while (position < last){
                         scheduleMedication = schedules.get(position);
                         if (schedMedID == scheduleMedication.getSchedMedID()){
-                            //timeOfDay is number of MINUTES since midnight
+                            //timeOfDay is number of MINUTES since midnight GMT
                             //get the new time from the time picker
                             int timeOfDay = (hourOfDay * 60) + minute;
+                            //Need to convert to GMT
+                            timeOfDay = (int)MMUtilities.getInstance().
+                                                                convertMinutesLocaltoGMT(timeOfDay);
                             //update the schedule with the new time to take the med, and
                             scheduleMedication.setTimeDue(timeOfDay);
                             //update the DB row with this schedule
@@ -851,6 +721,9 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
                 }
             }
         });
+
+        timePickerDialog.setTitle(R.string.medication_sched_time_title);
+        timePickerDialog.setMessage(getString(R.string.midnight_noon_info));
         timePickerDialog.show();
         return timePickerDialog;
     }
@@ -910,7 +783,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             TextView medDoseNumInput     = (TextView) numView.findViewById(medicationDoseNumInput);
             int lastShed     = Integer.valueOf(medDoseNumInput.getText().toString());
             int positionShed = 0;
-            if (mSelectedStrategyTypePosition == sSET_SCHEDULE_FOR_MEDICATION){
+            if (mSelectedStrategyTypePosition == MMMedication.sSET_SCHEDULE_FOR_MEDICATION){
                 //just switched from as needed to set schedule
                 //Create schedules for the # doses per day
                 while (positionShed < lastShed){
@@ -974,17 +847,12 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         medication.setBrandName         (medBrandNameInput.  getText().toString().trim());
         medication.setGenericName       (medGenericNameInput.getText().toString().trim());
 
-        // TODO: 3/14/2017 only one of these should be retained
-        medication.setDoseStrategy (
-                //Integer.valueOf(mMedicationDoseStrategyInput.getText().toString().trim()));
-                mSelectedStrategyTypePosition);
+        medication.setDoseStrategy      (mSelectedStrategyTypePosition);
 
         medication.setDoseUnits         (medDoseUnitsInput.  getText().toString().trim());
-        medication.setDoseAmount   (
-                Integer.valueOf(medDoseAmountInput.getText().toString().trim()));
+        medication.setDoseAmount (Integer.valueOf(medDoseAmountInput.getText().toString().trim()));
 
-        medication.setDoseNumPerDay(
-                Integer.valueOf(medDoseNumInput.   getText().toString().trim()));
+        medication.setDoseNumPerDay(Integer.valueOf(medDoseNumInput. getText().toString().trim()));
 
         SwitchCompat existSwitch = (SwitchCompat) v.findViewById(R.id.switchExists);
         if (existSwitch.isChecked()) {
@@ -1009,11 +877,6 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             if (!medicationManager.addToPerson(getPerson(), medication, addToDBToo)) {
                 MMUtilities.getInstance().errorHandler(getActivity(), R.string.exception_medication_not_added);
             } else {
-
-                //update the medicationID on the UI
-                EditText medIDInput = (EditText) v.findViewById(R.id.medicationIdInput);
-                medIDInput.setText(String.valueOf(medication.getMedicationID()));
-                medIDInput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
 
                 //Tell the user everything went well
                 MMUtilities.getInstance().showStatus(getActivity(), R.string.save_successful);
@@ -1057,7 +920,11 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     }
 
     public void onUpButton(){
-        if (!isUpDownEnabled())return;
+        if (!isUpDownEnabled()){
+            MMUtilities.getInstance().
+                                showStatus(getActivity(), R.string.medication_button_after_save);
+            return;
+        };
         View v = getView();
         if (v == null)return;
 
@@ -1072,10 +939,20 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             medDoseNumInput.setText(String.valueOf(size));
             long medicationID = medication.getMedicationID();
 
+            //timeDue will be in minutes since midnight
             long timeDue = MMSettings.getInstance().getDefaultTimeDue((MMMainActivity)getActivity());
+            //long timeDueMilli = timeDue * 60 * 1000;
+            long timeDueMilli = MMUtilities.getInstance().convertMinutesToMilli(timeDue);
+            int strategy = medication.getDoseStrategy();
+            if (strategy == MMMedication.sAS_NEEDED){
+                timeDueMilli = MMSettings.sDefaultAsNeededTimeDue;
+            }
+            // TODO: 6/2/2017 get rid of debug string
+            String timeDueString = MMUtilities.getInstance().
+                                        getTimeString((MMMainActivity)getActivity(), timeDueMilli);
 
             MMScheduleMedication schedule =
-                    new MMScheduleMedication(medicationID,getPatientID(), (int)timeDue);
+                                new MMScheduleMedication(medicationID,getPatientID(), (int)timeDue);
             medication.addSchedule(schedule);
 
             //shouldn't have to reinitialize cursor because onSave() will do it for us
@@ -1092,7 +969,12 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     }
 
     public void onDownButton(){
-        if (!isUpDownEnabled())return;
+        if (!isUpDownEnabled()){
+            MMUtilities.getInstance().
+                    showStatus(getActivity(), R.string.medication_button_after_save);
+            return;
+        };
+
         View v = getView();
         if (v == null)return;
 
@@ -1150,7 +1032,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
         //  if the strategy is asNeeded, do not respond to selection
         MMMedication medication = getMedicationInstance(getPatientID(), mPosition);
-        if (mSelectedStrategyTypePosition == sAS_NEEDED){
+        if (mSelectedStrategyTypePosition == MMMedication.sAS_NEEDED){
             return;
         }
 
@@ -1165,8 +1047,13 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         //The schedule is actually changed in the picker handler
         //and a new alarm is set there for the new time
 
-        int hours = schedule.getTimeDue()/60;
-        int minutes = schedule.getTimeDue() - (hours * 60);
+        int timeDue = schedule.getTimeDue(); //minutes since midnight in GMT time zone
+
+        //convert to local time
+        timeDue = MMUtilities.getInstance().convertMinutesGMTtoLocal(timeDue);
+
+        int hours    = timeDue/(int)MMUtilities.minutesPerHour;
+        int minutes  = timeDue - (hours * (int)MMUtilities.minutesPerHour);
         boolean is24format = MMSettings.getInstance().getClock24Format((MMMainActivity)getActivity());
         showPicker(schedule.getSchedMedID(), hours, minutes, is24format );
 
@@ -1208,6 +1095,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         if (adapter != null) adapter.closeCursor();
 
         ((MMMainActivity) getActivity()).switchToPersonScreen();   //switchToPopBackstack();
+
     }
 
 

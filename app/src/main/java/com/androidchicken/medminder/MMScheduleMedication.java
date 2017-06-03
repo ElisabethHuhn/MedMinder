@@ -27,7 +27,7 @@ public class MMScheduleMedication {
     private long mSchedMedID;
     private long mOfMedicationID;
     private long mForPersonID;
-    private int  mTimeDue;  //number of minutes from midnight
+    private int  mTimeDue;  //number of minutes from midnight in GMT time zone
 
 
 

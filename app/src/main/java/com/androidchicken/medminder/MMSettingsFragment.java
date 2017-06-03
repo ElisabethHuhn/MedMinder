@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import java.util.Date;
+
 import static com.androidchicken.medminder.R.id.settingPersonNickNameInput;
 
 
@@ -159,22 +161,7 @@ public class MMSettingsFragment extends Fragment {
 
     private void wireWidgets(View v){
 
-        //Save Button
-        Button saveButton = (Button) v.findViewById(R.id.settingsSaveButton);
-        saveButton.setText(R.string.save_label);
-        //the order of images here is left, top, right, bottom
-        //saveButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onSave();
-            }
-        });
-
-
-
-        EditText defaultTimeDueInput = (EditText) v.findViewById(R.id.settingDefaultTimeDueInput);
-        defaultTimeDueInput.addTextChangedListener(new TextWatcher() {
+        TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
                 //This tells you that text is about to change.
@@ -196,13 +183,33 @@ public class MMSettingsFragment extends Fragment {
                 //This tells you that somewhere within editable, it's text has changed
                 setUIChanged();
             }
+        };
+
+        //Save Button
+        Button saveButton = (Button) v.findViewById(R.id.settingsSaveButton);
+        saveButton.setText(R.string.save_label);
+        //the order of images here is left, top, right, bottom
+        //saveButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onSave();
+            }
         });
+
+
+
+        EditText defaultTimeDueInput = (EditText) v.findViewById(R.id.settingDefaultTimeDueInput);
+        defaultTimeDueInput.addTextChangedListener(textWatcher);
+
+        EditText earliestHistoryDateInput =
+                                    (EditText) v.findViewById(R.id.settingEarliestHistoryDateInput);
+        earliestHistoryDateInput.addTextChangedListener(textWatcher);
 
         SwitchCompat clock24Switch = (SwitchCompat) v.findViewById(R.id.switch24Format);
         clock24Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-
                 MMSettings.getInstance().setClock24Format((MMMainActivity)getActivity(), isChecked);
             }
         });
@@ -212,10 +219,8 @@ public class MMSettingsFragment extends Fragment {
         showDelPersonSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-
                 MMSettings.getInstance().setShowDeletedPersons(
                                                         (MMMainActivity)getActivity(), isChecked);
-
             }
         });
 
@@ -224,10 +229,8 @@ public class MMSettingsFragment extends Fragment {
         showDelMedSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-
                 MMSettings.getInstance().setShowDeletedMeds(
                                                           (MMMainActivity)getActivity(), isChecked);
-
             }
         });
 
@@ -236,10 +239,8 @@ public class MMSettingsFragment extends Fragment {
         soundWithNotifSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-
                 MMSettings.getInstance().setSoundNotification(
                                                         (MMMainActivity)getActivity(), isChecked);
-
             }
         });
 
@@ -250,10 +251,8 @@ public class MMSettingsFragment extends Fragment {
                         setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-
                 MMSettings.getInstance().setVibrateNotification(
                                                          (MMMainActivity)getActivity(), isChecked);
-
             }
         });
 
@@ -262,6 +261,7 @@ public class MMSettingsFragment extends Fragment {
 
     private void initializeUI(View v) {
 
+        MMSettings settings = MMSettings.getInstance();
 
         //Initialize the Patient Name
         EditText personNickNameInput = (EditText) (v.findViewById(settingPersonNickNameInput));
@@ -278,8 +278,6 @@ public class MMSettingsFragment extends Fragment {
 
         //Initialize the default time due for any created schedules
         EditText defaultTimeDueInput = (EditText) v.findViewById(R.id.settingDefaultTimeDueInput);
-
-        MMSettings settings = MMSettings.getInstance();
         long timeMinutes   = settings.getDefaultTimeDue((MMMainActivity)getActivity());
         long timeMilliseconds = (timeMinutes * 60000);
 
@@ -287,6 +285,12 @@ public class MMSettingsFragment extends Fragment {
                                     getTimeString((MMMainActivity)getActivity(), timeMilliseconds);
         defaultTimeDueInput.setText(timeString);
 
+
+        EditText earliestHistoryDateInput =
+                (EditText) v.findViewById(R.id.settingEarliestHistoryDateInput);
+        long historyDate = settings.getHistoryDate((MMMainActivity)getActivity());
+        String historyDateString = MMUtilities.getInstance().getDateString(historyDate);
+        earliestHistoryDateInput.setText(historyDateString);
 
 
 
@@ -323,9 +327,6 @@ public class MMSettingsFragment extends Fragment {
     private void onSave(){
         MMUtilities.getInstance().showStatus(getActivity(), R.string.save_label);
 
-        //get rid of the soft keyboard
-        MMUtilities.getInstance().hideSoftKeyboard(getActivity());
-
         View v = getView();
         if (v == null)return;
 
@@ -358,6 +359,28 @@ public class MMSettingsFragment extends Fragment {
 
         // TODO: 5/28/2017 debug
         long tempTime = settings.getDefaultTimeDue((MMMainActivity)getActivity());
+
+
+        //Earliest date in home history
+        EditText earliestHistoryDateInput =
+                                    (EditText) v.findViewById(R.id.settingEarliestHistoryDateInput);
+        String dateString = earliestHistoryDateInput.getText().toString();
+
+        boolean isTimeFlag = false; //We are converting to a date, not a time
+        Date historyDate = MMUtilities.getInstance().
+                    convertStringToTimeDate((MMMainActivity)getActivity(), dateString, isTimeFlag);
+
+        long historyDateMilli = historyDate.getTime();
+
+        settings.setHistoryDate((MMMainActivity)getActivity(), historyDateMilli);
+
+        // TODO: 6/1/2017 delete the debug double check to assure the string is right
+        String historyDateString = MMUtilities.getInstance().getDateString(historyDateMilli);
+
+
+        //get rid of the soft keyboard
+        MMUtilities.getInstance().hideSoftKeyboard(getActivity());
+
 
         setUISaved();
     }

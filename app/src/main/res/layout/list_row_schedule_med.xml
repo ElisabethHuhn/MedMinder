@@ -56,4 +56,23 @@
         android:background="@color/colorWhite"
         />
 
+    <!-- Dose Amount -->
+    <EditText
+        android:id="@+id/scheduleMedAmtOutput"
+        android:text="@string/medication_dose_am"
+
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="10"
+
+        android:focusable="false"
+
+
+        android:layout_marginEnd="@dimen/listrow_field_separator"
+
+        android:gravity="center_horizontal"
+        android:textColor="@color/colorTextBlack"
+        android:background="@color/colorWhite"
+        />
+
 </LinearLayout>

@@ -85,7 +85,7 @@ public class MMPerson {
     public String getNameString(){
         StringBuilder message = new StringBuilder();
 
-        message.append("PERSON:  (ID ");
+        message.append("Patient:  (ID ");
         message.append(String.valueOf(mPersonID));
         message.append(")  ");
         message.append(mNickname);
@@ -156,6 +156,7 @@ public class MMPerson {
 
     public String shortString(){
         StringBuilder message = new StringBuilder();
+        String ls = System.getProperty("line.separator");
 
         message.append(getNameString());
         message.append(" is ");
@@ -169,6 +170,7 @@ public class MMPerson {
             message.append(" Email Address is ");
             message.append(mEmailAddress);
         }
+        message.append(ls);
         if (!mEmailAddress.toString().isEmpty() && !mTextAddress.toString().isEmpty()){
             message.append(" and ");
         }
