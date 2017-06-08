@@ -3,6 +3,8 @@ package com.androidchicken.medminder;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.Date;
+
 import static android.R.attr.defaultValue;
 
 /**
@@ -30,7 +32,7 @@ public class MMSettings {
     //6:00 AM, minutes since Midnight local time
     public static final int   sDefaultTimeDue         =  (6*60);
     //This puts the AS NEEDED schedules at the top of the Schedule list
-    public static final int   sDefaultAsNeededTimeDue = 1;
+    public static final int   sDefaultAsNeededTimeDue = 0;
 
 
 
@@ -125,10 +127,12 @@ public class MMSettings {
             //set default to today's date
             String historyDateString = MMUtilities.getInstance().getDateString();
             boolean isTimeFlag = false;
-            historyDateMilli = MMUtilities.getInstance().
-                            convertStringToTimeDate(activity, historyDateString, isTimeFlag).
-                            getTime();
-            setHistoryDate(activity, historyDateMilli);
+            Date historyDate = MMUtilities.getInstance().
+                                convertStringToTimeDate(activity, historyDateString, isTimeFlag);
+            if (historyDate != null){
+                historyDateMilli = historyDate.getTime();
+                setHistoryDate(activity, historyDateMilli);
+            }
         }
         return historyDateMilli;
     }

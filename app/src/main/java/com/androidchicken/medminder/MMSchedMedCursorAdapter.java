@@ -125,6 +125,7 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
         //need to set time as needed
         if (strategy == MMMedication.sAS_NEEDED){
             msg = mActivity.getString(R.string.sched_list_as_needed);
+            // TODO: 6/6/2017 defeat this overwrite for debug purposes
             holder.medicationTime    .setText(msg);
         }
 

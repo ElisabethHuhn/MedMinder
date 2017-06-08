@@ -117,6 +117,10 @@ public class MMSchedCursorAdapter extends RecyclerView.Adapter<MMSchedCursorAdap
         return mSchedMedCursor;
     }
 
+    public void   resetStrategy(int strategy){
+        mStrategy = strategy;
+    }
+
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position){
 

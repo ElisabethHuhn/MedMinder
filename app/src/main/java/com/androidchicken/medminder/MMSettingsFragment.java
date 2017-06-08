@@ -370,13 +370,14 @@ public class MMSettingsFragment extends Fragment {
         Date historyDate = MMUtilities.getInstance().
                     convertStringToTimeDate((MMMainActivity)getActivity(), dateString, isTimeFlag);
 
-        long historyDateMilli = historyDate.getTime();
+        if (historyDate != null) {
+            long historyDateMilli = historyDate.getTime();
 
-        settings.setHistoryDate((MMMainActivity)getActivity(), historyDateMilli);
+            settings.setHistoryDate((MMMainActivity) getActivity(), historyDateMilli);
 
-        // TODO: 6/1/2017 delete the debug double check to assure the string is right
-        String historyDateString = MMUtilities.getInstance().getDateString(historyDateMilli);
-
+            // TODO: 6/1/2017 delete the debug double check to assure the string is right
+            String historyDateString = MMUtilities.getInstance().getDateString(historyDateMilli);
+        }
 
         //get rid of the soft keyboard
         MMUtilities.getInstance().hideSoftKeyboard(getActivity());

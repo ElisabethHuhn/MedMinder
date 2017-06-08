@@ -582,9 +582,6 @@ public class MMPersonFragment extends Fragment {
     private void switchToExit(){
         MMMedicationCursorAdapter adapter = getAdapter(getView());
         if (adapter != null)adapter.closeCursor();
-
-        ((MMMainActivity) getActivity()).switchToHomeScreen();   //switchToPopBackstack();
-
     }
 
 
@@ -661,7 +658,7 @@ public class MMPersonFragment extends Fragment {
 
         adapter.notifyItemChanged(position);
 
-        ((MMMainActivity) getActivity()).switchToMedicationScreen(position);
+        ((MMMainActivity) getActivity()).switchToMedicationScreen(position, MMMainActivity.sPersonTag);
     }
 
 

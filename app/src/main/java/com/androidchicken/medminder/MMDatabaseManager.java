@@ -610,6 +610,7 @@ public class MMDatabaseManager {
                                               String orderClause){
         String whereClause = getConcurrentDosesWhereClause(personID) + " AND " +
                              getConcurrentDosesHistoryWhereClause(earliestDate, latestDate) ;
+
         return mDatabaseHelper.getObject(   mDatabase,
                                             TABLE_CONCURRENT_DOSE,
                                             null,    //get the whole object
@@ -690,8 +691,8 @@ public class MMDatabaseManager {
 
     private String getConcurrentDosesHistoryWhereClause(long earliestDate, long latestDate){
         return
-        MMDataBaseSqlHelper.CONCURRENT_DOSE_TIME + " > '" + String.valueOf(earliestDate) + "' AND " +
-        MMDataBaseSqlHelper.CONCURRENT_DOSE_TIME + " < '" + String.valueOf(latestDate)   + "'";
+        MMDataBaseSqlHelper.CONCURRENT_DOSE_TIME + " >= '" + String.valueOf(earliestDate) + "' AND " +
+        MMDataBaseSqlHelper.CONCURRENT_DOSE_TIME + " <= '" + String.valueOf(latestDate)   + "'";
     }
 
     private String getConcurrentDosesIDWhereClause(long concurrentDoseID){

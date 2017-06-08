@@ -83,6 +83,8 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     public static final String MEDICATION_DOSE_AMOUNT    = "med_dose_amount";
     public static final String MEDICATION_DOSE_UNITS     = "med_dose_units";
     public static final String MEDICATION_DOSE_NUM_PER_DAY = "med_number_per_day";
+    public static final String MEDICATION_NOTES          = "med_notes";
+    public static final String MEDICATION_SIDE_EFFECTS   = "med_side_effects";
     public static final String MEDICATION_CURRENTLY_TAKEN = "med_curr_taken";//stored as integer, 0 = false, 1 = true
 
 
@@ -98,6 +100,8 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
             MEDICATION_DOSE_AMOUNT    + " INTEGER, "  +
             MEDICATION_DOSE_UNITS     + " INTEGER, "  +
             MEDICATION_DOSE_NUM_PER_DAY + " INTEGER, "  +
+            MEDICATION_NOTES          + " TEXT, "     +
+            MEDICATION_SIDE_EFFECTS   + " TEXT, "     +
             MEDICATION_CURRENTLY_TAKEN  + " INTEGER, "  +
             KEY_CREATED_AT            + " INTEGER "  + ")";
 
@@ -203,6 +207,7 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     public static final String SCHED_MED_OF_MEDICATION_ID = "sched_med_of_med_id";
     public static final String SCHED_MED_FOR_PERSON_ID    = "sched_med_for_person_id";
     public static final String SCHED_MED_TIME_DUE         = "sched_med_time_due";
+    public static final String SCHED_MED_STRATEGY         = "sched_med_strategy";
 
 
     //create sched_med table
@@ -212,6 +217,7 @@ public class MMDataBaseSqlHelper extends SQLiteOpenHelper {
             SCHED_MED_OF_MEDICATION_ID  + " INTEGER, " +
             SCHED_MED_FOR_PERSON_ID     + " INTEGER, " +
             SCHED_MED_TIME_DUE          + " INTEGER, " +
+            SCHED_MED_STRATEGY          + " INTEGER, " +
             KEY_CREATED_AT              + " INTEGER"   + ")";
 
 

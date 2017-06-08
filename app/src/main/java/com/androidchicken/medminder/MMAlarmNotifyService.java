@@ -69,9 +69,9 @@ public class MMAlarmNotifyService extends Service {
             if (medications != null) {
                 MMMedication medication;
                 int lastMedication = medications.size();
-                int positionMedicaiton = 0;
-                while (positionMedicaiton < lastMedication){
-                    medication = medications.get(positionMedicaiton);
+                int positionMedication = 0;
+                while (positionMedication < lastMedication){
+                    medication = medications.get(positionMedication);
                     //only set alarms for current medications that are on schedule
                     if (medication.isCurrentlyTaken() ){
 
@@ -90,7 +90,7 @@ public class MMAlarmNotifyService extends Service {
                             }//end schedule while loop
                         }
                     }
-                    positionMedicaiton++;
+                    positionMedication++;
                 } //end medication while loop
             }
             positionMedAlert++;

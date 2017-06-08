@@ -18,12 +18,14 @@
 
     >
     <LinearLayout
+        android:id="@+id/homeFragmentLayout"
         android:layout_height= "wrap_content"
         android:layout_width=  "match_parent"
         android:orientation="vertical"
         >
         <!-- Row 1: Patient Name -->
         <LinearLayout
+            android:id="@+id/medPatientHeaderLayout"
             android:layout_height="match_parent"
             android:layout_width ="match_parent"
             android:gravity="center"
@@ -62,8 +64,9 @@
 
         </LinearLayout>
 
-        <!-- Buttons: Save, Alerts, Title Help -->
+        <!-- Buttons: Save -->
         <LinearLayout
+            android:id="@+id/medControlButtonsLayout"
             android:layout_height="match_parent"
             android:layout_width ="match_parent"
             android:orientation="horizontal"
@@ -112,7 +115,7 @@
 
         <!-- Row 3: Dose Taken fields added programmatically -->
         <LinearLayout
-                android:id="@+id/medInputLayout"
+                android:id="@+id/medDoseInputLayout"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_gravity="center_horizontal"

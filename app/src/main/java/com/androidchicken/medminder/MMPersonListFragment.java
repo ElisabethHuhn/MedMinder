@@ -282,7 +282,8 @@ public class MMPersonListFragment extends Fragment {
         //Set the patient ID from the item selected
         ((MMMainActivity)getActivity()).setPatientID(selectedPerson.getPersonID());
 
-        //switch to the dose taken for the selected patient
-        ((MMMainActivity) getActivity()).switchToPersonListReturn(mReturnFragmentTag);
+        onExit();
+
+
     }
 }

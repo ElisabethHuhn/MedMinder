@@ -24,8 +24,9 @@ public class MMMedication {
 
     public static final String MEDICATION_ID = "medication_id";
 
-    public static final int sSET_SCHEDULE_FOR_MEDICATION = 0;
-    public static final int sAS_NEEDED = 1;
+    public static final int sAS_NEEDED = 0;
+    public static final int sSET_SCHEDULE_FOR_MEDICATION = 1;
+
 
     //************************************/
     /*    Static (class) Variables       */
@@ -44,6 +45,8 @@ public class MMMedication {
     private CharSequence mDoseUnits;
     private CharSequence mBrandName;
     private CharSequence mGenericName;
+    private CharSequence mNotes;
+    private CharSequence mSideEffects;
     private boolean      mCurrentlyTaken;
 
     private ArrayList<MMScheduleMedication> mSchedules;
@@ -78,6 +81,8 @@ public class MMMedication {
         mDoseAmount   = getDefaultDoseAmount();
         mDoseUnits    = getDefaultDoseUnits();
         mDoseNumPerDay= getDefaultDoseNumPerDay();
+        mNotes        = getDefaultNotes();
+        mSideEffects  = getDefaultSideEffects();
         mCurrentlyTaken = getDefaultCurrentlyTaken();
 
         mSchedules    = getDefaultSchedules();
@@ -116,6 +121,12 @@ public class MMMedication {
 
     public CharSequence getGenericName()                         {  return mGenericName;    }
     public void         setGenericName(CharSequence genericName) { mGenericName = genericName; }
+
+    public CharSequence getNotes()                           {  return mNotes;    }
+    public void         setNotes(CharSequence notes)         { mNotes = notes; }
+
+    public CharSequence getSideEffects()                         {  return mSideEffects;    }
+    public void         setSideEffects(CharSequence sideEffects) { mSideEffects = sideEffects; }
 
 
     public boolean      isCurrentlyTaken() {return mCurrentlyTaken;}
@@ -162,7 +173,11 @@ public class MMMedication {
 
     public static CharSequence getDefaultGenericName()        {  return "";    }
 
-    public static boolean      getDefaultCurrentlyTaken()      {return true;}
+    public static CharSequence getDefaultNotes()              {  return "";    }
+
+    public static CharSequence getDefaultSideEffects()        {  return "";    }
+
+    public static boolean      getDefaultCurrentlyTaken()     {return true;}
 
     public static ArrayList<MMScheduleMedication> getDefaultSchedules(){
         return new ArrayList<>();}
@@ -181,6 +196,9 @@ public class MMMedication {
 
 
 
+    //************************************/
+    /*    Export / output Methods        */
+    //************************************/
 
     public String cdfHeaders(){
         String msg =
@@ -193,6 +211,8 @@ public class MMMedication {
                 "DoseUnits"       +
                 "BrandName, "     +
                 "GenericName, "   +
+                "Notes, "         +
+                "SideEffects, "   +
                 "Current"         +
                 System.getProperty("line.separator");
         return msg;
@@ -219,8 +239,11 @@ public class MMMedication {
                 String.valueOf(this.getDoseAmount())          + ", " +
                 String.valueOf(this.getDoseUnits())           + ", " +
 
-                String.valueOf(this.getBrandName())           + ", " +
-                String.valueOf(this.getGenericName())         + ", " +
+                getBrandName()                                + ", " +
+                getGenericName()                              + ", " +
+
+                getNotes()                                    + ", " +
+                getSideEffects()                              + ", " +
 
                 String.valueOf(this.isCurrentlyTaken())       +
 
@@ -241,8 +264,10 @@ public class MMMedication {
                         "NumPerDay:    " + String.valueOf(mDoseNumPerDay)    + System.getProperty("line.separator") +
                         "DoseAmount:   " + String.valueOf(mDoseAmount)       + System.getProperty("line.separator") +
                         "DoseUnits:    " + String.valueOf(mDoseUnits)        + System.getProperty("line.separator") +
-                        "BrandName:    " + String.valueOf(mBrandName)        + System.getProperty("line.separator") +
-                        "GenericName:  " + String.valueOf(mGenericName)      + System.getProperty("line.separator") +
+                        "BrandName:    " + getBrandName()                    + System.getProperty("line.separator") +
+                        "GenericName:  " + getGenericName()                  + System.getProperty("line.separator") +
+                        "Notes:        " + getNotes()                        + System.getProperty("line.separator") +
+                        "SideEffects:  " + getSideEffects()                  + System.getProperty("line.separator") +
                         "Current?      " + String.valueOf(mCurrentlyTaken)   + System.getProperty("line.separator");
     }
 
@@ -271,6 +296,23 @@ public class MMMedication {
         }
         message.append("being taken.");
         message.append(ls);
+
+        String notes = getNotes().toString();
+        if (!notes.isEmpty()) {
+
+            message.append(ls);
+            message.append("Notes:  ");
+            message.append(notes);
+            message.append(ls);
+        }
+
+        String sideEffects = getSideEffects().toString();
+        if (!sideEffects.isEmpty()) {
+            message.append(ls);
+            message.append("SideEffects:  ");
+            message.append(sideEffects);
+            message.append(ls);
+        }
 
         message.append("Dose Strategy is: ");
         message.append(getStrategyString());

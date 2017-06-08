@@ -702,12 +702,12 @@ public class MMMedicationAlertFragment extends Fragment  {
 
         //delete the MedicationAlert
         MMMedicationAlertCursorAdapter adapter = getAdapter(getView());
-        MMMedicationAlert medicationAlert;
 
-        //delete the selected MedicationAlert
-        medicationAlert = new MMMedicationAlert();
-
+        Cursor cursor = adapter.getCursor();
         MMMedicationAlertManager medicationAlertManager = MMMedicationAlertManager.getInstance();
+
+        MMMedicationAlert medicationAlert =
+                medicationAlertManager.getMedicationAlertFromCursor(cursor, mSelectedPosition);
 
         int message;
         if (!medicationAlertManager.removeMedicationAlertFromDB(medicationAlert.getMedicationAlertID())) {

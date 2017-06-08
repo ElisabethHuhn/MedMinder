@@ -135,7 +135,7 @@ public class MMHistoryTitleLineFragment extends Fragment {
         int last = mMedications.size();
         if (last == 0)return;
 
-        int sizeInDp = 10;
+        int sizeInDp = MMHomeFragment.sPaddingBetweenViews;
         addDateTimeFieldsToView(v, sizeInDp);
 
         int position = 0;

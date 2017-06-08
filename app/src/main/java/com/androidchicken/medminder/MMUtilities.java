@@ -196,14 +196,23 @@ public class MMUtilities {
         return DateFormat.getDateTimeInstance().format(date);
     }
 
-    public String getDateTimeStr(long milliseconds){
+    public String getDateTimeStr(MMMainActivity activity, long milliseconds){
         Date date = new Date(milliseconds);
-        //SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a", Locale.US);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM yy HH:mm", Locale.US);
+
+        boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(getDateFormat(is24Format), Locale.US);
         TimeZone gmtTz   = TimeZone.getTimeZone("GMT");
         dateFormat.setTimeZone(gmtTz);
 
         return dateFormat.format(date);
+    }
+
+    private String getDateFormat(boolean is24format){
+        CharSequence dateFormat = "d MMM yy h:mm a";
+        if (is24format){
+            dateFormat = "d MMM yy HH:mm";
+        }
+        return dateFormat.toString();
     }
 
     public  String getDateString(){
@@ -232,147 +241,6 @@ public class MMUtilities {
         long dstOffset = nowCal.get(Calendar.DST_OFFSET);
 
         return dstOffset;
-    }
-
-
-
-
-    // TODO: 5/28/2017 Get rid of these debug methods
-
-
-    public boolean testDate(MMMainActivity activity){
-        boolean is24Format = false;
-        boolean returnCode = true;
-
-        //get the value of the offset between GMT and the local timezone
-        long tzOffset = getTimezoneOffset();
-
-        //Creaate a calendar with this time now
-        Calendar nowCal = Calendar.getInstance();
-
-        //This offset indicates the number of milliseconds due to DST in effect
-        // as of the date of the Calendar
-        long dstOffset = nowCal.get(Calendar.DST_OFFSET);
-
-
-        // convert milliseconds to Strings [separating Time and Date during the conversion]
-        // Re-convert Strings back to milliseconds
-        // then add them back together
-        long nowTime = nowCal.getTimeInMillis();
-        String nowTimeString = getTimeString(activity, nowTime);
-        String nowDateString = getDateString(nowTime);
-        //ASSERT nowTimeSTring should be since midnight in local time zone [pure time at epoch 1970]
-        //ASSERT nowDateString should be today's date, local time zone
-        //RESULT for Time: Success
-        //RESULT for Date: Success
-
-
-
-        //Convert back to milliseconds  [pure time at epoch 1970]
-        Date nowTimeRevertedDate     = convertStringToTimeDate(activity, nowTimeString, true);
-        long nowTimeReverted         = nowTimeRevertedDate.getTime();
-        String nowTimeRevMSSTring    = getTimeString(activity, nowTimeReverted);
-
-        //Date = milliseconds Today at midnight
-        Date nowDateRevertedDate     = convertStringToTimeDate(activity, nowDateString, false);
-        long nowDateReverted         = nowDateRevertedDate.getTime();
-        String nowDateRevDateString  = getTimeString(activity, nowDateReverted);
-        String nowRevDateString      = getDateString(nowDateReverted);
-        //Result for Time - Correct EST!!!! for Jan 1, 1970 [Because that is what is in effect in January!!!]
-        //Result for Date - Correct Midnight EDT for today's date
-
-        //Add to get milliseconds, then convert milliseconds to Strings
-        long   nowTimeRevertedSum    = nowTimeReverted + nowDateReverted;
-        String incorrectTimeString   = getTimeString(activity, nowTimeReverted);
-        //RESULT: - Wrong by GMT offset - Can not do math with local timezone
-        //          But also can not add EST Date to EDT Time and expect to get something meaningful
-
-        //Need offset for local timezone from GMT: GMT = local - offsetTZ
-        //Need offset for DST as the time is for standard time in Jan 1 1970:
-        // IF current time has DST, Time = Time + offset
-        long   nowTimeRevertedWOffset = (nowTimeReverted  + tzOffset) +
-                                        (nowDateReverted - dstOffset);
-        String nowTimeRevOffsetString = getTimeString(activity, nowTimeRevertedWOffset);
-        //RESULT: CORRECT!!! the offsets are properly applied
-
-        String nowDateRevertedString = getDateString(nowTimeReverted);
-        //Result for Date - Correct
-
-
-        //Experiment more with separating time and date then adding them back together
-        //Create a new Calendar corresponding to last night's midnight
-        Calendar calMidnight             = getCalAtMidnight(nowTime);
-
-        long msAtMidnightLocal           = calMidnight.getTimeInMillis();
-        String midnightLocalTimeString   = getTimeString(activity, msAtMidnightLocal);
-        String midnightLocalDateString   = getDateString(msAtMidnightLocal);
-
-        Date midnightLocalDate           = convertStringToTimeDate(activity, midnightLocalDateString, false);
-        long msAtMidnightLocalRev        = midnightLocalDate.getTime();
-        String msAtMidnightGMTRevString  = getTimeString(activity, msAtMidnightLocalRev);
-
-
-        long msAtMidnightGMT             = msAtMidnightLocal - tzOffset + dstOffset;
-        String midnightGMTTimeString     = getTimeString(activity, msAtMidnightGMT);
-
-        String midnightDateString        = getDateString(msAtMidnightGMT);
-        //ASSERT Should see local and GMT
-        //RESULT Time Local: Correct
-        //Result Time GMT:   Correct, but it requires both offsets
-        //Result Date:       Correct
-
-
-
-
-        //convert String to milliseconds since midnight
-        long msSinceMidnightGMT = convertStringToMilliSinceMidnightGMT(activity, nowTimeString);
-        long msSinceMidnightLocal = nowTime - msAtMidnightGMT ;
-        //ASSERT: msSinceMidnightGMT   == msSinceMidnightLocal - tzOffset
-        //ASSERT: msSinceMidnightLocal == msSinceMidnightGMT   + tzOffset
-        //RESULT: msSinceMidnightGMT <  >,     msSinceMidnightLocal   <  >
-
-        String msSinceMidnightGMTString    = getTimeString(activity, msSinceMidnightGMT);
-        String msSinceMidnightLocalString  = getTimeString(activity, msSinceMidnightLocal);
-        //RESULT:  msSinceMidnightGMTString <  >,     msSinceMidnightLocalString <  >
-
-
-        //convert the two Date strings into milliseconds
-        Date dateNow      = convertStringToTimeDate(activity, nowDateString, false);
-        Date dateMidnight = convertStringToTimeDate(activity, midnightDateString, false);
-        //RESULT: Success - midnight of today's date EDT
-        long msDateNowEDT      = dateNow.getTime();
-        long msDateMidnightEDT = dateMidnight.getTime();
-        //RESULT; both correct for Midnight EDT
-
-
-        //Add milliseconds to get a value for now
-        long msAgainNowGMT = (msDateNowEDT - tzOffset) + msSinceMidnightGMT;
-        Date againDate = new Date(msAgainNowGMT);
-
-        String timeAgainString = getTimeString(activity, msAgainNowGMT);
-        String dateAgainString = getDateString(msAgainNowGMT);
-        //RESULT Time again String:
-        //RESULT Date again String: Correct
-
-
-        long checkMsAgainNowGMT  = (msDateNowEDT - tzOffset) + (msSinceMidnightLocal - tzOffset);
-        Date checkAgainDate = new Date(checkMsAgainNowGMT);
-        String checkTimeAgainString = getTimeString(activity, checkMsAgainNowGMT);
-        String checkDateAgainString = getDateString(checkMsAgainNowGMT);
-        //RESULT Time again String:
-        //RESULT Date again String: Correct
-
-        String timesetString = getTimeString(activity, nowTime);
-        timesetString        = getTimeString(activity, msAtMidnightLocal);
-        timesetString        = getTimeString(activity, msSinceMidnightGMT);
-        timesetString        = getTimeString(activity, msSinceMidnightLocal);
-        timesetString        = getTimeString(activity, msAgainNowGMT);
-        timesetString        = getTimeString(activity, checkMsAgainNowGMT);
-
-
-
-
-        return returnCode;
     }
 
 
@@ -459,6 +327,9 @@ public class MMUtilities {
         return new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
     }
 
+    public SimpleDateFormat getEditTextDateFormat(){
+        return new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    }
 
 
 
@@ -511,6 +382,31 @@ public class MMUtilities {
     }
 
 
+
+    public Date convertStringToDate(MMMainActivity activity,
+                                        String timeSinceMidnightString){
+        //Get the clock format
+        boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
+
+        Date date = null;
+
+        SimpleDateFormat timeFormat;
+
+
+        timeFormat = getEditTextDateFormat();
+
+        //TimeZone gmtTz   = TimeZone.getTimeZone("GMT");
+        //timeFormat.setTimeZone(gmtTz);
+
+        try {
+            date = timeFormat.parse(timeSinceMidnightString);
+        } catch (Exception e) {
+            MMUtilities.getInstance().errorHandler(activity, R.string.error_parsing_date_time);
+            e.printStackTrace();
+        }
+
+        return date;
+    }
 
     public Date convertStringToTimeDate(MMMainActivity activity,
                                         String timeSinceMidnightString,
@@ -595,28 +491,32 @@ public class MMUtilities {
     }
 
 
-    public long getLastTakenMinutes(long timeTaken){
+    public long getLastTakenMinutes(MMMainActivity activity, long timeTaken){
+
+        Calendar lastTakenCal = Calendar.getInstance();
+        Calendar nowCal       = Calendar.getInstance();
+        lastTakenCal.setTimeInMillis(timeTaken);
+
+        // TODO: 6/7/2017 remove debug statements
+        String nowDateString = getDateString(nowCal.getTimeInMillis());
+        String nowTimeString = getTimeString(activity, nowCal.getTimeInMillis());
+        String lastDateString = getDateString(lastTakenCal.getTimeInMillis());
+        String lastTimeString = getTimeString(activity, lastTakenCal.getTimeInMillis());
 
         //compare whether the last dose was taken today
-        Date lastTaken = new Date(timeTaken);
-
-        Date now = new Date();
-
-        SimpleDateFormat fmt   = new SimpleDateFormat("yyyyMMdd");
-        boolean firstDoseOfDay = !(fmt.format(lastTaken).equals(fmt.format(now)));
+        boolean sameDay = lastTakenCal.get(Calendar.YEAR)        == nowCal.get(Calendar.YEAR) &&
+                          lastTakenCal.get(Calendar.DAY_OF_YEAR) == nowCal.get(Calendar.DAY_OF_YEAR);
 
         long lastTakenMinutes = 0;
-        if (!firstDoseOfDay) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(lastTaken);
-            lastTakenMinutes = getMinutesFromCalendar(calendar);
+        if (!sameDay) {
+            lastTakenMinutes = getMinutesFromCalendar(lastTakenCal);
         }
         return lastTakenMinutes;
     }
 
 
     public long getMinutesFromCalendar (Calendar calendar){
-        return (calendar.get(Calendar.HOUR_OF_DAY) * 60) + calendar.get(Calendar.MINUTE);
+        return (calendar.get(Calendar.HOUR_OF_DAY) * minutesPerHour) + calendar.get(Calendar.MINUTE);
     }
 
     //************************************/
@@ -899,22 +799,66 @@ public class MMUtilities {
         String lineSep = System.getProperty("line.separator");
         String msg;
         if (timeTakenMilliseconds > 0) {
-             msg = "Patient: <" + personNickname + "> has not taken a dose of " + medicationName +
-                   lineSep + "since " + timeTakenString + ". ";
+            msg = String.format(Locale.getDefault(),
+                                "Patient: <%s> has not taken a dose of %s since %s. ",
+                                personNickname, medicationName,timeTakenString);
         } else {
-            msg = "Patient: <" + personNickname + "> has never taken a dose of " + medicationName ;
+            msg = String.format(Locale.getDefault(),
+                                "Patient: <%s> has never taken a dose of %s" ,
+                                personNickname, medicationName );
         }
 
 
         int alertType = medicationAlert.getNotifyType();
+
         if (alertType == MMMedicationAlert.sNOTIFY_BY_TEXT) {
             sendSMSviaAPI(context, notifyPerson.getTextAddress().toString(), msg);
         } else if (alertType == MMMedicationAlert.sNOTIFY_BY_EMAIL){
             String subject = "Missed Medication Dose";
             sendEmail(context, subject, notifyPerson.getEmailAddress().toString(), msg);
         } //else if any other type in the future......
+
     }
 
+
+
+
+    //************************************/
+    /*         Send with Intents         */
+    //************************************/
+
+    public void exportEmail(Context context, String subject, String emailAddr, String body, String chooser_title){
+
+        Intent intent2 = new Intent();
+        intent2.setAction(Intent.ACTION_SEND);
+        intent2.setType("message/rfc822");
+        intent2.putExtra(Intent.EXTRA_EMAIL,   emailAddr);
+        intent2.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent2.putExtra(Intent.EXTRA_TEXT,    chooser_title );
+        context.startActivity(intent2);
+    }
+
+    public void exportText(Context context,String subject,String body, String chooser_title){
+        Intent exportIntent = new Intent(Intent.ACTION_SEND);
+        exportIntent.setType("text/plain");
+
+        exportIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
+        exportIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
+
+        //always display the chooser
+        if (exportIntent.resolveActivity(context.getPackageManager()) != null)
+            context.startActivity(Intent.createChooser(exportIntent, chooser_title ));
+        else {
+            MMUtilities.getInstance().showStatus(context, R.string.export_no_app);
+        }
+    }
+
+    public void exportSMS(Context context, String subject, String body){
+        Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+        sendIntent.putExtra("sms_body", body);
+        sendIntent.setType("vnd.android-dir/mms-sms");
+        context.startActivity(sendIntent);
+    }
 
     //************************************/
     /*         Send Email using Intent   */

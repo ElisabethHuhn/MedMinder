@@ -10,50 +10,50 @@
         />
     <item
         android:id="@+id/action_home"
-        android:orderInCategory="100"
+        android:orderInCategory="110"
         android:title="@string/action_home"
         app:showAsAction="never"
         />
-     <item
-        android:id="@+id/action_list_schedules"
-        android:orderInCategory="110"
-        android:title="@string/action_list_schedules"
-        app:showAsAction="never"
-        />
     <item
-        android:id="@+id/action_export"
+        android:id="@+id/action_edit_patient"
         android:orderInCategory="120"
-        android:title="@string/action_export"
+        android:title="@string/action_edit_patient"
         app:showAsAction="never"
         />
-
     <item
         android:id="@+id/action_switch_patient"
         android:orderInCategory="130"
         android:title="@string/action_switch_patient"
         app:showAsAction="never"
         />
-    <item
-        android:id="@+id/action_edit_patient"
+     <item
+        android:id="@+id/action_list_schedules"
         android:orderInCategory="140"
-        android:title="@string/action_edit_patient"
+        android:title="@string/action_list_schedules"
         app:showAsAction="never"
         />
     <item
-        android:id="@+id/action_alert"
+        android:id="@+id/action_export"
         android:orderInCategory="150"
+        android:title="@string/action_export"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/action_alert"
+        android:orderInCategory="160"
         android:title="@string/action_med_alert"
         app:showAsAction="never"
         />
     <item
         android:id="@+id/action_med_help"
-        android:orderInCategory="150"
+        android:orderInCategory="170"
         android:title="@string/action_med_help"
         app:showAsAction="never"
         />
     <item
         android:id="@+id/action_midnight_noon"
-        android:orderInCategory="150"
+        android:orderInCategory="180"
         android:title="@string/action_midnight_noon"
         app:showAsAction="never"
         />

@@ -124,7 +124,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/export_radio_general"
-                android:checked="true" />
+                android:checked="true"
+                 />
 
             <RadioButton
                 android:id="@+id/radioEmail"
@@ -142,7 +143,8 @@
                 android:id="@+id/radioFile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/export_radio_file" />
+                android:text="@string/export_radio_file"
+                />
 
 
         </RadioGroup>
@@ -181,6 +183,9 @@
                 android:gravity="center_horizontal"
 
                 android:freezesText="true"
+
+                android:enabled="true"
+
 
                 android:inputType=    "text"
                 android:imeOptions=   "flagNoExtractUi"
@@ -226,6 +231,9 @@
 
                 android:freezesText="true"
 
+                android:enabled="true"
+
+
                 android:inputType=    "text"
                 android:imeOptions=   "flagNoExtractUi"
 
@@ -270,6 +278,9 @@
                 android:gravity="center_horizontal"
 
                 android:freezesText="true"
+
+                android:enabled="true"
+
 
                 android:inputType=    "text"
                 android:imeOptions=   "flagNoExtractUi"
@@ -317,7 +328,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/export_radio_prescript"
-                android:checked="true"
+
                 />
 
             <RadioButton
@@ -325,6 +336,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/export_radio_history"
+                android:checked="true"
                 />
 
 
@@ -364,12 +376,14 @@
 
                 android:freezesText="true"
 
+                android:enabled="true"
+
                 android:inputType=    "date"
                 android:imeOptions=   "flagNoExtractUi"
 
                 android:layout_marginEnd="2dp"
 
-                android:hint="@string/export_day_hint"
+                android:hint="@string/export_date_hint"
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorInputBackground"
                 />
@@ -409,13 +423,14 @@
                 android:gravity="center_horizontal"
 
                 android:freezesText="true"
+                android:enabled="true"
 
                 android:inputType=    "date"
                 android:imeOptions=   "flagNoExtractUi"
 
                 android:layout_marginEnd="2dp"
 
-                android:hint="@string/export_day_hint"
+                android:hint="@string/export_date_hint"
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorInputBackground"
                 />

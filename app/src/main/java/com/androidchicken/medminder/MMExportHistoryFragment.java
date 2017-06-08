@@ -1,8 +1,6 @@
 package com.androidchicken.medminder;
 
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
@@ -280,9 +278,12 @@ public class MMExportHistoryFragment extends Fragment {
                                                         getColor(getActivity(), R.color.colorGray));
                     fileNameExtentInput.setBackgroundColor(ContextCompat.
                                                         getColor(getActivity(), R.color.colorGray));
-                    directoryInput     .setFocusable(false);
-                    fileNameInput      .setFocusable(false);
-                    fileNameExtentInput.setFocusable(false);
+                   // directoryInput     .setFocusable(false);
+                    directoryInput     .setEnabled  (false);
+                    //fileNameInput      .setFocusable(false);
+                    fileNameInput      .setEnabled  (false);
+                    //fileNameExtentInput.setFocusable(false);
+                    fileNameExtentInput.setEnabled  (false);
                 } else if(fileRadio.isChecked()) {
                     directoryInput.setBackgroundColor(ContextCompat.
                                                         getColor(getActivity(), R.color.colorWhite));
@@ -290,10 +291,12 @@ public class MMExportHistoryFragment extends Fragment {
                                                         getColor(getActivity(), R.color.colorWhite));
                     fileNameExtentInput.setBackgroundColor(ContextCompat.
                                                         getColor(getActivity(), R.color.colorWhite));
-                    directoryInput     .setFocusable(true);
-                    fileNameInput      .setFocusable(true);
-                    fileNameExtentInput.setFocusable(true);
-
+                    //directoryInput     .setFocusable(true);
+                    directoryInput     .setEnabled  (true);
+                    //fileNameInput      .setFocusable(true);
+                    fileNameInput      .setEnabled  (true);
+                    //fileNameExtentInput.setFocusable(true);
+                    fileNameExtentInput.setEnabled  (true);
                 }
             }
         });
@@ -310,37 +313,40 @@ public class MMExportHistoryFragment extends Fragment {
                     filterEndingDateInput.setBackgroundColor(ContextCompat.
                                                         getColor(getActivity(), R.color.colorGray));
 
-                    filterStartingDateInput.setFocusable(false);
-                    filterEndingDateInput  .setFocusable(false);
+                    //filterStartingDateInput.setFocusable(false);
+                    filterStartingDateInput.setEnabled  (false);
+                    //filterEndingDateInput  .setFocusable(false);
+                    filterEndingDateInput  .setEnabled  (false);
                 } else if(historyRadio.isChecked()) {
                     filterStartingDateInput.setBackgroundColor(ContextCompat.
                                                         getColor(getActivity(), R.color.colorWhite));
                     filterEndingDateInput.setBackgroundColor(ContextCompat.
                                                         getColor(getActivity(), R.color.colorWhite));
 
-                    filterStartingDateInput.setFocusable(true);
-                    filterEndingDateInput  .setFocusable(true);
+                    //filterStartingDateInput.setFocusable(true);
+                    filterStartingDateInput.setEnabled  (true);
+                    //filterEndingDateInput  .setFocusable(true);
+                    filterEndingDateInput  .setEnabled  (true);
                 }
             }
         });
 
 
+        //initialize
         directoryInput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
         fileNameInput.setBackgroundColor (ContextCompat.getColor(getActivity(), R.color.colorGray));
         fileNameExtentInput.setBackgroundColor(ContextCompat.
                                                     getColor(getActivity(), R.color.colorGray));
         filterStartingDateInput.setBackgroundColor(ContextCompat.
-                                                    getColor(getActivity(), R.color.colorGray));
+                                                    getColor(getActivity(), R.color.colorWhite));
         filterEndingDateInput.setBackgroundColor(ContextCompat.
-                                                    getColor(getActivity(), R.color.colorGray));
+                                                    getColor(getActivity(), R.color.colorWhite));
 
-        directoryInput         .setFocusable(false);
-        fileNameInput          .setFocusable(false);
-        fileNameExtentInput    .setFocusable(false);
-        filterStartingDateInput.setFocusable(false);
-        filterEndingDateInput  .setFocusable(false);
-
-
+        directoryInput         .setEnabled(false);
+        fileNameInput          .setEnabled(false);
+        fileNameExtentInput    .setEnabled(false);
+        filterStartingDateInput.setEnabled(true);
+        filterEndingDateInput  .setEnabled(true);
 
         }
 
@@ -456,7 +462,7 @@ public class MMExportHistoryFragment extends Fragment {
 
 
 
-
+        String chooser_title =getString(R.string.export_chooser_title);
         if (whereFlag == EXPORT_EMAIL){
             String emailAddr = patient.getEmailAddress().toString();
             if (emailAddr.isEmpty()) {
@@ -465,58 +471,26 @@ public class MMExportHistoryFragment extends Fragment {
             }
 
             //MMUtilities.getInstance().sendEmail(getActivity(), subject, emailAddr, message);
-            exportEmail(getActivity(), subject, emailAddr, message );
+            MMUtilities.getInstance()
+                           .exportEmail(getActivity(), subject, emailAddr, message, chooser_title );
 
         } else if (whereFlag == EXPORT_FILE){
             writeFile(whatFlag, suffix);
             MMUtilities.getInstance().showStatus(getActivity(), R.string.export_file_written);
 
         } else if (whereFlag == EXPORT_SMS){
-            exportSMS(getActivity(), subject, message);
+            MMUtilities.getInstance().exportSMS(getActivity(), subject, message);
         } else if (whereFlag == EXPORT_GENERAL){
-            exportText(getActivity(), subject, message);
+            MMUtilities.getInstance().exportText(getActivity(), subject, message, chooser_title);
         }
 
     }
 
-    private void exportEmail(Context context, String subject, String emailAddr, String body){
-
-        Intent intent2 = new Intent();
-        intent2.setAction(Intent.ACTION_SEND);
-        intent2.setType("message/rfc822");
-        intent2.putExtra(Intent.EXTRA_EMAIL, emailAddr);
-        intent2.putExtra(Intent.EXTRA_SUBJECT, subject);
-        intent2.putExtra(Intent.EXTRA_TEXT, getString(R.string.export_chooser_title) );
-        startActivity(intent2);
-    }
-
-    private void exportText(Context context,String subject,String body){
-        Intent exportIntent = new Intent(Intent.ACTION_SEND);
-        exportIntent.setType("text/plain");
-
-        exportIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
-        exportIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
-
-        //always display the chooser
-        if (exportIntent.resolveActivity(context.getPackageManager()) != null)
-            context.startActivity(Intent.createChooser(exportIntent,
-                                                       getString(R.string.export_chooser_title)));
-        else {
-            MMUtilities.getInstance().showStatus(getActivity(), R.string.export_no_app);
-        }
-    }
-
-    private void exportSMS(Context context, String subject, String body){
-        Intent sendIntent = new Intent(Intent.ACTION_VIEW);
-        sendIntent.putExtra("sms_body", body);
-        sendIntent.setType("vnd.android-dir/mms-sms");
-        startActivity(sendIntent);
-    }
 
     private long getDateFilter(int flag){
         EditText dateView;
         View v = getView();
-        if (v == null)return 0;
+        if (v == null)return -1;
 
         if (flag == START_FILTER){
             dateView   = (EditText) v.findViewById(R.id.filterStartingDate);
@@ -529,7 +503,8 @@ public class MMExportHistoryFragment extends Fragment {
 
         boolean isTimeflag = false; //The flag is for a Date, not a Time
         Date dateDate = MMUtilities.getInstance().
-                     convertStringToTimeDate((MMMainActivity)getActivity(), dateString, isTimeflag);
+                     convertStringToDate((MMMainActivity)getActivity(), dateString);
+        if (dateDate == null)return -1;
 
         // TODO: 6/2/2017 remove the debug string
         String dateTestString = MMUtilities.getInstance().getDateString(dateDate.getTime());
@@ -861,7 +836,7 @@ public class MMExportHistoryFragment extends Fragment {
             //Now list the history
             //get all the concurrent doses for this patient
             MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
-            if ((startMilli < 0) || (endMilli < 0)){
+            if ((startMilli <= 0) || (endMilli <= 0)){
                 concurrentDoseCursor = concurrentDoseManager.
                                                         getAllConcurrentDosesCursor(getPatientID());
             } else {
@@ -879,10 +854,12 @@ public class MMExportHistoryFragment extends Fragment {
                         .getConcurrentDoseFromCursor(concurrentDoseCursor, positionCD);
 
                 long timeTaken = concurrentDose.getStartTime();
-                if ((startMilli < timeTaken) && (timeTaken < endMilli)) {
+                if ((startMilli <= 0) || (endMilli <= 0) ||
+                    (startMilli < timeTaken) && (timeTaken < endMilli)) {
 
                     history.append("<");
-                    history.append(MMUtilities.getInstance().getDateTimeStr(timeTaken));
+                    history.append(MMUtilities.getInstance().
+                                        getDateTimeStr((MMMainActivity)getActivity(), timeTaken));
                     history.append(">");
                     history.append(tab_as_string);
 
@@ -892,13 +869,19 @@ public class MMExportHistoryFragment extends Fragment {
                     // TODO: 5/15/2017 Need to coordinate dose list with med list
                     int lastDose = doses.size();
                     int positionDose = 0;
+                    long medicationID;
                     while (positionDose < lastDose) {
                         dose = doses.get(positionDose);
-                        medication = medications.get(positionDose);
-
+                        medicationID = dose.getOfMedicationID();
+                        medication = MMMedicationManager.getInstance().
+                                                                getMedicationFromID(medicationID);
+                        history.append("{");
+                        history.append(medication.getMedicationNickname());
+                        history.append(" ");
                         history.append(String.valueOf(dose.getAmountTaken()));
                         history.append(" ");
                         history.append(medication.getDoseUnits());
+                        history.append("}");
                         history.append(tab_as_string);
 
                         positionDose++;

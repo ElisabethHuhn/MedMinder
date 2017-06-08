@@ -3,29 +3,31 @@
 
     <!--      Global                  -->
     <!--  -->
-    <string name="date_format"        >MMM DD,YYYY</string>
-    <string name="time_format"        >HH:MM A</string>
+    <string name="date_format"              >MMM DD,YYYY</string>
+    <string name="time_format"              >HH:MM A</string>
 
-    <string name="save_label"         >Save</string>
-    <string name="save_successful"    >Save Successful</string>
+    <string name="save_label"               >Save</string>
+    <string name="save_successful"          >Save Successful</string>
     <string name="save_unsuccessful"        >Save not successful</string>
 
-    <string name="exit_label"         >Exit</string>
-    <string name="hint_label"         >Hint</string>
-    <string name="cancel_label"       >Cancel</string>
+    <string name="exit_label"               >Exit</string>
+    <string name="hint_label"               >Hint</string>
+    <string name="cancel_label"             >Cancel</string>
     <string name="exception_medication_not_added">Could not add medication</string>
-    <string name="exportHistoryLabel" >Export</string>
-    <string name="list_label"         >Title</string>
+    <string name="couldnt_find_patient"     >Could not find patient</string>
+    <string name="couldnt_find_medication"  >Could not find medication</string>
+    <string name="exportHistoryLabel"       >Export</string>
+    <string name="list_label"               >Title</string>
 
-    <string name="true_label"         >True</string>
-    <string name="false_label"        >False</string>
-    <string name="up_arrow"           >\u0024</string>
-    <string name="down_arrow"         >\u0025</string>
-    <string name="up_label"           >"▲"</string>
-    <string name="down_label"         >"▼"</string>
+    <string name="true_label"               >True</string>
+    <string name="false_label"              >False</string>
+    <string name="up_arrow"                 >\u0024</string>
+    <string name="down_arrow"               >\u0025</string>
+    <string name="up_label"                 >"▲"</string>
+    <string name="down_label"               >"▼"</string>
 
-    <string name="one_string"         >1</string>
-    <string name="zero_string"        >00</string>
+    <string name="one_string"               >1</string>
+    <string name="zero_string"              >00</string>
 
 
 
@@ -76,6 +78,8 @@
     <string name="medication_generic_name_label">Generic Name</string>
     <string name="medication_for_label"         >Patient</string>
     <string name="medication_for_name"          >Person Name</string>
+    <string name="medication_notes"             >Notes</string>
+    <string name="medication_side_effects"      >Side Effects</string>
 
     <string name="medication_dose_strategy_label">Strategy</string>
     <string name="medication_dose_amount_label" >Amt</string>
@@ -90,25 +94,16 @@
     <string name="medication_brand_name_hint"   >Enter Brand Name</string>
     <string name="medication_generic_name_hint" >Enter Generic Name</string>
     <string name="medication_nick_name_hint"    >Enter Nickname</string>
-    <string name="medication_for_hint"          >Enter Person ID this medication is for</string>
-    <string name="medication_order_hint"        >For Example: 5</string>
+
     <string name="medication_dose_amount_hint"  >For Example: 250</string>
     <string name="medication_dose_units_hint"   >For Example: mg</string>
-    <string name="medication_num_per_day_hint"  >For Example: 2</string>
-    <string name="medication_when_due_hint2"    >Leave When Due blank for as needed</string>
-    <string name="strategy_hint_label"          >Strategy Hint</string>
-    <string name="medication_strategy_hint"     >1 = schedule, 2 = as needed</string>
+
+
     <string name="medication_dose_time"         >Time</string>
     <string name="medication_dose_hours"        >Hours</string>
-    <string name="medication_dose_minutes"      >Minutes</string>
-    <string name="medication_dose_am_pm"        >A/P</string>
+
     <string name="medication_dose_am"           >AM</string>
-    <string name="medication_dose_pm"           >PM</string>
-    <string name="save_first"                   >Must SAVE before this function will work</string>
-    <string name="wrong_strategy"               >Can not set schedule with is needed strategy</string>
-    <string name="strategy_schedule"            >Sch</string>
-    <string name="strategy_as_needed"           >A/N</string>
-    <string name="id_abrev"                     >ID</string>
+
 
 
 
@@ -183,6 +178,7 @@
     <string name="export_day_hint"            >DD</string>
     <string name="export_month_hint"          >MM</string>
     <string name="export_year_hint"           >YY</string>
+    <string name="export_date_hint"           >dd/MM/yyyy</string>
     <string name="export_day_error"           >Too many days for your month</string>
     <string name="export_month_error"         >Months must be less than or eaual to 12</string>
     <string name="export_year_error"          >Years must be less than or equal to 99</string>
@@ -208,7 +204,7 @@
 
     <!--      Schedule List SCREEN                  -->
     <string name="sched_list_med_doesnt_exist">DOES NOT EXIST</string>
-    <string name="sched_list_as_needed"       >As Needed</string>
+    <string name="sched_list_as_needed"       >Need</string>
 
 
 
@@ -217,6 +213,7 @@
     <string name="settings_default_time_due"    >Medications: Default Time Due for schedule</string>
     <string name="settings_default_time"        >Time</string>
     <string name="settings_earliest_history_date">Home: Earliest date of dose in history list</string>
+    <string name="settings_date_hint"         >MMM d, yyyy</string>
     <string name="settings_history_date"        >Date</string>
     <string name="settings_incorrect_format"    >Time field incorrect, resetting....</string>
     <string name="settings_24format"            >Is Clock 24 hour format?</string>

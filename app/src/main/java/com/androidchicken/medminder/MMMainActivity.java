@@ -16,13 +16,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import static android.os.Build.VERSION_CODES.M;
+
 public class MMMainActivity extends AppCompatActivity {
 
     //Tags for the fragments which are the screens of the app
+    public  static final String sFragmentTag      = "FragmentTag";
     public  static final String sHomeTag          = "HOME";
-    private static final String sPersonTag        = "PERSON";
+    public  static final String sPersonTag        = "PERSON";
     private static final String sPersonListTag    = "PERSON_LIST";
-    private static final String sMedicationTag    = "MEDICATION";
+    public  static final String sMedicationTag    = "MEDICATION";
     private static final String sMedAlertTag      = "MED_ALERT";
     public  static final String sExportTag        = "EXPORT";
     private static final String sScheduleListTag  = "SCHEDULE_LIST";
@@ -88,6 +91,7 @@ public class MMMainActivity extends AppCompatActivity {
 
             } else if (fragment instanceof MMMedicationFragment) {
                 ((MMMedicationFragment) fragment).onExit();
+                //switchToHomeScreen();   //switchToPopBackstack();
 
             } else if (fragment instanceof MMPersonFragment) {
                 ((MMPersonFragment) fragment).onExit();
@@ -155,7 +159,7 @@ public class MMMainActivity extends AppCompatActivity {
     }
 
     public void isFilePermissionGranted() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= M) {
             int hasWriteExternalStoragePermission =
                     ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
             if (hasWriteExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
@@ -257,7 +261,7 @@ public class MMMainActivity extends AppCompatActivity {
                     String.format(getString(R.string.add_medication), person.getNickname());
             MMUtilities.getInstance().showHint(view, msg);
 
-            switchToMedicationScreen();
+            switchToMedicationScreen((int)MMUtilities.ID_DOES_NOT_EXIST, sPersonTag);
 
         } else if (fragment instanceof MMMedicationFragment) {
             //Add a new schedule
@@ -314,12 +318,10 @@ public class MMMainActivity extends AppCompatActivity {
         } else if (id == R.id.action_home) {
             switchToHomeScreen();
             return true;
-        } else  if (id == R.id.action_export) {
-            switchToExportScreen();
+        } else if (id == R.id.action_edit_patient) {
+            switchToPersonScreen();
             return true;
-        } else  if (id == R.id.action_list_schedules) {
-            switchToScheduleListScreen();
-            return true;
+
         } else if (id == R.id.action_switch_patient){
 
             //Control will pass to the Person List screen, but where control returns to
@@ -345,17 +347,22 @@ public class MMMainActivity extends AppCompatActivity {
             }
             return true;
 
-        } else if (id == R.id.action_edit_patient) {
-            switchToPersonScreen();
+
+        } else  if (id == R.id.action_list_schedules) {
+            switchToScheduleListScreen();
             return true;
+        } else  if (id == R.id.action_export) {
+            switchToExportScreen();
+            return true;
+        } else if (id == R.id.action_alert){
+            switchToMedicationAlertScreen();
+            return true;
+
         } else if (id == R.id.action_med_help){
             if (getPatientID() != MMUtilities.ID_DOES_NOT_EXIST) {
                 //Show the medication positions for the history list
                 switchToHistoryTitleScreen();
             }
-        } else if (id == R.id.action_alert){
-            switchToMedicationAlertScreen();
-            return true;
 
         } else if (id == R.id.action_midnight_noon){
             MMUtilities.getInstance().showStatus(this, R.string.action_midnight_noon);
@@ -392,15 +399,24 @@ public class MMMainActivity extends AppCompatActivity {
         return fm.findFragmentById(R.id.fragment_container);
     }
 
-    //***** Routine to actually switch the screens *******/
-    private void switchScreen(Fragment fragment, String tag) {
+    private void clearBackStack(){
         //Need the Fragment Manager to do the swap for us
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
         //clear the back stack
+
         while (fm.getBackStackEntryCount() > 0){
             fm.popBackStackImmediate();
         }
+    }
 
+    //***** Routine to actually switch the screens *******/
+    private void switchScreen(Fragment fragment, String tag) {
+       //clear the back stack
+       // TODO: 6/3/2017 investigate if this is the reason can't back from medication to person profile
+       clearBackStack();
+
+        //Need the Fragment Manager to do the swap for us
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
         //Are any fragments already being displayed?
         Fragment oldFragment = fm.findFragmentById(R.id.fragment_container);
 
@@ -572,10 +588,11 @@ public class MMMainActivity extends AppCompatActivity {
      */
 
 
-    public void switchToMedicationScreen(){
+
+    public void switchToMedicationScreen(int position, String returnTag){
         //replace the fragment with the Home UI
 
-        Fragment fragment    = MMMedicationFragment.newInstance(getPatientID(), -1);
+        Fragment fragment    = MMMedicationFragment.newInstance(position, returnTag);
         String   tag         = sMedicationTag;
         int      title       = R.string.title_medication;
 
@@ -583,15 +600,15 @@ public class MMMainActivity extends AppCompatActivity {
         setMMSubtitle(title);
     }
 
-    public void switchToMedicationScreen(int position){
-        //replace the fragment with the Home UI
+    public void switchToMedicationReturn(CharSequence returnFragmentTag){
 
-        Fragment fragment    = MMMedicationFragment.newInstance(getPatientID(), position);
-        String   tag         = sMedicationTag;
-        int      title       = R.string.title_medication;
+        if (returnFragmentTag.equals(sPersonTag)){
+            switchToPersonScreen();
+        }
+        //return to the Home screen, even if it's not the tag,
+        // because if it's not, there is something wrong and we are trying to recover
+        switchToHomeScreen();
 
-        switchScreen(fragment, tag);
-        setMMSubtitle(title);
     }
 
 

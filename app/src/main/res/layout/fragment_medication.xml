@@ -414,7 +414,101 @@
 
             </TableRow>
 
-            <!-- Row 12: Medication Brand Name -->
+            <!-- Row 12: Medication Notes -->
+            <TableRow
+
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="10dp"
+                >
+                <TextView
+                    android:labelFor="@+id/medicationNotesInput"
+                    android:text="@string/medication_notes"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="30"
+                    android:gravity="end"
+
+                    android:focusable="false"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorLabelBackground"
+                    />
+                <EditText
+                    android:id="@id/medicationNotesInput"
+
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="70"
+                    android:gravity="top|left"
+
+                    android:hint="@string/medication_notes"
+
+                    android:inputType="textMultiLine"
+                    android:imeOptions="flagNoExtractUi"
+                    android:layout_marginEnd="16dp"
+                    android:lines="8"
+                    android:minLines="3"
+                    android:maxLines="10"
+
+                    android:scrollbarStyle="insideInset"
+                    android:scrollbars="vertical"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorInputBackground"
+                    />
+
+            </TableRow>
+
+            <!-- Row 13: Medication Side Effects -->
+            <TableRow
+
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="10dp"
+                >
+                <TextView
+                    android:labelFor="@+id/medicationSideEffectsInput"
+                    android:text="@string/medication_side_effects"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="30"
+                    android:gravity="end"
+
+                    android:focusable="false"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorLabelBackground"
+                    />
+                <EditText
+                    android:id="@id/medicationSideEffectsInput"
+
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="70"
+                    android:gravity="top|left"
+
+                    android:hint="@string/medication_side_effects"
+
+                    android:inputType="textMultiLine"
+                    android:imeOptions="flagNoExtractUi"
+                    android:layout_marginEnd="16dp"
+                    android:lines="8"
+                    android:minLines="3"
+                    android:maxLines="10"
+
+                    android:scrollbarStyle="insideInset"
+                    android:scrollbars="vertical"
+
+                    android:textColor="@color/colorTextBlack"
+                    android:background="@color/colorInputBackground"
+                    />
+
+            </TableRow>
+
+            <!-- Row 14: Medication Brand Name -->
             <TableRow
 
                 android:layout_height="wrap_content"
@@ -455,7 +549,7 @@
 
             </TableRow>
 
-            <!-- Row 13: Medication Generic Name -->
+            <!-- Row 15: Medication Generic Name -->
             <TableRow
 
                 android:layout_height="wrap_content"

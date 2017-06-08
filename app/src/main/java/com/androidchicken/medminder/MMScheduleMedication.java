@@ -28,6 +28,7 @@ public class MMScheduleMedication {
     private long mOfMedicationID;
     private long mForPersonID;
     private int  mTimeDue;  //number of minutes from midnight in GMT time zone
+    private int  mStrategy; //whether as needed or scheduled
 
 
 
@@ -44,15 +45,18 @@ public class MMScheduleMedication {
         mOfMedicationID = 0;
         mForPersonID    = 0;
         mTimeDue        = 0;
+        mStrategy       = MMMedication.sSET_SCHEDULE_FOR_MEDICATION;
     }
 
     public MMScheduleMedication(long  ofMedicationID,
                                 long  forPersonID,
-                                int   timeDue) {
+                                int   timeDue,
+                                int   strategy) {
         mSchedMedID     = MMUtilities.ID_DOES_NOT_EXIST;
         mOfMedicationID = ofMedicationID;
         mForPersonID    = forPersonID;
         mTimeDue        = timeDue;
+        mStrategy       = strategy;
     }
 
     /*************************************/
@@ -71,6 +75,9 @@ public class MMScheduleMedication {
     public int  getTimeDue()            { return mTimeDue; }
     public void setTimeDue(int timeDue) {  mTimeDue = timeDue; }
 
+    public int  getStrategy()            { return mStrategy; }
+    public void setStrategy(int strategy) {  mStrategy = strategy; }
+
 
     /*************************************/
     /*          Member Methods           */
@@ -80,7 +87,8 @@ public class MMScheduleMedication {
         return  "SchedMedID, "       +
                 "MedicationID, "     +
                 "PersonID, "         +
-                "TimeDue "           +
+                "TimeDue, "          +
+                "Strategy "          +
 
                 System.getProperty("line.separator");
 
@@ -91,7 +99,8 @@ public class MMScheduleMedication {
         return String.valueOf(this.getSchedMedID())      + ", " +
                String.valueOf(this.getOfMedicationID())  + ", " +
                String.valueOf(this.getForPersonID())     + ", " +
-               String.valueOf(this.getTimeDue())         +
+               String.valueOf(this.getTimeDue())         + ", " +
+               String.valueOf(this.getStrategy())        +
                System.getProperty("line.separator");
     }
 
@@ -106,13 +115,17 @@ public class MMScheduleMedication {
         MMMedication medication =
                 MMMedicationManager.getInstance().getMedicationFromID(mOfMedicationID);
 
+        CharSequence msg = MMMedicationFragment.SCHEDULE_STRATEGY;
+        if (mStrategy == MMMedication.sAS_NEEDED) msg = MMMedicationFragment.AS_NEEDED_STRATEGY;
+
         return
             System.getProperty("line.separator") +
             "SCHEDULE FOR MEDICATION:"    + System.getProperty("line.separator") +
             "SchedMedID:   " + String.valueOf(mForPersonID)      + System.getProperty("line.separator") +
             "MedicationID: " + medication.getMedicationNickname()+ System.getProperty("line.separator") +
             "PersonID:     " + person.getNickname()              + System.getProperty("line.separator") +
-            "TimeDue:      " + clockTime                         + System.getProperty("line.separator") ;
+            "TimeDue:      " + clockTime                         + System.getProperty("line.separator") +
+            "Strategy:     " + msg.toString()                    + System.getProperty("line.separator") ;
     }
 
     public String shortString(MMMainActivity activity){

@@ -234,6 +234,8 @@ public class MMMedicationManager {
         values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_AMOUNT,   medication.getDoseAmount());
         values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_UNITS,    medication.getDoseUnits().toString());
         values.put(MMDataBaseSqlHelper.MEDICATION_DOSE_NUM_PER_DAY,medication.getDoseNumPerDay());
+        values.put(MMDataBaseSqlHelper.MEDICATION_NOTES,         medication.getNotes().toString());
+        values.put(MMDataBaseSqlHelper.MEDICATION_SIDE_EFFECTS,  medication.getSideEffects().toString());
         int booleanValue = 0; //default is false
         if (medication.isCurrentlyTaken())booleanValue = 1; //true
         values.put(MMDataBaseSqlHelper.MEDICATION_CURRENTLY_TAKEN, booleanValue);
@@ -277,6 +279,10 @@ public class MMMedicationManager {
                 (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_UNITS)));
         medication.setDoseNumPerDay(cursor.getInt
                 (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_DOSE_NUM_PER_DAY)));
+        medication.setNotes(cursor.getString
+                (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_NOTES)));
+        medication.setSideEffects(cursor.getString
+                (cursor.getColumnIndex(MMDataBaseSqlHelper.MEDICATION_SIDE_EFFECTS)));
 
         boolean booleanValue = false;
         int currentlyTaken = (cursor.getInt

@@ -70,7 +70,8 @@ public class MMBootAlarmService extends Service {
                 while (positionMedicaiton < lastMedication){
                     medication = medications.get(positionMedicaiton);
                     //only set alarms for current medications that are on schedule
-                    if (medication.isCurrentlyTaken() ){
+                    if ((medication.isCurrentlyTaken() ) &&
+                        (medication.getDoseStrategy() != MMMedication.sAS_NEEDED)){
 
                         //loop through all SCHEDULEs, setting an alarm for each
                         ArrayList<MMScheduleMedication> schedules = medication.getSchedules();

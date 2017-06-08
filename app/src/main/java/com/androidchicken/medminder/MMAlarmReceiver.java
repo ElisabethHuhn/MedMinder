@@ -56,7 +56,7 @@ public class MMAlarmReceiver extends BroadcastReceiver {
         int notifID = intent.getIntExtra(NOTIFICATION_ID, scheduleNotificationID);
         // Get an instance of the NotificationManager service
         NotificationManager mNotifyMgr =
-                (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+                            (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
         // Build the notification and issues it.
         mNotifyMgr.notify(notifID, notification);
     }

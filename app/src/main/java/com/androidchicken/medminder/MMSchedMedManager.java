@@ -87,8 +87,15 @@ public class MMSchedMedManager {
     //that pertain to this personID
     public Cursor getAllSchedMedsForPersonCursor(long personID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        String orderClause = MMDataBaseSqlHelper.SCHED_MED_TIME_DUE;   // "SCHED_MED_TIME_DUE";
+        String orderClause = getSchedMedOrderClause();
         return databaseManager.getAllSchedMedsForPersonCursor(personID, orderClause);
+    }
+
+    private String getSchedMedOrderClause(){
+        String orderClause = MMDataBaseSqlHelper.SCHED_MED_STRATEGY + " ASC, " +
+                             MMDataBaseSqlHelper.SCHED_MED_TIME_DUE + " ASC";
+
+        return orderClause;
     }
 
 
@@ -145,6 +152,7 @@ public class MMSchedMedManager {
         values.put(MMDataBaseSqlHelper.SCHED_MED_FOR_PERSON_ID,  schedMed.getForPersonID());
         values.put(MMDataBaseSqlHelper.SCHED_MED_OF_MEDICATION_ID,  schedMed.getOfMedicationID());
         values.put(MMDataBaseSqlHelper.SCHED_MED_TIME_DUE,       schedMed.getTimeDue());
+        values.put(MMDataBaseSqlHelper.SCHED_MED_STRATEGY,       schedMed.getStrategy());
 
         return values;
     }
@@ -178,6 +186,10 @@ public class MMSchedMedManager {
 
         scheduleMedications.setTimeDue
                 (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_TIME_DUE)));
+
+        scheduleMedications.setStrategy(
+                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_STRATEGY))));
+
 
         return scheduleMedications;
     }
