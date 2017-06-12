@@ -95,7 +95,7 @@
 
             </TableRow>
 
-            <!-- Row 4: Person ID and Nickname -->
+            <!-- Row 4: Person Nickname -->
             <TableRow
                   android:layout_width=  "match_parent"
                   android:layout_height= "wrap_content"

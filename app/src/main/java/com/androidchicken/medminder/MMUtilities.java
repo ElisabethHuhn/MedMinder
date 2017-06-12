@@ -141,8 +141,9 @@ public class MMUtilities {
     /*    ConcurrentDose row list builder    */
     //****************************************/
 
-    public  EditText createDoseEditText(Context context, int padding){
-        EditText edtView;
+    public  android.support.v7.widget.AppCompatEditText createDoseEditText(Context context,
+                                                                           int padding){
+        android.support.v7.widget.AppCompatEditText edtView;
         LinearLayout.LayoutParams lp =
                 new LinearLayout.LayoutParams(0,//width
                         ViewGroup.LayoutParams.WRAP_CONTENT);//height
@@ -150,7 +151,7 @@ public class MMUtilities {
         //lp.gravity = Gravity.CENTER;
         lp.setMarginEnd(padding);
 
-        edtView = new EditText(context);
+        edtView = new android.support.v7.widget.AppCompatEditText(context);
         edtView.setHint("0");
         edtView.setInputType(InputType.TYPE_CLASS_NUMBER);
         edtView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
@@ -459,7 +460,9 @@ public class MMUtilities {
             return 0;
         }
 
-        return date.getTime();
+
+        return convertLocaltoGMT(date.getTime());
+
     }
 
     //Time string is since midnight
@@ -508,7 +511,7 @@ public class MMUtilities {
                           lastTakenCal.get(Calendar.DAY_OF_YEAR) == nowCal.get(Calendar.DAY_OF_YEAR);
 
         long lastTakenMinutes = 0;
-        if (!sameDay) {
+        if (sameDay) {
             lastTakenMinutes = getMinutesFromCalendar(lastTakenCal);
         }
         return lastTakenMinutes;

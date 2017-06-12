@@ -13,26 +13,26 @@ import java.util.ArrayList;
  */
 
 public class MMConcurrentDoseManager {
-    /************************************/
-    /********* Static Constants *********/
-    /************************************/
-    public static final int DOSE_NOT_FOUND = -1;
+    //************************************/
+    //********* Static Constants *********/
+    //************************************/
 
 
-    /************************************/
-    /********* Static Variables *********/
-    /************************************/
+
+    //************************************/
+    //********* Static Variables *********/
+    //************************************/
     private static MMConcurrentDoseManager ourInstance ;
 
-    /************************************/
-    /********* Member Variables *********/
-    /************************************/
+    //************************************/
+    //********* Member Variables *********/
+    //************************************/
     private ArrayList<MMConcurrentDose> mConcurrentDosesList;
 
 
-    /************************************/
-    /********* Static Methods   *********/
-    /************************************/
+    //************************************/
+    //********* Static Methods   *********/
+    //************************************/
     public static MMConcurrentDoseManager getInstance() {
         if (ourInstance == null){
             ourInstance = new MMConcurrentDoseManager();
@@ -41,23 +41,23 @@ public class MMConcurrentDoseManager {
     }
 
 
-    /************************************/
-    /********* Constructors     *********/
-    /************************************/
+    //************************************/
+    //********* Constructors     *********/
+    //************************************/
     private MMConcurrentDoseManager() {
 
         mConcurrentDosesList = new ArrayList<>();
 
     }
 
-    /************************************/
-    /********* Setters/Getters  *********/
-    /************************************/
+    //************************************/
+    //********* Setters/Getters  *********/
+    //************************************/
 
 
-    /*******************************************/
-    /*********     CRUD Methods        *********/
-    /*******************************************/
+    //*******************************************/
+    //*********     CRUD Methods        *********/
+    //*******************************************/
 
     //This routine not only adds from the UI. Adds the in memory objects to this managers list,
     // AND adds it to the DB
@@ -67,8 +67,6 @@ public class MMConcurrentDoseManager {
         if (mConcurrentDosesList == null){
             mConcurrentDosesList = new ArrayList<>();
         }
-
-        int position = 0;
 
         //update or insert the concurrentDose
         boolean addToDBToo = true;
@@ -113,9 +111,9 @@ public class MMConcurrentDoseManager {
 
 
 
-    /********************************************/
-    /********* Private Member Methods   *********/
-    /********************************************/
+    //********************************************/
+    //********* Private Member Methods   *********/
+    //********************************************/
 
 
 
@@ -158,9 +156,9 @@ public class MMConcurrentDoseManager {
 
 
 
-    /********************************************/
-    /********* Public Member Methods    *********/
-    /********************************************/
+    //********************************************/
+    //********* Public Member Methods    *********/
+    //********************************************/
 
     public MMConcurrentDose getDosesForCDFromDB(MMConcurrentDose concurrentDose){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();

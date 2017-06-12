@@ -138,7 +138,7 @@
                     android:layout_height="wrap_content"
                     android:layout_width= "0dp"
                     android:layout_weight="25"
-                    android:gravity=      "end"
+                    android:gravity=      "center_horizontal"
 
                     android:freezesText="true"
 
@@ -209,7 +209,7 @@
                     android:layout_height="wrap_content"
                     android:layout_width= "0dp"
                     android:layout_weight="25"
-                    android:gravity=      "end"
+                    android:gravity=      "center_horizontal"
 
                     android:freezesText="true"
 

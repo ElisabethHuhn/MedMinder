@@ -186,6 +186,7 @@ public class MMDatabaseManager {
 
     ///*****************************    Create    ***********************
     public long addPerson(MMPerson person){
+
         long returnCode = sDB_ERROR_CODE;
         MMPersonManager personManager = MMPersonManager.getInstance();
         returnCode =  mDatabaseHelper.add(mDatabase,

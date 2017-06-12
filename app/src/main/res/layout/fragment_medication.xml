@@ -227,7 +227,7 @@
                 android:layout_gravity="center_horizontal"
                 android:paddingTop="10dp"
                 >
-                <!-- # Per Day -->
+                <!-- # Per Day / Up - Down Buttons -->
                 <TextView
                     android:labelFor="@+id/medicationDoseNumInput"
                     android:text="@string/medication_num_label"

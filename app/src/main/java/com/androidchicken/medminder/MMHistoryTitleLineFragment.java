@@ -142,7 +142,8 @@ public class MMHistoryTitleLineFragment extends Fragment {
         while (position < last) {
             MMMedication medication = mMedications.get(position);
             if (medication != null)  {
-                addMedPositionToView( v, position, sizeInDp);
+                boolean isGrayed = !(medication.isCurrentlyTaken());
+                addMedPositionToView( v, position, sizeInDp, isGrayed);
             }
             position++;
         }
@@ -192,7 +193,7 @@ public class MMHistoryTitleLineFragment extends Fragment {
 
     }
 
-    private void addMedPositionToView(View v, int position, int sizeInDp){
+    private void addMedPositionToView(View v, int position, int sizeInDp, boolean isGrayed){
 
         EditText edtView;
 
@@ -219,7 +220,12 @@ public class MMHistoryTitleLineFragment extends Fragment {
         edtView.setPadding(0,0,padding,0);
         edtView.setGravity(Gravity.CENTER);
         edtView.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
-        edtView.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
+        int color = R.color.colorInputBackground;
+        if (isGrayed){
+            color = R.color.colorGray;
+        }
+        edtView.setBackgroundColor(ContextCompat.getColor(getActivity(), color));
+
         edtView.setFocusable(false);
 
         //add listener
@@ -279,7 +285,7 @@ public class MMHistoryTitleLineFragment extends Fragment {
         //5) Use the data to Create and set out medicationTitle Adapter
         //     even though we're giving the Adapter the list,
         //     The list is not maintained. This fragment is write only
-        MMHistoryTitleAdapter adapter = new MMHistoryTitleAdapter(mMedications);
+        MMHistoryTitleAdapter adapter = new MMHistoryTitleAdapter(mMedications, getActivity());
 
         recyclerView.setAdapter(adapter);
 
@@ -307,8 +313,6 @@ public class MMHistoryTitleLineFragment extends Fragment {
 
                 }
             }));
-
-
 
     }
 

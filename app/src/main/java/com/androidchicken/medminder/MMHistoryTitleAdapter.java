@@ -1,5 +1,7 @@
 package com.androidchicken.medminder;
 
+import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 public class MMHistoryTitleAdapter extends RecyclerView.Adapter<MMHistoryTitleAdapter.MyViewHolder>{
     //The group to be listed is collected from a Cursor representing the DB rows
     private ArrayList<MMMedication> mMedications;
+    private Context mActivity;
 
     //implement the ViewHolder as an inner class
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -34,8 +37,9 @@ public class MMHistoryTitleAdapter extends RecyclerView.Adapter<MMHistoryTitleAd
     } //end inner class MyViewHolder
 
     //Constructor
-    public MMHistoryTitleAdapter(ArrayList<MMMedication> medications){
+    public MMHistoryTitleAdapter(ArrayList<MMMedication> medications, Context activity){
         this.mMedications = medications;
+        mActivity = activity;
     }
 
     @Override
@@ -43,6 +47,7 @@ public class MMHistoryTitleAdapter extends RecyclerView.Adapter<MMHistoryTitleAd
 
         View itemView = LayoutInflater.from(parent.getContext())
                                       .inflate(R.layout.list_row_history_title, parent,false);
+
         return new MyViewHolder(itemView);
 
     }
@@ -55,6 +60,12 @@ public class MMHistoryTitleAdapter extends RecyclerView.Adapter<MMHistoryTitleAd
         //programmers count from zero, but users count from 1
         holder.positionNumber.setText(String.valueOf(position+1));
         holder.medicationName.setText(medication.getMedicationNickname());
+
+        int color = R.color.colorGray;
+        if (medication.isCurrentlyTaken()){
+            color = R.color.colorInputBackground;
+        }
+        holder.medicationName.setBackgroundColor(ContextCompat.getColor(mActivity, color));
     }
 
     @Override

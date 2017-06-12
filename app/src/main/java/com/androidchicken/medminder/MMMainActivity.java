@@ -412,8 +412,7 @@ public class MMMainActivity extends AppCompatActivity {
     //***** Routine to actually switch the screens *******/
     private void switchScreen(Fragment fragment, String tag) {
        //clear the back stack
-       // TODO: 6/3/2017 investigate if this is the reason can't back from medication to person profile
-       clearBackStack();
+        clearBackStack();
 
         //Need the Fragment Manager to do the swap for us
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
