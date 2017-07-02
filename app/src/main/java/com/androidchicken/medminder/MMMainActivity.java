@@ -58,10 +58,8 @@ public class MMMainActivity extends AppCompatActivity {
 
         initializePermissions();
 
-        //Put Home on the title bar
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setSubtitle(R.string.title_home);
-        }
+        setMMSubtitle(R.string.title_home);
+
 
         //Don't have to check savedInstanceState for mPatientID
         // as it is always saved in the preferences

@@ -551,9 +551,7 @@ public class MMUtilities {
     }
 
     public  void hideSoftKeyboard(FragmentActivity context){
-        //hide the soft keyboard
-
-        // Check if no view has focus:
+         // Check if no view has focus:
         View view = context.getCurrentFocus();
         if (view != null) {
             view.clearFocus();
@@ -564,12 +562,8 @@ public class MMUtilities {
 
 
         }
-
         //close the keyboard
-        context.getWindow().
-                setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-
-
+        context.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
     }
 
     public  void toggleSoftKeyboard(FragmentActivity context){

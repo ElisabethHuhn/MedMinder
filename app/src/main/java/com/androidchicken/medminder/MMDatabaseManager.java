@@ -48,35 +48,6 @@ public class MMDatabaseManager {
 
 
     //***********************************************/
-    /*         setters & getters                    */
-    //***********************************************/
-
-    //mDatabaseHelper
-    public void setDatabaseHelper(MMDataBaseSqlHelper mDatabaseHelper) {
-        this.mDatabaseHelper = mDatabaseHelper;
-    }
-    //Return null if the field has not yet been initialized
-    public synchronized MMDataBaseSqlHelper getDatabaseHelper()  {
-        return mDatabaseHelper;
-    }
-
-
-    //mDatabase
-    public    void   setDatabase(SQLiteDatabase mDatabase) {this.mDatabase = mDatabase; }
-    //return null if the field has not yet been initialized
-    public synchronized SQLiteDatabase getDatabase()       { return mDatabase; }
-
-    //***********************************************/
-    /*         constructor                          */
-    //***********************************************/
-
-    //null constructor. It should never be called. But you have to have one
-    //    initializeInstance() is the proper protocol
-    private MMDatabaseManager() {}
-
-
-
-    //***********************************************/
     /*         static methods                       */
     //***********************************************/
 
@@ -168,6 +139,36 @@ public class MMDatabaseManager {
         }
         return sManagerInstance;
     }
+
+
+    //***********************************************/
+    /*         constructor                          */
+    //***********************************************/
+
+    //null constructor. It should never be called. But you have to have one
+    //    initializeInstance() is the proper protocol
+    private MMDatabaseManager() {}
+
+
+
+    //***********************************************/
+    /*         setters & getters                    */
+    //***********************************************/
+
+    //mDatabaseHelper
+    public void setDatabaseHelper(MMDataBaseSqlHelper mDatabaseHelper) {
+        this.mDatabaseHelper = mDatabaseHelper;
+    }
+    //Return null if the field has not yet been initialized
+    public synchronized MMDataBaseSqlHelper getDatabaseHelper()  {
+        return mDatabaseHelper;
+    }
+
+
+    //mDatabase
+    public    void   setDatabase(SQLiteDatabase mDatabase) {this.mDatabase = mDatabase; }
+    //return null if the field has not yet been initialized
+    public synchronized SQLiteDatabase getDatabase()       { return mDatabase; }
 
 
     //***********************************************/
