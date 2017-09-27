@@ -175,7 +175,7 @@ public class MMScheduleListFragment extends Fragment {
         recyclerView.setLayoutManager(mLayoutManager);
 
         //4) Get the set of Schedule Instances from the Database
-        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+        MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
         Cursor cursor;
         if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST){
             //no particular person, get all schedules
@@ -190,8 +190,8 @@ public class MMScheduleListFragment extends Fragment {
         //     the items in the list.
 
         boolean is24Format = MMSettings.getInstance().getClock24Format((MMMainActivity)getActivity());
-        MMSchedMedCursorAdapter adapter =
-                                    new MMSchedMedCursorAdapter(getActivity(),
+        MMScheduleListCursorAdapter adapter =
+                                    new MMScheduleListCursorAdapter(getActivity(),
                                                                 cursor,
                                                                 is24Format,
                                                                 getPatientID());
@@ -235,7 +235,7 @@ public class MMScheduleListFragment extends Fragment {
 
         //MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
 
-        MMSchedMedCursorAdapter adapter = getAdapter(getView());
+        MMScheduleListCursorAdapter adapter = getAdapter(getView());
         adapter.closeCursor();
 
         //switch to person screen
@@ -248,8 +248,8 @@ public class MMScheduleListFragment extends Fragment {
         return (RecyclerView) v.findViewById(R.id.scheduleList);
     }
 
-    private MMSchedMedCursorAdapter getAdapter(View v){
-        return (MMSchedMedCursorAdapter) getRecyclerView(v).getAdapter();
+    private MMScheduleListCursorAdapter getAdapter(View v){
+        return (MMScheduleListCursorAdapter) getRecyclerView(v).getAdapter();
     }
 
 
@@ -264,11 +264,11 @@ public class MMScheduleListFragment extends Fragment {
         if (v == null)return;
 
         RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.scheduleList);
-        MMSchedMedCursorAdapter adapter = (MMSchedMedCursorAdapter) recyclerView.getAdapter();
+        MMScheduleListCursorAdapter adapter = (MMScheduleListCursorAdapter) recyclerView.getAdapter();
         adapter.notifyItemChanged(position);
 
-        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
-        MMScheduleMedication selectedSchedule =
+        MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
+        MMSchedule selectedSchedule =
                 schedMedManager.getScheduleMedicationFromCursor(adapter.getSchedMedCursor(), position);
 
         // TODO: 3/10/2017 allow the user to change the value of the schedule

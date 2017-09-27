@@ -30,8 +30,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 
@@ -56,13 +54,6 @@ public class MMHomeFragment extends Fragment {
     /*          UI Widgets                         */
     //**********************************************/
 
-    //These do not need to be saved during configuration change as the View is rebuild.
-    // Thus these lists will be rebuilt in the process
-    //ArrayList<Button>   mMedButtons = new ArrayList<>();
-    //ArrayList<EditText> mMedEdits   = new ArrayList<>();
-
-    //null indicates reconfigure for use when rebuilding the Dose views
-    //private EditText mTimeInput;
 
 
 
@@ -143,6 +134,8 @@ public class MMHomeFragment extends Fragment {
         //Set the changed UI flag based on whether we are recreating the View
         initializeChangedUI(v, savedInstanceState);
 
+
+
         return v;
     }
 
@@ -203,41 +196,43 @@ public class MMHomeFragment extends Fragment {
             }
         });
 
-        int medButtonPosition = 0;
-        LinearLayout medButtonLayout = (LinearLayout)v.findViewById(R.id.medButtonLayout);
-        EditText timeInput = (EditText) medButtonLayout.getChildAt(medButtonPosition);
-        //do not need to rebuild the views if they already exist
-        if ((timeInput == null) &&
-            (getPersonID() != MMUtilities.ID_DOES_NOT_EXIST) )  {
 
-            MMPerson person = getPerson();
+        EditText timeInput = getTimeInputView(v);
+        //do not need to rebuild the views if they already exist or if the patient doesn't
+        if ((timeInput != null) ||
+            (getPersonID() == MMUtilities.ID_DOES_NOT_EXIST) ) return;
 
-            if (person != null) {
+        MMPerson person = getPerson();
 
-                ArrayList<MMMedication> medications = person.getMedications();
+        //Can't rebuild views without a patient
+        if (person == null) return;
 
-                int last = medications.size();
-                if (last > 0) {
-                    //convert pixels to dp
-                    int paddingBetweenBtsDP = sPaddingBetweenViews; //padding between buttons
+        ArrayList<MMMedication> medications = person.getMedications();
 
-                    addDateTimeFieldsToView(v,  paddingBetweenBtsDP);
+        int last = medications.size();
 
-                    int position = 0;
+        //nothing to build if no medications
+        if (last <= 0) return;
 
-                    while (position < last) {
-                        MMMedication medication = medications.get(position);
-                        if ((medication != null) && (medication.isCurrentlyTaken())) {
-                            addMedButtonToView(v,
-                                               savedInstanceState,
-                                               position,
-                                               medication,
-                                               paddingBetweenBtsDP);
-                        }
-                        position++;
-                    }
-                }
+        //convert pixels to dp
+        int paddingBetweenBtsDP = sPaddingBetweenViews; //padding between buttons
+
+        //FINALLY build the views
+        addDateTimeFieldsToView(v,  paddingBetweenBtsDP);
+
+        int position = 0;
+
+        //add a button for each medication
+        while (position < last) {
+            MMMedication medication = medications.get(position);
+            if ((medication != null) && (medication.isCurrentlyTaken())) {
+                addMedButtonToView(v,
+                                   savedInstanceState,
+                                   position,
+                                   medication,
+                                   paddingBetweenBtsDP);
             }
+            position++;
         }
     }
 
@@ -277,8 +272,6 @@ public class MMHomeFragment extends Fragment {
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
         //      get  list of concurrentDoses
         long earliestDate = MMSettings.getInstance().getHistoryDate((MMMainActivity)getActivity());
-        // TODO: 6/1/2017 get rid of debug statements
-        String earliestString = MMUtilities.getInstance().getDateString(earliestDate);
         Cursor concurrentDoseCursor = concurrentDoseManager.getAllConcurrentDosesCursor(
                                                 ((MMMainActivity)getActivity()).getPatientID(),
                                                   earliestDate);
@@ -390,6 +383,13 @@ public class MMHomeFragment extends Fragment {
     //**********************************************/
     /*   Get object instances                      */
     //**********************************************/
+    private long getMostRecentDoseTimeGMT(View v, MMMedication medication){
+        MMDose dose = getMostRecentDose(v, medication);
+        if (dose == null)return 0;
+
+        return dose.getTimeTaken();
+    }
+
     private MMDose getMostRecentDose(View v, MMMedication medication){
         //The concurrent doses for this person are in the Cursor that the Adapter is holding
         Cursor cursor = getCursor(v);
@@ -446,14 +446,11 @@ public class MMHomeFragment extends Fragment {
     //**********************************************/
     /*   Initialization of Views                   */
     //**********************************************/
-
-
-
     private void   addDateTimeFieldsToView(View v,  int sizeInDp){
 
         int padding = MMUtilities.getInstance().convertPixelsToDp(getActivity(), sizeInDp);
 
-        LinearLayout layout = (LinearLayout) v.findViewById(R.id.medDoseInputLayout);
+        LinearLayout layout = getDoseLayout(v);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 0,//width
                 ViewGroup.LayoutParams.WRAP_CONTENT);//height
@@ -461,35 +458,35 @@ public class MMHomeFragment extends Fragment {
         //lp.gravity = Gravity.CENTER;//set below too
         lp.setMarginEnd(padding);
 
-        EditText timeInput = new EditText(getActivity());
+        EditText timeInputView = new EditText(getActivity());
 
-        timeInput.setInputType(InputType.TYPE_CLASS_TEXT);
-        timeInput.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-        timeInput.setLayoutParams(lp);
-        timeInput.setPadding(0,0,padding,0);
-        timeInput.setGravity(Gravity.CENTER);
-        timeInput.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
-        timeInput.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
-        timeInput.setFocusable(true);
+        timeInputView.setInputType(InputType.TYPE_CLASS_TEXT);
+        timeInputView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        timeInputView.setLayoutParams(lp);
+        timeInputView.setPadding(0,0,padding,0);
+        timeInputView.setGravity(Gravity.CENTER);
+        timeInputView.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
+        timeInputView.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
+        timeInputView.setFocusable(true);
 
 
         //Time input for this dose
         //There is no label for this field
-        timeInput.setOnTouchListener(new View.OnTouchListener() {
+        timeInputView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                // TODO: 5/29/2017 Allow user to change time of dose
+
                 return false;
             }
         });
 
         String timeString;
 
-        timeString = MMUtilities.getInstance().getTimeString((MMMainActivity)getActivity());
+        //put the local time up on the UI
+        timeString = MMUtilitiesTime.getTimeString((MMMainActivity)getActivity());
+        timeInputView.setText(timeString);
 
-        timeInput.setText(timeString);
-
-        layout.addView(timeInput);
+        layout.addView(timeInputView);
 
     }
 
@@ -499,7 +496,7 @@ public class MMHomeFragment extends Fragment {
                                       MMMedication medication,
                                       int          sizeInDp){
         Button   medButton;
-        EditText edtView;
+        EditText amountView;
         String   buttonText = medication.getMedicationNickname().toString();
 
         int padding = MMUtilities.getInstance().convertPixelsToDp(getActivity(), sizeInDp);
@@ -533,7 +530,7 @@ public class MMHomeFragment extends Fragment {
         //
         //add EditText to the dose layout
         //
-        LinearLayout medDoseLayout = (LinearLayout) v.findViewById(R.id.medDoseInputLayout);
+        LinearLayout medDoseLayout = getDoseLayout(v);
         lp = new LinearLayout.LayoutParams(
                 0,//width
                 ViewGroup.LayoutParams.WRAP_CONTENT);//height
@@ -542,19 +539,20 @@ public class MMHomeFragment extends Fragment {
         lp.setMarginEnd(padding);
 
 
-        edtView = new EditText(getActivity());
-        edtView.setFreezesText(true);
-        edtView.setHint("0");
-        edtView.setInputType(InputType.TYPE_CLASS_TEXT);
-        edtView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-        edtView.setLayoutParams(lp);
-        edtView.setPadding(0,0,padding,0);
-        edtView.setGravity(Gravity.CENTER);
-        edtView.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
-        edtView.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
+        amountView = new EditText(getActivity());
+        amountView.setFreezesText(true);
+        amountView.setHint("0");
+        amountView.setInputType(InputType.TYPE_CLASS_TEXT);
+        amountView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        amountView.setLayoutParams(lp);
+        amountView.setPadding(0,0,padding,0);
+        amountView.setGravity(Gravity.CENTER);
+        amountView.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
+        amountView.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
 
         //add listener
-        edtView.setOnTouchListener(new View.OnTouchListener() {
+        //// TODO: 9/27/2017 maybe add listener to change background color if amount entered
+        amountView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
@@ -569,14 +567,12 @@ public class MMHomeFragment extends Fragment {
             String etTag = String.format(Locale.getDefault(), sDoseAmountTag, viewNumber);
             amountString = savedInstanceState.getString(etTag);
         }
-        edtView.setText(amountString);
+        amountView.setText(amountString);
 
-        medDoseLayout.addView(edtView);
+        medDoseLayout.addView(amountView);
 
         return medButton;
     }
-
-
 
     private void   addMedButtonListener(Button medButton){
 
@@ -651,7 +647,6 @@ public class MMHomeFragment extends Fragment {
 
     }
 
-
     private void   startMedButtonBlink(View v){
         //if (true)return;
         if (getPersonID() == MMUtilities.ID_DOES_NOT_EXIST)return;
@@ -663,11 +658,9 @@ public class MMHomeFragment extends Fragment {
         LinearLayout medButtonsLayout = getMedButtonsLayout(v);
         if (medButtonsLayout == null)return;
 
+        //Get current GMT time in MS
+        long currentGmtMs    = MMUtilitiesTime.getGmtNow();
 
-
-        Calendar calendar = Calendar.getInstance();
-        long currentTimeMinutesSinceMidnight =
-                                        MMUtilities.getInstance().getMinutesFromCalendar(calendar);
 
         ArrayList<MMMedication> medications = person.getMedications();
         int lastMed = getNumberOfMedications();
@@ -684,58 +677,52 @@ public class MMHomeFragment extends Fragment {
             if (medication.isCurrentlyTaken()) {
                 if (medication.getDoseStrategy() != MMMedication.sAS_NEEDED) {
                     //There are only medButtons for medications that are currently taken
-                    MMDose dose = getMostRecentDose(v, medication);
 
-                    long lastTakenMinutes;
+                    long mostRecentDoseTimeGMT = getMostRecentDoseTimeGMT(v, medication);
 
-                    //If there are no doses yet taken, it is due
-                    if (dose == null) {
-                        lastTakenMinutes = 0;  //minutes since midnight
-                    } else {
-                        //The timeTaken is the number of MINUTES since midnight
-                        long timeTaken = dose.getTimeTaken();
-
-                        //takes into account whether it's was taken today
-                        //zero if the first dose of the day has not yet been taken
-                        // TODO: 6/7/2017 remove the context from the next call
-                        lastTakenMinutes = MMUtilities.getInstance().getLastTakenMinutes((MMMainActivity) getActivity(), timeTaken);
-                    }
                     //so we have the time the dose was taken. When is/was the next dose due?
 
                     //The schedule of the medication gives us
                     // how many minutes since midnight that the dose is due
+                    MMSchedule schedule;
+                    ArrayList<MMSchedule> schedules = medication.getSchedules();
 
-                    MMScheduleMedication schedule;
-                    ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
-                    int scheduleTimeDue;
+                    long schedTimeDueMs;
+
+
                     int lastSched = schedules.size();
                     int positionSched = 0;
+
+                    int localMinutesDue;
                     while (positionSched < lastSched) {
                         schedule = schedules.get(positionSched);
-                        scheduleTimeDue = schedule.getTimeDue();
 
-                        //if schedule time is greater than the time the last dose was taken
-                        if (scheduleTimeDue > lastTakenMinutes) {
-                            //So this scheduled dose has not yet been taken
-                            //AND if the schedule time is prior to now
-                            if (scheduleTimeDue <= currentTimeMinutesSinceMidnight) {
-                                //it is time to take the dose, blink the proper button
-                                medButton = (Button) medButtonsLayout.getChildAt(positionButton);
-                                animateButton(medButton);
-                                //no need to loop through the rest of the schedules
-                                positionSched = lastSched;
-                            }
+                        //Minues since Midnight
+                        localMinutesDue = schedule.getTimeDue();
+
+                        //Convert to a MS time
+                        schedTimeDueMs = MMUtilitiesTime.getCurrentMilli(localMinutesDue);
+
+
+                        if ((mostRecentDoseTimeGMT < schedTimeDueMs) &&
+                            (schedTimeDueMs        < currentGmtMs)){
+
+                            //it is (past) time to take the dose, so blink the proper button
+                            medButton = (Button) medButtonsLayout.getChildAt(positionButton);
+                            animateButton(medButton);
+
+                            //no need to loop through the rest of the schedules
+                            positionSched = lastSched;
                         }
                         positionSched++;
                     }//end while schedule loop
 
-                }//!As Needed
+                }//End !As Needed
                 positionButton++;
-            }//currently taken (must be currently taken to get a button)
+            }//End currently taken (must be currently taken to get a button)
             positionMed++;
         }//end while medication loop
     }
-
 
     private void   animateButton(Button medButton){
         // Change alpha from fully visible to invisible
@@ -842,13 +829,23 @@ public class MMHomeFragment extends Fragment {
         return (LinearLayout) homeFragment.findViewById(R.id.medDoseInputLayout);
     }
 
-    private EditText getTimeInput(View v){
+    private EditText getTimeInputView(View v){
         if (v == null){
             v = getView();
             if (v == null)return null;
         }
-        LinearLayout layout = (LinearLayout) v.findViewById(R.id.medDoseInputLayout);
+        LinearLayout layout = getDoseLayout(v);
         return (EditText) layout.getChildAt(0);
+    }
+
+    private EditText getDoseTimeInputView(View v){
+        if (v == null)return null;
+
+        return (EditText) v.findViewById(R.id.doseTimeInput);
+    }
+    private EditText getDoseDateInputView(View v){
+       if (v == null)return null;
+       return  (EditText) v.findViewById(R.id.doseDateLabel);
     }
 
     private void reinitializeCursor(long personID){
@@ -890,24 +887,15 @@ public class MMHomeFragment extends Fragment {
 
         if (person == null) return MMDatabaseManager.sDB_ERROR_CODE;
 
-        EditText timeInput = getTimeInput(null);
+        //Get the time input by the user for this dose
+        long timeTaken = MMUtilitiesTime.getTodayTime((MMMainActivity) getActivity(),
+                                                          getTimeInputView(null));
 
-        CharSequence timeString = timeInput.getText();
-        if (timeString == null)timeString = "";
 
-        // TODO: 5/27/2017 Need to do some error checking on the timeString
-        long milliSeconds = MMUtilities.getInstance().convertStringToMilliSinceMidnightToday(
-                                                                    (MMMainActivity)getActivity(),
-                                                                    timeString.toString());
+        //create the concurrent dose with the time from the UI
 
-        // TODO: 6/11/2017 get rid of debug timeStrings
-        String debugTimeString =
-               MMUtilities.getInstance().getTimeString((MMMainActivity)getActivity(), milliSeconds);
-        String debugDateString =
-                MMUtilities.getInstance().getDateString(milliSeconds);
-
-        MMConcurrentDose concurrentDoses = new MMConcurrentDose(getPersonID(), milliSeconds);
-        ArrayList<MMDose> doses = concurrentDoses.getDoses();
+        MMConcurrentDose concurrentDoses = new MMConcurrentDose(getPersonID(), timeTaken);
+        ArrayList<MMDose> doses = concurrentDoses.getDoses();//just an empty list
 
         ArrayList<MMMedication> medications = person.getMedications();
 
@@ -939,7 +927,7 @@ public class MMHomeFragment extends Fragment {
                                             getPersonID(),
                                             concurrentDoses.getConcurrentDoseID(),
                                             positionMed,
-                                            milliSeconds,
+                                            timeTaken,
                                             amtTaken);
                 doses.add(dose);
 
@@ -1018,14 +1006,21 @@ public class MMHomeFragment extends Fragment {
         LinearLayout layout = (LinearLayout) v.findViewById(R.id.doseHistoryLine);
 
 
-        EditText doseDate = (EditText) v.findViewById(R.id.doseDateLabel);
-        doseDate.setText(MMUtilities.getInstance().getDateString(selectedConcurrentDose.getStartTime()));
+        long dateMilli      = selectedConcurrentDose.getStartTime();
 
-        EditText doseTime = (EditText) v.findViewById(R.id.doseTimeInput);
-        doseTime.setText(MMUtilities.getInstance().
-                getTimeString((MMMainActivity)getActivity(), selectedConcurrentDose.getStartTime()));
+        boolean isTimeFlag = false; //flag date to be returned
+        String dateStringLocal = MMUtilitiesTime.convertTimeMStoString((MMMainActivity)getActivity(),
+                                                                        dateMilli,
+                                                                        isTimeFlag);
+        EditText doseDate      = getDoseDateInputView(layout);
+        doseDate.setText(dateStringLocal);
 
 
+        isTimeFlag = true; //indicating time string to be returned
+        String timeStringLocal = MMUtilitiesTime.convertTimeMStoString((MMMainActivity)getActivity() ,
+                                                                        dateMilli, isTimeFlag);
+        EditText doseTime = getDoseTimeInputView(layout);
+        doseTime.setText(timeStringLocal);
 
 
         //Build EditText views that will allow the user to input dose amounts
@@ -1098,15 +1093,39 @@ public class MMHomeFragment extends Fragment {
         //// need selectedConcurrentDose
         MMConcurrentDoseCursorAdapter adapter   = getAdapter(getView());
         MMConcurrentDose selectedConcurrentDose = adapter.getConcurrentDoseAt(mSelectedPosition);
+
         //Get the Dose Amounts already recorded for this concurrentDose
         ArrayList<MMDose> doses = selectedConcurrentDose.getDoses();
 
+        //  copy the time/date from the Dialog views to the concurrent Dose
         //Get the pointers to the views in the Dialog
         LinearLayout layout =
                 (LinearLayout) ((AlertDialog) dialog).findViewById(R.id.doseHistoryLine);
 
+        EditText  doseDate        = getDoseDateInputView(layout);
+        String    dateString = doseDate.getText().toString().trim();
+
+        EditText doseTime   = getDoseTimeInputView(layout);
+        String   timeString =  doseTime.getText().toString().trim();
+
+        //convert the local string to local ms
+        boolean isTimeFlag = false; //first convert the date
+        long dateMs = MMUtilitiesTime.convertStringToTimeMs((MMMainActivity)getActivity(),
+                                                             dateString,
+                                                             isTimeFlag);
+        isTimeFlag = true; //set to convert time string
+        long timeMs = MMUtilitiesTime.convertStringToTimeMs((MMMainActivity)getActivity(),
+                                                              timeString,
+                                                              isTimeFlag);
+
+        //add together to get the new time for the concurrent dose
+        long cdTimeMs = MMUtilitiesTime.getTotalTime(dateMs, timeMs);
 
 
+
+
+        //store in the concurrent dose
+        selectedConcurrentDose.setStartTime(cdTimeMs);
 
 
 
@@ -1141,56 +1160,14 @@ public class MMHomeFragment extends Fragment {
                     amt = Integer.valueOf(amtString);
                 }
                 dose.setAmountTaken(amt);
+                //  assure the time at the concurrent dose level matches the time at the dose level
+                dose.setTimeTaken(cdTimeMs);
                 dosePosition++;
             }
         }
 
 
 
-
-
-
-
-
-
-
-
-        //Now update the time in the concurrent dose and each of the doses
-        EditText doseDate = (EditText) layout.findViewById(R.id.doseDateLabel);
-        EditText doseTime = (EditText) layout.findViewById(R.id.doseTimeInput);
-
-        CharSequence doseDateString = doseDate.getText();
-        CharSequence doseTimeString = doseTime.getText();
-
-        boolean isTimeFlag = true;
-        Date dosageTime = MMUtilities.getInstance().convertStringToTimeDate(
-                                                                    (MMMainActivity) getActivity(),
-                                                                    doseTimeString.toString(),
-                                                                    isTimeFlag);
-        isTimeFlag = false;
-        Date dosageDate = MMUtilities.getInstance().convertStringToTimeDate(
-                                                                    (MMMainActivity) getActivity(),
-                                                                    doseDateString.toString(),
-                                                                    isTimeFlag);
-
-
-        //calculate the proper time
-        long dateTimeMilliseconds;
-        long timeMilliseconds;
-        long dateMilliseconds;
-
-        if ((dosageDate != null) && (dosageTime != null)) {
-            dateMilliseconds = dosageDate.getTime();
-            timeMilliseconds = dosageTime.getTime();
-
-            dateTimeMilliseconds = dateMilliseconds + timeMilliseconds;
-            dateTimeMilliseconds = MMUtilities.getInstance().convertLocaltoGMT(dateTimeMilliseconds);
-        } else {
-            dateTimeMilliseconds = selectedConcurrentDose.getStartTime();
-        }
-
-        //set the new time in the ConcurrentDose
-        selectedConcurrentDose.setStartTime(dateTimeMilliseconds);
 
 
 
@@ -1213,18 +1190,18 @@ public class MMHomeFragment extends Fragment {
 
     //Add some code to improve the recycler view
     //Here is the interface for event handlers for Click and LongClick
-    public interface ClickListener {
+    interface ClickListener {
         void onClick(View view, int position);
 
         void onLongClick(View view, int position);
     }
 
-    public static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
+    static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
         private GestureDetector gestureDetector;
         private MMHomeFragment.ClickListener clickListener;
 
-        public RecyclerTouchListener(Context context,
+        RecyclerTouchListener(Context context,
                                      final RecyclerView recyclerView,
                                      final MMHomeFragment.ClickListener clickListener) {
 

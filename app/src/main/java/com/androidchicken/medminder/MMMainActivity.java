@@ -254,12 +254,14 @@ public class MMMainActivity extends AppCompatActivity {
         } else if (fragment instanceof MMPersonFragment) {
             //Add a new medication
             MMPerson person = getPerson();
+            if (person != null) {
 
-            String msg =
-                    String.format(getString(R.string.add_medication), person.getNickname());
-            MMUtilities.getInstance().showHint(view, msg);
+                String msg =
+                        String.format(getString(R.string.add_medication), person.getNickname());
+                MMUtilities.getInstance().showHint(view, msg);
 
-            switchToMedicationScreen((int)MMUtilities.ID_DOES_NOT_EXIST, sPersonTag);
+                switchToMedicationScreen((int) MMUtilities.ID_DOES_NOT_EXIST, sPersonTag);
+            }
 
         } else if (fragment instanceof MMMedicationFragment) {
             //Add a new schedule

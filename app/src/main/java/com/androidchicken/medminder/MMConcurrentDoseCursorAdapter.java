@@ -141,13 +141,22 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
             if (doses != null) {
                 //Convert Date from milliseconds to String
                 long startTime = concurrentDoses.getStartTime();
-                String startTimeString = MMUtilities.getInstance().getDateString(startTime);
-                holder.doseDate.setText(startTimeString);
 
-                //convert Time from milliseconds to String
-                String timeString = MMUtilities.getInstance().
-                                            getTimeString((MMMainActivity)mActivity, startTime);
-                holder.doseTime.setText(timeString);
+                boolean isTimeFlag = false;
+                String startDateLocalString = MMUtilitiesTime.convertTimeMStoString(
+                                                                    (MMMainActivity)mActivity,
+                                                                    startTime,
+                                                                    isTimeFlag);
+                holder.doseDate.setText(startDateLocalString);
+
+
+                //reset flag to time
+                isTimeFlag = true;
+                String startTimeLocalString = MMUtilitiesTime.convertTimeMStoString(
+                                                                    (MMMainActivity)mActivity,
+                                                                    startTime,
+                                                                    isTimeFlag);
+                holder.doseTime.setText(startTimeLocalString);
 
                 MMPersonManager personManager = MMPersonManager.getInstance();
                 MMPerson person = personManager.getPerson(mPersonID);
@@ -197,9 +206,11 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
                         if (medIsCurrent){
                             editText.setBackgroundColor(
                                     ContextCompat.getColor(mActivity, R.color.colorWhite));
+                                    //ContextCompat.getColor(mActivity, R.color.colorWhite));
                         } else {
                             editText.setBackgroundColor(
-                                    ContextCompat.getColor(mActivity, R.color.colorScreenDeletedBackground));
+                                    ContextCompat.getColor(mActivity,
+                                                           R.color.colorScreenDeletedBackground));
                         }
 
                         uiPosition++;
@@ -210,11 +221,17 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
                         medIsCurrent = medication.isCurrentlyTaken();
 
                         editText = holder.doseMeds.get(uiPosition);
-                        editText.setText(String.valueOf(dose.getAmountTaken()));
+                        int amtTaken = dose.getAmountTaken();
+                        editText.setText(String.valueOf(amtTaken));
 
                         if (medIsCurrent){
-                            editText.setBackgroundColor(ContextCompat.
-                                    getColor(mActivity, R.color.colorWhite));
+                            if (amtTaken > 0){
+                                editText.setBackgroundColor(ContextCompat.
+                                        getColor(mActivity, R.color.colorLightPink));
+                            } else {
+                                editText.setBackgroundColor(ContextCompat.
+                                        getColor(mActivity, R.color.colorWhite));
+                            }
                         } else {
                             editText.setBackgroundColor(ContextCompat.
                                     getColor(mActivity, R.color.colorScreenDeletedBackground));

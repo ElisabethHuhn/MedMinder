@@ -44,7 +44,7 @@
     <string name="action_switch_patient">Switch Patient - Patient List</string>
     <string name="action_edit_patient"  >Edit Patient Profile</string>
     <string name="action_med_alert"     >Text/Email Alerts</string>
-    <string name="action_med_help"      >Help with Meds Order</string>
+    <string name="action_med_help"      >Help for Meds Order</string>
     <string name="action_midnight_noon">12 am is midnight, 12 pm is noon</string>
 
 
@@ -150,7 +150,8 @@
     <string name="dose_default_time"            >00:00 am</string>
     <string name="reselect_dose"                >Re-select Dose to edit</string>
     <string name="error_parsing_date_time"      >Error parsing Date and / or Time</string>
-    <string name="show_meds_help_label"         >Meds Order Help</string>
+    <string name="error_formatting_date_time"   >Error formatting Date and / or Time</string>
+
 
 
     <string name="input_received"    >Input received</string>
@@ -212,7 +213,7 @@
     <string name="settings_current_patient"     >Patient</string>
     <string name="settings_default_time_due"    >Medications: Default Time Due for schedule</string>
     <string name="settings_default_time"        >Time</string>
-    <string name="settings_earliest_history_date">Home: Earliest date of dose in history list</string>
+    <string name="settings_earliest_history_date">Home: Earliest dose date shown in history</string>
     <string name="settings_date_hint"         >MMM d, yyyy</string>
     <string name="settings_history_date"        >Date</string>
     <string name="settings_incorrect_format"    >Time field incorrect, resetting....</string>

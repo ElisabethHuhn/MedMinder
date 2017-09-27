@@ -74,9 +74,9 @@ public class MMBootAlarmService extends Service {
                         (medication.getDoseStrategy() != MMMedication.sAS_NEEDED)){
 
                         //loop through all SCHEDULEs, setting an alarm for each
-                        ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
+                        ArrayList<MMSchedule> schedules = medication.getSchedules();
                         if (schedules != null){
-                            MMScheduleMedication schedule;
+                            MMSchedule schedule;
                             int lastSchedule = schedules.size();
                             int positionSchedule = 0;
                             while (positionSchedule < lastSchedule){

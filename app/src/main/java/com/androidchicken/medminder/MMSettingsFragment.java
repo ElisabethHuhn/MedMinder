@@ -15,6 +15,7 @@ import android.widget.EditText;
 
 import java.util.Date;
 
+import static com.androidchicken.medminder.MMUtilitiesTime.getDateString;
 import static com.androidchicken.medminder.R.id.settingPersonNickNameInput;
 
 
@@ -289,7 +290,7 @@ public class MMSettingsFragment extends Fragment {
         EditText earliestHistoryDateInput =
                 (EditText) v.findViewById(R.id.settingEarliestHistoryDateInput);
         long historyDate = settings.getHistoryDate((MMMainActivity)getActivity());
-        String historyDateString = MMUtilities.getInstance().getDateString(historyDate);
+        String historyDateString = getDateString(historyDate);
         earliestHistoryDateInput.setText(historyDateString);
 
 
@@ -341,13 +342,11 @@ public class MMSettingsFragment extends Fragment {
                                                                 (MMMainActivity)getActivity(),
                                                                 timeString.toString());
 
-        // TODO: 5/28/2017  This conversion is just for debug. If you see it remove it
-        timeString = MMUtilities.getInstance().
-                getTimeString((MMMainActivity) getActivity(), minutesSinceMidnight * 60000);
-
         if (minutesSinceMidnight < 0) {
             MMUtilities.getInstance().errorHandler(getActivity(), R.string.settings_incorrect_format);
             //if there is an error, reset to 6 AM
+
+            // TODO: 9/27/2017 somehow use schedule getTimeDueString()
             minutesSinceMidnight = MMSettings.sDefaultTimeDue;
             long millisecondsSinceMidnight = minutesSinceMidnight * 60 * 1000;
             //and put it back on the screen
@@ -356,10 +355,6 @@ public class MMSettingsFragment extends Fragment {
             defaultTimeDueInput.setText(timeString);
         }
         settings.setDefaultTimeDue((MMMainActivity)getActivity(), minutesSinceMidnight);
-
-        // TODO: 5/28/2017 debug
-        long tempTime = settings.getDefaultTimeDue((MMMainActivity)getActivity());
-
 
         //Earliest date in home history
         EditText earliestHistoryDateInput =
@@ -374,9 +369,6 @@ public class MMSettingsFragment extends Fragment {
             long historyDateMilli = historyDate.getTime();
 
             settings.setHistoryDate((MMMainActivity) getActivity(), historyDateMilli);
-
-            // TODO: 6/1/2017 delete the debug double check to assure the string is right
-            String historyDateString = MMUtilities.getInstance().getDateString(historyDateMilli);
         }
 
         //get rid of the soft keyboard

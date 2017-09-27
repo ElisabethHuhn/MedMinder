@@ -29,9 +29,7 @@ import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -181,16 +179,9 @@ public class MMUtilities {
         return minutes * secondsPerMinute * milliPerSecond;
     }
 
-    public long convertMilliToMinutes(long milli){
-        return milli / (milliPerSecond * secondsPerMinute);
-    }
 
 
-    //The only reason these are here is so that the app
-    // will use a consistent method of displaying dates
-    public  String getDateTimeString(){
-        return DateFormat.getDateTimeInstance().format(new Date());
-    }
+
 
     public  String getDateTimeString(long milliSeconds){
         Date date = new Date(milliSeconds);
@@ -220,46 +211,8 @@ public class MMUtilities {
         return  DateFormat.getDateInstance().format(new Date());
     }
 
-    public  String getDateString(long milliSeconds){
-        Date date = new Date(milliSeconds);
-        return DateFormat.getDateInstance().format(date);
-    }
-
-    public long getTimezoneOffset() {
-        TimeZone tz = TimeZone.getDefault();
-        Calendar cal = GregorianCalendar.getInstance(tz);
-        long offsetInMillis = (long) tz.getOffset(cal.getTimeInMillis());
-
-        return offsetInMillis;
-    }
-
-    public long getDSTOffset() {
-        //Creaate a calendar with this time now
-        Calendar nowCal = Calendar.getInstance();
-
-        //This offset indicates the number of milliseconds due to DST in effect
-        // as of the date of the Calendar
-        long dstOffset = nowCal.get(Calendar.DST_OFFSET);
-
-        return dstOffset;
-    }
 
 
-
-
-
-
-
-
-    public Calendar getCalAtMidnight(long millisec){
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(millisec);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE,      0);
-        cal.set(Calendar.SECOND,      0);
-        cal.set(Calendar.MILLISECOND, 0);
-        return cal;
-    }
 
 
 
@@ -334,55 +287,6 @@ public class MMUtilities {
 
 
 
-    public long convertGMTtoLocal(long milliGMT){
-        long offsetTZ  = getTimezoneOffset();
-        long offsetDST = getDSTOffset();
-        long localTimeMilli = milliGMT + offsetDST - offsetTZ;
-
-        // TODO: 6/2/2017 get rid of debug String
-        boolean is24Format = true;
-        String localTimeString = getTimeString(localTimeMilli, is24Format);
-        return localTimeMilli;
-    }
-
-    public long convertLocaltoGMT(long milliLocal){
-        long offsetTZ  = getTimezoneOffset();
-        long offsetDST = getDSTOffset();
-        long gmtTimeMilli = milliLocal - offsetDST + offsetTZ;
-
-        // TODO: 6/2/2017 get rid of debug String
-        boolean is24Format = true;
-        String gmtTimeString = getTimeString(gmtTimeMilli, is24Format);
-        return gmtTimeMilli;
-    }
-
-    public int convertMinutesGMTtoLocal(int minutesGMT){
-        long timeDueMilli = (long) minutesGMT * MMUtilities.secondsPerMinute * MMUtilities.milliPerSecond;
-        long offsetTZ  = MMUtilities.getInstance().getTimezoneOffset();
-        long offsetDST = MMUtilities.getInstance().getDSTOffset();
-        timeDueMilli = timeDueMilli + offsetTZ - offsetDST;
-
-        // TODO: 6/2/2017 get rid of debug string
-        boolean is24Format = true;
-        String timeString = getTimeString(timeDueMilli, is24Format);
-
-        return (int)(timeDueMilli / (MMUtilities.secondsPerMinute * MMUtilities.milliPerSecond));
-    }
-
-    public int convertMinutesLocaltoGMT(int minutesLocal){
-        long timeDueMilli = (long) minutesLocal * MMUtilities.secondsPerMinute * MMUtilities.milliPerSecond;
-        long offsetTZ  = MMUtilities.getInstance().getTimezoneOffset();
-        long offsetDST = MMUtilities.getInstance().getDSTOffset();
-        timeDueMilli = timeDueMilli - offsetTZ + offsetDST;
-
-        // TODO: 6/2/2017 get rid of debug string
-        boolean is24Format = true;
-        String timeString = getTimeString(timeDueMilli, is24Format);
-
-        return (int)(timeDueMilli / (MMUtilities.secondsPerMinute * MMUtilities.milliPerSecond));
-    }
-
-
 
     public Date convertStringToDate(MMMainActivity activity,
                                         String timeSinceMidnightString){
@@ -439,88 +343,29 @@ public class MMUtilities {
 
 
 
-    //Time string is since midnight, result gives today at that time
-    public long convertStringToMilliSinceMidnightToday(MMMainActivity activity,
-                                                       String timeSinceMidnightString){
-        long msSinceMidnight =
-                convertStringToMilliSinceMidnightGMT(activity, timeSinceMidnightString);
-        if (msSinceMidnight == 0)return 0;
-
-        long startWithMidnight = MMUtilities.getInstance().getStartMidnightToday();
-        return (msSinceMidnight + startWithMidnight);
-    }
 
 
-    //Time string is since midnight, result gives milliseconds since midnight only
-    public long convertStringToMilliSinceMidnightGMT(MMMainActivity activity,
-                                                     String timeSinceMidnightString){
+
+
+
+    //Time string is since midnight
+    public long convertStringToMinutesSinceMidnight(MMMainActivity activity,
+                                                    String timeSinceMidnightString){
         boolean isTimeFlag = true;
         Date date = convertStringToTimeDate(activity, timeSinceMidnightString, isTimeFlag);
         if (date == null){
             return 0;
         }
 
+        long msSinceMidnight = date.getTime();
 
-        return convertLocaltoGMT(date.getTime());
-
-    }
-
-    //Time string is since midnight
-    public long convertStringToMinutesSinceMidnight(MMMainActivity activity,
-                                                    String timeSinceMidnightString){
-        long msSinceMidnight =
-                            convertStringToMilliSinceMidnightGMT(activity, timeSinceMidnightString);
-        if (msSinceMidnight == 0)return 0;
 
         return msSinceMidnight / 60000;
     }
 
 
 
-    public long getStartMidnightToday(){
 
-        try {
-            DateFormat justDay       = new SimpleDateFormat("yyyyMMdd");
-            TimeZone gmtTz   = TimeZone.getTimeZone("GMT");
-            justDay.setTimeZone(gmtTz);
-
-            Date thisMorningMidnight = justDay.parse(justDay.format(new Date()));
-            return thisMorningMidnight.getTime();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        return 0;
-
-    }
-
-
-    public long getLastTakenMinutes(MMMainActivity activity, long timeTaken){
-
-        Calendar lastTakenCal = Calendar.getInstance();
-        Calendar nowCal       = Calendar.getInstance();
-        lastTakenCal.setTimeInMillis(timeTaken);
-
-        // TODO: 6/7/2017 remove debug statements
-        String nowDateString = getDateString(nowCal.getTimeInMillis());
-        String nowTimeString = getTimeString(activity, nowCal.getTimeInMillis());
-        String lastDateString = getDateString(lastTakenCal.getTimeInMillis());
-        String lastTimeString = getTimeString(activity, lastTakenCal.getTimeInMillis());
-
-        //compare whether the last dose was taken today
-        boolean sameDay = lastTakenCal.get(Calendar.YEAR)        == nowCal.get(Calendar.YEAR) &&
-                          lastTakenCal.get(Calendar.DAY_OF_YEAR) == nowCal.get(Calendar.DAY_OF_YEAR);
-
-        long lastTakenMinutes = 0;
-        if (sameDay) {
-            lastTakenMinutes = getMinutesFromCalendar(lastTakenCal);
-        }
-        return lastTakenMinutes;
-    }
-
-
-    public long getMinutesFromCalendar (Calendar calendar){
-        return (calendar.get(Calendar.HOUR_OF_DAY) * minutesPerHour) + calendar.get(Calendar.MINUTE);
-    }
 
     //************************************/
     /*    get Data Object instances      */

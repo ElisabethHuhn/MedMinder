@@ -8,22 +8,22 @@ import java.util.Comparator;
  * This class represents when a medication should be taken
  */
 
-public class MMScheduleMedication {
-    /*************************************/
+public class MMSchedule {
+    // ***********************************/
     /*    Static (class) Constants       */
-    /*************************************/
+    // ***********************************/
 
-    public static final int MAX_TIME_DUE = 24 * 60;
-    public static final int TIME_AS_NEEDED = MAX_TIME_DUE + 1;
+    static final int MAX_TIME_DUE = 24 * 60;
 
-    /*************************************/
+
+    // ***********************************/
     /*    Static (class) Variables       */
-    /*************************************/
+    // ***********************************/
 
 
-    /*************************************/
+    // ***********************************/
     /*    Member (instance) Variables    */
-    /*************************************/
+    // ***********************************/
     private long mSchedMedID;
     private long mOfMedicationID;
     private long mForPersonID;
@@ -32,15 +32,15 @@ public class MMScheduleMedication {
 
 
 
-    /*************************************/
+    // ***********************************/
     /*         Static Methods            */
-    /*************************************/
+    // ***********************************/
 
 
-    /*************************************/
+    // ***********************************/
     /*         CONSTRUCTOR               */
-    /*************************************/
-    public MMScheduleMedication() {
+    // ***********************************/
+    MMSchedule() {
         mSchedMedID     = MMUtilities.ID_DOES_NOT_EXIST;
         mOfMedicationID = 0;
         mForPersonID    = 0;
@@ -48,10 +48,10 @@ public class MMScheduleMedication {
         mStrategy       = MMMedication.sSET_SCHEDULE_FOR_MEDICATION;
     }
 
-    public MMScheduleMedication(long  ofMedicationID,
-                                long  forPersonID,
-                                int   timeDue,
-                                int   strategy) {
+    MMSchedule(long  ofMedicationID,
+                      long  forPersonID,
+                      int   timeDue,
+                      int   strategy) {
         mSchedMedID     = MMUtilities.ID_DOES_NOT_EXIST;
         mOfMedicationID = ofMedicationID;
         mForPersonID    = forPersonID;
@@ -59,31 +59,31 @@ public class MMScheduleMedication {
         mStrategy       = strategy;
     }
 
-    /*************************************/
+    // ***********************************/
     /*    Member setter/getter Methods   */
-    /*************************************/
+    // ***********************************/
 
-    public long getSchedMedID()              {return mSchedMedID;  }
-    public void setSchedMedID(long schedMedID){ mSchedMedID = schedMedID;}
+    long getSchedMedID()              {return mSchedMedID;  }
+    void setSchedMedID(long schedMedID){ mSchedMedID = schedMedID;}
 
-    public long getOfMedicationID()                   {   return mOfMedicationID;   }
-    public void setOfMedicationID(long ofMedicationID) { mOfMedicationID = ofMedicationID; }
+    long getOfMedicationID()                   {   return mOfMedicationID;   }
+    void setOfMedicationID(long ofMedicationID) { mOfMedicationID = ofMedicationID; }
 
-    public long getForPersonID()                {  return mForPersonID;    }
-    public void setForPersonID(long forPersonID) {  mForPersonID = forPersonID;    }
+    long getForPersonID()                {  return mForPersonID;    }
+    void setForPersonID(long forPersonID) {  mForPersonID = forPersonID;    }
 
-    public int  getTimeDue()            { return mTimeDue; }
-    public void setTimeDue(int timeDue) {  mTimeDue = timeDue; }
+    int  getTimeDue()            { return mTimeDue; }
+    void setTimeDue(int timeDue) {  mTimeDue = timeDue; }
 
-    public int  getStrategy()            { return mStrategy; }
-    public void setStrategy(int strategy) {  mStrategy = strategy; }
+    int  getStrategy()            { return mStrategy; }
+    void setStrategy(int strategy) {  mStrategy = strategy; }
 
 
-    /*************************************/
+    // ***********************************/
     /*          Member Methods           */
-    /*************************************/
+    // ***********************************/
 
-    public String cdfHeaders(){
+    String cdfHeaders(){
         return  "SchedMedID, "       +
                 "MedicationID, "     +
                 "PersonID, "         +
@@ -95,7 +95,7 @@ public class MMScheduleMedication {
     }
 
     //Convert point to comma delimited file for exchange
-    public String convertToCDF() {
+    String convertToCDF() {
         return String.valueOf(this.getSchedMedID())      + ", " +
                String.valueOf(this.getOfMedicationID())  + ", " +
                String.valueOf(this.getForPersonID())     + ", " +
@@ -104,7 +104,7 @@ public class MMScheduleMedication {
                System.getProperty("line.separator");
     }
 
-    public String toString(MMMainActivity activity){
+    String toString(MMMainActivity activity){
         //convert to milliseconds
         long timeDue = getTimeDue() * 60 * 1000;
 
@@ -128,19 +128,25 @@ public class MMScheduleMedication {
             "Strategy:     " + msg.toString()                    + System.getProperty("line.separator") ;
     }
 
-    public String shortString(MMMainActivity activity){
-        //convert to milliseconds
-        long timeDue = getTimeDue() * 60 * 1000;
 
-        String clockTime = MMUtilities.getInstance().getTimeString(activity, timeDue);
 
-        return clockTime   ;
+    String getTimeDueString(MMMainActivity activity){
+        int timeMinutes = getTimeDue();
+
+        long timeMilliseconds = MMUtilitiesTime.convertMinutesToMs(timeMinutes);
+        timeMilliseconds = MMUtilitiesTime.convertLocaltoGMT(timeMilliseconds);
+        //set flag to time
+        boolean isTimeFlag = true;
+        return MMUtilitiesTime.convertTimeMStoString((MMMainActivity)activity,
+                                                        timeMilliseconds,
+                                                        isTimeFlag);
+
     }
 
 
-    /**********************************************/
-    /********* Comparable based on timeDue   ******/
-    /**********************************************/
+    // ********************************************/
+    // ******* Comparable based on timeDue   ******/
+    // ********************************************/
 
     /* USAGE of the Comparator:
     //now sort the Array by timeDue
@@ -148,8 +154,8 @@ public class MMScheduleMedication {
  */
 
 
-    static class MMScheduleTimeDueComparator implements Comparator<MMScheduleMedication> {
-        public int compare(MMScheduleMedication schedule1, MMScheduleMedication schedule2) {
+    static class MMScheduleTimeDueComparator implements Comparator<MMSchedule> {
+        public int compare(MMSchedule schedule1, MMSchedule schedule2) {
             return schedule1.getTimeDue() - schedule2.getTimeDue();
         }
     }

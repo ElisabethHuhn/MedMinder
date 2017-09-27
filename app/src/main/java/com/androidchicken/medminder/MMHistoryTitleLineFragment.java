@@ -185,7 +185,7 @@ public class MMHistoryTitleLineFragment extends Fragment {
         });
 
 
-        String timeString = MMUtilities.getInstance().getTimeString((MMMainActivity)getActivity());
+        String timeString = MMUtilitiesTime.getTimeString((MMMainActivity)getActivity());
 
         mTimeInput.setText(timeString);
 

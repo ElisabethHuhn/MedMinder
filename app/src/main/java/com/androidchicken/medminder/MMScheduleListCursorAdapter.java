@@ -16,7 +16,7 @@ import android.widget.EditText;
  * the number of schedule times varies in real time, and is not known at compile time
  */
 
-public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCursorAdapter.MyViewHolder>{
+public class MMScheduleListCursorAdapter extends RecyclerView.Adapter<MMScheduleListCursorAdapter.MyViewHolder>{
     //The group to be listed is collected from a Cursor representing the DB rows
     private Cursor  mSchedMedCursor;
     private boolean mIs24Format;
@@ -41,10 +41,10 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
     } //end inner class MyViewHolder
 
     //Constructor for MMSchedMedsAdapter
-    public MMSchedMedCursorAdapter(Context activity,
-                                   Cursor schedMedCursor,
-                                   boolean is24Format,
-                                   long personID){
+    public MMScheduleListCursorAdapter(Context activity,
+                                       Cursor schedMedCursor,
+                                       boolean is24Format,
+                                       long personID){
 
         this.mActivity       = activity;
         this.mSchedMedCursor = schedMedCursor;
@@ -66,7 +66,7 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
     public Cursor reinitializeCursor(long personID){
         closeCursor();
 
-        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+        MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
 
         //Create a new Cursor with the current contents of DB
         if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
@@ -88,7 +88,7 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position){
 
-        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+        MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
 
         if (mSchedMedCursor == null ) {
 
@@ -100,13 +100,10 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
             }
         }
         //get the medication indicated
-        MMScheduleMedication schedMed =
+        MMSchedule schedMed =
                 schedMedManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
 
-        int timeMinutes = schedMed.getTimeDue();
-        //long timeMilliseconds = timeMinutes * 60 * 1000;
-        long timeMilliseconds = MMUtilities.getInstance().convertMinutesToMilli(timeMinutes);
-        String timeString = MMUtilities.getInstance().getTimeString(timeMilliseconds, mIs24Format);
+        String timeString = schedMed.getTimeDueString((MMMainActivity)mActivity);
         holder.medicationTime    .setText(timeString);
 
         long medicationID = schedMed.getOfMedicationID();
@@ -151,8 +148,8 @@ public class MMSchedMedCursorAdapter extends RecyclerView.Adapter<MMSchedMedCurs
 
     public Cursor getSchedMedCursor(){return mSchedMedCursor;}
 
-    public MMScheduleMedication getScheduleAt(int position){
-        MMSchedMedManager scheduleManager = MMSchedMedManager.getInstance();
+    public MMSchedule getScheduleAt(int position){
+        MMScheduleManager scheduleManager = MMScheduleManager.getInstance();
         return scheduleManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
     }
 

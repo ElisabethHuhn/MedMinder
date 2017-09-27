@@ -12,7 +12,7 @@ import java.util.ArrayList;
  *  both in-memory and in the DB
  */
 
-public class MMSchedMedManager {
+public class MMScheduleManager {
     //***********************************/
     //******** Static Constants *********/
     //***********************************/
@@ -21,7 +21,7 @@ public class MMSchedMedManager {
     //***********************************/
     //******** Static Variables *********/
     //***********************************/
-    private static MMSchedMedManager ourInstance ;
+    private static MMScheduleManager ourInstance ;
 
     //***********************************/
     //******** Member Variables *********/
@@ -33,9 +33,9 @@ public class MMSchedMedManager {
     //***********************************/
     //******** Static Methods   *********/
     //***********************************/
-    public static MMSchedMedManager getInstance() {
+    public static MMScheduleManager getInstance() {
         if (ourInstance == null){
-            ourInstance = new MMSchedMedManager();
+            ourInstance = new MMScheduleManager();
         }
         return ourInstance;
     }
@@ -44,7 +44,7 @@ public class MMSchedMedManager {
     //***********************************/
     //******** Constructors     *********/
     //***********************************/
-    private MMSchedMedManager() {    }
+    private MMScheduleManager() {    }
 
     //***********************************/
     //******** Setters/Getters  *********/
@@ -57,7 +57,7 @@ public class MMSchedMedManager {
 
 
     //The routine that actually adds the instance to DB
-    public long addScheduleMedication(MMScheduleMedication scheduleMedication){
+    public long addScheduleMedication(MMSchedule scheduleMedication){
 
 
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
@@ -101,7 +101,7 @@ public class MMSchedMedManager {
 
 
 
-    public ArrayList<MMScheduleMedication> getAllSchedMeds(long medicationID){
+    public ArrayList<MMSchedule> getAllSchedMeds(long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllSchedMeds(medicationID);
     }
@@ -146,7 +146,7 @@ public class MMSchedMedManager {
     //******** Object to/from DB methods   ******/
     //*******************************************/
 
-    public ContentValues getCVFromScheduleMedication(MMScheduleMedication schedMed){
+    public ContentValues getCVFromScheduleMedication(MMSchedule schedMed){
         ContentValues values = new ContentValues();
         values.put(MMDataBaseSqlHelper.SCHED_MED_ID,             schedMed.getSchedMedID());
         values.put(MMDataBaseSqlHelper.SCHED_MED_FOR_PERSON_ID,  schedMed.getForPersonID());
@@ -166,12 +166,12 @@ public class MMSchedMedManager {
     //        If the app becomes multi-threaded, this routine must be made thread safe
     //WARNING The cursor is NOT closed by this routine. It assumes the caller will close the
     //         cursor when it is done with it
-    public MMScheduleMedication getScheduleMedicationFromCursor(Cursor cursor, int position){
+    public MMSchedule getScheduleMedicationFromCursor(Cursor cursor, int position){
 
         int last = cursor.getCount();
         if (position >= last) return null;
 
-        MMScheduleMedication scheduleMedications = new MMScheduleMedication(); //filled with defaults
+        MMSchedule scheduleMedications = new MMSchedule(); //filled with defaults
 
         cursor.moveToPosition(position);
 

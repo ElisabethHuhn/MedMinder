@@ -96,15 +96,13 @@ public class MMSettings {
     }
 
 
+    //minutes since midnight
     public long getDefaultTimeDue (MMMainActivity activity)  {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        long defaultValue = 1;
+        long defaultValue = 420;
         long defaultTime = sharedPref.getLong(sDefaultTimeDueTag, defaultValue);
         //If it wasn't in preferences, return the default
         if (defaultTime == defaultValue){
-
-            MMUtilities utilities = MMUtilities.getInstance();
-            defaultTime = utilities.convertMinutesLocaltoGMT(sDefaultTimeDue);
 
             MMSettings.getInstance().setDefaultTimeDue(activity, defaultTime);
         }

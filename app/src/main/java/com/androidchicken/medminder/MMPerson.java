@@ -61,12 +61,15 @@ public class MMPerson {
     }
 
 
-    // TODO: 5/16/2017 remember to correct the defaults of person
+
     private void initializeDefaultVariables(){
         mPersonID     = MMUtilities.ID_DOES_NOT_EXIST;
-        mNickname     = "Nickname";
-        mEmailAddress = "elisabethhuhn@gmail.com";
-        mTextAddress  = "6783587040";
+
+        mNickname     = "";
+        mEmailAddress = "";
+        mTextAddress  = "";
+
+
         mCurrentlyExists = true;
         mMedications  = null;
     }

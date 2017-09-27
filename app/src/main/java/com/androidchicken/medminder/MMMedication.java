@@ -49,7 +49,7 @@ public class MMMedication {
     private CharSequence mSideEffects;
     private boolean      mCurrentlyTaken;
 
-    private ArrayList<MMScheduleMedication> mSchedules;
+    private ArrayList<MMSchedule> mSchedules;
 
     //************************************/
     /*         Static Methods            */
@@ -139,13 +139,13 @@ public class MMMedication {
         }
         return true;
     }
-    public void     setSchedules(ArrayList<MMScheduleMedication> schedules){mSchedules = schedules;}
-    public ArrayList<MMScheduleMedication> getSchedules(){
+    public void     setSchedules(ArrayList<MMSchedule> schedules){mSchedules = schedules;}
+    public ArrayList<MMSchedule> getSchedules(){
         if (!isSchedulesChanged()) {
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
             mSchedules = databaseManager.getAllSchedMeds(mMedicationID);
 
-            MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+            MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
             mSchedules = schedMedManager.getAllSchedMeds(mMedicationID);
         }
         return mSchedules;
@@ -179,18 +179,18 @@ public class MMMedication {
 
     public static boolean      getDefaultCurrentlyTaken()     {return true;}
 
-    public static ArrayList<MMScheduleMedication> getDefaultSchedules(){
+    public static ArrayList<MMSchedule> getDefaultSchedules(){
         return new ArrayList<>();}
 
     //************************************/
     /*          Member Methods           */
     //************************************/
     public Cursor getSchedulesCursor(){
-        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+        MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
         return schedMedManager.getAllSchedMedsCursor(mMedicationID);
     }
 
-    public boolean addSchedule(MMScheduleMedication schedule){
+    public boolean addSchedule(MMSchedule schedule){
        return mSchedules.add(schedule);
     }
 

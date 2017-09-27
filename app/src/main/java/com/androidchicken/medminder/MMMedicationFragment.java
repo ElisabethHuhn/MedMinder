@@ -402,10 +402,9 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         Cursor scheduleCursor = medication.getSchedulesCursor();
 
         //5) Use the data to Create and set out SchedMed Adapter
-        boolean is24format = MMSettings.getInstance().getClock24Format((MMMainActivity)getActivity());
-        MMSchedCursorAdapter adapter= new MMSchedCursorAdapter(scheduleCursor,
-                                                                   is24format,
-                                                                   medication.getMedicationID());
+        MMScheduleCursorAdapter adapter= new MMScheduleCursorAdapter((MMMainActivity)getActivity(),
+                                                                    scheduleCursor,
+                                                                    medication.getMedicationID());
         recyclerView.setAdapter(adapter);
 
         //initialize the UI for number per day equal to the number of existing schedules
@@ -476,14 +475,16 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
         if (medication == null) {
 
+            //For now, remove some of the defaults
+
             CharSequence brand = MMMedication.getDefaultBrandName().toString().trim();
-            medBrandNameInput.setText(brand);
+            //medBrandNameInput.setText(brand);
 
             CharSequence generic = MMMedication.getDefaultGenericName().toString().trim();
-             medGenericNameInput.setText(generic);
+            // medGenericNameInput.setText(generic);
 
             CharSequence medNick = MMMedication.getDefaultMedicationNickname().toString().trim();
-            medNickNameInput.setText(medNick);
+            //medNickNameInput.setText(medNick);
 
             mSelectedStrategyTypePosition = MMMedication.getDefaultDoseStrategy();
 
@@ -652,7 +653,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         if (medicationID == MMUtilities.ID_DOES_NOT_EXIST) return;
 
         //reset the list
-        MMSchedCursorAdapter adapter = getAdapter(getView());
+        MMScheduleCursorAdapter adapter = getAdapter(getView());
 
         if (adapter != null) {
             adapter.reinitializeCursor(medicationID);
@@ -666,8 +667,8 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         return  (RecyclerView) v.findViewById(R.id.scheduleList);
     }
 
-    private MMSchedCursorAdapter getAdapter(View v){
-        return (MMSchedCursorAdapter)  getRecyclerView(v).getAdapter();
+    private MMScheduleCursorAdapter getAdapter(View v){
+        return (MMScheduleCursorAdapter)  getRecyclerView(v).getAdapter();
     }
 
 
@@ -680,59 +681,56 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
                                         int minute,
                                         boolean is24Format){
 
-        //in the onDismissListener() need to know if user pressed OK or Cancel
-        userPressedOKinTimePicker = false;
+        //This first chunk is defining the listener that will be used by the dialog:
+        //
+        // Define The Listeners First
+        //
+        //The timeSetListener is invoked when the OK button is pressed
+        TimePickerDialog.OnTimeSetListener
+                timeSetListener = new TimePickerDialog.OnTimeSetListener() {
 
-        //cancel the alarm for the original time
-        final int minutesSinceMidnight = (hour * 60) + minute;
-        cancelOneAlarm(minutesSinceMidnight);
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minuteOfHour) {
+                //this routine executes when OK is pressed
+                userPressedOKinTimePicker = true;
+                ArrayList<MMSchedule> schedules =
+                        getSchedules(getPatientID(), mPosition);
+                if (schedules == null)return;
 
-        final TimePickerDialog timePickerDialog =
-                new TimePickerDialog( getActivity(), new TimePickerDialog.OnTimeSetListener() {
+                //look for the particular schedule being updated
+                int last = schedules.size();
+                int position = 0;
+                MMSchedule scheduleMedication;
+                while (position < last){
+                    scheduleMedication = schedules.get(position);
+                    if (schedMedID == scheduleMedication.getSchedMedID()){
+                        //timeOfDay is number of MINUTES since midnight GMT
+                        //get the new time from the time picker
+                        //get minutes since midnight
+                        int timeOfDay = (hourOfDay * 60) + minuteOfHour;
 
-                @Override
-                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                    //this routine executes when OK is pressed
-                    userPressedOKinTimePicker = true;
-                    ArrayList<MMScheduleMedication> schedules = getSchedules(getPatientID(), mPosition);
-                    if (schedules == null)return;
 
-                    //look for the particular schedule being updated
-                    int last = schedules.size();
-                    int position = 0;
-                    MMScheduleMedication scheduleMedication;
-                    while (position < last){
-                        scheduleMedication = schedules.get(position);
-                        if (schedMedID == scheduleMedication.getSchedMedID()){
-                            //timeOfDay is number of MINUTES since midnight GMT
-                            //get the new time from the time picker
-                            int timeOfDay = (hourOfDay * 60) + minute;
-                            //Need to convert to GMT
-                            timeOfDay = MMUtilities.getInstance().
-                                                                convertMinutesLocaltoGMT(timeOfDay);
-                            //update the schedule with the new time to take the med, and
-                            scheduleMedication.setTimeDue(timeOfDay);
-                            //update the DB row with this schedule
-                            MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
-                            schedMedManager.addScheduleMedication(scheduleMedication);
+                        //update the schedule with the new time to take the med, and
+                        scheduleMedication.setTimeDue(timeOfDay);
+                        //update the DB row with this schedule
+                        MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
+                        schedMedManager.addScheduleMedication(scheduleMedication);
 
-                            //issue an alarm for this new time
-                            MMUtilities utilities = MMUtilities.getInstance();
-                            utilities.createScheduleNotification(getActivity(), timeOfDay);
+                        //issue an alarm for this new time
+                        MMUtilities utilities = MMUtilities.getInstance();
+                        utilities.createScheduleNotification(getActivity(), timeOfDay);
 
-                            //Now update the UI list
-                            reinitializeCursor(scheduleMedication.getOfMedicationID());
-                            return;
-                        }
-                        position++;
+                        //Now update the UI list
+                        reinitializeCursor(scheduleMedication.getOfMedicationID());
+                        return;
                     }
+                    position++;
+                }
             }
-        },
-        hour,
-        minute,
-        is24Format);
+        };
 
-        timePickerDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+        //The dismiss listener is invoked on both OK and on Cancel
+        TimePickerDialog.OnDismissListener dismissListener = new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
                 //This listener fires regardless of whether the user picks OK, Cancel, or Back
@@ -745,9 +743,31 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
                             */
                 }
             }
-        });
+        };
 
 
+        //
+        //Then the code for bringing up the picker
+        //
+
+        //in the onDismissListener() need to know if user pressed OK or Cancel
+        userPressedOKinTimePicker = false;
+
+        //cancel the alarm for the original time
+        //this needs to be final so it can be accessed within the dialog
+        final int minutesSinceMidnight = (hour * 60) + minute;
+        cancelOneAlarm(minutesSinceMidnight);
+
+        //The listener defined above is used here and called when the user presses OK
+        //hour and minute are the initial values of the picker
+        final TimePickerDialog timePickerDialog = new TimePickerDialog( getActivity(),
+                                                                        timeSetListener,
+                                                                        hour,
+                                                                        minute,
+                                                                        is24Format);
+
+        //This listener is invoked on both OK and cancel
+        timePickerDialog.setOnDismissListener(dismissListener);
         timePickerDialog.setMessage(getString(R.string.medication_sched_time_title));
         timePickerDialog.show();
         return timePickerDialog;
@@ -786,7 +806,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         return medication;
     }
 
-    private ArrayList<MMScheduleMedication> getSchedules(long personID, int position){
+    private ArrayList<MMSchedule> getSchedules(long personID, int position){
         MMMedication medication = getMedicationInstance(personID, position);
         if (medication == null)return null;
 
@@ -812,7 +832,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             RecyclerView recyclerView = getRecyclerView(medFragment);
             if (recyclerView == null)return;
 
-            MMSchedCursorAdapter adapter = (MMSchedCursorAdapter)recyclerView.getAdapter();
+            MMScheduleCursorAdapter adapter = (MMScheduleCursorAdapter)recyclerView.getAdapter();
             if (adapter != null) {
                 adapter.resetStrategy(mSelectedStrategyTypePosition);
             }
@@ -975,7 +995,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             String timeDueString = MMUtilities.getInstance().
                                         getTimeString((MMMainActivity)getActivity(), timeDueMilli);
 
-            MMScheduleMedication schedule = new MMScheduleMedication(medicationID,
+            MMSchedule schedule = new MMSchedule(medicationID,
                                                                      getPatientID(),
                                                                 (int)timeDue,
                                                                      strategy);
@@ -1013,12 +1033,12 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         int latestTime = 0;
         int latestTimePosition = 0;
         long latestTimeScheduleID = 0;
-        MMScheduleMedication latestTimeSchedule = null;
-        MMScheduleMedication schedule;
+        MMSchedule latestTimeSchedule = null;
+        MMSchedule schedule;
 
         MMMedication medication = getMedicationInstance(getPatientID(), mPosition);
         if (medication == null)return;
-        ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
+        ArrayList<MMSchedule> schedules = medication.getSchedules();
 
         while (position < last){
             schedule = schedules.get(position);
@@ -1042,7 +1062,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             schedules.remove(latestTimePosition);
 
             //get rid of the schedule row in the DB
-            MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+            MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
             schedMedManager.removeSchedMedFromDB(latestTimeScheduleID);
 
             //let the user know the number of doses has decreased
@@ -1061,10 +1081,10 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         }
 
         //Need the schedule being updated, so ask the Adapter
-        MMSchedCursorAdapter adapter = getAdapter(getView());
+        MMScheduleCursorAdapter adapter = getAdapter(getView());
         adapter.notifyItemChanged(position);
 
-        MMScheduleMedication schedule = adapter.getScheduleAt(position);
+        MMSchedule schedule = adapter.getScheduleAt(position);
 
         //create a dialogue to allow the user to:
         // change the Schedules on this Medication
@@ -1073,8 +1093,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
         int timeDue = schedule.getTimeDue(); //minutes since midnight in GMT time zone
 
-        //convert to local time
-        timeDue = MMUtilities.getInstance().convertMinutesGMTtoLocal(timeDue);
+
 
         int hours    = timeDue/(int)MMUtilities.minutesPerHour;
         int minutes  = timeDue - (hours * (int)MMUtilities.minutesPerHour);
@@ -1115,7 +1134,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     }
 
     private void switchToExit(){
-        MMSchedCursorAdapter adapter = getAdapter(getView());
+        MMScheduleCursorAdapter adapter = getAdapter(getView());
         if (adapter != null) adapter.closeCursor();
 
         ((MMMainActivity) getActivity()).switchToMedicationReturn(mReturnTag);
@@ -1131,7 +1150,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     private void cancelOneAlarm(int minutesSinceMidnight){
         //If this is the only schedule due at this time
         // Remove any alarms for this schedule
-        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+        MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
         int howManyMedsDue = schedMedManager.howManyDueAt(minutesSinceMidnight);
 
         //if there is only one medication dose due at this time, delete the alarm

@@ -506,8 +506,6 @@ public class MMExportHistoryFragment extends Fragment {
                      convertStringToDate((MMMainActivity)getActivity(), dateString);
         if (dateDate == null)return -1;
 
-        // TODO: 6/2/2017 remove the debug string
-        String dateTestString = MMUtilities.getInstance().getDateString(dateDate.getTime());
         return dateDate.getTime();
     }
 
@@ -697,9 +695,7 @@ public class MMExportHistoryFragment extends Fragment {
             if (flag == EXPORT_PRESCRIPTIONS) {
                 message = getPrescript(patient).toString();
             } else if (flag == EXPORT_HISTORY){
-                // TODO: 6/2/2017 Remove the old way of getting a DateFilter
-                //long startMilli = getFilter(START_FILTER);
-                //long endMilli   = getFilter(END_FILTER);
+
                 long startMilli = getDateFilter(START_FILTER);
                 long endMilli   = getDateFilter(END_FILTER);
                 message = getDoseHistoryTab(patient, startMilli, endMilli).toString();
@@ -747,11 +743,11 @@ public class MMExportHistoryFragment extends Fragment {
                 prescription.append(medication.shortString());
 
                 //get any schedules attached to this medication
-                ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
+                ArrayList<MMSchedule> schedules = medication.getSchedules();
                 if (schedules != null) {
                     int lastSched = schedules.size();
                     int positionSched = 0;
-                    MMScheduleMedication schedule;
+                    MMSchedule schedule;
 
                     while (positionSched < lastSched){
                         if ((positionSched > 0) && (positionSched != lastSched-1)){
@@ -762,7 +758,7 @@ public class MMExportHistoryFragment extends Fragment {
                             prescription.append(" and ");
                         }
                         schedule = schedules.get(positionSched);
-                        prescription.append(schedule.shortString((MMMainActivity)getActivity()));
+                        prescription.append(schedule.getTimeDueString((MMMainActivity)getActivity()));
 
                         positionSched++;
                     }
@@ -795,10 +791,10 @@ public class MMExportHistoryFragment extends Fragment {
                 history.append("from: ");
 
                 history.append(lf);
-                history.append(MMUtilities.getInstance().getDateString(startMilli));
+                history.append(MMUtilitiesTime.getDateString(startMilli));
                 history.append(" to: ");
                 //decrement into the previous day
-                history.append(MMUtilities.getInstance().getDateString(endMilli - 100));
+                history.append(MMUtilitiesTime.getDateString(endMilli - 100));
             }
             history.append(lf);
             history.append(lf);
@@ -866,7 +862,6 @@ public class MMExportHistoryFragment extends Fragment {
                     //get the medication doses taken at this time
                     doses = concurrentDose.getDoses();
                     //Now list the doses
-                    // TODO: 5/15/2017 Need to coordinate dose list with med list
                     int lastDose = doses.size();
                     int positionDose = 0;
                     long medicationID;

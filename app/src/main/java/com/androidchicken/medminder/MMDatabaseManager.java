@@ -311,12 +311,12 @@ public class MMDatabaseManager {
         //  reads any DB objects into memory.
         //  We don't need to read them in then write them back out immediately
         if (medication.isSchedulesChanged()) {
-            ArrayList<MMScheduleMedication> schedules = medication.getSchedules();
+            ArrayList<MMSchedule> schedules = medication.getSchedules();
 
             int last = schedules.size();
             int position = 0;
             while (position < last) {
-                MMScheduleMedication scheduleMed =  schedules.get(position);
+                MMSchedule scheduleMed =  schedules.get(position);
                 returnCode = addSchedMed(scheduleMed);
                 if (returnCode == sDB_ERROR_CODE) return returnCode;
                 //scheduleMed.setSchedMedID(returnCode);
@@ -843,14 +843,14 @@ public class MMDatabaseManager {
 
     }
 
-    public ArrayList<MMScheduleMedication> getAllSchedMeds(long medicationID){
-        ArrayList<MMScheduleMedication> times = new ArrayList<>();
+    public ArrayList<MMSchedule> getAllSchedMeds(long medicationID){
+        ArrayList<MMSchedule> times = new ArrayList<>();
 
         Cursor cursor = getAllSchedMedsCursor(medicationID);
 
         if (cursor != null) {
-            MMScheduleMedication scheduleMedication;
-            MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+            MMSchedule scheduleMedication;
+            MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
             int last = cursor.getCount();
             int position = 0;
             while (position < last){
@@ -866,9 +866,9 @@ public class MMDatabaseManager {
 
 
 
-    public long addSchedMed(MMScheduleMedication schedMed){
+    public long addSchedMed(MMSchedule schedMed){
         long returnCode = sDB_ERROR_CODE;
-        MMSchedMedManager schedMedManager = MMSchedMedManager.getInstance();
+        MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
         returnCode = mDatabaseHelper.add( mDatabase,
                                          TABLE_SCHED_MED,
                                          schedMedManager.getCVFromScheduleMedication(schedMed),

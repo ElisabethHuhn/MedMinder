@@ -130,6 +130,7 @@ public class MMPersonManager {
     //Return the person instance that matches the argument personID
     //returns null if the person is not in the list or in the DB
     public MMPerson getPerson(long personID)  {
+        if (personID == MMUtilities.ID_DOES_NOT_EXIST)return null;
         //Assumption is that if any person is already in the list, it must be up to date
         if ((mPersonList == null) || (mPersonList.size() == 0)){
             getPersonList();
