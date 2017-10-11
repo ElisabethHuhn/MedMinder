@@ -151,6 +151,7 @@
     <string name="reselect_dose"                >Re-select Dose to edit</string>
     <string name="error_parsing_date_time"      >Error parsing Date and / or Time</string>
     <string name="error_formatting_date_time"   >Error formatting Date and / or Time</string>
+    <string name="change_not_saved"             >Change not saved</string>
 
 
 
@@ -173,9 +174,11 @@
     <string name="export_label"               >Export</string>
     <string name="export_prescription_label"  >Export Prescription</string>
     <string name="export_history_label"       >Export History</string>
+    <string name="export_cdf_label"           >Export CDF</string>
     <string name="email_not_defined"          >Patient email address not defined</string>
     <string name="export_title_prescriptions" >Prescriptions for: %s</string>
     <string name="export_title_history"       >History of Doses taken for %s</string>
+    <string name="export_title_cdf"           >CDF of Doses taken for %s</string>
     <string name="export_day_hint"            >DD</string>
     <string name="export_month_hint"          >MM</string>
     <string name="export_year_hint"           >YY</string>
@@ -191,6 +194,7 @@
     <string name="export_radio_general"       >General</string>
     <string name="export_content"             >--------------Content to be Exported--------------</string>
     <string name="export_radio_history"       >History</string>
+    <string name="export_radio_cdf"           >CDF</string>
     <string name="export_radio_prescript"     >Prescription</string>
 
     <string name="export_chooser_title"       >Export to:</string>
@@ -202,6 +206,8 @@
     <string name="export_file_written"        >Export file has been written</string>
     <string name="export_prescriptions"       >Prescriptions</string>
     <string name="export_history"             >History</string>
+    <string name="export_cdf"                 >CDF</string>
+
 
     <!--      Schedule List SCREEN                  -->
     <string name="sched_list_med_doesnt_exist">DOES NOT EXIST</string>

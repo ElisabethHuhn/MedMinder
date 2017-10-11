@@ -43,7 +43,8 @@
                 <TextView
                     android:text="@string/medication_screen_label"
                     android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="8"
                     android:layout_gravity="center"
 
                     android:focusable="false"
@@ -56,41 +57,39 @@
                     android:background="@color/colorScreenBackground"
                     />
 
-            </TableRow>
-
-            <!-- Row 2: Buttons Row -->
-            <TableRow
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                >
-
-
                 <!-- Save Button -->
                 <Button
                     style="?android:attr/buttonBarButtonStyle"
                     android:id="@+id/medicationSaveButton"
                     android:text="@string/save_label"
-                    android:layout_width="0dp"
+
+                    android:enabled="false"
+
                     android:layout_height="wrap_content"
+                    android:minHeight="20dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="3"
 
                     android:gravity="center|center_vertical"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_weight="1"
+                    android:layout_gravity="start"
+
 
                     android:layout_marginStart="4dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="2dp"
 
-                    android:textColor="@color/colorTextBlack"
                     android:background="@color/colorButton1Background"
+                    android:textColor="@color/colorGray"
                     />
 
+
             </TableRow>
+
+
 
             <!-- Row 3: Medication Exists? -->
             <TableRow
                 android:layout_height="wrap_content"
                 android:layout_width ="match_parent"
-                android:paddingTop="10dp"
                 android:gravity="center"
                 >
                 <android.support.v7.widget.SwitchCompat
@@ -107,7 +106,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 >
                 <TextView
                     android:labelFor="@+id/medicationForPersonNickName"
@@ -149,7 +148,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 >
                 <TextView
                     android:labelFor="@+id/medicationNickNameInput"
@@ -192,7 +191,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width ="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 >
                 <TextView
                     android:labelFor="@+id/strategy_type_spinner"
@@ -225,7 +224,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 >
                 <!-- # Per Day / Up - Down Buttons -->
                 <TextView
@@ -339,7 +338,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 >
                 <TextView
                     android:labelFor="@+id/medicationDoseAmountInput"
@@ -379,7 +378,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 >
                 <TextView
                     android:labelFor="@+id/medicationDoseUnitsInput"
@@ -420,7 +419,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 >
                 <TextView
                     android:labelFor="@+id/medicationNotesInput"
@@ -467,7 +466,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 >
                 <TextView
                     android:labelFor="@+id/medicationSideEffectsInput"
@@ -514,7 +513,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 >
                 <TextView
                     android:labelFor="@+id/medicationBrandNameInput"
@@ -555,7 +554,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 >
                 <TextView
                     android:labelFor="@+id/medicationGenericNameInput"

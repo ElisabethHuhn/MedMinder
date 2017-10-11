@@ -40,7 +40,8 @@
                 android:text="@string/title_patient"
                 android:textSize="20sp"
                 android:layout_height= "wrap_content"
-                android:layout_width = "wrap_content"
+                android:layout_width = "0dp"
+                android:layout_weight="4"
 
                 android:gravity      = "end"
                 android:paddingEnd   = "8dp"
@@ -54,7 +55,8 @@
                 android:text="@string/patient_nick_name_label"
                 android:textSize="20sp"
                 android:layout_height= "wrap_content"
-                android:layout_width = "wrap_content"
+                android:layout_width = "0dp"
+                android:layout_weight="10"
                 android:layout_gravity="center"
 
                 android:gravity      = "start"
@@ -63,27 +65,32 @@
                 android:textColor    = "@color/colorTextBlack"
                 />
 
+            <!-- Export Button -->
+            <Button
+                style="?android:attr/buttonBarButtonStyle"
+                android:id="@+id/exportButton"
+                android:text="@string/export_label"
+
+                android:enabled="true"
+
+                android:layout_height="wrap_content"
+                android:minHeight="20dp"
+                android:layout_width="0dp"
+                android:layout_weight="3"
+
+                android:gravity="center|center_vertical"
+                android:layout_gravity="start"
+
+
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="2dp"
+
+                android:background="@color/colorButton1Background"
+                android:textColor="@color/colorTextBlack"
+                />
+
         </LinearLayout>
 
-        <!-- Export Button -->
-        <Button
-            style="?android:attr/buttonBarButtonStyle"
-            android:id="@+id/exportButton"
-            android:text="@string/export_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-
-            android:paddingStart="15dp"
-            android:paddingEnd="15dp"
-            android:layout_marginBottom="10dp"
-
-            android:background="@color/colorButton1Background"
-            android:textColor="@color/colorTextBlack"
-            />
 
         <!-- Destination Label -->
         <TextView
@@ -190,7 +197,7 @@
                 android:inputType=    "text"
                 android:imeOptions=   "flagNoExtractUi"
 
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="2dp"
 
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorInputBackground"
@@ -237,7 +244,7 @@
                 android:inputType=    "text"
                 android:imeOptions=   "flagNoExtractUi"
 
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="2dp"
 
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorInputBackground"
@@ -285,7 +292,7 @@
                 android:inputType=    "text"
                 android:imeOptions=   "flagNoExtractUi"
 
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="2dp"
 
                 android:textColor=    "@color/colorTextBlack"
                 android:background=   "@color/colorInputBackground"
@@ -336,6 +343,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/export_radio_history"
+                android:checked="false"
+                />
+
+            <RadioButton
+                android:id="@+id/radioCdf"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/export_radio_cdf"
                 android:checked="true"
                 />
 

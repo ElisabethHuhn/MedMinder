@@ -307,7 +307,7 @@ public class MMUtilities {
             date = timeFormat.parse(timeSinceMidnightString);
         } catch (Exception e) {
             MMUtilities.getInstance().errorHandler(activity, R.string.error_parsing_date_time);
-            e.printStackTrace();
+
         }
 
         return date;
@@ -335,7 +335,7 @@ public class MMUtilities {
             date = timeFormat.parse(timeSinceMidnightString);
         } catch (Exception e) {
             MMUtilities.getInstance().errorHandler(activity, R.string.error_parsing_date_time);
-            e.printStackTrace();
+
         }
 
         return date;

@@ -148,7 +148,16 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
                                                                     startTime,
                                                                     isTimeFlag);
                 holder.doseDate.setText(startDateLocalString);
+                if (MMUtilitiesTime.isDayOdd(startTime)){
 
+                    holder.doseDate.setBackgroundColor(
+                            ContextCompat.getColor(mActivity, R.color.colorWhite));
+
+                } else {
+                    holder.doseDate.setBackgroundColor(
+                            ContextCompat.getColor(mActivity,
+                                    R.color.colorScreenDeletedBackground));
+                }
 
                 //reset flag to time
                 isTimeFlag = true;
@@ -157,6 +166,16 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
                                                                     startTime,
                                                                     isTimeFlag);
                 holder.doseTime.setText(startTimeLocalString);
+                if (MMUtilitiesTime.isDayOdd(startTime)){
+
+                    holder.doseTime.setBackgroundColor(
+                            ContextCompat.getColor(mActivity, R.color.colorWhite));
+
+                } else {
+                    holder.doseTime.setBackgroundColor(
+                            ContextCompat.getColor(mActivity,
+                                    R.color.colorScreenDeletedBackground));
+                }
 
                 MMPersonManager personManager = MMPersonManager.getInstance();
                 MMPerson person = personManager.getPerson(mPersonID);

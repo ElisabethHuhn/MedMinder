@@ -162,23 +162,22 @@ public class MMPerson {
         String ls = System.getProperty("line.separator");
 
         message.append(getNameString());
-        message.append(" is ");
+        message.append(ls);
+
         if (!isCurrentlyExists()){
             message.append("NOT ");
         }
-        message.append("currently active.");
-        message.append(System.getProperty("line.separator"));
+        message.append("Currently active.");
+        message.append(ls);
 
         if (!mEmailAddress.toString().isEmpty()) {
-            message.append(" Email Address is ");
+            message.append(" Email Address: ");
             message.append(mEmailAddress);
         }
         message.append(ls);
-        if (!mEmailAddress.toString().isEmpty() && !mTextAddress.toString().isEmpty()){
-            message.append(" and ");
-        }
+
         if (!mTextAddress.toString().isEmpty()) {
-            message.append(" Text number is ");
+            message.append(" Text number: ");
             message.append(mTextAddress);
         }
         return message.toString();

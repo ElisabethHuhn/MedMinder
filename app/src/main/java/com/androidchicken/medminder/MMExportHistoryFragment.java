@@ -10,7 +10,6 @@ import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +39,7 @@ public class MMExportHistoryFragment extends Fragment {
 
     private static final int EXPORT_HISTORY       = 0;
     private static final int EXPORT_PRESCRIPTIONS = 1;
+    private static final int EXPORT_CDF           = 2;
 
     private static final int EXPORT_EMAIL         = 0;
     private static final int EXPORT_SMS           = 1;
@@ -98,7 +98,8 @@ public class MMExportHistoryFragment extends Fragment {
         try {
             MMDatabaseManager.getInstance(getActivity());
         }catch (Exception e) {
-            Log.e(TAG,Log.getStackTraceString(e));
+
+            MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
         }
 
     }
@@ -415,6 +416,7 @@ public class MMExportHistoryFragment extends Fragment {
         RadioButton generalRadio       = (RadioButton) v.findViewById(R.id.radioGeneral);
         RadioButton prescriptionRadio  = (RadioButton) v.findViewById(R.id.radioPrescription) ;
         RadioButton historyRadio       = (RadioButton) v.findViewById(R.id.radioHistory) ;
+        RadioButton cdfRadio           = (RadioButton) v.findViewById(R.id.radioCdf);
 
         //set Defaults
         int whatFlag  = EXPORT_EMAIL;
@@ -427,6 +429,7 @@ public class MMExportHistoryFragment extends Fragment {
         if (generalRadio     .isChecked()) whereFlag = EXPORT_GENERAL;
         if (historyRadio     .isChecked()) whatFlag  = EXPORT_HISTORY;
         if (prescriptionRadio.isChecked()) whatFlag  = EXPORT_PRESCRIPTIONS;
+        if (cdfRadio         .isChecked()) whatFlag  = EXPORT_CDF;
 
 
         String message = null;
@@ -447,8 +450,7 @@ public class MMExportHistoryFragment extends Fragment {
                                   patient.getNickname().toString());
             suffix = R.string.export_prescriptions;
         } else if (whatFlag == EXPORT_HISTORY) {
-            //long startMilli = getFilter(START_FILTER);
-            //long endMilli = getFilter(END_FILTER);
+
             long startMilli = getDateFilter(START_FILTER);
             long endMilli = getDateFilter(END_FILTER);
             message = getDoseHistoryTab(patient, startMilli, endMilli).toString();
@@ -456,8 +458,16 @@ public class MMExportHistoryFragment extends Fragment {
             subject = String.format(getString(R.string.export_title_history),
                                     patient.getNickname().toString());
             suffix = R.string.export_history;
-        }
+        } else if (whatFlag == EXPORT_CDF) {
 
+            long startMilli = getDateFilter(START_FILTER);
+            long endMilli = getDateFilter(END_FILTER);
+            message = getCdfHistoryTab(patient, startMilli, endMilli).toString();
+            statusMsg = R.string.export_cdf_label;
+            subject = String.format(getString(R.string.export_title_cdf),
+                    patient.getNickname().toString());
+            suffix = R.string.export_cdf;
+        }
         utilities.showStatus(getActivity(), statusMsg);
 
 
@@ -663,7 +673,6 @@ public class MMExportHistoryFragment extends Fragment {
                                            mmDirectory );      /* directory */
     }
 
-
     private File writeFile(int flag, int suffix){
         File cdfFile = null;
         FileWriter writer;
@@ -705,7 +714,7 @@ public class MMExportHistoryFragment extends Fragment {
             writer.flush();
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
         }
         return cdfFile;
     }
@@ -772,7 +781,7 @@ public class MMExportHistoryFragment extends Fragment {
 
 
         } catch (Exception e) {
-            e.printStackTrace();
+            MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
         }
         return prescription;
     }
@@ -854,8 +863,9 @@ public class MMExportHistoryFragment extends Fragment {
                     (startMilli < timeTaken) && (timeTaken < endMilli)) {
 
                     history.append("<");
-                    history.append(MMUtilities.getInstance().
-                                        getDateTimeStr((MMMainActivity)getActivity(), timeTaken));
+                    history.append(MMUtilitiesTime.convertMStoDateTimeString(
+                                                        (MMMainActivity)getActivity(), timeTaken));
+
                     history.append(">");
                     history.append(tab_as_string);
 
@@ -888,7 +898,113 @@ public class MMExportHistoryFragment extends Fragment {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
+        }
+
+        history.append(lf);
+        history.append("End of patient history");
+
+        if (concurrentDoseCursor != null)concurrentDoseCursor.close();
+        return history;
+    }
+
+    private StringBuilder getCdfHistoryTab(MMPerson patient, long startMilli, long endMilli){
+        String tab_as_string = String.valueOf(Character.toChars(9));
+        String lf = System.getProperty("line.separator");
+
+        StringBuilder history = new StringBuilder();
+        Cursor concurrentDoseCursor = null;
+        try {
+            //Export the Patient
+            history.append(patient.getNickname());
+            history.append(": History of Doses Taken ");// from:");
+            if (startMilli > 0) {
+                history.append("from: ");
+
+                history.append(lf);
+                history.append(MMUtilitiesTime.getDateString(startMilli));
+                history.append(" to: ");
+                //decrement into the previous day
+                history.append(MMUtilitiesTime.getDateString(endMilli - 100));
+            }
+            history.append(lf);
+            history.append(lf);
+
+            //Doses on the concurrent dose are in the same order as medications on the patient
+            ArrayList<MMMedication> medications = patient.getMedications();
+            ArrayList<MMDose> doses;
+            MMMedication medication;
+            MMDose dose;
+            int lastMed = medications.size();
+            int positionMed = 0;
+
+            while (positionMed < lastMed) {
+                medication = medications.get(positionMed);
+                if (positionMed > 0) history.append(", ");
+                history.append(medication.getMedicationNickname());
+                positionMed++;
+            }
+
+            history.append(lf);
+
+
+            //Now list the history
+            //get all the concurrent doses for this patient
+            MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
+            if ((startMilli <= 0) || (endMilli <= 0)){
+                concurrentDoseCursor = concurrentDoseManager.
+                        getAllConcurrentDosesCursor(getPatientID());
+            } else {
+                concurrentDoseCursor = concurrentDoseManager.
+                        getAllConcurrentDosesCursor(getPatientID(), startMilli, endMilli);
+            }
+            MMConcurrentDose concurrentDose;
+
+
+            int lastCD = concurrentDoseCursor.getCount();
+            int positionCD = 0;
+            while (positionCD < lastCD) {
+                //get the concurrent dose for this position
+                concurrentDose = concurrentDoseManager
+                        .getConcurrentDoseFromCursor(concurrentDoseCursor, positionCD);
+
+                long timeTaken = concurrentDose.getStartTime();
+                if ((startMilli <= 0) || (endMilli <= 0) ||
+                        (startMilli < timeTaken) && (timeTaken < endMilli)) {
+
+                    history.append(MMUtilitiesTime.convertMStoDateTimeString(
+                                                        (MMMainActivity)getActivity(), timeTaken));
+                    history.append(",");
+                    history.append(tab_as_string);
+
+                    //get the medication doses taken at this time
+                    doses = concurrentDose.getDoses();
+                    //Now list the doses
+                    int lastDose = doses.size();
+                    int positionDose = 0;
+                    long medicationID;
+                    while (positionDose < lastDose) {
+                        dose = doses.get(positionDose);
+                        medicationID = dose.getOfMedicationID();
+                        medication = MMMedicationManager.getInstance().
+                                getMedicationFromID(medicationID);
+
+                        history.append(String.valueOf(dose.getAmountTaken()));
+                        history.append(" ");
+                        history.append(medication.getDoseUnits());
+                        if (positionDose < (lastDose -1)) history.append(",");
+                        history.append(tab_as_string);
+
+                        positionDose++;
+                    }
+                    history.append(lf);
+                }
+
+                positionCD++;
+            }
+
+        } catch (Exception e) {
+            MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
         }
 
         history.append(lf);

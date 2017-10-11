@@ -278,9 +278,10 @@ public class MMMedication {
         StringBuilder message = new StringBuilder();
 
         message.append(ls);
-        message.append("MEDICATION: (ID ");
+        message.append("MED: (ID ");
         message.append(String.valueOf(mMedicationID));
         message.append(") : ");
+        message.append(ls);
         message.append(mMedicationNickname);
         if (!mBrandName.toString().isEmpty()) {
             message.append("BrandName ");
@@ -290,7 +291,8 @@ public class MMMedication {
             message.append("GenericName  ");
             message.append(mGenericName);
         }
-        message.append(" is currently ");
+        message.append(ls);
+        message.append("Currently ");
         if (!isCurrentlyTaken()){
             message.append("NOT ");
         }
@@ -314,11 +316,11 @@ public class MMMedication {
             message.append(ls);
         }
 
-        message.append("Dose Strategy is: ");
+        message.append("Dose Strategy: ");
         message.append(getStrategyString());
         message.append(ls);
 
-        message.append("Dosage is: ");
+        message.append("Dosage: ");
         message.append(String.valueOf(mDoseAmount));
         message.append(" ");
         message.append(String.valueOf(mDoseUnits));

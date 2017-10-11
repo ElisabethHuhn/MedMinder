@@ -452,9 +452,9 @@ public class MMHomeFragment extends Fragment {
 
         LinearLayout layout = getDoseLayout(v);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                0,//width
-                ViewGroup.LayoutParams.WRAP_CONTENT);//height
-        lp.weight = 4f;
+                                                    0,//width
+                                                    ViewGroup.LayoutParams.WRAP_CONTENT);//height
+        lp.weight = 2f;
         //lp.gravity = Gravity.CENTER;//set below too
         lp.setMarginEnd(padding);
 
@@ -476,6 +476,8 @@ public class MMHomeFragment extends Fragment {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
+                //indicate the UI has changed, so save is enabled now
+                setUIChanged();
                 return false;
             }
         });
@@ -519,21 +521,21 @@ public class MMHomeFragment extends Fragment {
         medButton.setPadding(0,0,padding,0);
         medButton.setText(buttonText);
         medButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
+        //I know this looks weird, but have to make both calls for this to work.
+        // found in Stack Overflow https://stackoverflow.com/questions/26390303/android-overriding-button-minheight-programmatically
+        medButton.setMinHeight(0);
+        medButton.setMinimumHeight(0);
         medButtonsLayout.addView(medButton);
 
         addMedButtonListener(medButton);
-
-        //save the pointer to the button
-        // mMedButtons.add(medButton);
 
 
         //
         //add EditText to the dose layout
         //
         LinearLayout medDoseLayout = getDoseLayout(v);
-        lp = new LinearLayout.LayoutParams(
-                0,//width
-                ViewGroup.LayoutParams.WRAP_CONTENT);//height
+        lp = new LinearLayout.LayoutParams( 0,//width
+                                            ViewGroup.LayoutParams.WRAP_CONTENT);//height
         lp.weight = 1f;
 
         lp.setMarginEnd(padding);
@@ -556,6 +558,8 @@ public class MMHomeFragment extends Fragment {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
+                //indicate the UI has changed so save enabled
+                setUIChanged();
                 return false;
             }
         });
@@ -576,10 +580,8 @@ public class MMHomeFragment extends Fragment {
 
     private void   addMedButtonListener(Button medButton){
 
-        if (medButton == null) return;
-
-        //add the listeners to the button
-        medButton.setOnClickListener(new View.OnClickListener() {
+        //first define the listeners for the buttons
+        View.OnClickListener medButtonListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -608,10 +610,10 @@ public class MMHomeFragment extends Fragment {
                     position++;
                 }
                 MMUtilities.getInstance().errorHandler(getActivity(), R.string.patient_no_med_but);
-
             }
-        });
-        medButton.setOnLongClickListener(new View.OnLongClickListener() {
+        };
+
+        View.OnLongClickListener medButtonLongLilstener = new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
 
@@ -643,7 +645,13 @@ public class MMHomeFragment extends Fragment {
 
                 return true;//even so, consume the long click
             }
-        });
+        };
+
+        if (medButton == null) return;
+
+        //add the listeners to the button
+        medButton.setOnClickListener(medButtonListener);
+        medButton.setOnLongClickListener(medButtonLongLilstener);
 
     }
 
@@ -761,6 +769,13 @@ public class MMHomeFragment extends Fragment {
                     if (medField != null) {
                         //show the user
                         medField.setText(String.valueOf(doseAmt));
+                        if (doseAmt > 0) {
+                            medField.setBackgroundColor(ContextCompat.
+                                    getColor(getActivity(), R.color.colorLightPink));
+                        }else {
+                            medField.setBackgroundColor(ContextCompat.
+                                    getColor(getActivity(), R.color.colorWhite));
+                        }
                     }
                 }
             }
@@ -996,7 +1011,6 @@ public class MMHomeFragment extends Fragment {
         //Get the Dose Amounts already recorded for this concurrentDose
         ArrayList<MMDose> doses = selectedConcurrentDose.getDoses();
 
-
         //
         //Build the (Dialog) layout and it's contained views
         // that define the ConcurrentDose and its contained Doses
@@ -1118,8 +1132,17 @@ public class MMHomeFragment extends Fragment {
                                                               timeString,
                                                               isTimeFlag);
 
+        //if there was an error parsing either the date or the time, don't try save
+        if ((dateMs == 0) || (timeMs == 0)){
+            MMUtilities.getInstance().errorHandler(getActivity(), R.string.error_parsing_date_time);
+            MMUtilities.getInstance().errorHandler(getActivity(), R.string.change_not_saved);
+            return;
+        }
+
         //add together to get the new time for the concurrent dose
         long cdTimeMs = MMUtilitiesTime.getTotalTime(dateMs, timeMs);
+
+
 
 
 

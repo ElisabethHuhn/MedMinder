@@ -35,13 +35,13 @@
             <TableRow
                 android:layout_height="wrap_content"
                 android:layout_width ="match_parent"
-                android:paddingTop="10dp"
                 android:gravity="center"
                 >
                 <TextView
                     android:text="@string/person_screen_label"
                     android:layout_height="wrap_content"
-                    android:layout_width ="wrap_content"
+                    android:layout_width ="0dp"
+                    android:layout_weight="10"
                     android:gravity="center"
 
                     android:textSize="20sp"
@@ -49,41 +49,40 @@
                     android:background="@color/colorScreenBackground"
                     />
 
-            </TableRow>
-
-            <!-- Row 2: Buttons  (Save) -->
-            <TableRow
-
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
-                >
-
-                <!-- Save Person -->
+                <!-- Save Button -->
                 <Button
                     style="?android:attr/buttonBarButtonStyle"
                     android:id="@+id/personSaveButton"
                     android:text="@string/save_label"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
 
-                    android:layout_weight="4"
+                    android:enabled="false"
+
+                    android:layout_height="wrap_content"
+                    android:minHeight="20dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="3"
+
+                    android:gravity="center|center_vertical"
+                    android:layout_gravity="start"
+
 
                     android:layout_marginStart="4dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="2dp"
 
                     android:background="@color/colorButton1Background"
-                    android:textColor="@color/colorTextBlack"
+                    android:textColor="@color/colorGray"
                     />
 
+
             </TableRow>
+
+
 
             <!-- Row 3: Person Exists? -->
             <TableRow
                 android:layout_height="wrap_content"
                 android:layout_width ="match_parent"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 android:gravity="center"
                 >
 
@@ -100,7 +99,7 @@
                   android:layout_width=  "match_parent"
                   android:layout_height= "wrap_content"
                   android:layout_gravity="center_horizontal"
-                  android:paddingTop=    "10dp"
+                  android:paddingTop=    "5dp"
                 >
                 <TextView
                     android:id=           "@+id/personIDLabel"
@@ -145,7 +144,7 @@
                   android:layout_width=  "match_parent"
                   android:layout_height= "wrap_content"
                   android:layout_gravity="center_horizontal"
-                  android:paddingTop=    "10dp"
+                  android:paddingTop=    "5dp"
                 >
                 <TextView
                     android:id=           "@+id/personEmailAddrLabel"
@@ -187,7 +186,7 @@
                   android:layout_width=  "match_parent"
                   android:layout_height= "wrap_content"
                   android:layout_gravity="center_horizontal"
-                  android:paddingTop=    "10dp"
+                  android:paddingTop=    "5dp"
                 >
                 <TextView
                     android:id=           "@+id/personTextAddrLabel"
@@ -228,7 +227,7 @@
             <TableRow
                 android:layout_height="wrap_content"
                 android:layout_width ="match_parent"
-                android:paddingTop="10dp"
+                android:paddingTop="5dp"
                 android:gravity="center"
                 >
                 <TextView

@@ -21,7 +21,7 @@
         android:id="@+id/doseDateLabel"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_weight="3"
+        android:layout_weight="1"
         android:gravity="center"
 
         android:text="@string/dose_default_date"

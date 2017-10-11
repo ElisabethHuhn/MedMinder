@@ -23,7 +23,7 @@
         android:layout_width=  "match_parent"
         android:orientation="vertical"
         >
-        <!-- Row 1: Patient Name -->
+        <!-- Row 1: Patient Name, save button-->
         <LinearLayout
             android:id="@+id/medPatientHeaderLayout"
             android:layout_height="match_parent"
@@ -39,7 +39,8 @@
                 android:textSize="20sp"
 
                 android:layout_height= "wrap_content"
-                android:layout_width = "wrap_content"
+                android:layout_width = "0dp"
+                android:layout_weight="4"
 
                 android:gravity      = "end"
                 android:paddingEnd   = "8dp"
@@ -53,7 +54,8 @@
                 android:text="@string/patient_nick_name_label"
                 android:textSize="20sp"
                 android:layout_height= "wrap_content"
-                android:layout_width = "wrap_content"
+                android:layout_width = "0dp"
+                android:layout_weight="10"
                 android:layout_gravity="center"
 
                 android:gravity      = "start"
@@ -61,17 +63,6 @@
                 android:background   = "@color/colorWhite"
                 android:textColor    = "@color/colorTextBlack"
                 />
-
-        </LinearLayout>
-
-        <!-- Buttons: Save -->
-        <LinearLayout
-            android:id="@+id/medControlButtonsLayout"
-            android:layout_height="match_parent"
-            android:layout_width ="match_parent"
-            android:orientation="horizontal"
-            android:paddingBottom="5dp"
-            >
 
             <!-- Save Button -->
             <Button
@@ -81,23 +72,24 @@
 
                 android:enabled="false"
 
-                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minHeight="20dp"
+                android:layout_width="0dp"
+                android:layout_weight="3"
 
                 android:gravity="center|center_vertical"
                 android:layout_gravity="start"
-                android:layout_weight="10"
 
-                android:layout_marginStart="8dp"
+
+                android:layout_marginStart="4dp"
                 android:layout_marginEnd="2dp"
 
                 android:background="@color/colorButton1Background"
                 android:textColor="@color/colorGray"
                 />
 
-
-
         </LinearLayout>
+
 
         <!-- Row 2: Medication Buttons -->
         <LinearLayout
@@ -135,7 +127,7 @@
             android:layout_width= "match_parent"
             android:fillViewport= "true"
             android:layout_gravity="center_horizontal"
-            android:paddingTop=    "5dp"
+
             >
 
             <!-- Row 4: DDose Taken History -->
