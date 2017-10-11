@@ -17,17 +17,17 @@ import android.widget.TextView;
  * This adapter uses a Cursor of the person rows in the DB
  */
 
-public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAdapter.MyViewHolder>{
+class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAdapter.MyViewHolder>{
     private Cursor  mPersonCursor;
     private Context mContext;
 
     //implement the ViewHolder as an inner class
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
         //The views in each row to be displayed
-        public TextView personNickName, personEmailAddr, personTextAddr;
+        TextView personNickName, personEmailAddr, personTextAddr;
 
 
-        public MyViewHolder(View v) {
+        MyViewHolder(View v) {
             super(v);
 
             personNickName  = (TextView) v.findViewById(R.id.personNickNameInput);
@@ -38,7 +38,7 @@ public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAd
     } //end inner class MyViewHolder
 
     //Constructor for MMPersonAdapter
-    public MMPersonCursorAdapter(Context context, Cursor personCursor){
+    MMPersonCursorAdapter(Context context, Cursor personCursor){
         this.mContext      = context;
         this.mPersonCursor = personCursor;
     }
@@ -52,7 +52,7 @@ public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAd
 
     }
 
-    public Cursor reinitializeCursor(){
+    Cursor reinitializeCursor(){
         closeCursor();
 
         MMPersonManager personManager = MMPersonManager.getInstance();
@@ -119,9 +119,9 @@ public class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAd
         return returnValue;
     }
 
-    public Cursor getCursor(){return mPersonCursor;}
+    Cursor getCursor(){return mPersonCursor;}
 
-    public void closeCursor(){
+    void closeCursor(){
         if (mPersonCursor != null)mPersonCursor.close();
     }
 

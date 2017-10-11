@@ -428,11 +428,6 @@ public class MMHomeFragment extends Fragment {
         return mostRecentDose;
     }
 
-    private MMMedication getMedicationFromPersonID(long personID, int position){
-        MMPerson person = MMPersonManager.getInstance().getPerson(personID);
-        return getMedicationFromPerson(person, position);
-    }
-
     private MMMedication getMedicationFromPerson(MMPerson person, int position){
         return person.getMedications().get(position);
     }
@@ -553,7 +548,6 @@ public class MMHomeFragment extends Fragment {
         amountView.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
 
         //add listener
-        //// TODO: 9/27/2017 maybe add listener to change background color if amount entered
         amountView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -594,8 +588,9 @@ public class MMHomeFragment extends Fragment {
                 Button medButton;
                 while (position < last){
                     medButton = (Button)medButtonsLayout.getChildAt(position);
+
                     //medButton = mMedButtons.get(position);
-                    if (medButton == v){
+                    if ((medButton != null) && (medButton == v)){
 
                         //stop the blinking
                         medButton.clearAnimation();

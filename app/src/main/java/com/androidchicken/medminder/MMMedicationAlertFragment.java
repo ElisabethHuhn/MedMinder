@@ -343,11 +343,6 @@ public class MMMedicationAlertFragment extends Fragment  {
         View v = getView();
         if (v == null)return;
 
-        //increment the value on the UI
-        TextView medAlertNumInput = (TextView) v.findViewById(R.id.medAlertNumInput);
-        int size = Integer.valueOf(medAlertNumInput.getText().toString());
-        size++;
-
         addAlertDialog(mSelectedPosition);
     }
 
@@ -624,9 +619,6 @@ public class MMMedicationAlertFragment extends Fragment  {
         int day     = Integer.decode(dayString);
         int hours   = Integer.decode(hourString);
         int minutes = Integer.decode(minuteString);
-        // TODO: 5/5/2017 Do we need validity check for day, hour, minute???
-
-
 
         //create / update the MedicationAlert
         MMMedicationAlertCursorAdapter adapter = getAdapter(getView());
@@ -782,18 +774,17 @@ public class MMMedicationAlertFragment extends Fragment  {
 
 
         // Creating adapter for Med spinner
-        ArrayAdapter<String> medAdapter = new ArrayAdapter<String>(getActivity(),
+        ArrayAdapter<String> medAdapter = new ArrayAdapter<>(getActivity(),
                                                               android.R.layout.simple_spinner_item,
                                                               mMedicationNames);
 
         // Creating adapter for person spinner
-        ArrayAdapter<String> personAdapter = new ArrayAdapter<String>(getActivity(),
+        ArrayAdapter<String> personAdapter = new ArrayAdapter<>(getActivity(),
                                                                 android.R.layout.simple_spinner_item,
                                                                 mPersonNames);
 
-        // TODO: 5/5/2017 This would look better if text were centered
         // Creating adapter for Notification Type
-        ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(getActivity(),
+        ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(getActivity(),
                                                                android.R.layout.simple_spinner_item,
                                                                mTypeNames);
 

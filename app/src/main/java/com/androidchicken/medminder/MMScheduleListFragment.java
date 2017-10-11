@@ -193,7 +193,6 @@ public class MMScheduleListFragment extends Fragment {
         MMScheduleListCursorAdapter adapter =
                                     new MMScheduleListCursorAdapter(getActivity(),
                                                                 cursor,
-                                                                is24Format,
                                                                 getPatientID());
         recyclerView.setAdapter(adapter);
 

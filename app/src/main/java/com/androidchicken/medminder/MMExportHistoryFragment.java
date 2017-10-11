@@ -1,12 +1,10 @@
 package com.androidchicken.medminder;
 
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -19,7 +17,6 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -35,7 +32,6 @@ import static com.androidchicken.medminder.R.id.directoryPath;
  */
 
 public class MMExportHistoryFragment extends Fragment {
-    private static final String TAG = "ExportHistoryFragment";
 
     private static final int EXPORT_HISTORY       = 0;
     private static final int EXPORT_PRESCRIPTIONS = 1;
@@ -171,8 +167,6 @@ public class MMExportHistoryFragment extends Fragment {
     //*************************************************************/
 
     private long     getPatientID(){return ((MMMainActivity)getActivity()).getPatientID();}
-
-    private MMPerson getPerson()    {return ((MMMainActivity)getActivity()).getPerson();}
 
 
     //**********************************************/
@@ -390,20 +384,6 @@ public class MMExportHistoryFragment extends Fragment {
      }
 
 
-    private void onExit(){
-        Toast.makeText(getActivity(),
-                R.string.exit_label,
-                Toast.LENGTH_SHORT).show();
-
-        //if something has changed in the UI, ask first
-        if (isUIChanged){
-            //areYouSureExit();
-            switchToExit();
-        } else {
-            switchToExit();
-        }
-    }
-
     private void onExport() {
 
 
@@ -511,53 +491,11 @@ public class MMExportHistoryFragment extends Fragment {
         String dateString   = dateView  .getText().toString();
         if (dateString.isEmpty())return -1;
 
-        boolean isTimeflag = false; //The flag is for a Date, not a Time
         Date dateDate = MMUtilities.getInstance().
-                     convertStringToDate((MMMainActivity)getActivity(), dateString);
+                                    convertStringToDate((MMMainActivity)getActivity(), dateString);
         if (dateDate == null)return -1;
 
         return dateDate.getTime();
-    }
-
-    //***********************************/
-    //****  Exit Button Dialogue    *****/
-    //***********************************/
-    //Build and display the alert dialog
-    private void areYouSureExit(){
-        new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.abandon_title)
-                .setIcon(R.drawable.ground_station_icon)
-                .setMessage(R.string.are_you_sure)
-                .setPositiveButton(R.string.exit_label,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                //Leave even though project has chaged
-                                //Toast.makeText(getActivity(), R.string.exit_label, Toast.LENGTH_SHORT).show();
-                                switchToExit();
-
-                            }
-                        })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
-                        Toast.makeText(getActivity(),
-                                "Pressed Cancel",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setIcon(R.drawable.ground_station_icon)
-                .show();
-    }
-
-    private void switchToExit(){
-
-        if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST) {
-            ((MMMainActivity) getActivity()).switchToHomeScreen();
-        } else {
-            //pre-populate with patientID from Activity level
-            ((MMMainActivity) getActivity()).switchToHomeScreen();
-        }
-
     }
 
 
@@ -571,19 +509,6 @@ public class MMExportHistoryFragment extends Fragment {
 
     }
 
-    private void setUISaved(){
-        isUIChanged = false;
-
-        //disable the save button
-        exportButtonEnable(MMUtilities.BUTTON_DISABLE);
-    }
-
-    private void setUISaved(View v){
-        isUIChanged = false;
-
-        //disable the save button
-        exportButtonEnable(v, MMUtilities.BUTTON_DISABLE);
-    }
 
     private void exportButtonEnable(boolean isEnabled){
         View v = getView();
@@ -834,9 +759,6 @@ public class MMExportHistoryFragment extends Fragment {
             }
 
             history.append(lf);
-            //reset the positionMed back to the start of the med list
-            positionMed = 0;
-
 
             //Now list the history
             //get all the concurrent doses for this patient

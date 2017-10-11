@@ -141,20 +141,7 @@ public class MMSettingsFragment extends Fragment {
     }
 
 
-    //*************************************************************/
-    /*  Convenience Methods for accessing things on the Activity  */
-    //*************************************************************/
 
-    private long     getPatientID(){
-        return ((MMMainActivity)getActivity()).getPatientID();
-    }
-    private void     setPatientID(long patientID) {
-        ((MMMainActivity)getActivity()).setPatientID(patientID);
-    }
-
-    private MMPerson getPerson(){
-        return MMPersonManager.getInstance().getPerson(getPatientID());
-    }
 
     //*************************************************************/
     /*                    Initialization Methods                  */
@@ -344,14 +331,12 @@ public class MMSettingsFragment extends Fragment {
 
         if (minutesSinceMidnight < 0) {
             MMUtilities.getInstance().errorHandler(getActivity(), R.string.settings_incorrect_format);
-            //if there is an error, reset to 6 AM
-
-            // TODO: 9/27/2017 somehow use schedule getTimeDueString()
+            //if there is an error, reset to default set by the user
             minutesSinceMidnight = MMSettings.sDefaultTimeDue;
-            long millisecondsSinceMidnight = minutesSinceMidnight * 60 * 1000;
+            long msSinceMidnight = MMUtilitiesTime.convertMinutesToMs(minutesSinceMidnight);
             //and put it back on the screen
             timeString = MMUtilities.getInstance().
-                    getTimeString((MMMainActivity) getActivity(), millisecondsSinceMidnight);
+                    getTimeString((MMMainActivity) getActivity(), msSinceMidnight);
             defaultTimeDueInput.setText(timeString);
         }
         settings.setDefaultTimeDue((MMMainActivity)getActivity(), minutesSinceMidnight);

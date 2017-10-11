@@ -5,6 +5,8 @@ import android.database.Cursor;
 
 import java.util.ArrayList;
 
+import static com.androidchicken.medminder.MMDataBaseSqlHelper.SCHED_MED_STRATEGY;
+
 /**
  * Created by Elisabeth Huhn on 5/15/17
  *
@@ -12,7 +14,7 @@ import java.util.ArrayList;
  *  both in-memory and in the DB
  */
 
-public class MMScheduleManager {
+class MMScheduleManager {
     //***********************************/
     //******** Static Constants *********/
     //***********************************/
@@ -33,7 +35,7 @@ public class MMScheduleManager {
     //***********************************/
     //******** Static Methods   *********/
     //***********************************/
-    public static MMScheduleManager getInstance() {
+    static MMScheduleManager getInstance() {
         if (ourInstance == null){
             ourInstance = new MMScheduleManager();
         }
@@ -57,7 +59,7 @@ public class MMScheduleManager {
 
 
     //The routine that actually adds the instance to DB
-    public long addScheduleMedication(MMSchedule scheduleMedication){
+    long addScheduleMedication(MMSchedule scheduleMedication){
 
 
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
@@ -69,7 +71,7 @@ public class MMScheduleManager {
 
 
     //return the cursor containing all the Schedules in the DB
-    public Cursor getAllSchedMedsCursor(){
+    Cursor getAllSchedMedsCursor(){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllSchedMedsCursor();
     }
@@ -77,7 +79,7 @@ public class MMScheduleManager {
 
     //return the cursor containing all the Schedules in the DB
     //that pertain to this medicationID
-    public Cursor getAllSchedMedsCursor(long medicationID){
+    Cursor getAllSchedMedsCursor(long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllSchedMedsCursor(medicationID);
     }
@@ -85,36 +87,34 @@ public class MMScheduleManager {
     //return the cursor containing all the Schedules in the DB
     // ordered by time dose is taken
     //that pertain to this personID
-    public Cursor getAllSchedMedsForPersonCursor(long personID){
+    Cursor getAllSchedMedsForPersonCursor(long personID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         String orderClause = getSchedMedOrderClause();
         return databaseManager.getAllSchedMedsForPersonCursor(personID, orderClause);
     }
 
     private String getSchedMedOrderClause(){
-        String orderClause = MMDataBaseSqlHelper.SCHED_MED_STRATEGY + " ASC, " +
-                             MMDataBaseSqlHelper.SCHED_MED_TIME_DUE + " ASC";
+        return MMDataBaseSqlHelper.SCHED_MED_STRATEGY + " ASC, " +
+               MMDataBaseSqlHelper.SCHED_MED_TIME_DUE + " ASC";
 
-        return orderClause;
     }
 
 
 
 
-    public ArrayList<MMSchedule> getAllSchedMeds(long medicationID){
+    ArrayList<MMSchedule> getAllSchedMeds(long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllSchedMeds(medicationID);
     }
 
 
 
-    public boolean removeSchedMedFromDB(long schedMedID){
+    boolean removeSchedMedFromDB(long schedMedID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         long returnCode = databaseManager.removeSchedMed(schedMedID);
         //I know lint is complaining about simplifying this if stmt.
         //I'd rather make it explicit rather than cryptic
-        if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return false;
-        return true;
+        return ! (returnCode == MMDatabaseManager.sDB_ERROR_CODE);
     }
 
 
@@ -123,7 +123,7 @@ public class MMScheduleManager {
     //*******************************************/
     //********       Utility methods       ******/
     //*******************************************/
-    public int howManyDueAt(int minutesSinceMidnight){
+    int howManyDueAt(int minutesSinceMidnight){
         Cursor cursor = getAllSchedMedsCursor();
         if (cursor == null) return 0;
 
@@ -146,13 +146,13 @@ public class MMScheduleManager {
     //******** Object to/from DB methods   ******/
     //*******************************************/
 
-    public ContentValues getCVFromScheduleMedication(MMSchedule schedMed){
+    ContentValues getCVFromScheduleMedication(MMSchedule schedMed){
         ContentValues values = new ContentValues();
         values.put(MMDataBaseSqlHelper.SCHED_MED_ID,             schedMed.getSchedMedID());
         values.put(MMDataBaseSqlHelper.SCHED_MED_FOR_PERSON_ID,  schedMed.getForPersonID());
         values.put(MMDataBaseSqlHelper.SCHED_MED_OF_MEDICATION_ID,  schedMed.getOfMedicationID());
         values.put(MMDataBaseSqlHelper.SCHED_MED_TIME_DUE,       schedMed.getTimeDue());
-        values.put(MMDataBaseSqlHelper.SCHED_MED_STRATEGY,       schedMed.getStrategy());
+        values.put(SCHED_MED_STRATEGY,       schedMed.getStrategy());
 
         return values;
     }
@@ -166,7 +166,7 @@ public class MMScheduleManager {
     //        If the app becomes multi-threaded, this routine must be made thread safe
     //WARNING The cursor is NOT closed by this routine. It assumes the caller will close the
     //         cursor when it is done with it
-    public MMSchedule getScheduleMedicationFromCursor(Cursor cursor, int position){
+    MMSchedule getScheduleMedicationFromCursor(Cursor cursor, int position){
 
         int last = cursor.getCount();
         if (position >= last) return null;
@@ -188,13 +188,13 @@ public class MMScheduleManager {
                 (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_TIME_DUE)));
 
         scheduleMedications.setStrategy(
-                (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_STRATEGY))));
+                (cursor.getInt(cursor.getColumnIndex(SCHED_MED_STRATEGY))));
 
 
         return scheduleMedications;
     }
 
-    public long getScheduleIDFromCursor(Cursor cursor, int position){
+    long getScheduleIDFromCursor(Cursor cursor, int position){
 
         int last = cursor.getCount();
         if (position >= last) return MMUtilities.ID_DOES_NOT_EXIST;
@@ -209,7 +209,7 @@ public class MMScheduleManager {
     }
 
 
-    public int getTimeDueFromCursor(Cursor cursor, int position){
+    private int getTimeDueFromCursor(Cursor cursor, int position){
 
         int last = cursor.getCount();
         if (position >= last) return -1;

@@ -12,28 +12,28 @@ import java.util.ArrayList;
  *  both in-memory and in the DB
  */
 
-public class MMPersonManager {
-    /************************************/
-    /********* Static Constants *********/
-    /************************************/
+class MMPersonManager {
+    // **********************************/
+    // ******* Static Constants *********/
+    // **********************************/
     private static final int PERSON_NOT_FOUND = -1;
 
 
-    /************************************/
-    /********* Static Variables *********/
-    /************************************/
+    // **********************************/
+    // ******* Static Variables *********/
+    // **********************************/
     private static MMPersonManager ourInstance ;
 
-    /************************************/
-    /********* Member Variables *********/
-    /************************************/
+    // **********************************/
+    // ******* Member Variables *********/
+    // **********************************/
     private ArrayList<MMPerson> mPersonList;
 
 
-    /************************************/
-    /********* Static Methods   *********/
-    /************************************/
-    public static MMPersonManager getInstance() {
+    // **********************************/
+    // ******* Static Methods   *********/
+    // **********************************/
+    static MMPersonManager getInstance() {
         if (ourInstance == null){
             ourInstance = new MMPersonManager();
         }
@@ -41,9 +41,9 @@ public class MMPersonManager {
     }
 
 
-    /************************************/
-    /********* Constructors     *********/
-    /************************************/
+    // **********************************/
+    // ******* Constructors     *********/
+    // **********************************/
     private MMPersonManager() {
 
         mPersonList = new ArrayList<>();
@@ -52,21 +52,21 @@ public class MMPersonManager {
 
     }
 
-    /************************************/
-    /********* Setters/Getters  *********/
-    /************************************/
+    // **********************************/
+    // ******* Setters/Getters  *********/
+    // **********************************/
 
 
-    /*******************************************/
-    /********* CRUD Methods            *********/
-    /*******************************************/
+    // *****************************************/
+    // ******* CRUD Methods            *********/
+    // *****************************************/
 
 
-    //******************  CREATE *******************************************
+    /// ****************  CREATE *******************************************
 
     //The routine that actually adds the instance to in memory list and
     // potentially (third boolean parameter) to the DB
-    public long addPerson(MMPerson newPerson, boolean addToDBToo){
+    long addPerson(MMPerson newPerson, boolean addToDBToo){
         long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
 
         //There may be more people in the DB than are in memory
@@ -106,17 +106,17 @@ public class MMPersonManager {
 
 
 
-    //******************  READ *******************************************
+    /// ****************  READ *******************************************
     //return the cursor containing all the Concurrent Doses in the DB
     //that pertain to this personID
-    public Cursor getAllPersonsCursor (){
+    Cursor getAllPersonsCursor (){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllPersonsCursor();
     }
 
 
     //Return the list of all Persons
-    public ArrayList<MMPerson> getPersonList() {
+    ArrayList<MMPerson> getPersonList() {
         //Assumption is that if any person is already in the list, it must be up to date
         if ((mPersonList == null) || (mPersonList.size() == 0)){
             //get the Persons from the DB
@@ -129,7 +129,7 @@ public class MMPersonManager {
 
     //Return the person instance that matches the argument personID
     //returns null if the person is not in the list or in the DB
-    public MMPerson getPerson(long personID)  {
+    MMPerson getPerson(long personID)  {
         if (personID == MMUtilities.ID_DOES_NOT_EXIST)return null;
         //Assumption is that if any person is already in the list, it must be up to date
         if ((mPersonList == null) || (mPersonList.size() == 0)){
@@ -179,45 +179,27 @@ public class MMPersonManager {
 
 
 
-    //******************  UPDATE *******************************************
+    /// ****************  UPDATE *******************************************
 
 
-    //******************  DELETE *******************************************
-
-
-    //This routine not only removes from the in-memory list, but also from the DB
-    public boolean removePerson(int position) {
-        if (position > mPersonList.size()) {
-            //Can't remove a position that the list isn't long enough for
-            return false;
-        }
-
-        mPersonList.remove(position);
-        return true;
-    }//end public remove position
-
-    public boolean removePersonFromDB(long personID){
-        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        long returnCode = databaseManager.removePerson(personID);
-        if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return false;
-        return true;
-    }
+    /// ****************  DELETE *******************************************
 
 
 
 
 
-    /********************************************/
-    /********* Private Member Methods   *********/
-    /********************************************/
+
+    // ******************************************/
+    // ******* Private Member Methods   *********/
+    // ******************************************/
 
 
-    /********************************************/
-    /********* Translation Utility Methods  *****/
-    /********************************************/
+    // ******************************************/
+    // ******* Translation Utility Methods  *****/
+    // ******************************************/
 
      //returns the ContentValues object needed to add/update the person to/in the DB
-    public ContentValues getCVFromPerson(MMPerson person){
+    ContentValues getCVFromPerson(MMPerson person){
         ContentValues values = new ContentValues();
         values.put(MMDataBaseSqlHelper.PERSON_ID,       person.getPersonID());
         values.put(MMDataBaseSqlHelper.PERSON_NICKNAME, person.getNickname().toString());
@@ -241,7 +223,7 @@ public class MMPersonManager {
     //        If the app becomes multi-threaded, this routine must be made thread safe
     //WARNING The cursor is NOT closed by this routine. It assumes the caller will close the
     //         cursor when it is done with it
-    public MMPerson getPersonFromCursor(Cursor cursor, int position){
+    MMPerson getPersonFromCursor(Cursor cursor, int position){
 
         int last = cursor.getCount();
         if (position >= last) return null;

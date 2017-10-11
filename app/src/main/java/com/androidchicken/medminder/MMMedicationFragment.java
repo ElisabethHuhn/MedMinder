@@ -477,13 +477,13 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
             //For now, remove some of the defaults
 
-            CharSequence brand = MMMedication.getDefaultBrandName().toString().trim();
+            //CharSequence brand = MMMedication.getDefaultBrandName().toString().trim();
             //medBrandNameInput.setText(brand);
 
-            CharSequence generic = MMMedication.getDefaultGenericName().toString().trim();
+            //CharSequence generic = MMMedication.getDefaultGenericName().toString().trim();
             // medGenericNameInput.setText(generic);
 
-            CharSequence medNick = MMMedication.getDefaultMedicationNickname().toString().trim();
+            //CharSequence medNick = MMMedication.getDefaultMedicationNickname().toString().trim();
             //medNickNameInput.setText(medNick);
 
             mSelectedStrategyTypePosition = MMMedication.getDefaultDoseStrategy();
@@ -836,8 +836,6 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             if (adapter != null) {
                 adapter.resetStrategy(mSelectedStrategyTypePosition);
             }
-
-            // TODO: 6/6/2017 need to redisplay schedules
         }
 
     }
@@ -982,23 +980,14 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             long medicationID = medication.getMedicationID();
 
             //timeDue will be in minutes since midnight
-            long timeDue = MMSettings.getInstance().
-                                                getDefaultTimeDue((MMMainActivity)getActivity());
-            //long timeDueMilli = timeDue * 60 * 1000;
-            long timeDueMilli = MMUtilities.getInstance().convertMinutesToMilli(timeDue);
+            long timeDue = MMSettings.getInstance().getDefaultTimeDue((MMMainActivity)getActivity());
+
             int strategy = medication.getDoseStrategy();
-            if (strategy == MMMedication.sAS_NEEDED){
-                //timeDueMilli = MMUtilities.getInstance().convertGMTtoLocal(MMSettings.sDefaultAsNeededTimeDue);
-                timeDueMilli = MMSettings.sDefaultAsNeededTimeDue;
-            }
-            // TODO: 6/2/2017 get rid of debug string
-            String timeDueString = MMUtilities.getInstance().
-                                        getTimeString((MMMainActivity)getActivity(), timeDueMilli);
 
             MMSchedule schedule = new MMSchedule(medicationID,
-                                                                     getPatientID(),
-                                                                (int)timeDue,
-                                                                     strategy);
+                                                 getPatientID(),
+                                                (int)timeDue,
+                                                 strategy);
             medication.addSchedule(schedule);
 
             //shouldn't have to reinitialize cursor because onSave() will do it for us
@@ -1026,7 +1015,6 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         //Decrement the value in the UI
         TextView medDoseNumInput = (TextView) v.findViewById(medicationDoseNumInput);
 
-        // TODO: 5/15/2017 Which schedule should be deleted?
         //get rid of the last schedule
         int last = Integer.valueOf(medDoseNumInput.getText().toString());
         int position = 0;
@@ -1158,7 +1146,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         if (howManyMedsDue == 1) {
             //The alarm is based on when the dose is due
             MMUtilities utilities = MMUtilities.getInstance();
-            utilities.cancelNotificationAlarms(getActivity(), minutesSinceMidnight);
+            utilities.cancelNotificationAlarms(getActivity());
         }
     }
 

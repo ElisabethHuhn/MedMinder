@@ -15,18 +15,18 @@ import android.widget.TextView;
  * Serves as a liaison between a list RecyclerView and the MedicationManager
  */
 
-public class MMMedicationAlertCursorAdapter extends RecyclerView.Adapter<MMMedicationAlertCursorAdapter.MyViewHolder>{
+class MMMedicationAlertCursorAdapter extends RecyclerView.Adapter<MMMedicationAlertCursorAdapter.MyViewHolder>{
 
     private Cursor  mMedicationAlertCursor;
    // private long    mPersonID;
     private Context mActivity;
 
     //implement the ViewHolder as an inner class
-    public class MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView medName, personName, notifyType, notifyTime;
+    class MyViewHolder extends RecyclerView.ViewHolder {
+        TextView medName, personName, notifyType, notifyTime;
 
 
-        public MyViewHolder(View v) {
+        MyViewHolder(View v) {
             super(v);
 
             medName     = (TextView) v.findViewById(R.id.medAlertMedNickNameInput);
@@ -44,7 +44,7 @@ public class MMMedicationAlertCursorAdapter extends RecyclerView.Adapter<MMMedic
     } //end inner class MyViewHolder
 
     //Constructor for MMMedicationAdapter
-    public MMMedicationAlertCursorAdapter(Context activity, Cursor medicationAlertCursor){
+    MMMedicationAlertCursorAdapter(Context activity, Cursor medicationAlertCursor){
 
         this.mActivity = activity;
         this.mMedicationAlertCursor = medicationAlertCursor;
@@ -96,7 +96,7 @@ public class MMMedicationAlertCursorAdapter extends RecyclerView.Adapter<MMMedic
         holder.notifyTime.setText(overdueTimeString);
     }
 
-    public Cursor reinitializeCursor(long personID){
+    Cursor reinitializeCursor(long personID){
         closeCursor();
         if (personID == MMUtilities.ID_DOES_NOT_EXIST)return null;
 
@@ -126,14 +126,14 @@ public class MMMedicationAlertCursorAdapter extends RecyclerView.Adapter<MMMedic
         return returnValue;
     }
 
-    public MMMedicationAlert getMedAlertAt(int position){
+    MMMedicationAlert getMedAlertAt(int position){
         MMMedicationAlertManager medicationAlertManager = MMMedicationAlertManager.getInstance();
         return medicationAlertManager.getMedicationAlertFromCursor(mMedicationAlertCursor, position);
     }
 
-    public Cursor getCursor(){return mMedicationAlertCursor;}
+    Cursor getCursor(){return mMedicationAlertCursor;}
 
-    public void closeCursor(){
+    void closeCursor(){
         if (mMedicationAlertCursor != null)mMedicationAlertCursor.close();
     }
 }

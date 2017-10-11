@@ -16,17 +16,17 @@ import java.util.ArrayList;
  * Serves as a liaison between a list RecyclerView and the list of medications a patient takes
  */
 
-public class MMHistoryTitleAdapter extends RecyclerView.Adapter<MMHistoryTitleAdapter.MyViewHolder>{
+class MMHistoryTitleAdapter extends RecyclerView.Adapter<MMHistoryTitleAdapter.MyViewHolder>{
     //The group to be listed is collected from a Cursor representing the DB rows
     private ArrayList<MMMedication> mMedications;
     private Context mActivity;
 
     //implement the ViewHolder as an inner class
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView  positionNumber, medicationName;
+        TextView  positionNumber, medicationName;
 
-        public MyViewHolder(View v) {
+        MyViewHolder(View v) {
             super(v);
 
             //remember the views we know about at coding time
@@ -37,7 +37,7 @@ public class MMHistoryTitleAdapter extends RecyclerView.Adapter<MMHistoryTitleAd
     } //end inner class MyViewHolder
 
     //Constructor
-    public MMHistoryTitleAdapter(ArrayList<MMMedication> medications, Context activity){
+    MMHistoryTitleAdapter(ArrayList<MMMedication> medications, Context activity){
         this.mMedications = medications;
         mActivity = activity;
     }

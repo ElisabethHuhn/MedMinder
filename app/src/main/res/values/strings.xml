@@ -5,6 +5,7 @@
     <!--  -->
     <string name="date_format"              >MMM DD,YYYY</string>
     <string name="time_format"              >HH:MM A</string>
+    <string name="default_hour"             >00:00 AM</string>
 
     <string name="save_label"               >Save</string>
     <string name="save_successful"          >Save Successful</string>

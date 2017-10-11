@@ -15,7 +15,7 @@ import android.support.v7.app.NotificationCompat;
  * A service to set / clear notification alarms for all schedules on the current patient
  */
 
-public class MMNotificationAlarmService extends Service {
+class MMNotificationAlarmService extends Service {
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager notificationManager;
     private PendingIntent pendingIntent;

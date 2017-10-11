@@ -52,8 +52,7 @@ class MMUtilitiesTime {
 
         //get midnight
         long timeAtMidnightMs = getMidnightInMS();
-        long totalTime = getTotalTime(timeAtMidnightMs, msSinceMidnight);
-        return totalTime;
+        return getTotalTime(timeAtMidnightMs, msSinceMidnight);
     }
 
     static long getTotalTime(long dateMs, long timeMs){
@@ -69,9 +68,7 @@ class MMUtilitiesTime {
 
         long offsetTZ  = getTimezoneOffset();
         long offsetDST = getDSTOffset();
-        long localTimeMilli = milliGMT + offsetTZ - offsetDST; //
-
-        return localTimeMilli;
+        return milliGMT + offsetTZ - offsetDST; //
     }
 
     //Assumes input time is Local. Returns equivalent time in GMT
@@ -79,46 +76,22 @@ class MMUtilitiesTime {
 
         long offsetTZ     = getTimezoneOffset();
         long offsetDST    = getDSTOffset();
-        long gmtTimeMilli = milliLocal  - offsetTZ + offsetDST;// ;
 
-        return gmtTimeMilli;
+        //gmtTimeMilli
+        return (milliLocal  - offsetTZ + offsetDST);
     }
-
-
-
-    static long addOffset(long timeAtMidnight, long msSinceMidnight){
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(timeAtMidnight);
-
-        int hour   = (int) (msSinceMidnight / MsPerHour);
-        int minute = (int)((msSinceMidnight - (hour * MsPerHour))/MsPerMin);
-        int second = (int)((msSinceMidnight - (hour * MsPerHour) - (minute * MsPerMin))/MsPerSec);
-        int millis = (int)((msSinceMidnight - (hour * MsPerHour) - (minute * MsPerMin) - (second * MsPerSec))/MsPerSec);
-
-        cal.set(Calendar.HOUR,   hour);
-        cal.set(Calendar.MINUTE, minute);
-        cal.set(Calendar.SECOND, second);
-        cal.set(Calendar.MILLISECOND, millis);
-
-        return cal.getTimeInMillis();
-
-    }
-
-
 
 
     //returns the number of MS at midnight today (i.e. previous midnight)
     // parameter determines whether the time is local or GMT
-    static long getMidnightInMS() {
+    private static long getMidnightInMS() {
 
         // get a calendar instance for midnight time
         Calendar midnightCalendar = Calendar.getInstance();
         midnightCalendar.set(Calendar.HOUR_OF_DAY, 0);
         midnightCalendar.set(Calendar.MINUTE, 0);
         midnightCalendar.set(Calendar.SECOND, 0);
-        long midnightInMS = midnightCalendar.getTimeInMillis();
-
-        return midnightInMS;
+        return midnightCalendar.getTimeInMillis();
     }
 
 
@@ -244,9 +217,6 @@ class MMUtilitiesTime {
     //                                //
     // ****************************** //
 
-
-
-
     static long getCurrentMilli(int minutesSinceMidnight){
         //get calendar in local time zone
         int hours = minutesSinceMidnight / (int)MinPerHour;
@@ -257,7 +227,7 @@ class MMUtilitiesTime {
         return c.getTimeInMillis();
     }
 
-    static Calendar getCalendar(int hours, int minutes){
+    private static Calendar getCalendar(int hours, int minutes){
         //get calendar in local time zone
         Calendar c = Calendar.getInstance();
 
@@ -270,55 +240,10 @@ class MMUtilitiesTime {
     }
 
 
-
-
     static long getGmtNow(){
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("gmt"));
         return calendar.getTimeInMillis();
     }
-
-    static String getShortDate(long milliseconds, boolean inGMT, boolean outGMT){
-        java.text.DateFormat shortFormatter = java.text.DateFormat.getDateInstance(
-                java.text.DateFormat.SHORT); // one of SHORT, MEDIUM, LONG, FULL, or DEFAULT
-        if (outGMT) {
-            shortFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-        }
-        return shortFormatter.format(milliseconds);
-    }
-
-    static String getTimeStr(MMMainActivity activity, long timeMs, boolean inGMT, boolean outGMT){
-        Calendar calendar;
-        TimeZone tz;
-        //The formatter created depends upon whether the input is GMT or Local
-        if (inGMT){
-            tz = TimeZone.getTimeZone("GMT");//this creates a calendar on local as above
-            calendar = GregorianCalendar.getInstance(tz);
-
-        } else {
-            // Calendar - Local
-            tz = TimeZone.getDefault();
-            calendar = Calendar.getInstance(tz);
-        }
-
-        calendar.setTimeInMillis(timeMs);
-
-        boolean is24Format  = MMSettings.getInstance().getClock24Format(activity);
-
-        if (outGMT){
-            tz = TimeZone.getTimeZone("GMT");
-        } else {
-            tz = TimeZone.getDefault();
-        }
-        SimpleDateFormat df = new SimpleDateFormat(getTimeFormatString(is24Format), Locale.getDefault());
-        df.setTimeZone(tz);
-
-        return df.format(calendar.getTimeInMillis());
-
-    }
-
-
-
-
 
 
 
@@ -339,33 +264,19 @@ class MMUtilitiesTime {
     //                                //
     // ****************************** //
 
-    static long getTimezoneOffset() {
+    private static long getTimezoneOffset() {
         TimeZone tz = TimeZone.getDefault();
         Calendar cal = GregorianCalendar.getInstance(tz);
-        long offsetInMillis = (long) tz.getOffset(cal.getTimeInMillis());
-
-        return offsetInMillis;
+        return (long) tz.getOffset(cal.getTimeInMillis());
     }
 
-    static long getDSTOffset() {
+    private static long getDSTOffset() {
         //Creaate a calendar with this time now
         Calendar nowCal = Calendar.getInstance();
 
         //This offset indicates the number of milliseconds due to DST in effect
         // as of the date of the Calendar
-        long dstOffset = nowCal.get(Calendar.DST_OFFSET);
-
-        return dstOffset;
-    }
-
-    static int getTimezoneOffsetMinutes(){
-        long ms = getTimezoneOffset();
-        return (int)(ms / (MsPerSec * SecPerMin));
-    }
-
-    static int getDSTOffsetMinutes(){
-        long ms = getDSTOffset();
-        return (int) (ms /(MsPerSec * SecPerMin));
+        return nowCal.get(Calendar.DST_OFFSET);
     }
 
 
@@ -383,21 +294,12 @@ class MMUtilitiesTime {
         SimpleDateFormat df = new SimpleDateFormat(getTimeFormatString(is24Format), Locale.getDefault());
         return df.format(calendar.getTimeInMillis());
     }
-    static String getTimeString(long milliseconds, boolean is24Format){
-
-        Calendar calendar   = Calendar.getInstance();
-        calendar.setTimeInMillis(milliseconds);
-        SimpleDateFormat df = new SimpleDateFormat(getTimeFormatString(is24Format), Locale.getDefault());
-        return df.format(calendar.getTimeInMillis());
-    }
-
-
-
 
     static  String getDateString(long milliSeconds){
         Date date = new Date(milliSeconds);
         return DateFormat.getDateInstance().format(date);
     }
+
 
 
 
@@ -410,12 +312,12 @@ class MMUtilitiesTime {
     // ****************************** //
 
 
-    static SimpleDateFormat getTimeFormat(boolean is24format){
+    private static SimpleDateFormat getTimeFormat(boolean is24format){
         String timeFormat = getTimeFormatString(is24format);
         return new SimpleDateFormat(timeFormat, Locale.getDefault());
     }
 
-    static  String getTimeFormatString(boolean is24format){
+    private static  String getTimeFormatString(boolean is24format){
         CharSequence timeFormat = "h:mm a";
         if (is24format){
             timeFormat = "H:mm a";
@@ -423,14 +325,14 @@ class MMUtilitiesTime {
         return timeFormat.toString();
     }
 
-    static SimpleDateFormat getDateFormat(){
+    private static SimpleDateFormat getDateFormat(){
         return new SimpleDateFormat(getDateFormatString(), Locale.getDefault());
     }
-    static String getDateFormatString(){
+    private static String getDateFormatString(){
         return "MMM d, yyyy";
     }
 
-    static SimpleDateFormat getDateTimeFormat(boolean is24format){
+    private static SimpleDateFormat getDateTimeFormat(boolean is24format){
         String dateTimeFormat = getDateFormatString() + " " + getTimeFormatString(is24format);
         return new SimpleDateFormat(dateTimeFormat, Locale.getDefault());
     }

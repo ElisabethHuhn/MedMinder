@@ -12,7 +12,7 @@ import java.util.ArrayList;
  *  both in-memory and in the DB
  */
 
-public class MMConcurrentDoseManager {
+class MMConcurrentDoseManager {
     //************************************/
     //********* Static Constants *********/
     //************************************/
@@ -33,7 +33,7 @@ public class MMConcurrentDoseManager {
     //************************************/
     //********* Static Methods   *********/
     //************************************/
-    public static MMConcurrentDoseManager getInstance() {
+    static MMConcurrentDoseManager getInstance() {
         if (ourInstance == null){
             ourInstance = new MMConcurrentDoseManager();
         }
@@ -61,7 +61,7 @@ public class MMConcurrentDoseManager {
 
     //This routine not only adds from the UI. Adds the in memory objects to this managers list,
     // AND adds it to the DB
-    public long add(MMConcurrentDose newConcurrentDose){
+    long add(MMConcurrentDose newConcurrentDose){
         long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
         //determine if already in list
         if (mConcurrentDosesList == null){
@@ -73,12 +73,12 @@ public class MMConcurrentDoseManager {
         returnCode = addConcurrentDose (newConcurrentDose,addToDBToo);
         return returnCode;
 
-    }//end public add()
+    }//end add()
 
 
     //return the cursor containing all the Concurrent Doses in the DB
     //that pertain to this personID
-    public Cursor getAllConcurrentDosesCursor (long personID){
+    Cursor getAllConcurrentDosesCursor (long personID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         String orderClause = getCcDoseOrderClause();
         return databaseManager.getAllConcurrentDosesCursor(personID, orderClause);
@@ -89,23 +89,23 @@ public class MMConcurrentDoseManager {
                 MMDataBaseSqlHelper.CONCURRENT_DOSE_TIME + " DESC " ;
     }
 
-    public Cursor getAllConcurrentDosesCursor (long personID, long earliestDate){
+    Cursor getAllConcurrentDosesCursor (long personID, long earliestDate){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         String orderClause = getCcDoseOrderClause();
         return databaseManager.getAllConcurrentDosesCursor(personID, earliestDate, orderClause);
     }
 
-    public Cursor getAllConcurrentDosesCursor (long personID, long earliestDate, long latestDate){
+    Cursor getAllConcurrentDosesCursor (long personID, long earliestDate, long latestDate){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         String orderClause = getCcDoseOrderClause();
         return databaseManager.getAllConcurrentDosesCursor(personID, earliestDate, latestDate, orderClause);
     }
 
-    public boolean removeConcurrentDoesFromDB(long concurrentDoseID){
+    boolean removeConcurrentDoesFromDB(long concurrentDoseID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         long returnCode = databaseManager.removeConcurrentDose(concurrentDoseID);
-        if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return false;
-        return true;
+        return ! (returnCode == MMDatabaseManager.sDB_ERROR_CODE);
+
     }
 
 
@@ -118,7 +118,7 @@ public class MMConcurrentDoseManager {
 
 
     //The routine that actually adds the instance both to in memory list and to DB
-    public long addConcurrentDose(MMConcurrentDose newConcurrentDose, boolean addToDBToo){
+    long addConcurrentDose(MMConcurrentDose newConcurrentDose, boolean addToDBToo){
         long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
         boolean listReturnCode = mConcurrentDosesList.add(newConcurrentDose);
         if (!listReturnCode)return returnCode;
@@ -135,7 +135,7 @@ public class MMConcurrentDoseManager {
 
             ArrayList<MMDose> doses = newConcurrentDose.getDoses();
             MMDose dose;
-            long concurrentDoseID;
+
             if (doses != null) {
                 int position = 0;
                 int last = doses.size();
@@ -157,17 +157,17 @@ public class MMConcurrentDoseManager {
 
 
     //********************************************/
-    //********* Public Member Methods    *********/
+    //********* Member Methods    *********/
     //********************************************/
 
-    public MMConcurrentDose getDosesForCDFromDB(MMConcurrentDose concurrentDose){
+    MMConcurrentDose getDosesForCDFromDB(MMConcurrentDose concurrentDose){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         ArrayList<MMDose> doses = databaseManager.getAllDoses(concurrentDose.getConcurrentDoseID());
         concurrentDose.setDoses(doses);
         return concurrentDose;
     }
 
-    public ContentValues getCVFromConcurrentDose(MMConcurrentDose concurrentDose){
+    ContentValues getCVFromConcurrentDose(MMConcurrentDose concurrentDose){
         ContentValues values = new ContentValues();
         values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_ID,             concurrentDose.getConcurrentDoseID());
         values.put(MMDataBaseSqlHelper.CONCURRENT_DOSE_FOR_PERSON_ID,  concurrentDose.getForPerson());
@@ -185,7 +185,7 @@ public class MMConcurrentDoseManager {
     //        If the app becomes multi-threaded, this routine must be made thread safe
     //WARNING The cursor is NOT closed by this routine. It assumes the caller will close the
     //         cursor when it is done with it
-    public MMConcurrentDose getConcurrentDoseFromCursor(Cursor cursor, int position){
+    MMConcurrentDose getConcurrentDoseFromCursor(Cursor cursor, int position){
 
         int last = cursor.getCount();
         if (position >= last) return null;

@@ -13,7 +13,6 @@ public class MMSchedule {
     /*    Static (class) Constants       */
     // ***********************************/
 
-    static final int MAX_TIME_DUE = 24 * 60;
 
 
     // ***********************************/
@@ -106,7 +105,7 @@ public class MMSchedule {
 
     String toString(MMMainActivity activity){
         //convert to milliseconds
-        long timeDue = getTimeDue() * 60 * 1000;
+        long timeDue = MMUtilitiesTime.convertMinutesToMs(getTimeDue());
 
         String clockTime = MMUtilities.getInstance().getTimeString(activity, timeDue);
 
@@ -137,9 +136,7 @@ public class MMSchedule {
         timeMilliseconds = MMUtilitiesTime.convertLocaltoGMT(timeMilliseconds);
         //set flag to time
         boolean isTimeFlag = true;
-        return MMUtilitiesTime.convertTimeMStoString((MMMainActivity)activity,
-                                                        timeMilliseconds,
-                                                        isTimeFlag);
+        return MMUtilitiesTime.convertTimeMStoString(activity, timeMilliseconds, isTimeFlag);
 
     }
 

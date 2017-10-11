@@ -15,7 +15,7 @@ import android.widget.EditText;
  * the number of schedule times varies in real time, and is not known at compile time
  */
 
-public class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCursorAdapter.MyViewHolder>{
+class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCursorAdapter.MyViewHolder>{
     //The group to be listed is collected from a Cursor representing the DB rows
     private Cursor  mSchedMedCursor;
     private MMMainActivity mActivity;
@@ -23,11 +23,11 @@ public class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCurs
     private int     mStrategy;
 
     //implement the ViewHolder as an inner class
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
 
-        public EditText medicationTime;
+        EditText medicationTime;
 
-        public MyViewHolder(View v) {
+        MyViewHolder(View v) {
             super(v);
 
             medicationTime   = (EditText) v.findViewById(R.id.scheduleTimeOutput);
@@ -37,7 +37,7 @@ public class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCurs
     } //end inner class MyViewHolder
 
     //Constructor for MMSchedMedsAdapter
-    public MMScheduleCursorAdapter(MMMainActivity activity, Cursor schedMedCursor, long medicationID){
+    MMScheduleCursorAdapter(MMMainActivity activity, Cursor schedMedCursor, long medicationID){
 
         this.mSchedMedCursor = schedMedCursor;
         this.mActivity       = activity;
@@ -58,7 +58,7 @@ public class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCurs
 
     //This isn't going to work with a cursor, its going to have to be removed from the DB
 
-    public void removeItem(int position) {
+    void removeItem(int position) {
         if (mSchedMedCursor == null)return;
 
         MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
@@ -75,7 +75,7 @@ public class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCurs
         reinitializeCursor(schedMed.getOfMedicationID());
      }
 
-    public void removeAllItems(){
+    void removeAllItems(){
         //removes all items in the cursor
         if (mSchedMedCursor == null)return;
 
@@ -100,7 +100,7 @@ public class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCurs
     }
 
 
-    public Cursor reinitializeCursor(long medicationID){
+    Cursor reinitializeCursor(long medicationID){
         closeCursor();
 
         MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
@@ -117,7 +117,7 @@ public class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCurs
         return mSchedMedCursor;
     }
 
-    public void   resetStrategy(int strategy){
+    void   resetStrategy(int strategy){
         mStrategy = strategy;
     }
 
@@ -130,7 +130,7 @@ public class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCurs
 
             mSchedMedCursor = schedMedManager.getAllSchedMedsCursor(mMedicationID);
             if (mSchedMedCursor == null) {
-                holder.medicationTime.setText("00:00 AM");
+                holder.medicationTime.setText(mActivity.getString(R.string.default_hour));
                 return;
             }
         }
@@ -157,15 +157,15 @@ public class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCurs
         return returnValue;
     }
 
-    public Cursor getSchedMedCursor(){return mSchedMedCursor;}
+    Cursor getSchedMedCursor(){return mSchedMedCursor;}
 
-    public MMSchedule getScheduleAt(int position){
+    MMSchedule getScheduleAt(int position){
         MMScheduleManager scheduleManager = MMScheduleManager.getInstance();
         return scheduleManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
     }
 
 
-    public void closeCursor(){
+    void closeCursor(){
         if (mSchedMedCursor != null)mSchedMedCursor.close();
     }
 }

@@ -9,15 +9,15 @@ import java.util.ArrayList;
  * for example: all doses taken within a given quarter hour
  */
 
-public class MMConcurrentDose {
-    /*************************************/
+class MMConcurrentDose {
+    //-***********************************/
     /*    Static (class) Constants       */
-    /*************************************/
+    //-***********************************/
 
 
-    /*************************************/
+    //-***********************************/
     /*    Static (class) Variables       */
-    /*************************************/
+    //-***********************************/
 
     private long              mConcurrentDoseID;
     private long              mForPerson;
@@ -25,32 +25,30 @@ public class MMConcurrentDose {
     private ArrayList<MMDose> mDoses;
 
 
-    /*************************************/
+    //-***********************************/
     /*    Member (instance) Variables    */
-    /*************************************/
+    //-***********************************/
 
 
 
-    /*************************************/
+    //-***********************************/
     /*         Static Methods            */
-    /*************************************/
+    //-***********************************/
 
 
-    /*************************************/
+    //-***********************************/
     /*         CONSTRUCTOR               */
-    /*************************************/
-    public MMConcurrentDose() {
-        initializeVariables();
-    }
+    //-***********************************/
 
-    public MMConcurrentDose(long forPerson,  long startTime) {
+
+    MMConcurrentDose(long forPerson,  long startTime) {
         mConcurrentDoseID = MMUtilities.ID_DOES_NOT_EXIST;
         mForPerson    = forPerson;
         mStartTime    = startTime;
         mDoses        = new ArrayList<>();
     }
 
-    public MMConcurrentDose(long tempID){
+    MMConcurrentDose(long tempID){
         initializeVariables();
         mConcurrentDoseID = tempID;
     }
@@ -62,36 +60,36 @@ public class MMConcurrentDose {
         mDoses        = new ArrayList<>();
     }
 
-    /*************************************/
+    //-***********************************/
     /*    Member setter/getter Methods   */
-    /*************************************/
-    public long getConcurrentDoseID() { return mConcurrentDoseID;  }
-    public void setConcurrentDoseID(long concurrentDoseID){mConcurrentDoseID = concurrentDoseID;}
+    //-***********************************/
+    long getConcurrentDoseID() { return mConcurrentDoseID;  }
+    void setConcurrentDoseID(long concurrentDoseID){mConcurrentDoseID = concurrentDoseID;}
 
-    public long getForPerson()              { return mForPerson;  }
-    public void setForPerson(long forPerson) {  mForPerson = forPerson;   }
+    long getForPerson()              { return mForPerson;  }
+    void setForPerson(long forPerson) {  mForPerson = forPerson;   }
 
-    public long getStartTime()              { return mStartTime;  }
-    public void setStartTime(long startTime) { mStartTime = startTime; }
+    long getStartTime()              { return mStartTime;  }
+    void setStartTime(long startTime) { mStartTime = startTime; }
 
-    public ArrayList<MMDose> getDoses()                        {
+    ArrayList<MMDose> getDoses()                        {
         if (!isDosesChanged()) {
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
             mDoses = databaseManager.getAllDoses(mConcurrentDoseID);
         }
         return mDoses;
     }
-    public void              setDoses(ArrayList<MMDose> doses) { mDoses = doses; }
-    public boolean isDosesChanged(){
+    void              setDoses(ArrayList<MMDose> doses) { mDoses = doses; }
+    private boolean isDosesChanged(){
         if ((mDoses == null) || (mDoses.size() == 0))return false;
         return true;
     }
 
-    /*************************************/
+    //-***********************************/
     /*          Member Methods           */
-    /*************************************/
+    //-************************************/
 
-    public String cdfHeaders(){
+    String cdfHeaders(){
         //Header from the concatenated doses object
         String msg =
                     "ConcurrentDoseID, " +
@@ -116,7 +114,7 @@ public class MMConcurrentDose {
     }
 
     //Convert point to comma delimited file for exchange
-    public String convertToCDF() {
+    String convertToCDF() {
         //values from the concurrent dose object
         String msg =
                        String.valueOf(this.getConcurrentDoseID()) + ", " +

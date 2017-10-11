@@ -16,18 +16,18 @@ import android.widget.EditText;
  * Serves as a liaison between a list RecyclerView and the MedicationManager
  */
 
-public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedicationCursorAdapter.MyViewHolder>{
+class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedicationCursorAdapter.MyViewHolder>{
 
     private Cursor  mMedicationCursor;
     private long    mPersonID;
     private Context mContext;
 
     //implement the ViewHolder as an inner class
-    public class MyViewHolder extends RecyclerView.ViewHolder {
-        public EditText medicationBrandName, medicationGenericName, medicationNickName;
-        public EditText medicationDoseNum, medicationDoseAmt,   medicationDoseUnits;
+    class MyViewHolder extends RecyclerView.ViewHolder {
+        EditText medicationBrandName, medicationGenericName, medicationNickName;
+        EditText medicationDoseNum, medicationDoseAmt,   medicationDoseUnits;
 
-        public MyViewHolder(View v) {
+        MyViewHolder(View v) {
             super(v);
 
             medicationNickName     = (EditText) v.findViewById(R.id.medicationNickNameInput);
@@ -48,7 +48,7 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
     } //end inner class MyViewHolder
 
     //Constructor for MMMedicationAdapter
-    public MMMedicationCursorAdapter(Context context, long personID, Cursor medicationCursor){
+    MMMedicationCursorAdapter(Context context, long personID, Cursor medicationCursor){
         this.mContext  = context;
         this.mPersonID = personID;
         this.mMedicationCursor = medicationCursor;
@@ -63,7 +63,7 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
     }
 
 
-    public Cursor reinitializeCursor(long personID){
+    Cursor reinitializeCursor(long personID){
         closeCursor();
 
         mPersonID = personID;
@@ -140,17 +140,9 @@ public class MMMedicationCursorAdapter extends RecyclerView.Adapter<MMMedication
         holder.medicationDoseNum.    setBackgroundColor(ContextCompat.getColor(mContext, newColor));
     }
 
+    Cursor getCursor(){return mMedicationCursor;}
 
-    public MMMedication getMedicationAt(int position){
-        MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-        return medicationManager.getMedicationFromCursor(mMedicationCursor, position);
-    }
-
-
-
-    public Cursor getCursor(){return mMedicationCursor;}
-
-    public void closeCursor(){
+    void closeCursor(){
         if (mMedicationCursor != null)mMedicationCursor.close();
     }
 }

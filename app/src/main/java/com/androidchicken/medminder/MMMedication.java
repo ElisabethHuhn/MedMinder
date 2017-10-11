@@ -17,15 +17,15 @@ import java.util.ArrayList;
  * Either scheduled doses OR #AsNeeded is used by a single person.
  */
 
-public class MMMedication {
+class MMMedication {
     //************************************/
     /*    Static (class) Constants       */
     //************************************/
 
-    public static final String MEDICATION_ID = "medication_id";
+    static final String MEDICATION_ID = "medication_id";
 
-    public static final int sAS_NEEDED = 0;
-    public static final int sSET_SCHEDULE_FOR_MEDICATION = 1;
+    static final int sAS_NEEDED = 0;
+    static final int sSET_SCHEDULE_FOR_MEDICATION = 1;
 
 
     //************************************/
@@ -62,11 +62,11 @@ public class MMMedication {
     //************************************/
 
     //Generic instance with no attributes
-    public MMMedication() {
+    MMMedication() {
         initializeDefaultVariables();
     }
 
-    public MMMedication(long tempMedID){
+    MMMedication(long tempMedID){
         initializeDefaultVariables();
         mMedicationID = tempMedID;
     }
@@ -93,54 +93,54 @@ public class MMMedication {
     /*    Member setter/getter Methods   */
     //************************************/
 
-    public long         getForPersonID()                 { return mForPersonID; }
-    public void         setForPersonID(long forPersonID) {  mForPersonID = forPersonID; }
+    long         getForPersonID()                 { return mForPersonID; }
+    void         setForPersonID(long forPersonID) {  mForPersonID = forPersonID; }
 
-    public long         getMedicationID()                  {  return mMedicationID; }
-    public void         setMedicationID(long medicationID) { mMedicationID = medicationID; }
+    long         getMedicationID()                  {  return mMedicationID; }
+    void         setMedicationID(long medicationID) { mMedicationID = medicationID; }
 
-    public CharSequence getMedicationNickname() {return mMedicationNickname; }
-    public void         setMedicationNickname(CharSequence medicationNickname) {
+    CharSequence getMedicationNickname() {return mMedicationNickname; }
+    void         setMedicationNickname(CharSequence medicationNickname) {
                                                   mMedicationNickname = medicationNickname; }
 
-    public int          getDoseStrategy()          {  return mDoseStrategy;  }
-    public void         setDoseStrategy(int doseStrategy) {  mDoseStrategy = doseStrategy;  }
+    int          getDoseStrategy()          {  return mDoseStrategy;  }
+    void         setDoseStrategy(int doseStrategy) {  mDoseStrategy = doseStrategy;  }
 
-    public int          getDoseNumPerDay()                  { return mDoseNumPerDay;   }
-    public void         setDoseNumPerDay(int doseNumPerDay) { mDoseNumPerDay = doseNumPerDay; }
+    int          getDoseNumPerDay()                  { return mDoseNumPerDay;   }
+    void         setDoseNumPerDay(int doseNumPerDay) { mDoseNumPerDay = doseNumPerDay; }
 
-    public int          getDoseAmount()               { return mDoseAmount; }
-    public void         setDoseAmount(int doseAmount) { mDoseAmount = doseAmount;  }
+    int          getDoseAmount()               { return mDoseAmount; }
+    void         setDoseAmount(int doseAmount) { mDoseAmount = doseAmount;  }
 
-    public CharSequence getDoseUnits()                       { return mDoseUnits; }
-    public void         setDoseUnits(CharSequence doseUnits) { mDoseUnits = doseUnits; }
-
-
-    public CharSequence getBrandName()                       {  return mBrandName;   }
-    public void         setBrandName(CharSequence brandName) { mBrandName = brandName; }
-
-    public CharSequence getGenericName()                         {  return mGenericName;    }
-    public void         setGenericName(CharSequence genericName) { mGenericName = genericName; }
-
-    public CharSequence getNotes()                           {  return mNotes;    }
-    public void         setNotes(CharSequence notes)         { mNotes = notes; }
-
-    public CharSequence getSideEffects()                         {  return mSideEffects;    }
-    public void         setSideEffects(CharSequence sideEffects) { mSideEffects = sideEffects; }
+    CharSequence getDoseUnits()                       { return mDoseUnits; }
+    void         setDoseUnits(CharSequence doseUnits) { mDoseUnits = doseUnits; }
 
 
-    public boolean      isCurrentlyTaken() {return mCurrentlyTaken;}
-    public void         setCurrentlyTaken(boolean isTaken) {mCurrentlyTaken = isTaken;}
+    CharSequence getBrandName()                       {  return mBrandName;   }
+    void         setBrandName(CharSequence brandName) { mBrandName = brandName; }
 
-    public boolean isSchedulesChanged() {
+    CharSequence getGenericName()                         {  return mGenericName;    }
+    void         setGenericName(CharSequence genericName) { mGenericName = genericName; }
+
+    CharSequence getNotes()                           {  return mNotes;    }
+    void         setNotes(CharSequence notes)         { mNotes = notes; }
+
+    CharSequence getSideEffects()                         {  return mSideEffects;    }
+    void         setSideEffects(CharSequence sideEffects) { mSideEffects = sideEffects; }
+
+
+    boolean      isCurrentlyTaken() {return mCurrentlyTaken;}
+    void         setCurrentlyTaken(boolean isTaken) {mCurrentlyTaken = isTaken;}
+
+    boolean isSchedulesChanged() {
         if ((mSchedules == null) ||
                 (mSchedules.size() == 0)) {
             return false;
         }
         return true;
     }
-    public void     setSchedules(ArrayList<MMSchedule> schedules){mSchedules = schedules;}
-    public ArrayList<MMSchedule> getSchedules(){
+    void     setSchedules(ArrayList<MMSchedule> schedules){mSchedules = schedules;}
+    ArrayList<MMSchedule> getSchedules(){
         if (!isSchedulesChanged()) {
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
             mSchedules = databaseManager.getAllSchedMeds(mMedicationID);
@@ -155,42 +155,42 @@ public class MMMedication {
     /*    Default Attribute Values       */
     //************************************/
 
-    public static long         getDefaultForPersonID()         { return -1L; }
+    static long         getDefaultForPersonID()         { return -1L; }
 
-    public static long         getDefaultMedicationID()       {  return -1L; }
+    static long         getDefaultMedicationID()       {  return -1L; }
 
-    public static CharSequence getDefaultMedicationNickname() {return "Med Nick Name"; }
+    static CharSequence getDefaultMedicationNickname() {return "Med Nick Name"; }
 
-    public static int          getDefaultDoseStrategy()  {  return sSET_SCHEDULE_FOR_MEDICATION;  }
+    static int          getDefaultDoseStrategy()  {  return sSET_SCHEDULE_FOR_MEDICATION;  }
 
-    public static int          getDefaultDoseNumPerDay()       { return 0;   }
+    static int          getDefaultDoseNumPerDay()       { return 0;   }
 
-    public static int          getDefaultDoseAmount()          { return 1; }
+    static int          getDefaultDoseAmount()          { return 1; }
 
-    public static CharSequence getDefaultDoseUnits()           { return "mg"; }
+    static CharSequence getDefaultDoseUnits()           { return "mg"; }
 
-    public static CharSequence getDefaultBrandName()          {  return "";   }
+    static CharSequence getDefaultBrandName()          {  return "";   }
 
-    public static CharSequence getDefaultGenericName()        {  return "";    }
+    static CharSequence getDefaultGenericName()        {  return "";    }
 
-    public static CharSequence getDefaultNotes()              {  return "";    }
+    static CharSequence getDefaultNotes()              {  return "";    }
 
-    public static CharSequence getDefaultSideEffects()        {  return "";    }
+    static CharSequence getDefaultSideEffects()        {  return "";    }
 
-    public static boolean      getDefaultCurrentlyTaken()     {return true;}
+    static boolean      getDefaultCurrentlyTaken()     {return true;}
 
-    public static ArrayList<MMSchedule> getDefaultSchedules(){
+    static ArrayList<MMSchedule> getDefaultSchedules(){
         return new ArrayList<>();}
 
     //************************************/
     /*          Member Methods           */
     //************************************/
-    public Cursor getSchedulesCursor(){
+    Cursor getSchedulesCursor(){
         MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
         return schedMedManager.getAllSchedMedsCursor(mMedicationID);
     }
 
-    public boolean addSchedule(MMSchedule schedule){
+    boolean addSchedule(MMSchedule schedule){
        return mSchedules.add(schedule);
     }
 
@@ -200,7 +200,7 @@ public class MMMedication {
     /*    Export / output Methods        */
     //************************************/
 
-    public String cdfHeaders(){
+    String cdfHeaders(){
         String msg =
                 "PersonID, "      +
                 "MedicationID, "  +
@@ -227,7 +227,7 @@ public class MMMedication {
     }
 
     //Convert point to comma delimited file for exchange
-    public String convertToCDF() {
+    String convertToCDF() {
 
 
         return  String.valueOf(this.getForPersonID())         + ", " +
@@ -271,7 +271,7 @@ public class MMMedication {
                         "Current?      " + String.valueOf(mCurrentlyTaken)   + System.getProperty("line.separator");
     }
 
-    public String shortString() {
+    String shortString() {
         String ls = System.getProperty("line.separator");
         MMPerson person = MMPersonManager.getInstance().getPerson(mForPersonID);
 

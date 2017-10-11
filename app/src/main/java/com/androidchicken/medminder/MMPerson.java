@@ -8,22 +8,22 @@ import java.util.ArrayList;
  * is someone who will potentially recieve a notification about a dose being missed.
  */
 
-public class MMPerson {
+class MMPerson {
     //************************************/
     /*    Static (class) Constants       */
     //************************************/
 
     //Tags for attributes
-    public static final String sPersonTag           = "PERSON_OBJECT";
-    public static final String sPersonNicknameTag   = "PERSON_NAME";
-    public static final String sPersonIDTag         = "PERSON_ID";
-    public static final String sPersonEmailTag      = "PERSON_EMAIL";
-    public static final String sPersonTextTag       = "PERSON_TEXT";
+    static final String sPersonTag           = "PERSON_OBJECT";
+    static final String sPersonNicknameTag   = "PERSON_NAME";
+    static final String sPersonIDTag         = "PERSON_ID";
+    static final String sPersonEmailTag      = "PERSON_EMAIL";
+    static final String sPersonTextTag       = "PERSON_TEXT";
 
-    public static final int TEMP_PERSON = -1;
+    static final int TEMP_PERSON = -1;
 
 
-    public static final String sPersonMedicationPositionTag = "PERSON_MED_POSITION";
+    static final String sPersonMedicationPositionTag = "PERSON_MED_POSITION";
 
 
     //************************************/
@@ -51,11 +51,11 @@ public class MMPerson {
     /*         CONSTRUCTOR               */
     //************************************/
 
-    public MMPerson( ) {
+    MMPerson( ) {
         initializeDefaultVariables();
     }
 
-    public MMPerson( long tempPersonID) {
+    MMPerson( long tempPersonID) {
         initializeDefaultVariables();
         mPersonID = tempPersonID;
     }
@@ -79,13 +79,13 @@ public class MMPerson {
     //************************************/
     /*    Member setter/getter Methods   */
     //************************************/
-    public long getPersonID()            {  return mPersonID; }
-    public void setPersonID(long personID){ mPersonID = personID;}
+    long getPersonID()            {  return mPersonID; }
+    void setPersonID(long personID){ mPersonID = personID;}
 
-    public CharSequence getNickname()                      { return mNickname;  }
-    public void         setNickname(CharSequence nickname) { mNickname = nickname; }
+    CharSequence getNickname()                      { return mNickname;  }
+    void         setNickname(CharSequence nickname) { mNickname = nickname; }
 
-    public String getNameString(){
+    private String getNameString(){
         StringBuilder message = new StringBuilder();
 
         message.append("Patient:  (ID ");
@@ -98,25 +98,25 @@ public class MMPerson {
 
 
 
-    public CharSequence getEmailAddress()                          { return mEmailAddress;  }
-    public void         setEmailAddress(CharSequence emailAddress) { mEmailAddress = emailAddress; }
+    CharSequence getEmailAddress()                          { return mEmailAddress;  }
+    void         setEmailAddress(CharSequence emailAddress) { mEmailAddress = emailAddress; }
 
-    public CharSequence getTextAddress()                         { return mTextAddress;  }
-    public void         setTextAddress(CharSequence textAddress) { mTextAddress = textAddress; }
+    CharSequence getTextAddress()                         { return mTextAddress;  }
+    void         setTextAddress(CharSequence textAddress) { mTextAddress = textAddress; }
 
-    public boolean isCurrentlyExists()                   {return mCurrentlyExists;}
-    public void         setCurrentlyExists(boolean isExistant) {mCurrentlyExists = isExistant;}
+    boolean isCurrentlyExists()                   {return mCurrentlyExists;}
+    void         setCurrentlyExists(boolean isExistant) {mCurrentlyExists = isExistant;}
 
 
-    public ArrayList<MMMedication> getMedications(){
+    ArrayList<MMMedication> getMedications(){
         if (!isMedicationsChanged()) {
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
             mMedications = databaseManager.getAllMedications(mPersonID);
         }
         return mMedications;
     }
-    public void setMedications(ArrayList<MMMedication> medications) { mMedications = medications; }
-    public boolean isMedicationsChanged(){
+    void setMedications(ArrayList<MMMedication> medications) { mMedications = medications; }
+    boolean isMedicationsChanged(){
         if ((mMedications == null) || (mMedications.size()==0)) return false;
         return true;
     }
@@ -126,7 +126,7 @@ public class MMPerson {
     //************************************/
 
 
-    public String cdfHeaders(){
+    String cdfHeaders(){
         return
             "PersonID, "      +
             "Nickname, "      +
@@ -138,7 +138,7 @@ public class MMPerson {
     }
 
     //Convert point to comma delimited file for exchange
-    public String convertToCDF() {
+    String convertToCDF() {
         return String.valueOf(this.getPersonID())      + ", " +
                 String.valueOf(this.getNickname())     + ", " +
                 String.valueOf(this.getEmailAddress()) + ", " +
@@ -157,7 +157,7 @@ public class MMPerson {
             "Current?      " + String.valueOf(mCurrentlyExists) + System.getProperty("line.separator");
     }
 
-    public String shortString(){
+    String shortString(){
         StringBuilder message = new StringBuilder();
         String ls = System.getProperty("line.separator");
 

@@ -15,24 +15,24 @@ import static android.R.attr.defaultValue;
  * This class contains the setters and getters for all such settings
  */
 
-public class MMSettings {
+ class MMSettings {
     //************************************/
     /*    Static (class) Constants       */
     //************************************/
 
 
-    public static final String sDefaultTimeDueTag      = "timeDue"; //in minutes since midnight
-    public static final String sClock24FormatTag       = "clock24" ;
-    public static final String sPersonDeleteTag        = "personDelete" ;
-    public static final String sMedDeleteTag           = "medDelete" ;
-    public static final String sSoundNotificationTag   = "soundNotification" ;
-    public static final String sVibrateNotificationTag = "vibrateNotification" ;
-    public static final String sLengthOfHistoryTag = "lengthHistory";
+    private static final String sDefaultTimeDueTag      = "timeDue"; //in minutes since midnight
+    private static final String sClock24FormatTag       = "clock24" ;
+    private static final String sPersonDeleteTag        = "personDelete" ;
+    private static final String sMedDeleteTag           = "medDelete" ;
+    private static final String sSoundNotificationTag   = "soundNotification" ;
+    private static final String sVibrateNotificationTag = "vibrateNotification" ;
+    private static final String sLengthOfHistoryTag = "lengthHistory";
 
     //6:00 AM, minutes since Midnight local time
-    public static final int   sDefaultTimeDue         =  (6*60);
+    static final int   sDefaultTimeDue         =  (6*60);
     //This puts the AS NEEDED schedules at the top of the Schedule list
-    public static final int   sDefaultAsNeededTimeDue = 0;
+    static final int   sDefaultAsNeededTimeDue = 0;
 
 
 
@@ -54,7 +54,7 @@ public class MMSettings {
     //************************************/
     /*         Static Methods            */
     //************************************/
-    public static MMSettings getInstance() {
+    static MMSettings getInstance() {
         if (ourInstance == null){
             ourInstance = new MMSettings();
         }
@@ -79,12 +79,12 @@ public class MMSettings {
     //               Preferences setters and getters         //
     //*********************************************************/
 
-    public long getPatientID (MMMainActivity activity)  {
+    long getPatientID (MMMainActivity activity)  {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         long defaultValue = MMUtilities.ID_DOES_NOT_EXIST;
         return sharedPref.getLong(MMPerson.sPersonIDTag, defaultValue);
     }
-    public long setPatientID (MMMainActivity activity, long patientID){
+    long setPatientID (MMMainActivity activity, long patientID){
 
         //Store the PersonID for the next time
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
@@ -97,7 +97,7 @@ public class MMSettings {
 
 
     //minutes since midnight
-    public long getDefaultTimeDue (MMMainActivity activity)  {
+    long getDefaultTimeDue (MMMainActivity activity)  {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         long defaultValue = 420;
         long defaultTime = sharedPref.getLong(sDefaultTimeDueTag, defaultValue);
@@ -108,7 +108,7 @@ public class MMSettings {
         }
         return defaultTime;
     }
-    public void setDefaultTimeDue (MMMainActivity activity, long minutesSinceMidnight){
+    void setDefaultTimeDue (MMMainActivity activity, long minutesSinceMidnight){
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putLong(MMSettings.sDefaultTimeDueTag, minutesSinceMidnight);
@@ -116,7 +116,7 @@ public class MMSettings {
     }
 
 
-    public long getHistoryDate (MMMainActivity activity)  {
+    long getHistoryDate (MMMainActivity activity)  {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         long historyDateDefault = 1;
         long historyDateMilli = sharedPref.getLong(sLengthOfHistoryTag, defaultValue);
@@ -134,7 +134,7 @@ public class MMSettings {
         }
         return historyDateMilli;
     }
-    public void setHistoryDate (MMMainActivity activity, long minutesSinceMidnight){
+    void setHistoryDate (MMMainActivity activity, long minutesSinceMidnight){
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putLong(MMSettings.sLengthOfHistoryTag, minutesSinceMidnight);
@@ -142,60 +142,60 @@ public class MMSettings {
     }
 
 
-    public boolean getClock24Format(MMMainActivity activity)  {
+    boolean getClock24Format(MMMainActivity activity)  {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         boolean defaultValue = false;
         return sharedPref.getBoolean(MMSettings.sClock24FormatTag, defaultValue);
     }
-    public void    setClock24Format(MMMainActivity activity, boolean is24Format){
+    void    setClock24Format(MMMainActivity activity, boolean is24Format){
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putBoolean(MMSettings.sClock24FormatTag, is24Format);
         editor.apply();
     }
 
-    public boolean getShowDeletedPersons(MMMainActivity activity)  {
+    boolean getShowDeletedPersons(MMMainActivity activity)  {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         boolean defaultValue = true;
         return sharedPref.getBoolean(MMSettings.sPersonDeleteTag, defaultValue);
     }
-    public void    setShowDeletedPersons(MMMainActivity activity, boolean showDeletedPerson){
+    void    setShowDeletedPersons(MMMainActivity activity, boolean showDeletedPerson){
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putBoolean(MMSettings.sPersonDeleteTag, showDeletedPerson);
         editor.apply();
     }
 
-    public boolean getShowDeletedMeds(MMMainActivity activity)  {
+    boolean getShowDeletedMeds(MMMainActivity activity)  {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         boolean defaultValue = true;
         return sharedPref.getBoolean(MMSettings.sMedDeleteTag, defaultValue);
     }
-    public void    setShowDeletedMeds(MMMainActivity activity, boolean showDeletedMed){
+    void    setShowDeletedMeds(MMMainActivity activity, boolean showDeletedMed){
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putBoolean(MMSettings.sMedDeleteTag, showDeletedMed);
         editor.apply();
     }
 
-    public boolean getSoundNotification(MMMainActivity activity)  {
+    boolean getSoundNotification(MMMainActivity activity)  {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         boolean defaultValue = true;
         return sharedPref.getBoolean(MMSettings.sSoundNotificationTag, defaultValue);
     }
-    public void    setSoundNotification(MMMainActivity activity, boolean isSoundNotif){
+    void    setSoundNotification(MMMainActivity activity, boolean isSoundNotif){
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putBoolean(MMSettings.sSoundNotificationTag, isSoundNotif);
         editor.apply();
     }
 
-    public boolean getVibrateNotification(MMMainActivity activity)  {
+    boolean getVibrateNotification(MMMainActivity activity)  {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         boolean defaultValue = true;
         return sharedPref.getBoolean(MMSettings.sVibrateNotificationTag, defaultValue);
     }
-    public void    setVibrateNotification(MMMainActivity activity, boolean isVibrateNotif){
+    void    setVibrateNotification(MMMainActivity activity, boolean isVibrateNotif){
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putBoolean(MMSettings.sVibrateNotificationTag, isVibrateNotif);

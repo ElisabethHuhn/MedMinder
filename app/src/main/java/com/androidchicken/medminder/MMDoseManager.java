@@ -10,7 +10,7 @@ import android.database.Cursor;
  *  both in-memory and in the DB
  */
 
-public class MMDoseManager {
+class MMDoseManager {
     //***********************************/
     //******** Static Constants *********/
     //***********************************/
@@ -30,7 +30,7 @@ public class MMDoseManager {
     //***********************************/
     //******** Static Methods   *********/
     //***********************************/
-    public static MMDoseManager getInstance() {
+    static MMDoseManager getInstance() {
         if (ourInstance == null){
             ourInstance = new MMDoseManager();
         }
@@ -54,15 +54,15 @@ public class MMDoseManager {
     //******************************************/
 
     //This routine not only adds to the in memory list, but also to the DB
-    public void add(MMDose newDose){
+    void add(MMDose newDose){
 
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         databaseManager.addDose(newDose);
 
-    }//end public add()
+    }//end add()
 
     //get the most recent time this medication was taken
-    public MMDose getMostRecentDose(long medicationID){
+    MMDose getMostRecentDose(long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         //get all doses for this medication, and order by time taken
         Cursor cursor = databaseManager.getAllDosesCursor(medicationID,
@@ -82,10 +82,6 @@ public class MMDoseManager {
     }
 
 
-    public int removeDose(long doseID){
-        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        return databaseManager.removeDose(doseID);
-    }
 
     //*******************************************/
     //******** Private Member Methods   *********/
@@ -97,12 +93,12 @@ public class MMDoseManager {
 
 
     //*******************************************/
-    //******** Public Member Methods    *********/
+    //******** Member Methods    *********/
     //*******************************************/
 
 
 
-    public ContentValues getCVFromDose(MMDose dose){
+    ContentValues getCVFromDose(MMDose dose){
         ContentValues values = new ContentValues();
         values.put(MMDataBaseSqlHelper.DOSE_ID,              dose.getDoseID());
         values.put(MMDataBaseSqlHelper.DOSE_OF_MEDICATION_ID,dose.getOfMedicationID());
@@ -129,7 +125,7 @@ public class MMDoseManager {
     //        If the app becomes multi-threaded, this routine must be made thread safe
     //WARNING The cursor is NOT closed by this routine. It assumes the caller will close the
     //         cursor when it is done with it
-    public MMDose getDoseFromCursor(Cursor cursor, int position){
+    MMDose getDoseFromCursor(Cursor cursor, int position){
 
         int last = cursor.getCount();
         if (position >= last) return null;

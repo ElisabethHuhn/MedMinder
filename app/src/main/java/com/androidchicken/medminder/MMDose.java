@@ -7,20 +7,20 @@ package com.androidchicken.medminder;
  * It is a history of prescription complience
  */
 
-public class MMDose {
-    /*************************************/
+class MMDose {
+    //-***********************************/
     /*    Static (class) Constants       */
-    /*************************************/
+    //-***********************************/
 
 
-    /*************************************/
+    //-***********************************/
     /*    Static (class) Variables       */
-    /*************************************/
+    //-***********************************/
 
 
-    /*************************************/
+    //-***********************************/
     /*    Member (instance) Variables    */
-    /*************************************/
+    //-***********************************/
     private long mDoseID;
     private long mOfMedicationID;
     private long mForPersonID;
@@ -30,24 +30,21 @@ public class MMDose {
     private int  mAmountTaken; //default can be overridden
 
 
-    /*************************************/
+    //-***********************************/
     /*         Static Methods            */
-    /*************************************/
+    //-***********************************/
 
 
-    /*************************************/
+    //-***********************************/
     /*         CONSTRUCTOR               */
-    /*************************************/
-    public MMDose() {
-        initializeVariables();
-    }
+    //-***********************************/
 
-    public MMDose(long tempID){
+    MMDose(long tempID){
         initializeVariables();
         mDoseID = tempID;
     }
 
-    public MMDose(long ofMedicationID,
+    MMDose(long ofMedicationID,
                   long forPersonID,
                   long containedInConcurrentDosesID,
                   int  positionWithinConcDose,
@@ -74,38 +71,38 @@ public class MMDose {
 
     }
 
-    /*************************************/
+    //-***********************************/
     /*    Member setter/getter Methods   */
-    /*************************************/
+    //-***********************************/
 
-    public long getDoseID() {return mDoseID;  }
-    public void setDoseID(long doseID){mDoseID = doseID;}
+    long getDoseID() {return mDoseID;  }
+    void setDoseID(long doseID){mDoseID = doseID;}
 
-    public long getOfMedicationID()                    {   return mOfMedicationID;   }
-    public void setOfMedicationID(long ofMedicationID) { mOfMedicationID = ofMedicationID; }
+    long getOfMedicationID()                    {   return mOfMedicationID;   }
+    void setOfMedicationID(long ofMedicationID) { mOfMedicationID = ofMedicationID; }
 
-    public long getForPersonID()                 {  return mForPersonID;    }
-    public void setForPersonID(long forPersonID) {  mForPersonID = forPersonID;    }
+    long getForPersonID()                 {  return mForPersonID;    }
+    void setForPersonID(long forPersonID) {  mForPersonID = forPersonID;    }
 
-    public long getContainedInConcurrentDosesID() { return mContainedInConcurrentDoseID; }
-    public void setContainedInConcurrentDosesID(long containedInConcurrentDosesID) {
+    long getContainedInConcurrentDosesID() { return mContainedInConcurrentDoseID; }
+    void setContainedInConcurrentDosesID(long containedInConcurrentDosesID) {
         mContainedInConcurrentDoseID = containedInConcurrentDosesID;
     }
 
-    public int  getPositionWithinConcDose() {return mPositionWithinConcDose;}
-    public void setPositionWithinConcDose(int position) {mPositionWithinConcDose = position;}
+    int  getPositionWithinConcDose() {return mPositionWithinConcDose;}
+    void setPositionWithinConcDose(int position) {mPositionWithinConcDose = position;}
 
-    public long getTimeTaken()               { return mTimeTaken;  }
-    public void setTimeTaken(long timeTaken) {mTimeTaken = timeTaken;   }
+    long getTimeTaken()               { return mTimeTaken;  }
+    void setTimeTaken(long timeTaken) {mTimeTaken = timeTaken;   }
 
-    public int  getAmountTaken()                {return mAmountTaken;   }
-    public void setAmountTaken(int amountTaken) {  mAmountTaken = amountTaken;  }
+    int  getAmountTaken()                {return mAmountTaken;   }
+    void setAmountTaken(int amountTaken) {  mAmountTaken = amountTaken;  }
 
-    /*************************************/
+    //-***********************************/
     /*          Member Methods           */
-    /*************************************/
+    //-***********************************/
 
-    public String cdfHeaders(){
+    String cdfHeaders(){
         return
                 "DoseID, "           +
                 "MedicationID, "     +
@@ -119,7 +116,7 @@ public class MMDose {
     }
 
     //Convert point to comma delimited file for exchange
-    public String convertToCDF() {
+    String convertToCDF() {
         return String.valueOf(this.getDoseID())          + ", " +
                String.valueOf(this.getOfMedicationID())  + ", " +
                String.valueOf(this.getForPersonID())     + ", " +

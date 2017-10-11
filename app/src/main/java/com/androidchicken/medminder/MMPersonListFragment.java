@@ -245,10 +245,6 @@ public class MMPersonListFragment extends Fragment {
     /*  Convenience Methods for accessing things on the Activity  */
     //*************************************************************/
 
-    private long     getPatientID(){return ((MMMainActivity)getActivity()).getPatientID();}
-
-    private MMPerson getPerson()    {return ((MMMainActivity)getActivity()).getPerson();}
-
 
     private RecyclerView getRecyclerView(View v){
         return (RecyclerView) v.findViewById(R.id.personList);
@@ -264,7 +260,6 @@ public class MMPersonListFragment extends Fragment {
 
     //called from onClick(), executed when a person is selected
     private void onSelect(int position){
-        //todo need to update selection visually
 
         View v = getView();
         if (v == null)return;

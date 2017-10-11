@@ -13,29 +13,29 @@ import java.util.ArrayList;
  *
  */
 
-public class MMMedicationManager {
-    /************************************/
-    /********* Static Constants  ********/
-    /************************************/
+class MMMedicationManager {
+    //-**********************************/
+    //-******* Static Constants  ********/
+    //-**********************************/
 
     private static final int MEDICATION_NOT_FOUND = -1;
 
 
-    /************************************/
-    /********* Static Variables  ********/
-    /************************************/
+    //-**********************************/
+    //-******* Static Variables  ********/
+    //-**********************************/
     private static MMMedicationManager ourInstance ;
 
-    /**************************************/
-    /********* Member Variables   *********/
-    /**************************************/
+    //-************************************/
+    //-******* Member Variables   *********/
+    //-************************************/
     //The medication lists exist on the Persons, rather than on a list here
     //private ArrayList<MMMedication> mMedicationList;
 
-    /************************************/
-    /********* Static Methods   *********/
-    /************************************/
-    public static MMMedicationManager getInstance() {
+    //-**********************************/
+    //-******* Static Methods   *********/
+    //-**********************************/
+    static MMMedicationManager getInstance() {
         if (ourInstance == null){
             ourInstance = new MMMedicationManager();
         }
@@ -43,9 +43,9 @@ public class MMMedicationManager {
     }
 
 
-    /************************************/
-    /********* Constructors     *********/
-    /************************************/
+    //-**********************************/
+    //-******* Constructors     *********/
+    //-**********************************/
     private MMMedicationManager() {
 
         //The medication list already exists on the Person instance
@@ -53,23 +53,23 @@ public class MMMedicationManager {
 
     }
 
-    /*******************************************/
-    /********* Public Member Methods   *********/
-    /*******************************************/
+    //-*****************************************/
+    //-******* Public Member Methods   *********/
+    //-*****************************************/
 
 
 
-    /*******************************************/
-    /*********     CRUD Methods        *********/
-    /*******************************************/
+    //-*****************************************/
+    //-*******     CRUD Methods        *********/
+    //-*****************************************/
 
-    //***********************  CREATE **************************************
+    ///-*********************  CREATE **************************************
 
     //This routine not only adds to the in memory list,
     // but has an argument, that if true,  also adds to the DB
     //returns FALSE if for any reason the medication can not be added
     //Use this is you already have the Person object in hand
-    public boolean addToPerson(MMPerson person, MMMedication newMedication, boolean addToDB){
+    boolean addToPerson(MMPerson person, MMMedication newMedication, boolean addToDB){
         //  Can not add a medication to a person who does not exist
         if ((person == null) || (newMedication == null)) return false;
 
@@ -109,87 +109,30 @@ public class MMMedicationManager {
     }
 
 
-    //***********************  READ **************************************
+    ///-*********************  READ **************************************
     //return the cursor containing all the Concurrent Doses in the DB
     //that pertain to this personID
-    public Cursor getAllMedicationsCursor (long personID){
+    Cursor getAllMedicationsCursor (long personID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getAllMedicationsCursor(personID);
     }
 
-    public ArrayList<MMMedication> getMedicationsFromDB(MMPerson person){
-        long personID = person.getPersonID();
 
-        //get all medications in the DB that are linked to this Person
-        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        return databaseManager.getAllMedications(personID);
-    }
-
-    public MMMedication getMedicationFromID(long medicationID){
+    MMMedication getMedicationFromID(long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         return databaseManager.getMedication(medicationID);
     }
 
-    //***********************  UPDATE **************************************
+    ///-*********************  UPDATE **************************************
 
 
-    //***********************  DELETE **************************************
-
-    //Because the list is on one person instance, we must also have the person ID
-    //of the instance being manipulated
-    //This routine not only removes from the in-memory list, but also from the DB
-    public boolean removeMedication(long personID, int position) {
-        //Now find that person using the PersonManager
-        MMPersonManager   personManager =  MMPersonManager.getInstance();
-        MMPerson person = personManager.getPerson(personID);
-
-        //If person not found, return false.
-        //  Can not add a medication to a person who does not exist
-        if (person == null) return false;
-
-        //determine if the medication already is associated with this person
-        //start with the list of points contained in this project
-        ArrayList<MMMedication> medicationList = person.getMedications();
-
-        //if not, create one
-        if (medicationList == null){
-            medicationList = new ArrayList<>();
-            person.setMedications(medicationList);
-        }
-
-        if (position > medicationList.size()) {
-            //Can't remove a position that the list isn't long enough for
-            return false;
-        }
-
-        //need to know the medication to be able to remove it from the DB
-        MMMedication medication = medicationList.get(position);
-
-        if (medication == null) return false; //it's already gone
-
-        //remove it from memory
-        boolean returnCode = medicationList.remove(medication);
-
-        if (returnCode) {
-            //ask the databaseManager to remove it from the DB as well
-            MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-            databaseManager.removeMedication(medication.getMedicationID());
-        }
-        return returnCode;
-    }//end public remove position
+    ///-*********************  DELETE **************************************
 
 
-    public boolean removeMedicationFromDB(long medicationID){
-        MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        long returnCode = databaseManager.removeMedication(medicationID);
-        if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return false;
-        return true;
-    }
 
-
-    /********************************************/
-    /********* Private Member Methods   *********/
-    /********************************************/
+    //-******************************************/
+    //-******* Private Member Methods   *********/
+    //-******************************************/
 
     //Find the position of the medication instance
     //     that matches the argument medicationID
@@ -217,13 +160,13 @@ public class MMMedicationManager {
 
 
 
-    //***********************  COPY **************************************
+    ///-*********************  COPY **************************************
 
 
-    /********************************************/
-    /****  Translation utility Methods   ********/
-    /********************************************/
-    public ContentValues getCVFromMedication(MMMedication medication){
+    //-******************************************/
+    //-**  Translation utility Methods   ********/
+    //-******************************************/
+    ContentValues getCVFromMedication(MMMedication medication){
         ContentValues values = new ContentValues();
         values.put(MMDataBaseSqlHelper.MEDICATION_ID,            medication.getMedicationID());
         values.put(MMDataBaseSqlHelper.MEDICATION_FOR_PERSON_ID, medication.getForPersonID());
@@ -252,7 +195,7 @@ public class MMMedicationManager {
     //        If the app becomes multi-threaded, this routine must be made thread safe
     //WARNING The cursor is NOT closed by this routine. It assumes the caller will close the
     //         cursor when it is done with it
-    public MMMedication getMedicationFromCursor(Cursor cursor, int position){
+    MMMedication getMedicationFromCursor(Cursor cursor, int position){
 
         int last = cursor.getCount();
         if (position >= last) return null;

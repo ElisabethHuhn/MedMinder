@@ -184,7 +184,6 @@ public class MMMainActivity extends AppCompatActivity {
                 } else {
                     MMUtilities.getInstance().showStatus(this, "Permission to send text DENIED");
                 }
-                return;
             }
 
             case FILE_PERMISSIONS_REQUEST_CODE: {
@@ -195,7 +194,6 @@ public class MMMainActivity extends AppCompatActivity {
                 } else {
                     MMUtilities.getInstance().showStatus(this, "Permission to write file denied");
                 }
-                return;
             }
 
 
@@ -393,7 +391,6 @@ public class MMMainActivity extends AppCompatActivity {
         }
     }
 
-
     private Fragment getCurrentFragment(){
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
         return fm.findFragmentById(R.id.fragment_container);
@@ -442,39 +439,6 @@ public class MMMainActivity extends AppCompatActivity {
 
         if (getSupportActionBar() != null){
             getSupportActionBar().setSubtitle(subtitle);
-        }
-
-
-    }
-
-
-    public void switchToPopBackstack(){
-        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-
-        //settings is at the top of the back stack, so pop it off
-        fm.popBackStack();
-
-    }
-
-
-    public void popToScreen(String tag){
-        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-        //fm.popBackStack(tag, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-        boolean stillLooking = true;
-        if (fm.getBackStackEntryCount() == 0) stillLooking = false;
-
-        int i;
-        CharSequence fragName;
-        while (stillLooking){
-            i = fm.getBackStackEntryCount()-1;
-            fragName = fm.getBackStackEntryAt(i).getName();
-            if (fragName.equals(tag)){
-                stillLooking = false;
-            } else {
-                fm.popBackStackImmediate();
-                if (fm.getBackStackEntryCount() == 0) stillLooking = false;
-            }
         }
 
 

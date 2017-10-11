@@ -31,7 +31,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import static android.content.Context.ALARM_SERVICE;
 import static com.androidchicken.medminder.MMAlarmReceiver.scheduleNotificationID;
@@ -48,18 +47,15 @@ public class MMUtilities {
     //************************************/
 
 
-    public static final boolean BUTTON_DISABLE = false;
-    public static final boolean BUTTON_ENABLE  = true;
-
-    public static final boolean HOUR12FORMAT = false;
-    public static final boolean HOUR24FORMAT = true;
+    static final boolean BUTTON_DISABLE = false;
+    static final boolean BUTTON_ENABLE  = true;
 
 
-    public static final long    ID_DOES_NOT_EXIST = -1;
+    static final long    ID_DOES_NOT_EXIST = -1;
 
-    public static final long milliPerSecond   = 1000;
-    public static final long secondsPerMinute = 60;
-    public static final long minutesPerHour   = 60;
+    static final long milliPerSecond   = 1000;
+    static final long secondsPerMinute = 60;
+    static final long minutesPerHour   = 60;
 
 
 
@@ -77,7 +73,7 @@ public class MMUtilities {
     //************************************/
     /*         Static Methods            */
     //************************************/
-    public static MMUtilities getInstance() {
+    static MMUtilities getInstance() {
         if (ourInstance == null){
             ourInstance = new MMUtilities();
         }
@@ -106,31 +102,31 @@ public class MMUtilities {
 
 
     //convert pixels to dp
-    public  int convertPixelsToDp(Context context, int sizeInDp) {
+     int convertPixelsToDp(Context context, int sizeInDp) {
         //int sizeInDp = 10; //padding between buttons
         float scale = context.getResources().getDisplayMetrics().density;
         return (int) (sizeInDp * scale + 0.5f); // dpAsPixels;
     }
 
     //Just a stub for now, but figure out what to do
-    public  void errorHandler(Context context, String message) {
+     void errorHandler(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
-    public  void errorHandler(Context context, int messageResource) {
+     void errorHandler(Context context, int messageResource) {
         errorHandler(context, context.getString(messageResource));
     }
 
-    public  void showStatus(Context context, String message){
+     void showStatus(Context context, String message){
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
-    public  void showStatus(Context context, int messageResource){
+     void showStatus(Context context, int messageResource){
         showStatus(context, context.getString(messageResource));
     }
 
 
-    public  void showHint(View view, String msg){
+     void showHint(View view, String msg){
         Snackbar.make(view, msg, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 
@@ -139,7 +135,7 @@ public class MMUtilities {
     /*    ConcurrentDose row list builder    */
     //****************************************/
 
-    public  android.support.v7.widget.AppCompatEditText createDoseEditText(Context context,
+     android.support.v7.widget.AppCompatEditText createDoseEditText(Context context,
                                                                            int padding){
         android.support.v7.widget.AppCompatEditText edtView;
         LinearLayout.LayoutParams lp =
@@ -175,39 +171,18 @@ public class MMUtilities {
     /*         Date / Time Utilities     */
     //************************************/
 
-    public long convertMinutesToMilli(long minutes){
-        return minutes * secondsPerMinute * milliPerSecond;
-    }
 
 
 
 
 
-    public  String getDateTimeString(long milliSeconds){
+     String getDateTimeString(long milliSeconds){
         Date date = new Date(milliSeconds);
         return DateFormat.getDateTimeInstance().format(date);
     }
 
-    public String getDateTimeStr(MMMainActivity activity, long milliseconds){
-        Date date = new Date(milliseconds);
 
-        boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
-        SimpleDateFormat dateFormat = new SimpleDateFormat(getDateFormat(is24Format), Locale.US);
-        TimeZone gmtTz   = TimeZone.getTimeZone("GMT");
-        dateFormat.setTimeZone(gmtTz);
-
-        return dateFormat.format(date);
-    }
-
-    private String getDateFormat(boolean is24format){
-        CharSequence dateFormat = "d MMM yy h:mm a";
-        if (is24format){
-            dateFormat = "d MMM yy HH:mm";
-        }
-        return dateFormat.toString();
-    }
-
-    public  String getDateString(){
+     String getDateString(){
         return  DateFormat.getDateInstance().format(new Date());
     }
 
@@ -218,38 +193,15 @@ public class MMUtilities {
 
 
 
-    //This method is used to get current time as a string
-    public  String getTimeString(MMMainActivity activity){
-        boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
-        String timeFormat = getTimeFormatString(is24Format);
-        Date date = new Date();
-        return getTimeString(timeFormat, date);
-    }
-
     //This method is used to get the string corresponding to a value of milliseconds since 1970
-    public  String getTimeString(MMMainActivity activity, long milliSeconds){
+     String getTimeString(MMMainActivity activity, long milliSeconds){
         boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
         return getTimeString(milliSeconds, is24Format);
     }
 
-    public  String getTimeString(long milliSeconds, boolean is24format){
+     private String getTimeString(long milliSeconds, boolean is24format){
         String timeFormat = getTimeFormatString(is24format);
         Date dateFromMilli = new Date(milliSeconds);
-/*
-        Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(milliSeconds);
-        Date dateFromCalendar = c.getTime();
-
-        long offsetMsTz = getTimezoneOffset();
-        long offsetMs   = offsetMsTz + milliSeconds;
-        Date dateWithOffset = new Date(offsetMs);
-
-        c.set(Calendar.HOUR_OF_DAY, hours);
-        c.set(Calendar.MINUTE, minutes);
-        c.set(Calendar.SECOND, 0);
-        dateFromCalendar = c.getTime();
-*/
-
         return getTimeString(timeFormat, dateFromMilli);
     }
 
@@ -264,12 +216,12 @@ public class MMUtilities {
 
 
 
-    public SimpleDateFormat getTimeFormat(boolean is24format){
+    private SimpleDateFormat getTimeFormat(boolean is24format){
         String timeFormat = getTimeFormatString(is24format);
         return new SimpleDateFormat(timeFormat, Locale.getDefault());
     }
 
-    public  String getTimeFormatString(boolean is24format){
+    private String getTimeFormatString(boolean is24format){
         CharSequence timeFormat = "h:mm a";
         if (is24format){
             timeFormat = "H:mm a";
@@ -277,22 +229,19 @@ public class MMUtilities {
         return timeFormat.toString();
     }
 
-    public SimpleDateFormat getDateFormat(){
+    private SimpleDateFormat getDateFormat(){
         return new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
     }
 
-    public SimpleDateFormat getEditTextDateFormat(){
+    private SimpleDateFormat getEditTextDateFormat(){
         return new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
     }
 
 
 
 
-    public Date convertStringToDate(MMMainActivity activity,
+    Date convertStringToDate(MMMainActivity activity,
                                         String timeSinceMidnightString){
-        //Get the clock format
-        boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
-
         Date date = null;
 
         SimpleDateFormat timeFormat;
@@ -313,7 +262,7 @@ public class MMUtilities {
         return date;
     }
 
-    public Date convertStringToTimeDate(MMMainActivity activity,
+    Date convertStringToTimeDate(MMMainActivity activity,
                                         String timeSinceMidnightString,
                                         boolean isTimeFlag){
         //Get the clock format
@@ -349,7 +298,7 @@ public class MMUtilities {
 
 
     //Time string is since midnight
-    public long convertStringToMinutesSinceMidnight(MMMainActivity activity,
+    long convertStringToMinutesSinceMidnight(MMMainActivity activity,
                                                     String timeSinceMidnightString){
         boolean isTimeFlag = true;
         Date date = convertStringToTimeDate(activity, timeSinceMidnightString, isTimeFlag);
@@ -375,7 +324,7 @@ public class MMUtilities {
     //************************************/
     /*         Widget Utilities          */
     //************************************/
-    public  void enableButton(Context context, Button button, boolean enable){
+     void enableButton(Context context, Button button, boolean enable){
         button.setEnabled(enable);
         if (enable == BUTTON_ENABLE) {
             button.setTextColor(ContextCompat.getColor(context, R.color.colorTextBlack));
@@ -384,7 +333,7 @@ public class MMUtilities {
         }
     }
 
-    public  void showSoftKeyboard(FragmentActivity context, EditText textField){
+     void showSoftKeyboard(FragmentActivity context, EditText textField){
         //Give the view the focus, then show the keyboard
 
         textField.requestFocus();
@@ -395,7 +344,7 @@ public class MMUtilities {
 
     }
 
-    public  void hideSoftKeyboard(FragmentActivity context){
+     void hideSoftKeyboard(FragmentActivity context){
          // Check if no view has focus:
         View view = context.getCurrentFocus();
         if (view != null) {
@@ -411,7 +360,7 @@ public class MMUtilities {
         context.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
     }
 
-    public  void toggleSoftKeyboard(FragmentActivity context){
+     void toggleSoftKeyboard(FragmentActivity context){
         //hide the soft keyboard
         // Check if no view has focus:
         View view = context.getCurrentFocus();
@@ -426,7 +375,7 @@ public class MMUtilities {
     }
 
 
-    public  void clearFocus(FragmentActivity context){
+     void clearFocus(FragmentActivity context){
         //hide the soft keyboard
         // Check if no view has focus:
         View view = context.getCurrentFocus();
@@ -441,7 +390,7 @@ public class MMUtilities {
     /*  For scheduling notifications that a dose is due   */
     /*          Alarm / Notification Utilities            */
     //*****************************************************/
-    public void enableAlarmReceiver(Context activity){
+    void enableAlarmReceiver(Context activity){
         //Enable the Alarm receiver. It will stay enabled across reboots
         ComponentName receiver = new ComponentName(activity, MMAlarmReceiver.class);
         PackageManager pm = activity.getPackageManager();
@@ -453,7 +402,7 @@ public class MMUtilities {
 
 
 
-    public void createScheduleNotification(Context activity, long timeOfDayMillisec) {
+    void createScheduleNotification(Context activity, long timeOfDayMillisec) {
         //start by building the Notification
         int requestCode = scheduleNotificationID;
         Notification notification = buildSchedNotification(activity, requestCode);
@@ -500,7 +449,7 @@ public class MMUtilities {
 
 
 
-    public void cancelNotificationAlarms(Context activity, int minutesSinceMidnight){
+    void cancelNotificationAlarms(Context activity){
         //get the PendingIntent that describes the action we desire,
         // so that it can be performed when the alarm goes off
         int notificationID = scheduleNotificationID;
@@ -567,7 +516,7 @@ public class MMUtilities {
     //*****************************************************/
 
 
-    public void createAlertAlarm(Context activity, long medAlertID){
+    void createAlertAlarm(Context activity, long medAlertID){
         MMMedicationAlert medAlert =
                             MMMedicationAlertManager.getInstance().getMedicationAlert(medAlertID);
         if (medAlert == null)return;
@@ -620,7 +569,7 @@ public class MMUtilities {
     }
 
 
-    public  void sendAlert(Context context,
+     void sendAlert(Context context,
                            long medAlertID,
                            long timeTakenMilliseconds){
 
@@ -637,8 +586,7 @@ public class MMUtilities {
         MMMedication medication = medicationManager.getMedicationFromID(medicationAlert.getMedicationID());
         String medicationName = medication.getMedicationNickname().toString();
 
-        // TODO: 5/6/2017 Use string format here
-        String lineSep = System.getProperty("line.separator");
+        //String lineSep = System.getProperty("line.separator");
         String msg;
         if (timeTakenMilliseconds > 0) {
             msg = String.format(Locale.getDefault(),
@@ -669,7 +617,7 @@ public class MMUtilities {
     /*         Send with Intents         */
     //************************************/
 
-    public void exportEmail(Context context, String subject, String emailAddr, String body, String chooser_title){
+    void exportEmail(Context context, String subject, String emailAddr, String body, String chooser_title){
 
         Intent intent2 = new Intent();
         intent2.setAction(Intent.ACTION_SEND);
@@ -680,7 +628,7 @@ public class MMUtilities {
         context.startActivity(intent2);
     }
 
-    public void exportText(Context context,String subject,String body, String chooser_title){
+    void exportText(Context context,String subject,String body, String chooser_title){
         Intent exportIntent = new Intent(Intent.ACTION_SEND);
         exportIntent.setType("text/plain");
 
@@ -695,7 +643,7 @@ public class MMUtilities {
         }
     }
 
-    public void exportSMS(Context context, String subject, String body){
+    void exportSMS(Context context, String subject, String body){
         Intent sendIntent = new Intent(Intent.ACTION_VIEW);
         sendIntent.putExtra("sms_body", body);
         sendIntent.setType("vnd.android-dir/mms-sms");
@@ -705,7 +653,7 @@ public class MMUtilities {
     //************************************/
     /*         Send Email using Intent   */
     //************************************/
-    public void sendEmail(Context context, String subject, String toAddress, String msg) {
+    void sendEmail(Context context, String subject, String toAddress, String msg) {
 
         String[] TO = {toAddress};     //{"someone@gmail.com"};
         //String[] CC = {"elisabethhuhn@gmail.com"};
@@ -733,7 +681,7 @@ public class MMUtilities {
 /*
 http://stackoverflow.com/questions/2020088/sending-email-in-android-using-javamail-api-without-using-the-default-built-in-a/2033124#2033124
 
-    public void sendEmailNoIntent (){
+    void sendEmailNoIntent (){
         try {
             GMailSender sender = new GMailSender("username@gmail.com", "password");
             sender.sendMail("This is Subject",
@@ -751,7 +699,7 @@ http://stackoverflow.com/questions/2020088/sending-email-in-android-using-javama
     //************************************/
 
 
-    public void sendSMSviaAPI(Context activity, String phoneNo, String msg){
+    void sendSMSviaAPI(Context activity, String phoneNo, String msg){
         msg = "sendSMSviaAPI: " + msg;
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(phoneNo, null, msg, null, null);
@@ -763,22 +711,16 @@ http://stackoverflow.com/questions/2020088/sending-email-in-android-using-javama
     //************************************/
 
     /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
+    boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
+        return (Environment.MEDIA_MOUNTED.equals(state)) ;
     }
 
     /* Checks if external storage is available to at least read */
-    public boolean isExternalStorageReadable() {
+    boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            return true;
-        }
-        return false;
+        return (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) ;
     }
 
 }

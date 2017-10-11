@@ -16,20 +16,19 @@ import android.widget.EditText;
  * the number of schedule times varies in real time, and is not known at compile time
  */
 
-public class MMScheduleListCursorAdapter extends RecyclerView.Adapter<MMScheduleListCursorAdapter.MyViewHolder>{
+class MMScheduleListCursorAdapter extends RecyclerView.Adapter<MMScheduleListCursorAdapter.MyViewHolder>{
     //The group to be listed is collected from a Cursor representing the DB rows
     private Cursor  mSchedMedCursor;
-    private boolean mIs24Format;
     private long    mPersonID;
     private Context mActivity;
 
     //implement the ViewHolder as an inner class
-    public class MyViewHolder extends RecyclerView.ViewHolder {
-        public EditText medicationNickNameOutput;
-        public EditText medicationTime, medicationAmt, medicationUnits;
+    class MyViewHolder extends RecyclerView.ViewHolder {
+        EditText medicationNickNameOutput;
+        EditText medicationTime, medicationAmt, medicationUnits;
 
 
-        public MyViewHolder(View v) {
+        MyViewHolder(View v) {
             super(v);
 
             medicationTime           = (EditText) v.findViewById(R.id.scheduleTimeOutput);
@@ -41,14 +40,12 @@ public class MMScheduleListCursorAdapter extends RecyclerView.Adapter<MMSchedule
     } //end inner class MyViewHolder
 
     //Constructor for MMSchedMedsAdapter
-    public MMScheduleListCursorAdapter(Context activity,
+    MMScheduleListCursorAdapter(Context activity,
                                        Cursor schedMedCursor,
-                                       boolean is24Format,
                                        long personID){
 
         this.mActivity       = activity;
         this.mSchedMedCursor = schedMedCursor;
-        this.mIs24Format     = is24Format;
         this.mPersonID       = personID;
     }
 
@@ -63,7 +60,7 @@ public class MMScheduleListCursorAdapter extends RecyclerView.Adapter<MMSchedule
 
 
 
-    public Cursor reinitializeCursor(long personID){
+    Cursor reinitializeCursor(long personID){
         closeCursor();
 
         MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
@@ -94,7 +91,7 @@ public class MMScheduleListCursorAdapter extends RecyclerView.Adapter<MMSchedule
 
             mSchedMedCursor = schedMedManager.getAllSchedMedsForPersonCursor(mPersonID);
             if (mSchedMedCursor == null) {
-                holder.medicationTime          .setText("00:00 AM");
+                holder.medicationTime          .setText(mActivity.getString(R.string.default_hour));
                 holder.medicationNickNameOutput.setText("");
                 return;
             }
@@ -110,27 +107,32 @@ public class MMScheduleListCursorAdapter extends RecyclerView.Adapter<MMSchedule
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
         MMMedication medication = medicationManager.getMedicationFromID(medicationID);
 
+
         CharSequence msg;
+        int strategy;
+        int amount = 0;
+        String amountString;
+        String amountUnits ;
         if (medication == null){
             msg = mActivity.getString(R.string.sched_list_med_doesnt_exist);
+            strategy = MMMedication.sAS_NEEDED;
+            amountString = "0";
+            amountUnits  = "mg";
         } else {
             msg = medication.getMedicationNickname();
+            strategy = medication.getDoseStrategy();
+            amount = medication.getDoseAmount();
+            amountString = String.valueOf(amount);
+            amountUnits = medication.getDoseUnits().toString();
         }
-        holder.medicationNickNameOutput.setText(msg);
 
-        int strategy = medication.getDoseStrategy();
-        //need to set time as needed
+        holder.medicationNickNameOutput.setText(msg);
+        //override the time if is to be taken as needed
         if (strategy == MMMedication.sAS_NEEDED){
             msg = mActivity.getString(R.string.sched_list_as_needed);
-            // TODO: 6/6/2017 defeat this overwrite for debug purposes
             holder.medicationTime    .setText(msg);
         }
-
-        int amount = medication.getDoseAmount();
-        String amountString = String.valueOf(amount);
         holder.medicationAmt.setText(amountString);
-
-        String amountUnits = medication.getDoseUnits().toString();
         holder.medicationUnits.setText(amountUnits);
 
     }
@@ -146,15 +148,10 @@ public class MMScheduleListCursorAdapter extends RecyclerView.Adapter<MMSchedule
         return returnValue;
     }
 
-    public Cursor getSchedMedCursor(){return mSchedMedCursor;}
-
-    public MMSchedule getScheduleAt(int position){
-        MMScheduleManager scheduleManager = MMScheduleManager.getInstance();
-        return scheduleManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
-    }
+    Cursor getSchedMedCursor(){return mSchedMedCursor;}
 
 
-    public void closeCursor(){
+    void closeCursor(){
         if (mSchedMedCursor != null)mSchedMedCursor.close();
     }
 }

@@ -19,7 +19,7 @@ import java.util.ArrayList;
  * Serves as a liaison between a list RecyclerView and the ConcurrentDoseManager
  */
 
-public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcurrentDoseCursorAdapter.MyViewHolder>{
+class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcurrentDoseCursorAdapter.MyViewHolder>{
     //The group to be listed is collected from a Cursor representing the DB rows
     private Cursor  mConcurrentDoseCursor;
     private long    mPersonID;
@@ -28,13 +28,13 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
 
 
     //implement the ViewHolder as an inner class
-    public class MyViewHolder extends RecyclerView.ViewHolder {
-        public EditText  doseTime;
-        public TextView  doseDate;
-        public ArrayList<EditText> doseMeds = new ArrayList<>();
+    class MyViewHolder extends RecyclerView.ViewHolder {
+        EditText  doseTime;
+        TextView  doseDate;
+        ArrayList<EditText> doseMeds = new ArrayList<>();
 
 
-        public MyViewHolder(View v) {
+        MyViewHolder(View v) {
             super(v);
 
             //remember the views we know about at coding time
@@ -63,7 +63,7 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
     } //end inner class MyViewHolder
 
     //Constructor for MMConcurrentDosesAdapter
-    public MMConcurrentDoseCursorAdapter(Context activity,
+    MMConcurrentDoseCursorAdapter(Context activity,
                                          long personID,
                                          int numberMeds,
                                          Cursor concurrentDoseCursor){
@@ -84,7 +84,7 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
 
     //remove doesn't work directly for a cursor,
     // must remove from the DB, then re-create the cursor
-    public void removeItem(int position) {
+    void removeItem(int position) {
         if (mConcurrentDoseCursor == null)return;
 
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
@@ -99,7 +99,7 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
        mConcurrentDoseCursor = reinitializeCursor();
     }
 
-    public Cursor reinitializeCursor(){
+    Cursor reinitializeCursor(){
         closeCursor();
 
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
@@ -275,14 +275,14 @@ public class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcur
         return returnValue;
     }
 
-    public MMConcurrentDose getConcurrentDoseAt(int position){
+    MMConcurrentDose getConcurrentDoseAt(int position){
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
         return concurrentDoseManager.getConcurrentDoseFromCursor(mConcurrentDoseCursor, position);
     }
 
-    public Cursor getCursor(){return mConcurrentDoseCursor;}
+    Cursor getCursor(){return mConcurrentDoseCursor;}
 
-    public void closeCursor(){
+    void closeCursor(){
         if (mConcurrentDoseCursor != null)mConcurrentDoseCursor.close();
     }
 
