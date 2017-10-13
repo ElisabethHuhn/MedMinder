@@ -3,8 +3,6 @@ package com.androidchicken.medminder;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import java.util.Date;
-
 import static android.R.attr.defaultValue;
 
 /**
@@ -125,11 +123,13 @@ import static android.R.attr.defaultValue;
             //set default to today's date
             String historyDateString = MMUtilities.getInstance().getDateString();
             boolean isTimeFlag = false;
-            Date historyDate = MMUtilities.getInstance().
-                                convertStringToTimeDate(activity, historyDateString, isTimeFlag);
-            if (historyDate != null){
-                historyDateMilli = historyDate.getTime();
-                setHistoryDate(activity, historyDateMilli);
+
+            historyDateMilli = MMUtilitiesTime.convertStringToTimeMs(activity,
+                                                                     historyDateString,
+                                                                     isTimeFlag);
+            if (historyDateMilli == 0){
+                historyDateMilli = historyDateDefault;
+
             }
         }
         return historyDateMilli;

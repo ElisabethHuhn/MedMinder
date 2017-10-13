@@ -1099,7 +1099,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     private void areYouSureExit(){
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.abandon_title)
-                .setIcon(R.drawable.ground_station_icon)
+                .setIcon(R.drawable.ic_mortar_black_24dp)
                 .setMessage(R.string.are_you_sure)
                 .setPositiveButton(R.string.exit_label,
                         new DialogInterface.OnClickListener() {
@@ -1117,7 +1117,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
                     }
                 })
-                .setIcon(R.drawable.ground_station_icon)
+                .setIcon(R.drawable.ic_mortar_black_24dp)
                 .show();
     }
 

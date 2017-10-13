@@ -491,7 +491,7 @@ public class MMExportHistoryFragment extends Fragment {
         String dateString   = dateView  .getText().toString();
         if (dateString.isEmpty())return -1;
 
-        Date dateDate = MMUtilities.getInstance().
+        Date dateDate = MMUtilitiesTime.
                                     convertStringToDate((MMMainActivity)getActivity(), dateString);
         if (dateDate == null)return -1;
 

@@ -1066,7 +1066,7 @@ public class MMHomeFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder .setView(v) //The View we just built for the Alert Dialog
                 .setTitle(R.string.fix_dose_amounts)
-                .setIcon(R.drawable.ground_station_icon)
+                .setIcon(R.drawable.ic_mortar_black_24dp)
                 .setMessage(R.string.correct_amounts)
                 .setPositiveButton(R.string.save_label,
                         new DialogInterface.OnClickListener() {

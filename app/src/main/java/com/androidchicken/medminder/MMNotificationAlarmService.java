@@ -68,7 +68,8 @@ class MMNotificationAlarmService extends Service {
     private NotificationCompat.Builder getNotifBuilder(Context context){
                 /*  Create a Notification Builder  */
         return  (NotificationCompat.Builder) new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ground_station_icon)
+                //.setSmallIcon(R.drawable.ground_station_icon)
+                .setSmallIcon(R.drawable.ic_mortar_white)
                 .setContentTitle("MedMinder")
                 .setContentText("Time To Take Medicine")
                 //notification is canceled as soon as it is touched by the user

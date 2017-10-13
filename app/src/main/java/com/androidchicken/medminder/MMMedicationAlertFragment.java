@@ -542,7 +542,7 @@ public class MMMedicationAlertFragment extends Fragment  {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder .setView(v) //The View we just built for the Alert Dialog
                 .setTitle(dialogTitle)
-                .setIcon(R.drawable.ground_station_icon)
+                .setIcon(R.drawable.ic_mortar_black_24dp)
                 .setMessage(dialogMsg)
                 .setPositiveButton(positiveButtonText,
                         new DialogInterface.OnClickListener() {

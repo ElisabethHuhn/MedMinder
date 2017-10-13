@@ -13,8 +13,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
-import java.util.Date;
-
 import static com.androidchicken.medminder.MMUtilitiesTime.getDateString;
 import static com.androidchicken.medminder.R.id.settingPersonNickNameInput;
 
@@ -325,7 +323,7 @@ public class MMSettingsFragment extends Fragment {
         MMSettings settings = MMSettings.getInstance();
 
         //convert to # minutes since midnight
-        long minutesSinceMidnight = MMUtilities.getInstance().convertStringToMinutesSinceMidnight(
+        long minutesSinceMidnight = MMUtilitiesTime.convertStringToMinutesSinceMidnight(
                                                                 (MMMainActivity)getActivity(),
                                                                 timeString.toString());
 
@@ -347,12 +345,10 @@ public class MMSettingsFragment extends Fragment {
         String dateString = earliestHistoryDateInput.getText().toString();
 
         boolean isTimeFlag = false; //We are converting to a date, not a time
-        Date historyDate = MMUtilities.getInstance().
-                    convertStringToTimeDate((MMMainActivity)getActivity(), dateString, isTimeFlag);
+        long historyDateMilli = MMUtilitiesTime.
+                    convertStringToTimeMs((MMMainActivity)getActivity(), dateString, isTimeFlag);
 
-        if (historyDate != null) {
-            long historyDateMilli = historyDate.getTime();
-
+        if (historyDateMilli != 0) {
             settings.setHistoryDate((MMMainActivity) getActivity(), historyDateMilli);
         }
 

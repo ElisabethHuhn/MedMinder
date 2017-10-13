@@ -558,7 +558,7 @@ public class MMPersonFragment extends Fragment {
     private void areYouSureExit(){
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.abandon_title)
-                .setIcon(R.drawable.ground_station_icon)
+                .setIcon(R.drawable.ic_mortar_black_24dp)
                 .setMessage(R.string.are_you_sure)
                 .setPositiveButton(R.string.exit_label,
                         new DialogInterface.OnClickListener() {
@@ -575,7 +575,7 @@ public class MMPersonFragment extends Fragment {
 
                     }
                 })
-                .setIcon(R.drawable.ground_station_icon)
+                .setIcon(R.drawable.ic_mortar_black_24dp)
                 .show();
     }
 

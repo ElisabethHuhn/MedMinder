@@ -1,5 +1,6 @@
 package com.androidchicken.medminder;
 
+import android.content.Context;
 import android.widget.EditText;
 
 import java.text.DateFormat;
@@ -123,7 +124,7 @@ class MMUtilitiesTime {
         boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
 
         Date date = new Date(timeMs);
-        SimpleDateFormat dateTimeFormat = getDateTimeFormat(is24Format);
+        SimpleDateFormat dateTimeFormat = getDateTimeFormat(activity, is24Format);
         String returnString = null;
 
 
@@ -153,10 +154,10 @@ class MMUtilitiesTime {
 
         if (isTimeFlag){
             //true means time to be returned
-            timeFormat = getTimeFormat(is24Format);
+            timeFormat = getTimeFormat(activity, is24Format);
         } else {
             //false means date to be returned
-            timeFormat = getDateFormat();
+            timeFormat = getDateFormat(activity);
         }
 
 
@@ -174,6 +175,34 @@ class MMUtilitiesTime {
 
 
 
+
+
+
+
+
+    static Date convertStringToDate(MMMainActivity activity,
+                             String timeSinceMidnightString){
+        Date date = null;
+
+        SimpleDateFormat timeFormat;
+
+
+        timeFormat = getEditTextDateFormat(activity);
+
+        //TimeZone gmtTz   = TimeZone.getTimeZone("GMT");
+        //timeFormat.setTimeZone(gmtTz);
+
+        try {
+            date = timeFormat.parse(timeSinceMidnightString);
+        } catch (Exception e) {
+            MMUtilities.getInstance().errorHandler(activity, R.string.error_parsing_date_time);
+
+        }
+
+        return date;
+    }
+
+
     //returns MS corresponding to the time today in the String
     static long convertStringToTimeMs(MMMainActivity activity,
                                       String timeSinceMidnightString,
@@ -186,9 +215,9 @@ class MMUtilitiesTime {
         SimpleDateFormat timeFormat;
 
         if (isTimeFlag){
-            timeFormat = getTimeFormat(is24Format);
+            timeFormat = getTimeFormat(activity, is24Format);
         } else {
-            timeFormat = getDateFormat();
+            timeFormat = getDateFormat(activity);
         }
 
 
@@ -207,6 +236,17 @@ class MMUtilitiesTime {
 
     }
 
+
+
+    //Time string is since midnight
+    static long convertStringToMinutesSinceMidnight(MMMainActivity activity,
+                                             String timeSinceMidnightString){
+        boolean isTimeFlag = true;
+        long msSinceMidnight = MMUtilitiesTime.convertStringToTimeMs(activity,
+                                                                    timeSinceMidnightString,
+                                                                    isTimeFlag);
+        return MMUtilitiesTime.convertMsToMin(msSinceMidnight) ;
+    }
 
 
 
@@ -291,7 +331,8 @@ class MMUtilitiesTime {
     static String getTimeString(MMMainActivity activity){
         boolean is24Format  = MMSettings.getInstance().getClock24Format(activity);
         Calendar calendar   = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat(getTimeFormatString(is24Format), Locale.getDefault());
+        SimpleDateFormat df = new SimpleDateFormat(getTimeFormatString(activity, is24Format),
+                                                    Locale.getDefault());
         return df.format(calendar.getTimeInMillis());
     }
 
@@ -312,32 +353,36 @@ class MMUtilitiesTime {
     // ****************************** //
 
 
-    private static SimpleDateFormat getTimeFormat(boolean is24format){
-        String timeFormat = getTimeFormatString(is24format);
+    private static SimpleDateFormat getTimeFormat(Context activity, boolean is24format){
+        String timeFormat = getTimeFormatString(activity, is24format);
         return new SimpleDateFormat(timeFormat, Locale.getDefault());
     }
 
-    private static  String getTimeFormatString(boolean is24format){
-        CharSequence timeFormat = "h:mm a";
+    private static  String getTimeFormatString(Context activity, boolean is24format){
+        CharSequence timeFormat = activity.getString(R.string.time_format_12);
         if (is24format){
-            timeFormat = "H:mm a";
+            timeFormat = activity.getString(R.string.time_format_24);
         }
         return timeFormat.toString();
     }
 
-    private static SimpleDateFormat getDateFormat(){
-        return new SimpleDateFormat(getDateFormatString(), Locale.getDefault());
+    private static SimpleDateFormat getDateFormat(Context activity){
+        return new SimpleDateFormat(getDateFormatString(activity), Locale.getDefault());
     }
-    private static String getDateFormatString(){
-        return "MMM d, yyyy";
+    private static String getDateFormatString(Context activity){
+        return activity.getString(R.string.date_format);
     }
 
-    private static SimpleDateFormat getDateTimeFormat(boolean is24format){
-        String dateTimeFormat = getDateFormatString() + " " + getTimeFormatString(is24format);
+    private static SimpleDateFormat getDateTimeFormat(Context activity, boolean is24format){
+        String dateTimeFormat = getDateFormatString(activity) + " " +
+                                getTimeFormatString(activity, is24format);
         return new SimpleDateFormat(dateTimeFormat, Locale.getDefault());
     }
 
 
+    private static SimpleDateFormat getEditTextDateFormat(Context activity){
+        return new SimpleDateFormat(activity.getString(R.string.short_date_format), Locale.getDefault());
+    }
 
 
 

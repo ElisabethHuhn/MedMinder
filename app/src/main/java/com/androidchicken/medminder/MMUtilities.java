@@ -187,11 +187,7 @@ public class MMUtilities {
     }
 
 
-
-
-
-
-
+// TODO: 10/13/2017 move these out of utilities and into utilitiestime
 
     //This method is used to get the string corresponding to a value of milliseconds since 1970
      String getTimeString(MMMainActivity activity, long milliSeconds){
@@ -216,10 +212,7 @@ public class MMUtilities {
 
 
 
-    private SimpleDateFormat getTimeFormat(boolean is24format){
-        String timeFormat = getTimeFormatString(is24format);
-        return new SimpleDateFormat(timeFormat, Locale.getDefault());
-    }
+
 
     private String getTimeFormatString(boolean is24format){
         CharSequence timeFormat = "h:mm a";
@@ -229,66 +222,6 @@ public class MMUtilities {
         return timeFormat.toString();
     }
 
-    private SimpleDateFormat getDateFormat(){
-        return new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
-    }
-
-    private SimpleDateFormat getEditTextDateFormat(){
-        return new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-    }
-
-
-
-
-    Date convertStringToDate(MMMainActivity activity,
-                                        String timeSinceMidnightString){
-        Date date = null;
-
-        SimpleDateFormat timeFormat;
-
-
-        timeFormat = getEditTextDateFormat();
-
-        //TimeZone gmtTz   = TimeZone.getTimeZone("GMT");
-        //timeFormat.setTimeZone(gmtTz);
-
-        try {
-            date = timeFormat.parse(timeSinceMidnightString);
-        } catch (Exception e) {
-            MMUtilities.getInstance().errorHandler(activity, R.string.error_parsing_date_time);
-
-        }
-
-        return date;
-    }
-
-    Date convertStringToTimeDate(MMMainActivity activity,
-                                        String timeSinceMidnightString,
-                                        boolean isTimeFlag){
-        //Get the clock format
-        boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
-
-        Date date = null;
-
-        SimpleDateFormat timeFormat;
-
-        if (isTimeFlag){
-            timeFormat = getTimeFormat(is24Format);
-        } else {
-            timeFormat = getDateFormat();
-        }
-        //TimeZone gmtTz   = TimeZone.getTimeZone("GMT");
-        //timeFormat.setTimeZone(gmtTz);
-
-        try {
-            date = timeFormat.parse(timeSinceMidnightString);
-        } catch (Exception e) {
-            MMUtilities.getInstance().errorHandler(activity, R.string.error_parsing_date_time);
-
-        }
-
-        return date;
-    }
 
 
 
@@ -297,20 +230,7 @@ public class MMUtilities {
 
 
 
-    //Time string is since midnight
-    long convertStringToMinutesSinceMidnight(MMMainActivity activity,
-                                                    String timeSinceMidnightString){
-        boolean isTimeFlag = true;
-        Date date = convertStringToTimeDate(activity, timeSinceMidnightString, isTimeFlag);
-        if (date == null){
-            return 0;
-        }
 
-        long msSinceMidnight = date.getTime();
-
-
-        return msSinceMidnight / 60000;
-    }
 
 
 
@@ -498,7 +418,7 @@ public class MMUtilities {
                 (NotificationCompat.Builder) new NotificationCompat.Builder(activity)
                         .setContentTitle(activity.getResources().getString(R.string.app_name))
                         .setContentText(activity.getResources().getString(textMessage))
-                        .setSmallIcon(R.drawable.ground_station_icon)
+                        .setSmallIcon(R.drawable.ic_mortar_white)
                         // .setLargeIcon(((BitmapDrawable) activity.getResources().getDrawable(R.drawable.app_icon)).getBitmap())
                         .setAutoCancel(true)//notification is canceled as soon as it is touched by the user
                         .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))

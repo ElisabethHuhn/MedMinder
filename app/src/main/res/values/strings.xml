@@ -3,8 +3,12 @@
 
     <!--      Global                  -->
     <!--  -->
-    <string name="date_format"              >MMM DD,YYYY</string>
-    <string name="time_format"              >HH:MM A</string>
+    <string name="date_format"              >MMM d, yyyy</string>
+    <string name="short_date_format"        >dd/MM/yyyy</string>
+
+    <string name="time_format_12"              >h:mm a</string>
+    <string name="time_format_24"              >H:mm a</string>
+
     <string name="default_hour"             >00:00 AM</string>
 
     <string name="save_label"               >Save</string>
@@ -12,16 +16,12 @@
     <string name="save_unsuccessful"        >Save not successful</string>
 
     <string name="exit_label"               >Exit</string>
-    <string name="hint_label"               >Hint</string>
-    <string name="cancel_label"             >Cancel</string>
-    <string name="exception_medication_not_added">Could not add medication</string>
-    <string name="couldnt_find_patient"     >Could not find patient</string>
-    <string name="couldnt_find_medication"  >Could not find medication</string>
-    <string name="exportHistoryLabel"       >Export</string>
-    <string name="list_label"               >Title</string>
 
-    <string name="true_label"               >True</string>
-    <string name="false_label"              >False</string>
+
+    <string name="exception_medication_not_added">Could not add medication</string>
+
+    <string name="couldnt_find_medication"  >Could not find medication</string>
+
     <string name="up_arrow"                 >\u0024</string>
     <string name="down_arrow"               >\u0025</string>
     <string name="up_label"                 >"▲"</string>
@@ -62,7 +62,7 @@
     <string name="title_patient"            >Patient</string>
     <string name="title_person_list"        >List People</string>
     <string name="title_medication"         >Medication Prescription</string>
-    <string name="title_medication_list"    >List Medications</string>
+
     <string name="title_medication_alert"   >Medication Alerts</string>
     <string name="title_export_history"     >Export History</string>
     <string name="title_schedule_list"      >Medication Schedule List</string>
@@ -78,7 +78,7 @@
     <string name="medication_brand_name_label"  >Brand Name</string>
     <string name="medication_generic_name_label">Generic Name</string>
     <string name="medication_for_label"         >Patient</string>
-    <string name="medication_for_name"          >Person Name</string>
+
     <string name="medication_notes"             >Notes</string>
     <string name="medication_side_effects"      >Side Effects</string>
 
@@ -113,21 +113,12 @@
     <string name="person_screen_label"      >Person (Patient) Profile</string>
     <string name="person_label"             >Person</string>
     <string name="exists_label"             >Current?</string>
-    <string name="person_id_label"          >Person ID</string>
+
     <string name="person_nick_name_label"   >Nick Name</string>
     <string name="person_email_addr_label"  >Email Addr</string>
     <string name="person_text_addr_label"   >Text Addr</string>
-    <string name="person_is_patient_label"  >is patient?</string>
-    <string name="person_save_first"        >Save before adding medications</string>
+
     <string name="horizontal_scroll_hint"   >Horizontal scroll to see all fields</string>
-
-
-    <string name="person_nick_name_hint"   >Enter Nick Name</string>
-    <string name="person_email_addr_hint"  >Only used for notifications</string>
-    <string name="person_text_addr_hint"   >Only used for notifications</string>
-    <string name="person_order_hint"       >By Nickname</string>
-    <string name="person_duration_hint"    >For example: quarter, half, hourly</string>
-    <string name="person_is_patient_hint"  >Yes</string>
 
     <string name="person_not_valid"        >Must have Nickname to define a Person</string>
     <string name="person_med_long_click"   >Medication Long Click</string>
@@ -140,23 +131,16 @@
     <!--      Home SCREEN                  -->
     <!--  -->
     <string name="patient_nick_name_label"      >Select SWITCH PATIENT</string>
-    <string name="patient_edit_profile_label"   >Edit Patient</string>
-    <string name="patient_add_alerts_label"     >Add Alerts</string>
-    <string name="patient_list_schedules_label" >List Schedules</string>
-    <string name="select_patient_label"         >Switch Patient</string>
-    <string name="patient_add_medication_label">Add Med</string>
-    <string name="patient_medication_button"    >Med</string>
+
     <string name="patient_no_med_but"           >No Med Button Pushed</string>
     <string name="dose_default_date"            >00/00/0000</string>
     <string name="dose_default_time"            >00:00 am</string>
     <string name="reselect_dose"                >Re-select Dose to edit</string>
     <string name="error_parsing_date_time"      >Error parsing Date and / or Time</string>
-    <string name="error_formatting_date_time"   >Error formatting Date and / or Time</string>
+
     <string name="change_not_saved"             >Change not saved</string>
 
 
-
-    <string name="input_received"    >Input received</string>
 
 
     <!--      Export SCREEN                  -->
@@ -164,12 +148,12 @@
     <string name="start_date_label"                 >Start:</string>
     <string name="end_date_label"                   >End:</string>
     <string name="directory_path_label"             >Dir Path:</string>
-    <string name="sub_directory_label"              >Sub-Dir:</string>
+
     <string name="filename_extent_label"            >File Suffix:</string>
     <string name="export_filename_label"            >File Name</string>
     <string name="export_file_extent"               >.txt</string>
     <string name="extent_hint"                      >Appended if file name exists</string>
-    <string name="error_writing_file"               >ERROR writing file. Data not saved</string>
+
     <string name="error_unable_to_create_file">ERROR unable to create file. Data not saved</string>
     <string name="error_unable_to_access_storage"   >ERROR: unable to access storage. Data not saved</string>
     <string name="export_label"               >Export</string>
@@ -180,13 +164,9 @@
     <string name="export_title_prescriptions" >Prescriptions for: %s</string>
     <string name="export_title_history"       >History of Doses taken for %s</string>
     <string name="export_title_cdf"           >CDF of Doses taken for %s</string>
-    <string name="export_day_hint"            >DD</string>
-    <string name="export_month_hint"          >MM</string>
-    <string name="export_year_hint"           >YY</string>
+
     <string name="export_date_hint"           >dd/MM/yyyy</string>
-    <string name="export_day_error"           >Too many days for your month</string>
-    <string name="export_month_error"         >Months must be less than or eaual to 12</string>
-    <string name="export_year_error"          >Years must be less than or equal to 99</string>
+
 
     <string name="export_destinations"        >--------Destination of Exported Information---------</string>
     <string name="export_radio_email"         >Email</string>
@@ -201,9 +181,6 @@
     <string name="export_chooser_title"       >Export to:</string>
     <string name="export_no_app"             >No app found on your phone which can perform this export</string>
 
-
-    <string name="export_dialog_title"        >Export Options</string>
-    <string name="export_dialog_message"      >Please Select Destination and Content:</string>
     <string name="export_file_written"        >Export file has been written</string>
     <string name="export_prescriptions"       >Prescriptions</string>
     <string name="export_history"             >History</string>
@@ -245,7 +222,7 @@
     <string name="med_alert_text_permission">Need permission to send a text message</string>
     <string name="telephony_supported"      >Telephony SUPPORTED</string>
     <string name="teelphony_not_supported"  >Telephony NOT supported</string>
-    <string name="Alert_not_saved"          >Alert NOT saved</string>
+
     <string name="person_not_exist"         >Person does not exist</string>
     <string name="person_does_not_exist"    >Person does not exist. ID = %d, will create new one</string>
     <string name="no_person_med"            >There has to be a Person to add a Medication</string>
@@ -255,32 +232,22 @@
 
     <!-- Alert Dialog Strings -->
     <string name="are_you_sure"             >Are You Sure?</string>
-    <string name="continue_delete_dont_save">Permanently Delete</string>
-    <string name="delete_title"             >Delete</string>
-    <string name="reinstate_title"          >Reinstate</string>
+
     <string name="abandon_title"            >Changes Could Be Lost</string>
     <string name="create_label"             >Create</string>
     <string name="cancel"                   >Cancel</string>
     <string name="update"                   >Update</string>
-    <string name="ok"                       >OK</string>
+
     <string name="fix_dose_amounts"         >Fix Dose Amount(s)</string>
     <string name="correct_amounts"          >Correct Amount(s)</string>
     <string name="notified_label"           >Person Notified</string>
     <string name="notify_type_label"        >Email/Text</string>
-    <string name="notify_time_label"        >Overdue Time</string>
+
     <string name="notify_hint"              >Notify when overdue by:</string>
     <string name="notify_day_label"         >Days</string>
     <string name="notify_hour_label"        >Hours</string>
     <string name="notify_minute_label"      >Minutes</string>
     <string name="error_time_entry"         >Days, Hours, and Minutes must be integers</string>
-
-
-    <string name="delete_person"            >Delete Person</string>
-    <string name="reinstate_person"         >Reinstate Person</string>
-    <string name="delete_medication"        >Delete Medication</string>
-    <string name="reinstate_medication"     >Reinstate Medication</string>
-    <string name="delete_concurrent_dose"   >Delete Concurrent Dose</string>
-    <string name="save_concurrent_dose"     >Save Concurrent Dose</string>
 
 
     <string name="med_not_found"            >Medication not found, can not create Alert</string>
@@ -291,18 +258,9 @@
     <string name="med_alert_defaults"       >Override Defaults for patient %s</string>
     <string name="med_alert_values"         >Update current values for patient %s</string>
 
-    <string name="sms_permission_title"     >SMS Permissions Dialog</string>
-    <string name="sms_permission_message"   >SMS Permissions Message</string>
-
     <string name="pressed_cancel"           >Cancel selected</string>
-    <string name="pressed_ok"               >OK selected</string>
     <string name="med_alert_created"        >Medication Alert Created</string>
     <string name="med_alert_updated"        >Medication Alert Updated</string>
-
-    <!-- database exceptions -->
-    <string name="no_context_exception"     >Can not create database without a context</string>
-    <string name="not_initialized_exception">Attempt to access the database before it has been initialized</string>
-    <string name="not_opened_exception"     >Attempt to access the database before it has been opened</string>
 
 
     <!-- programming errors and exceptions -->
