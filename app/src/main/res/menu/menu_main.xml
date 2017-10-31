@@ -15,15 +15,15 @@
         app:showAsAction="never"
         />
     <item
-        android:id="@+id/action_edit_patient"
+        android:id="@+id/action_switch_patient"
         android:orderInCategory="120"
-        android:title="@string/action_edit_patient"
+        android:title="@string/action_switch_patient"
         app:showAsAction="never"
         />
     <item
-        android:id="@+id/action_switch_patient"
+        android:id="@+id/action_edit_patient"
         android:orderInCategory="130"
-        android:title="@string/action_switch_patient"
+        android:title="@string/action_edit_patient"
         app:showAsAction="never"
         />
      <item
@@ -38,7 +38,12 @@
         android:title="@string/action_export"
         app:showAsAction="never"
         />
-
+    <item
+        android:id="@+id/action_about"
+        android:orderInCategory="160"
+        android:title="@string/action_about"
+        app:showAsAction="never"
+        />
     <item
         android:id="@+id/action_alert"
         android:orderInCategory="160"

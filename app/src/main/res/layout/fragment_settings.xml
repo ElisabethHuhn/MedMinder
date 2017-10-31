@@ -33,43 +33,33 @@
             <TableRow
                 android:layout_height="wrap_content"
                 android:layout_width ="match_parent"
-                android:paddingTop="10dp"
+
                 android:gravity="center"
                 >
                 <TextView
                     android:text="@string/title_settings"
                     android:layout_height="wrap_content"
-                    android:layout_width ="wrap_content"
+                    android:layout_width ="0dp"
+                    android:layout_weight="4"
                     android:gravity="center"
 
                     android:textSize="20sp"
                     android:textColor="@color/colorTextBlack"
                     android:background="@color/colorScreenBackground"
                     />
-
-            </TableRow>
-
-            <!-- Row 2: Buttons  (Save) -->
-            <TableRow
-
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="10dp"
-                >
-
                 <!-- Save Person -->
                 <Button
                     style="?android:attr/buttonBarButtonStyle"
                     android:id="@+id/settingsSaveButton"
                     android:text="@string/save_label"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
 
-                    android:layout_weight="4"
+                    android:minHeight="20dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
 
                     android:layout_marginStart="4dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="16dp"
 
                     android:background="@color/colorButton1Background"
                     android:textColor="@color/colorTextBlack"
@@ -85,7 +75,6 @@
                   android:paddingTop=    "10dp"
                 >
                 <TextView
-                    android:id=           "@+id/settingPersonIDLabel"
                     android:labelFor=     "@+id/settingPersonNickNameInput"
                     android:layout_height="wrap_content"
                     android:layout_width= "0dp"
@@ -125,7 +114,6 @@
 
             </TableRow>
 
-
             <!-- Default time due for schedule objects -->
             <TableRow
                 android:layout_width=  "match_parent"
@@ -138,18 +126,17 @@
                     android:layout_height="wrap_content"
                     android:layout_width= "0dp"
                     android:layout_weight="25"
-                    android:gravity=      "center_horizontal"
+                    android:gravity=      "end"
 
                     android:freezesText="true"
 
                     android:focusable="false"
 
                     android:text="@string/settings_default_time_due"
+                    android:layout_marginEnd="16dp"
                     android:textColor=    "@color/colorTextBlack"
                     android:background=   "@color/colorLabelBackground"
                     />
-
-
             </TableRow>
             <TableRow
                 android:layout_width=  "match_parent"
@@ -159,7 +146,6 @@
                 >
 
                 <TextView
-                    android:id=           "@+id/settingDefaultTimeDueLabel"
                     android:labelFor=     "@+id/settingDefaultTimeDueInput"
                     android:layout_height="wrap_content"
                     android:layout_width= "0dp"
@@ -209,13 +195,14 @@
                     android:layout_height="wrap_content"
                     android:layout_width= "0dp"
                     android:layout_weight="25"
-                    android:gravity=      "center_horizontal"
+                    android:gravity=      "end"
 
                     android:freezesText="true"
 
                     android:focusable="false"
 
                     android:text="@string/settings_earliest_history_date"
+                    android:layout_marginEnd="16dp"
                     android:textColor=    "@color/colorTextBlack"
                     android:background=   "@color/colorLabelBackground"
                     />
@@ -228,7 +215,6 @@
                 >
 
                 <TextView
-                    android:id=           "@+id/settingEarliestHistoryDateLabel"
                     android:labelFor=     "@+id/settingEarliestHistoryDateInput"
                     android:layout_height="wrap_content"
                     android:layout_width= "0dp"
@@ -267,7 +253,6 @@
 
             </TableRow>
 
-
             <!-- Clock format: 24hour? -->
             <TableRow
                 android:layout_height="wrap_content"
@@ -283,7 +268,6 @@
                     android:text="@string/settings_24format"/>
 
             </TableRow>
-
 
             <!-- Show deleted People? -->
             <TableRow

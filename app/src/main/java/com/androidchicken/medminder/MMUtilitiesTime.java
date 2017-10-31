@@ -26,6 +26,7 @@ class MMUtilitiesTime {
     //                          Constants                            //
     //                                                               //
     // ************************************************************* //
+    private static final String TAG = "MMUtilitiesTime";
 
     private static long MsPerSec   = 1000;
     private static long SecPerMin  = 60;

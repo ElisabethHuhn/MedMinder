@@ -2,7 +2,6 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools=  "http://schemas.android.com/tools"
-    android:id=   "@+id/content_main"
 
     android:baselineAligned="false"
     android:layout_width=   "match_parent"
@@ -18,14 +17,12 @@
 
     >
     <LinearLayout
-        android:id="@+id/homeFragmentLayout"
         android:layout_height= "wrap_content"
         android:layout_width=  "match_parent"
         android:orientation="vertical"
         >
         <!-- Row 1: Patient Name, save button-->
         <LinearLayout
-            android:id="@+id/medPatientHeaderLayout"
             android:layout_height="match_parent"
             android:layout_width ="match_parent"
             android:gravity="center"

@@ -21,22 +21,23 @@ import static android.os.Build.VERSION_CODES.M;
 public class MMMainActivity extends AppCompatActivity {
 
     //Tags for the fragments which are the screens of the app
-    public  static final String sFragmentTag      = "FragmentTag";
-    public  static final String sHomeTag          = "HOME";
-    public  static final String sPersonTag        = "PERSON";
+            static final String sFragmentTag      = "FragmentTag";
+            static final String sHomeTag          = "HOME";
+            static final String sPersonTag        = "PERSON";
     private static final String sPersonListTag    = "PERSON_LIST";
-    public  static final String sMedicationTag    = "MEDICATION";
+    private static final String sMedicationTag    = "MEDICATION";
     private static final String sMedAlertTag      = "MED_ALERT";
-    public  static final String sExportTag        = "EXPORT";
+    private static final String sExportTag        = "EXPORT";
     private static final String sScheduleListTag  = "SCHEDULE_LIST";
-    public  static final String sHistoryTitleTag  = "HISTORY_TITLE_LIST";
-    public  static final String sSettingsTag      = "SETTINGS";
+    private static final String sHistoryTitleTag  = "HISTORY_TITLE_LIST";
+    private static final String sAboutTag         = "ABOUT_LIST";
+    private static final String sSettingsTag      = "SETTINGS";
 
 
-    public static final int SMS_PERMISSIONS_REQUEST_CODE = 0;
-    public static final int FILE_PERMISSIONS_REQUEST_CODE = 1;
+    private static final int SMS_PERMISSIONS_REQUEST_CODE = 0;
+    private static final int FILE_PERMISSIONS_REQUEST_CODE = 1;
 
-    public long mPatientID = MMUtilities.ID_DOES_NOT_EXIST;
+    private long mPatientID = MMUtilities.ID_DOES_NOT_EXIST;
 
     //**************************************************************/
     //********** Livecycle methods                     *************/
@@ -65,14 +66,7 @@ public class MMMainActivity extends AppCompatActivity {
         // as it is always saved in the preferences
     }
 
-/*
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState){
-        //Don't have to save/restore mPatientID to/from savedInstanceState
-        // as it is always saved in the preferences
-    }
 
-*/
 
 
     @Override
@@ -319,7 +313,6 @@ public class MMMainActivity extends AppCompatActivity {
         } else if (id == R.id.action_edit_patient) {
             switchToPersonScreen();
             return true;
-
         } else if (id == R.id.action_switch_patient){
 
             //Control will pass to the Person List screen, but where control returns to
@@ -331,21 +324,15 @@ public class MMMainActivity extends AppCompatActivity {
 
             if (( fragment instanceof MMHomeFragment) ) {
                 switchToPersonListScreen(sHomeTag);
-
             } else if (fragment instanceof MMExportHistoryFragment) {
                 switchToPersonListScreen(sExportTag);
-
             } else if (fragment instanceof MMHistoryTitleLineFragment) {
                 switchToPersonListScreen(sExportTag);
-
             } else {
                //just return to the home screen
                 switchToPersonListScreen(sHomeTag);
-
             }
             return true;
-
-
         } else  if (id == R.id.action_list_schedules) {
             switchToScheduleListScreen();
             return true;
@@ -355,13 +342,14 @@ public class MMMainActivity extends AppCompatActivity {
         } else if (id == R.id.action_alert){
             switchToMedicationAlertScreen();
             return true;
-
         } else if (id == R.id.action_med_help){
             if (getPatientID() != MMUtilities.ID_DOES_NOT_EXIST) {
                 //Show the medication positions for the history list
                 switchToHistoryTitleScreen();
             }
-
+        } else if (id == R.id.action_about){
+            switchToAboutScreen();
+            return true;
         } else if (id == R.id.action_midnight_noon){
             MMUtilities.getInstance().showStatus(this, R.string.action_midnight_noon);
             return true;
@@ -408,7 +396,7 @@ public class MMMainActivity extends AppCompatActivity {
 
     //***** Routine to actually switch the screens *******/
     private void switchScreen(Fragment fragment, String tag) {
-       //clear the back stack
+        //clear the back stack
         clearBackStack();
 
         //Need the Fragment Manager to do the swap for us
@@ -616,6 +604,21 @@ public class MMMainActivity extends AppCompatActivity {
         Fragment fragment    = new MMExportHistoryFragment();
         String   tag         = sExportTag;
         int      title       = R.string.title_export_history;
+
+        switchScreen(fragment, tag);
+        setMMSubtitle(title);
+    }
+
+    /****
+     * Method to switch fragment to About screen
+     * EMH 10/22/17
+     */
+    public void switchToAboutScreen(){
+
+
+        Fragment fragment    = new MMAboutFragment();
+        String   tag         = sAboutTag;
+        int      title       = R.string.title_about;
 
         switchScreen(fragment, tag);
         setMMSubtitle(title);

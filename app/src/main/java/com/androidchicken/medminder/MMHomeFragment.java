@@ -74,6 +74,7 @@ public class MMHomeFragment extends Fragment {
     /*          Constructor                        */
     //**********************************************/
     public MMHomeFragment() {
+
     }
 
     //**********************************************/
@@ -86,8 +87,6 @@ public class MMHomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
-
-
 
     }
 
@@ -370,6 +369,46 @@ public class MMHomeFragment extends Fragment {
         }
     }
 
+
+    //*********************************************************/
+    //      Methods dealing with whether the UI has changed   //
+    //*********************************************************/
+    private void setUIChanged(){
+        isUIChanged = true;
+        saveButtonEnable(MMUtilities.BUTTON_ENABLE);
+    }
+    private void setUIChanged(View v){
+        isUIChanged = true;
+        saveButtonEnable(v, MMUtilities.BUTTON_ENABLE);
+    }
+
+    private void setUISaved(){
+        isUIChanged = false;
+
+        //disable the save button
+        saveButtonEnable(MMUtilities.BUTTON_DISABLE);
+    }
+    private void setUISaved(View v){
+        isUIChanged = false;
+
+        //disable the export button
+        saveButtonEnable(v, MMUtilities.BUTTON_DISABLE);
+    }
+
+    private void saveButtonEnable(boolean isEnabled){
+        View v = getView();
+        saveButtonEnable(v, isEnabled);
+    }
+    private void saveButtonEnable(View v, boolean isEnabled){
+
+        if (v == null)return; //onCreateView() hasn't run yet
+
+        Button personSaveButton =
+                (Button) v.findViewById(R.id.homeSaveButton);
+
+        MMUtilities utilities = MMUtilities.getInstance();
+        utilities.enableButton(getActivity(), personSaveButton, isEnabled);
+    }
 
     //**********************************************/
     /*       Convenience Methods                   */
@@ -778,46 +817,6 @@ public class MMHomeFragment extends Fragment {
 
     }
 
-
-    //*********************************************************/
-    //      Methods dealing with whether the UI has changed   //
-    //*********************************************************/
-    private void setUIChanged(){
-        isUIChanged = true;
-        saveButtonEnable(MMUtilities.BUTTON_ENABLE);
-    }
-    private void setUIChanged(View v){
-        isUIChanged = true;
-        saveButtonEnable(v, MMUtilities.BUTTON_ENABLE);
-    }
-
-    private void setUISaved(){
-        isUIChanged = false;
-
-        //disable the save button
-        saveButtonEnable(MMUtilities.BUTTON_DISABLE);
-    }
-    private void setUISaved(View v){
-        isUIChanged = false;
-
-        //disable the export button
-        saveButtonEnable(v, MMUtilities.BUTTON_DISABLE);
-    }
-
-    private void saveButtonEnable(boolean isEnabled){
-        View v = getView();
-        saveButtonEnable(v, isEnabled);
-    }
-    private void saveButtonEnable(View v, boolean isEnabled){
-
-        if (v == null)return; //onCreateView() hasn't run yet
-
-        Button personSaveButton =
-                (Button) v.findViewById(R.id.homeSaveButton);
-
-        MMUtilities utilities = MMUtilities.getInstance();
-        utilities.enableButton(getActivity(), personSaveButton, isEnabled);
-    }
 
     //******************************************************************/
     //*********  Views, RecyclerView / Adapter related Methods  ********/

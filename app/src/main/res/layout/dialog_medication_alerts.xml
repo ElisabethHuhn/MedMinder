@@ -2,7 +2,6 @@
 <TableLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
 
-    android:id="@+id/dMedAlertLine"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -25,7 +24,6 @@
         >
 
         <TextView
-            android:id=           "@+id/dMedAlertMedNickNameLabel"
             android:labelFor=     "@+id/dMedAlertMedNickNameSpinner"
             android:layout_height="wrap_content"
             android:layout_width= "0dp"
@@ -86,7 +84,6 @@
         >
 
         <TextView
-            android:id=           "@+id/dMedAlertPersonLabel"
             android:labelFor=     "@+id/dMedAlertPersonSpinner"
             android:layout_height="wrap_content"
             android:layout_width= "0dp"
@@ -148,7 +145,6 @@
         >
 
         <TextView
-            android:id=           "@+id/dMedAlertTypeLabel"
             android:labelFor=     "@+id/dMedAlertTypeSpinner"
             android:layout_height="wrap_content"
             android:layout_width= "0dp"
@@ -191,7 +187,6 @@
         >
 
         <TextView
-            android:id=           "@+id/dMedAlertOverdueHintLabel"
 
             android:layout_height="wrap_content"
             android:layout_width= "wrap_content"
@@ -218,7 +213,6 @@
         >
 
         <TextView
-            android:id=           "@+id/dMedAlertOverdueDayLabel"
             android:labelFor=     "@+id/dMedAlertOverdueDayInput"
             android:layout_height="wrap_content"
             android:layout_width= "0dp"
@@ -261,7 +255,6 @@
         >
 
         <TextView
-            android:id=           "@+id/dMedAlertOverdueHourLabel"
             android:labelFor=     "@+id/dMedAlertOverdueHourInput"
             android:layout_height="wrap_content"
             android:layout_width= "0dp"
@@ -304,7 +297,6 @@
         >
 
         <TextView
-            android:id=           "@+id/dMedAlertOverdueMinuteLabel"
             android:labelFor=     "@+id/dMedAlertOverdueMinuteInput"
             android:layout_height="wrap_content"
             android:layout_width= "0dp"

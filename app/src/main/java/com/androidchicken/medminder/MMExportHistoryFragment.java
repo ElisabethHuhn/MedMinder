@@ -8,6 +8,7 @@ import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ import static com.androidchicken.medminder.R.id.directoryPath;
  */
 
 public class MMExportHistoryFragment extends Fragment {
+    private static final String TAG = "MMExportHistoryFragment";
 
     private static final int EXPORT_HISTORY       = 0;
     private static final int EXPORT_PRESCRIPTIONS = 1;
@@ -96,6 +98,8 @@ public class MMExportHistoryFragment extends Fragment {
         }catch (Exception e) {
 
             MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
+            Log.e(TAG,Log.getStackTraceString(e));
+
         }
 
     }
@@ -619,6 +623,8 @@ public class MMExportHistoryFragment extends Fragment {
             if (cdfFile == null){
                 MMUtilities.getInstance()
                         .errorHandler(getActivity(), R.string.error_unable_to_create_file);
+                Log.e(TAG, getActivity().getString(R.string.error_unable_to_create_file));
+
                 return null;
             }
             writer = new FileWriter(cdfFile);
@@ -640,6 +646,8 @@ public class MMExportHistoryFragment extends Fragment {
             writer.close();
         } catch (IOException e) {
             MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
+            Log.e(TAG, Log.getStackTraceString(e));
+
         }
         return cdfFile;
     }
@@ -707,6 +715,8 @@ public class MMExportHistoryFragment extends Fragment {
 
         } catch (Exception e) {
             MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
+            Log.e(TAG, Log.getStackTraceString(e));
+
         }
         return prescription;
     }
@@ -821,6 +831,8 @@ public class MMExportHistoryFragment extends Fragment {
 
         } catch (Exception e) {
             MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
+            Log.e(TAG, Log.getStackTraceString(e));
+
         }
 
         history.append(lf);
@@ -927,6 +939,8 @@ public class MMExportHistoryFragment extends Fragment {
 
         } catch (Exception e) {
             MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
+            Log.e(TAG, Log.getStackTraceString(e));
+
         }
 
         history.append(lf);

@@ -2,7 +2,6 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools=  "http://schemas.android.com/tools"
-    android:id=   "@+id/content_main"
 
     android:baselineAligned="false"
     android:layout_width=   "match_parent"
@@ -94,7 +93,6 @@
 
         <!-- Destination Label -->
         <TextView
-            android:id=           "@+id/exportDestinationsLabel"
 
             android:layout_height="wrap_content"
             android:layout_width= "match_parent"
@@ -301,7 +299,6 @@
 
         <!-- Content Label -->
         <TextView
-            android:id=           "@+id/exportContentLabel"
             android:layout_height="wrap_content"
             android:layout_width= "match_parent"
 

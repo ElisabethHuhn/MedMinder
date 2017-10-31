@@ -592,27 +592,12 @@ public class MMUtilities {
             ((MMMainActivity)context).finish();
 
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(context,
-                    "There is no email client installed.", Toast.LENGTH_SHORT).show();
+            errorHandler(context, R.string.no_email_client);
         }
     }
 
 
-/*
-http://stackoverflow.com/questions/2020088/sending-email-in-android-using-javamail-api-without-using-the-default-built-in-a/2033124#2033124
 
-    void sendEmailNoIntent (){
-        try {
-            GMailSender sender = new GMailSender("username@gmail.com", "password");
-            sender.sendMail("This is Subject",
-                    "This is Body",
-                    "user@gmail.com",
-                    "user@yahoo.com");
-        } catch (Exception e) {
-            Log.e("SendMail", e.getMessage(), e);
-        }
-    }
-*/
 
     //************************************/
     /*         Send Text to phone #      */
