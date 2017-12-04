@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -92,7 +93,7 @@ public class MMHomeFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater,
+    public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -139,7 +140,7 @@ public class MMHomeFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState){
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState){
         // Save custom values into the bundle
 
         //Save the isUIChanged flag
@@ -156,11 +157,14 @@ public class MMHomeFragment extends Fragment {
     public void onResume(){
         super.onResume();
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_home);
+        activity.setMMSubtitle(R.string.title_home);
 
         //Set the FAB visible
-        ((MMMainActivity) getActivity()).showFAB();
+        activity.showFAB();
 
         if (mSelectedPosition != sSELECTED_DIALOG_NOT_VISIBLE){
             //put the dialog back up
@@ -176,9 +180,10 @@ public class MMHomeFragment extends Fragment {
 
 
     private void wireWidgets(View v, Bundle savedInstanceState){
+        final MMMainActivity activity = (MMMainActivity)getActivity();
 
         //save Button
-        Button saveButton = (Button) v.findViewById(R.id.homeSaveButton);
+        Button saveButton =  v.findViewById(R.id.homeSaveButton);
         saveButton.setText(R.string.save_label);
         //the order of images here is left, top, right, bottom
         //mSaveButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
@@ -190,21 +195,21 @@ public class MMHomeFragment extends Fragment {
                 MMUtilities.getInstance().showStatus(getActivity(), R.string.save_label);
                 onSave();
 
-                ((MMMainActivity) getActivity()).switchToHomeScreen();
+                activity.switchToHomeScreen();
 
             }
         });
 
+        MMPerson person = getPerson();
+
+        //Can't rebuild views without a patient
+        if (person == null) return;
 
         EditText timeInput = getTimeInputView(v);
         //do not need to rebuild the views if they already exist or if the patient doesn't
         if ((timeInput != null) ||
             (getPersonID() == MMUtilities.ID_DOES_NOT_EXIST) ) return;
 
-        MMPerson person = getPerson();
-
-        //Can't rebuild views without a patient
-        if (person == null) return;
 
         ArrayList<MMMedication> medications = person.getMedications();
 
@@ -254,13 +259,16 @@ public class MMHomeFragment extends Fragment {
         //1) Inflate the layout for this fragment
         //      done in the caller
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
 
         //2) find and remember the RecyclerView
         RecyclerView recyclerView = getRecyclerView(v);
 
         //3) create and assign a layout manager to the recycler view
         boolean reverseLayout = false;
-        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity(),
+        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(activity,
                                                                        LinearLayoutManager.VERTICAL,
                                                                        reverseLayout);
 
@@ -270,10 +278,10 @@ public class MMHomeFragment extends Fragment {
 
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
         //      get  list of concurrentDoses
-        long earliestDate = MMSettings.getInstance().getHistoryDate((MMMainActivity)getActivity());
-        Cursor concurrentDoseCursor = concurrentDoseManager.getAllConcurrentDosesCursor(
-                                                ((MMMainActivity)getActivity()).getPatientID(),
-                                                  earliestDate);
+        long earliestDate = MMSettings.getInstance().getHistoryDate(activity);
+
+        Cursor concurrentDoseCursor =
+                concurrentDoseManager.getAllConcurrentDosesCursor(getPersonID(), earliestDate);
 
         //5) Use the data to Create and set out concurrentDose Adapter
         //     even though we're giving the Adapter the list,
@@ -288,8 +296,8 @@ public class MMHomeFragment extends Fragment {
             }
         }
         MMConcurrentDoseCursorAdapter adapter =
-                new MMConcurrentDoseCursorAdapter(getActivity(),
-                                                  ((MMMainActivity)getActivity()).getPatientID(),
+                new MMConcurrentDoseCursorAdapter(activity,
+                                                  getPersonID(),
                                                   numbMeds,
                                                   concurrentDoseCursor);
         recyclerView.setAdapter(adapter);
@@ -298,8 +306,8 @@ public class MMHomeFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         //7) create and add the item decorator
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
-                                                                   DividerItemDecoration.VERTICAL));
+        recyclerView.addItemDecoration(new DividerItemDecoration(activity,
+                                                                 DividerItemDecoration.VERTICAL));
  /*
            recyclerView.addItemDecoration(new DividerItemDecoration(
                 getActivity(),
@@ -308,7 +316,7 @@ public class MMHomeFragment extends Fragment {
 
         //8) add event listeners to the recycler view
         recyclerView.addOnItemTouchListener(
-            new RecyclerTouchListener(getActivity(), recyclerView, new ClickListener() {
+            new RecyclerTouchListener(activity, recyclerView, new ClickListener() {
 
                 @Override
                 public void onClick(View view, int position) {
@@ -323,26 +331,29 @@ public class MMHomeFragment extends Fragment {
     }
 
     private void initializeUI(View v){
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         //determine if a person is yet associated with the fragment
         if (getPersonID() != MMUtilities.ID_DOES_NOT_EXIST){
             //if there is a person corresponding to the patientID, put the name up on the screen
             MMPerson person = getPerson();
 
             if (person != null) {
-                TextView patientNickName = (TextView) v.findViewById(R.id.patientNickNameLabel);
+                TextView patientNickName =  v.findViewById(R.id.patientNickNameLabel);
                 patientNickName.setText(person.getNickname().toString().trim());
 
                 if (person.isCurrentlyExists()){
                     v.setBackgroundColor(ContextCompat.
-                            getColor(getActivity(), R.color.colorScreenBackground));
+                            getColor(activity, R.color.colorScreenBackground));
                 } else {
                     v.setBackgroundColor(ContextCompat.
-                            getColor(getActivity(), R.color.colorScreenDeletedBackground));
+                            getColor(activity, R.color.colorScreenDeletedBackground));
                 }
             }
         } else {
             v.setBackgroundColor(ContextCompat.
-                    getColor(getActivity(), R.color.colorScreenDeletedBackground));
+                    getColor(activity, R.color.colorScreenDeletedBackground));
         }
 
         //Time for current dose is set in addTimeFieldsToView() as it is created,
@@ -403,8 +414,7 @@ public class MMHomeFragment extends Fragment {
 
         if (v == null)return; //onCreateView() hasn't run yet
 
-        Button personSaveButton =
-                (Button) v.findViewById(R.id.homeSaveButton);
+        Button personSaveButton = v.findViewById(R.id.homeSaveButton);
 
         MMUtilities utilities = MMUtilities.getInstance();
         utilities.enableButton(getActivity(), personSaveButton, isEnabled);
@@ -485,6 +495,11 @@ public class MMHomeFragment extends Fragment {
         int padding = MMUtilities.getInstance().convertPixelsToDp(getActivity(), sizeInDp);
 
         LinearLayout layout = getDoseLayout(v);
+        if (layout == null)return;
+
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                                                     0,//width
                                                     ViewGroup.LayoutParams.WRAP_CONTENT);//height
@@ -492,47 +507,61 @@ public class MMHomeFragment extends Fragment {
         //lp.gravity = Gravity.CENTER;//set below too
         lp.setMarginEnd(padding);
 
-        EditText timeInputView = new EditText(getActivity());
+        final EditText timeInputView = new EditText(getActivity());
 
         timeInputView.setInputType(InputType.TYPE_CLASS_TEXT);
         timeInputView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         timeInputView.setLayoutParams(lp);
         timeInputView.setPadding(0,0,padding,0);
         timeInputView.setGravity(Gravity.CENTER);
-        timeInputView.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
-        timeInputView.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
+        timeInputView.setTextColor      (ContextCompat.getColor(activity,R.color.colorTextBlack));
+        timeInputView.setBackgroundColor(ContextCompat.getColor(activity,R.color.colorInputBackground));
         timeInputView.setFocusable(true);
 
+        setCurrentTime(timeInputView);
 
-        //Time input for this dose
+        //Set the listeners for the time field
         //There is no label for this field
-        timeInputView.setOnTouchListener(new View.OnTouchListener() {
+        timeInputView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                //indicate the UI has changed, so save is enabled now
+            public void onClick(View view) {
                 setUIChanged();
+            }
+        });
+
+        //reset time to current time on long press
+        timeInputView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                //reset time to current time
+                setCurrentTime(timeInputView);
                 return false;
             }
         });
 
+
+        layout.addView(timeInputView);
+
+    }
+
+    private void setCurrentTime(EditText timeInputView){
         String timeString;
 
         //put the local time up on the UI
         timeString = MMUtilitiesTime.getTimeString((MMMainActivity)getActivity());
         timeInputView.setText(timeString);
 
-        layout.addView(timeInputView);
-
     }
 
-    private Button addMedButtonToView(View         v,
+    private void addMedButtonToView(View         v,
                                       Bundle       savedInstanceState,
                                       int          viewNumber,
                                       MMMedication medication,
                                       int          sizeInDp){
-        Button   medButton;
-        EditText amountView;
+
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         String   buttonText = medication.getMedicationNickname().toString();
 
         int padding = MMUtilities.getInstance().convertPixelsToDp(getActivity(), sizeInDp);
@@ -541,8 +570,10 @@ public class MMHomeFragment extends Fragment {
         //Add the button to the button layout
         //
         LinearLayout medButtonsLayout = getMedButtonsLayout(v);
+        if (medButtonsLayout == null)return;
 
-        medButton = new Button(getActivity());
+        Button medButton = new Button(activity);
+
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,//width
                 ViewGroup.LayoutParams.WRAP_CONTENT);//height
@@ -550,7 +581,7 @@ public class MMHomeFragment extends Fragment {
         lp.setMarginEnd(padding);
 
         medButton.setLayoutParams(lp);
-        medButton.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorButton1Background));
+        medButton.setBackgroundColor(ContextCompat.getColor(activity,R.color.colorButton1Background));
 
         medButton.setPadding(0,0,padding,0);
         medButton.setText(buttonText);
@@ -563,19 +594,19 @@ public class MMHomeFragment extends Fragment {
 
         addMedButtonListener(medButton);
 
-
         //
         //add EditText to the dose layout
         //
         LinearLayout medDoseLayout = getDoseLayout(v);
+        if (medDoseLayout == null)return;
+
         lp = new LinearLayout.LayoutParams( 0,//width
                                             ViewGroup.LayoutParams.WRAP_CONTENT);//height
         lp.weight = 1f;
-
         lp.setMarginEnd(padding);
 
 
-        amountView = new EditText(getActivity());
+        final EditText amountView = new EditText(getActivity());
         amountView.setFreezesText(true);
         amountView.setHint("0");
         amountView.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -586,16 +617,16 @@ public class MMHomeFragment extends Fragment {
         amountView.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
         amountView.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
 
-        //add listener
-        amountView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
+        //If the user clicks in this view, enable the save button
+         amountView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+             @Override
+             public void onFocusChange(View view, boolean b) {
+                 //regardless if the focus is in or out
+                 setUIChanged();
+                 amountView.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorLightPink));
+             }
+         });
 
-                //indicate the UI has changed so save enabled
-                setUIChanged();
-                return false;
-            }
-        });
 
         String amountString;
         if (savedInstanceState == null){
@@ -607,8 +638,6 @@ public class MMHomeFragment extends Fragment {
         amountView.setText(amountString);
 
         medDoseLayout.addView(amountView);
-
-        return medButton;
     }
 
     private void   addMedButtonListener(Button medButton){
@@ -783,6 +812,9 @@ public class MMHomeFragment extends Fragment {
     }
 
     private void   showDose(int position){
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         if (getPersonID() != MMUtilities.ID_DOES_NOT_EXIST){
 
             MMPerson person = getPerson();

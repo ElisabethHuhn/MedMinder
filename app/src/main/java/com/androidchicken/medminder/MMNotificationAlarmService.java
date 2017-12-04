@@ -7,8 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v7.app.NotificationCompat;
+
 
 /**
  * Created by Elisabeth Huhn on 3/28/2017.

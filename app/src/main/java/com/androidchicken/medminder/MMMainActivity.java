@@ -203,6 +203,7 @@ public class MMMainActivity extends AppCompatActivity {
             //see if there is anything stored in shared preferences
             mPatientID = MMSettings.getInstance().getPatientID(this);
         }
+
         return mPatientID;
     }
 

@@ -38,8 +38,8 @@ class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcurrentDos
             super(v);
 
             //remember the views we know about at coding time
-            doseDate = (TextView) v.findViewById(R.id.doseDateLabel);
-            doseTime = (EditText) v.findViewById(R.id.doseTimeInput);
+            doseDate =  v.findViewById(R.id.doseDateLabel);
+            doseTime =  v.findViewById(R.id.doseTimeInput);
 
             //Add views for the medications that are contained in this concurrent dose:
             if (mActivity == null)return;
