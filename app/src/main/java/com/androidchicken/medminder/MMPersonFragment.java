@@ -13,7 +13,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -93,6 +92,9 @@ public class MMPersonFragment extends Fragment {
             setUISaved(v);
         }
 
+        ((MMMainActivity) getActivity()).handleFabVisibility();
+
+
         return v;
     }
 
@@ -124,7 +126,7 @@ public class MMPersonFragment extends Fragment {
         ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person);
 
         //Set the FAB visible
-        ((MMMainActivity) getActivity()).showFAB();
+        ((MMMainActivity) getActivity()).handleFabVisibility();
 
 
     }
@@ -236,7 +238,7 @@ public class MMPersonFragment extends Fragment {
             }
         });
 
-
+    /*  EMAIL and TEXT Addresses removed
         label = (TextView)(v.findViewById(R.id.personEmailAddrLabel));
         label.setText(R.string.person_email_addr_label);
 
@@ -299,6 +301,7 @@ public class MMPersonFragment extends Fragment {
                 setUIChanged();
             }
         });
+     */
     }
 
     private void wireListTitleWidgets(View v){
@@ -364,6 +367,8 @@ public class MMPersonFragment extends Fragment {
         //1) Inflate the layout for this fragment
         //      implemented in the caller: onCreateView()
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
         //2) find and remember the RecyclerView
         RecyclerView recyclerView = getRecyclerView(v);
@@ -379,7 +384,7 @@ public class MMPersonFragment extends Fragment {
 
         //5) Use the data to Create and set out medication Adapter
         MMMedicationCursorAdapter adapter =
-                            new MMMedicationCursorAdapter(getActivity(), getPatientID(), cursor);
+                            new MMMedicationCursorAdapter(activity, getPatientID(), cursor);
         recyclerView.setAdapter(adapter);
 
         //6) create and set the itemAnimator
@@ -387,16 +392,16 @@ public class MMPersonFragment extends Fragment {
 
 
         //7) create and add the item decorator
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+        recyclerView.addItemDecoration(new DividerItemDecoration(activity,
                                                                  DividerItemDecoration.VERTICAL));
 /*
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+        recyclerView.addItemDecoration(new DividerItemDecoration(activity,
                                                                  LinearLayoutManager.VERTICAL));
 */
 
         //8) add event listeners to the recycler view
         recyclerView.addOnItemTouchListener(
-                new MMHomeFragment.RecyclerTouchListener(getActivity(),
+                new MMHomeFragment.RecyclerTouchListener(activity,
                                                          recyclerView,
                                                          new MMHomeFragment.ClickListener() {
                     @Override
@@ -414,11 +419,13 @@ public class MMPersonFragment extends Fragment {
     }
 
     private void initializeUI(View v) {
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
 
-        EditText personNickNameInput  = (EditText) (v.findViewById(R.id.personNickNameInput));
-        EditText personEmailAddrInput = (EditText) (v.findViewById(R.id.personEmailAddrInput));
-        EditText personTextAddrInput  = (EditText) (v.findViewById(R.id.personTextAddrInput));
+        EditText personNickNameInput  = v.findViewById(R.id.personNickNameInput);
+        //EditText personEmailAddrInput = (EditText) (v.findViewById(R.id.personEmailAddrInput));
+        //EditText personTextAddrInput  = (EditText) (v.findViewById(R.id.personTextAddrInput));
 
         MMPerson person = getPerson();
         if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST) {
@@ -437,41 +444,45 @@ public class MMPersonFragment extends Fragment {
 
 
         //set the radio button to whether the Person exists
-        SwitchCompat existSwitch = (SwitchCompat) v.findViewById(R.id.switchExists) ;
+        SwitchCompat existSwitch = v.findViewById(R.id.switchExists) ;
 
         //This is certainly overkill, but it is explicit
         if (person.isCurrentlyExists()){
             existSwitch.setChecked(true);
-            v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorScreenBackground));
+            v.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorScreenBackground));
          } else {
             existSwitch.setChecked(false);
-            v.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorScreenDeletedBackground));
+            v.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorScreenDeletedBackground));
         }
 
         personNickNameInput .setText(person.getNickname()    .toString().trim());
-        personEmailAddrInput.setText(person.getEmailAddress().toString().trim());
-        personTextAddrInput .setText(person.getTextAddress() .toString().trim());
+        //personEmailAddrInput.setText(person.getEmailAddress().toString().trim());
+        //personTextAddrInput .setText(person.getTextAddress() .toString().trim());
 
         setUISaved(v);
     }
 
     private void onSave(){
-        MMUtilities.getInstance().showStatus(getActivity(), R.string.save_label);
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        MMUtilities.getInstance().showStatus(activity, R.string.save_label);
 
         //get rid of the soft keyboard
-        MMUtilities.getInstance().hideSoftKeyboard(getActivity());
+        MMUtilities.getInstance().hideSoftKeyboard(activity);
 
         View v = getView();
         if (v == null)return;
 
-         EditText personNickNameInput  = (EditText) (v.findViewById(R.id.personNickNameInput));
-        EditText personEmailAddrInput = (EditText) (v.findViewById(R.id.personEmailAddrInput));
-        EditText personTextAddrInput  = (EditText) (v.findViewById(R.id.personTextAddrInput));
-
+        EditText personNickNameInput  = v.findViewById(R.id.personNickNameInput);
+        /*
+        EditText personEmailAddrInput = v.findViewById(R.id.personEmailAddrInput);
+        EditText personTextAddrInput  = v.findViewById(R.id.personTextAddrInput);
+        */
 
         CharSequence nickname = personNickNameInput.getText();
         if (nickname.toString().isEmpty()){
-            MMUtilities.getInstance().errorHandler(getActivity(), R.string.person_not_valid);
+            MMUtilities.getInstance().errorHandler(activity, R.string.person_not_valid);
             return;
         }
         //If this person already exists, we do NOT want to create a new Person object
@@ -484,21 +495,22 @@ public class MMPersonFragment extends Fragment {
             person = personManager.getPerson(getPatientID());
         }
 
-        SwitchCompat existSwitch = (SwitchCompat) getView().findViewById(R.id.switchExists);
+        SwitchCompat existSwitch = getView().findViewById(R.id.switchExists);
 
         if (existSwitch.isChecked()) {
             person.setCurrentlyExists(true);
             v.setBackgroundColor(ContextCompat.
-                    getColor(getActivity(),R.color.colorScreenBackground));
+                    getColor(activity,R.color.colorScreenBackground));
         } else {
             person.setCurrentlyExists(false);
             v.setBackgroundColor(ContextCompat.
-                    getColor(getActivity(), R.color.colorScreenDeletedBackground));
+                    getColor(activity, R.color.colorScreenDeletedBackground));
         }
 
 
         person.setNickname(nickname);
 
+        /*
         //strings are set to "" in the constructor, so the empty case can be ignored
         //but do need to know if legal input has been made
         String temp = personEmailAddrInput.getText().toString().trim();
@@ -510,6 +522,7 @@ public class MMPersonFragment extends Fragment {
         if (!(temp.isEmpty())){
             person.setTextAddress(temp);
         }
+        */
 
         //done in constructor
         // person.setMedications(new ArrayList<MMMedication>());
@@ -519,7 +532,7 @@ public class MMPersonFragment extends Fragment {
         boolean addToDBToo = true;
         long returnCode = MMPersonManager.getInstance().addPerson(person, addToDBToo);
         if (returnCode != MMDatabaseManager.sDB_ERROR_CODE) {
-            MMUtilities.getInstance().errorHandler(getActivity(), R.string.save_successful);
+            MMUtilities.getInstance().errorHandler(activity, R.string.save_successful);
             //if the person is newly created, the ID is assigned on DB add
             setPatientID(returnCode);
 
@@ -535,12 +548,15 @@ public class MMPersonFragment extends Fragment {
             }
             setUISaved();
         } else {
-            MMUtilities.getInstance().errorHandler(getActivity(), R.string.save_unsuccessful);
+            MMUtilities.getInstance().errorHandler(activity, R.string.save_unsuccessful);
         }
      }
 
     public void onExit(){
-        MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        MMUtilities.getInstance().showStatus(activity, R.string.exit_label);
 
         //if something has changed in the UI, ask first
         if (isUIChanged){
@@ -556,7 +572,10 @@ public class MMPersonFragment extends Fragment {
     //***********************************/
     //Build and display the alert dialog
     private void areYouSureExit(){
-        new AlertDialog.Builder(getActivity())
+        final MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        new AlertDialog.Builder(activity)
                 .setTitle(R.string.abandon_title)
                 .setIcon(R.drawable.ic_mortar_black_24dp)
                 .setMessage(R.string.are_you_sure)
@@ -571,7 +590,7 @@ public class MMPersonFragment extends Fragment {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // do nothing
-                        MMUtilities.getInstance().showStatus(getActivity(), R.string.pressed_cancel);
+                        MMUtilities.getInstance().showStatus(activity, R.string.pressed_cancel);
 
                     }
                 })
@@ -638,12 +657,13 @@ public class MMPersonFragment extends Fragment {
 
     private void saveButtonEnable(View v, boolean isEnabled){
         if (v == null)return; //onCreateView() hasn't run yet
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
-        Button personSaveButton =
-                (Button) v.findViewById(R.id.personSaveButton);
+        Button personSaveButton = v.findViewById(R.id.personSaveButton);
 
         MMUtilities utilities = MMUtilities.getInstance();
-        utilities.enableButton(getActivity(), personSaveButton, isEnabled);
+        utilities.enableButton(activity, personSaveButton, isEnabled);
     }
 
 
@@ -653,12 +673,15 @@ public class MMPersonFragment extends Fragment {
 
     //called from onClick(), executed when a medication is selected
     private void onSelect(int position){
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         MMMedicationCursorAdapter adapter = getAdapter(getView());
         //MMMedication selectedMedication = adapter.getMedicationAt(position);
 
         adapter.notifyItemChanged(position);
 
-        ((MMMainActivity) getActivity()).switchToMedicationScreen(position, MMMainActivity.sPersonTag);
+        activity.switchToMedicationScreen(position, MMMainActivity.sPersonTag);
     }
 
 

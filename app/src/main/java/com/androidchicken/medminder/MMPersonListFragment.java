@@ -110,6 +110,8 @@ public class MMPersonListFragment extends Fragment {
 
         //set the title bar subtitle
         ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person_list);
+        ((MMMainActivity) getActivity()).handleFabVisibility();
+
 
 
         //9) return the view
@@ -125,7 +127,7 @@ public class MMPersonListFragment extends Fragment {
         ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person_list);
 
         //Set the FAB visible
-        ((MMMainActivity) getActivity()).showFAB();
+        ((MMMainActivity) getActivity()).handleFabVisibility();
 
 
     }
@@ -139,22 +141,25 @@ public class MMPersonListFragment extends Fragment {
         View field_container;
         TextView label;
 
-        MMMainActivity myActivity = (MMMainActivity)getActivity();
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
         //set up the labels for the medication list
         field_container = v.findViewById(R.id.personTitleRow);
 
         label = (EditText) (field_container.findViewById(R.id.personNickNameInput));
         label.setText(R.string.person_nick_name_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
 
+        /*
         label = (EditText) (field_container.findViewById(R.id.personEmailAddrInput));
         label.setText(R.string.person_email_addr_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.personTextAddrInput));
         label.setText(R.string.person_text_addr_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
+        */
     }
 
     private void initializeRecyclerView(View v){

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -39,6 +40,7 @@ public class MMMainActivity extends AppCompatActivity {
 
     private long mPatientID = MMUtilities.ID_DOES_NOT_EXIST;
 
+
     //**************************************************************/
     //********** Livecycle methods                     *************/
     //**************************************************************/
@@ -47,7 +49,7 @@ public class MMMainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         initializeFAB();
@@ -163,8 +165,8 @@ public class MMMainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[],
-                                           int[] grantResults) {
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
         switch (requestCode) {
 
             case SMS_PERMISSIONS_REQUEST_CODE: {
@@ -224,15 +226,35 @@ public class MMMainActivity extends AppCompatActivity {
     //********** Methods dealing with the FAB          *************/
     //**************************************************************/
     private void initializeFAB(){
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        final MMMainActivity activity = this;
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                handleFAB(view);
+                if (MMSettings.getInstance().getFabVisible(activity)) {
+                    handleFAB(view);
+                }
             }
         });
-    }
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                MMSettings.getInstance().setFabVisible(activity,false);
+                hideFAB();
+                return true;
+            }
+        });
+        handleFabVisibility();
+     }
 
+    void handleFabVisibility(){
+        if (MMSettings.getInstance().getFabVisible(this)){
+            showFAB();
+        } else {
+            hideFAB();
+        }
+
+    }
     private void handleFAB(View view){
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
@@ -278,12 +300,12 @@ public class MMMainActivity extends AppCompatActivity {
     }
 
     public void showFAB(){
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setVisibility(View.VISIBLE);
     }
 
     public void hideFAB(){
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setVisibility(View.GONE);
     }
 
@@ -340,9 +362,15 @@ public class MMMainActivity extends AppCompatActivity {
         } else  if (id == R.id.action_export) {
             switchToExportScreen();
             return true;
+
+            /* remove Alerts from first release. They just don't work right yet
         } else if (id == R.id.action_alert){
+
+            // TODO: 12/8/2017 restore alerts when have figured out how to survive reboot
             switchToMedicationAlertScreen();
             return true;
+            */
+
         } else if (id == R.id.action_med_help){
             if (getPatientID() != MMUtilities.ID_DOES_NOT_EXIST) {
                 //Show the medication positions for the history list

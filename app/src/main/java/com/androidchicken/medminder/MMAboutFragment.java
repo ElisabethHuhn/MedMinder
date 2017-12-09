@@ -182,6 +182,7 @@ public class MMAboutFragment extends Fragment {
 
         //set the title bar subtitle
         ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_about);
+        ((MMMainActivity) getActivity()).handleFabVisibility();
 
 
 

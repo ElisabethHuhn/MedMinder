@@ -62,6 +62,8 @@ public class MMSettingsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return null;
 
         //Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_settings, container, false);
@@ -72,7 +74,7 @@ public class MMSettingsFragment extends Fragment {
         initializeUI(v);
 
         //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person);
+        activity.setMMSubtitle(R.string.title_person);
 
         //Set the changed UI flag based on whether we are recreating the View
         if (savedInstanceState != null) {
@@ -85,6 +87,8 @@ public class MMSettingsFragment extends Fragment {
         } else {
             setUISaved(v);
         }
+
+        ((MMMainActivity) getActivity()).handleFabVisibility();
 
         return v;
     }
@@ -147,6 +151,8 @@ public class MMSettingsFragment extends Fragment {
 
     private void wireWidgets(View v){
 
+        final MMMainActivity activity = (MMMainActivity)getActivity();
+
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
@@ -185,73 +191,76 @@ public class MMSettingsFragment extends Fragment {
 
 
 
-        EditText defaultTimeDueInput = (EditText) v.findViewById(R.id.settingDefaultTimeDueInput);
+        EditText defaultTimeDueInput = v.findViewById(R.id.settingDefaultTimeDueInput);
         defaultTimeDueInput.addTextChangedListener(textWatcher);
 
-        EditText earliestHistoryDateInput =
-                                    (EditText) v.findViewById(R.id.settingEarliestHistoryDateInput);
+        EditText earliestHistoryDateInput = v.findViewById(R.id.settingEarliestHistoryDateInput);
         earliestHistoryDateInput.addTextChangedListener(textWatcher);
 
-        SwitchCompat clock24Switch = (SwitchCompat) v.findViewById(R.id.switch24Format);
+        SwitchCompat clock24Switch = v.findViewById(R.id.switch24Format);
         clock24Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                MMSettings.getInstance().setClock24Format((MMMainActivity)getActivity(), isChecked);
+                MMSettings.getInstance().setClock24Format(activity, isChecked);
             }
         });
 
 
-        SwitchCompat showDelPersonSwitch = (SwitchCompat) v.findViewById(R.id.switchShowDeletedPeople);
+        SwitchCompat showDelPersonSwitch = v.findViewById(R.id.switchShowDeletedPeople);
         showDelPersonSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                MMSettings.getInstance().setShowDeletedPersons(
-                                                        (MMMainActivity)getActivity(), isChecked);
+                MMSettings.getInstance().setShowDeletedPersons(activity, isChecked);
             }
         });
 
 
-        SwitchCompat showDelMedSwitch = (SwitchCompat) v.findViewById(R.id.switchShowDeletedMeds);
+        SwitchCompat showDelMedSwitch = v.findViewById(R.id.switchShowDeletedMeds);
         showDelMedSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                MMSettings.getInstance().setShowDeletedMeds(
-                                                          (MMMainActivity)getActivity(), isChecked);
+                MMSettings.getInstance().setShowDeletedMeds(activity, isChecked);
             }
         });
 
 
-        SwitchCompat soundWithNotifSwitch = (SwitchCompat) v.findViewById(R.id.switchSoundWithMedNotif);
+        SwitchCompat soundWithNotifSwitch = v.findViewById(R.id.switchSoundWithMedNotif);
         soundWithNotifSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                MMSettings.getInstance().setSoundNotification(
-                                                        (MMMainActivity)getActivity(), isChecked);
+                MMSettings.getInstance().setSoundNotification(activity, isChecked);
             }
         });
 
 
-        SwitchCompat vibrateWithNotifSwitch =
-                                    (SwitchCompat) v.findViewById(R.id.switchVibrateWithMedNotif);
+        SwitchCompat vibrateWithNotifSwitch = v.findViewById(R.id.switchVibrateWithMedNotif);
         vibrateWithNotifSwitch.
                         setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                MMSettings.getInstance().setVibrateNotification(
-                                                         (MMMainActivity)getActivity(), isChecked);
+                MMSettings.getInstance().setVibrateNotification(activity, isChecked);
             }
         });
 
+
+        SwitchCompat showFAB = v.findViewById(R.id.switchFabVisible);
+        showFAB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                        MMSettings.getInstance().setFabVisible(activity, isChecked);
+                    }
+                });
      }
 
 
     private void initializeUI(View v) {
 
         MMSettings settings = MMSettings.getInstance();
+        MMMainActivity activity = (MMMainActivity)getActivity();
 
         //Initialize the Patient Name
-        EditText personNickNameInput = (EditText) (v.findViewById(settingPersonNickNameInput));
-        long patientId = ((MMMainActivity)getActivity()).getPatientID();
+        EditText personNickNameInput = v.findViewById(settingPersonNickNameInput);
+        long patientId = activity.getPatientID();
         CharSequence personName = null;
         if (patientId != MMUtilities.ID_DOES_NOT_EXIST) {
             MMPerson person = MMPersonManager.getInstance().getPerson(patientId);
@@ -263,50 +272,43 @@ public class MMSettingsFragment extends Fragment {
 
 
         //Initialize the default time due for any created schedules
-        EditText defaultTimeDueInput = (EditText) v.findViewById(R.id.settingDefaultTimeDueInput);
-        long timeMinutes   = settings.getDefaultTimeDue((MMMainActivity)getActivity());
+        EditText defaultTimeDueInput = v.findViewById(R.id.settingDefaultTimeDueInput);
+        long timeMinutes   = settings.getDefaultTimeDue(activity);
         long timeMilliseconds = (timeMinutes * 60000);
 
         CharSequence timeString = MMUtilities.getInstance().
-                                    getTimeString((MMMainActivity)getActivity(), timeMilliseconds);
+                                    getTimeString(activity, timeMilliseconds);
         defaultTimeDueInput.setText(timeString);
 
 
-        EditText earliestHistoryDateInput =
-                (EditText) v.findViewById(R.id.settingEarliestHistoryDateInput);
-        long historyDate = settings.getHistoryDate((MMMainActivity)getActivity());
+        EditText earliestHistoryDateInput = v.findViewById(R.id.settingEarliestHistoryDateInput);
+        long historyDate = settings.getHistoryDate(activity);
         String historyDateString = getDateString(historyDate);
         earliestHistoryDateInput.setText(historyDateString);
 
-
-
         //Set all the switches from the stored Preferences
-        SwitchCompat clock24Switch = (SwitchCompat) v.findViewById(R.id.switch24Format);
-        clock24Switch.setChecked(settings.getClock24Format((MMMainActivity)getActivity()));
+        SwitchCompat clock24Switch =  v.findViewById(R.id.switch24Format);
+        clock24Switch.setChecked(settings.getClock24Format(activity));
 
 
-        SwitchCompat showDelPersonSwitch =
-                                    (SwitchCompat) v.findViewById(R.id.switchShowDeletedPeople);
-        showDelPersonSwitch.setChecked(settings.
-                                            getShowDeletedPersons((MMMainActivity)getActivity()));
+        SwitchCompat showDelPersonSwitch = v.findViewById(R.id.switchShowDeletedPeople);
+        showDelPersonSwitch.setChecked(settings.getShowDeletedPersons(activity));
 
 
-        SwitchCompat showDelMedSwitch =
-                                    (SwitchCompat) v.findViewById(R.id.switchShowDeletedMeds);
-        showDelMedSwitch.setChecked(settings.getShowDeletedMeds((MMMainActivity)getActivity()));
+        SwitchCompat showDelMedSwitch = v.findViewById(R.id.switchShowDeletedMeds);
+        showDelMedSwitch.setChecked(settings.getShowDeletedMeds(activity));
 
 
-        SwitchCompat soundWithNotifSwitch =
-                                    (SwitchCompat) v.findViewById(R.id.switchSoundWithMedNotif);
-        soundWithNotifSwitch.setChecked(settings.
-                                            getSoundNotification((MMMainActivity)getActivity()));
+        SwitchCompat soundWithNotifSwitch = v.findViewById(R.id.switchSoundWithMedNotif);
+        soundWithNotifSwitch.setChecked(settings.getSoundNotification(activity));
 
 
-        SwitchCompat vibrateWithNotifSwitch =
-                                    (SwitchCompat) v.findViewById(R.id.switchVibrateWithMedNotif);
-        vibrateWithNotifSwitch.setChecked(settings.
-                                            getVibrateNotification((MMMainActivity)getActivity()));
+        SwitchCompat vibrateWithNotifSwitch = v.findViewById(R.id.switchVibrateWithMedNotif);
+        vibrateWithNotifSwitch.setChecked(settings.getVibrateNotification(activity));
 
+
+        SwitchCompat showFAB = v.findViewById(R.id.switchFabVisible);
+        showFAB.setChecked(settings.getFabVisible(activity));
         //setUISaved(v);
     }
 
@@ -321,10 +323,11 @@ public class MMSettingsFragment extends Fragment {
         CharSequence timeString = defaultTimeDueInput.getText();
 
         MMSettings settings = MMSettings.getInstance();
+        MMMainActivity activity = (MMMainActivity)getActivity();
 
         //convert to # minutes since midnight
         long minutesSinceMidnight = MMUtilitiesTime.convertStringToMinutesSinceMidnight(
-                                                                (MMMainActivity)getActivity(),
+                                                                activity,
                                                                 timeString.toString());
 
         if (minutesSinceMidnight < 0) {
@@ -337,7 +340,7 @@ public class MMSettingsFragment extends Fragment {
                     getTimeString((MMMainActivity) getActivity(), msSinceMidnight);
             defaultTimeDueInput.setText(timeString);
         }
-        settings.setDefaultTimeDue((MMMainActivity)getActivity(), minutesSinceMidnight);
+        settings.setDefaultTimeDue(activity, minutesSinceMidnight);
 
         //Earliest date in home history
         EditText earliestHistoryDateInput =
@@ -346,7 +349,7 @@ public class MMSettingsFragment extends Fragment {
 
         boolean isTimeFlag = false; //We are converting to a date, not a time
         long historyDateMilli = MMUtilitiesTime.
-                    convertStringToTimeMs((MMMainActivity)getActivity(), dateString, isTimeFlag);
+                    convertStringToTimeMs(activity, dateString, isTimeFlag);
 
         if (historyDateMilli != 0) {
             settings.setHistoryDate((MMMainActivity) getActivity(), historyDateMilli);

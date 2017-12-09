@@ -129,6 +129,8 @@ public class MMExportHistoryFragment extends Fragment {
         setUIChanged();
 
         ((MMMainActivity)getActivity()).isFilePermissionGranted();
+        ((MMMainActivity) getActivity()).handleFabVisibility();
+
 
         return v;
     }

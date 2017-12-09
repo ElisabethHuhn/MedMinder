@@ -138,88 +138,10 @@
             </TableRow>
 
             <!-- Row 5: Person Email Address -->
-            <TableRow
-                  android:layout_width=  "match_parent"
-                  android:layout_height= "wrap_content"
-                  android:layout_gravity="center_horizontal"
-                  android:paddingTop=    "5dp"
-                >
-                <TextView
-                    android:id=           "@+id/personEmailAddrLabel"
-                    android:labelFor=     "@+id/personEmailAddrInput"
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="25"
-                    android:gravity=      "end"
 
-                    android:freezesText="true"
-
-                    android:focusable="false"
-
-                    android:textColor=    "@color/colorTextBlack"
-                    android:background=   "@color/colorLabelBackground"
-                    />
-                <EditText
-                    android:id=           "@id/personEmailAddrInput"
-
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="75"
-                    android:gravity="center_horizontal"
-
-                    android:freezesText="true"
-
-                    android:inputType=    "textEmailAddress"
-                    android:imeOptions=   "flagNoExtractUi"
-
-                    android:layout_marginEnd="16dp"
-
-                    android:textColor=    "@color/colorTextBlack"
-                    android:background=   "@color/colorInputBackground"
-                    />
-            </TableRow>
 
             <!-- Row 6: Person Text Address -->
-            <TableRow
-                  android:layout_width=  "match_parent"
-                  android:layout_height= "wrap_content"
-                  android:layout_gravity="center_horizontal"
-                  android:paddingTop=    "5dp"
-                >
-                <TextView
-                    android:id=           "@+id/personTextAddrLabel"
-                    android:labelFor=     "@+id/personTextAddrInput"
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="25"
-                    android:gravity=      "end"
 
-                    android:freezesText="true"
-
-                    android:focusable="false"
-
-                    android:textColor=    "@color/colorTextBlack"
-                    android:background=   "@color/colorLabelBackground"
-                    />
-                <EditText
-                    android:id=           "@id/personTextAddrInput"
-
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="75"
-                    android:gravity="center_horizontal"
-
-                    android:freezesText="true"
-
-                    android:inputType=    "text"
-                    android:imeOptions=   "flagNoExtractUi"
-
-                    android:layout_marginEnd="16dp"
-
-                    android:textColor=    "@color/colorTextBlack"
-                    android:background=   "@color/colorInputBackground"
-                    />
-            </TableRow>
 
             <!-- Row 7: Scroll Hint -->
             <TableRow

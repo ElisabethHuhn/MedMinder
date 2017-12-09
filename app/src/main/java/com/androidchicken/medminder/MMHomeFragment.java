@@ -115,17 +115,14 @@ public class MMHomeFragment extends Fragment {
         //Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
-
         //Wire up the UI widgets so they can handle events later
         wireWidgets(v, savedInstanceState);
         initializeRecyclerView(v);
         initializeUI(v);
 
-
         //hide the soft keyboard
         MMUtilities utilities = MMUtilities.getInstance();
         utilities.hideSoftKeyboard(getActivity());
-
 
 
         //start the medButton animation
@@ -134,7 +131,7 @@ public class MMHomeFragment extends Fragment {
         //Set the changed UI flag based on whether we are recreating the View
         initializeChangedUI(v, savedInstanceState);
 
-
+        ((MMMainActivity) getActivity()).handleFabVisibility();
 
         return v;
     }
@@ -163,8 +160,8 @@ public class MMHomeFragment extends Fragment {
         //set the title bar subtitle
         activity.setMMSubtitle(R.string.title_home);
 
-        //Set the FAB visible
-        activity.showFAB();
+        //Set the FAB visible if user wants it
+        activity.handleFabVisibility();
 
         if (mSelectedPosition != sSELECTED_DIALOG_NOT_VISIBLE){
             //put the dialog back up
@@ -181,6 +178,18 @@ public class MMHomeFragment extends Fragment {
 
     private void wireWidgets(View v, Bundle savedInstanceState){
         final MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        //Set up for long press on patient nickname
+        TextView patientNick = v.findViewById(R.id.patientNickNameLabel);
+        if (patientNick == null)return;
+        patientNick.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                ((MMMainActivity)getActivity()).switchToPersonScreen();
+                return true;
+            }
+        });
 
         //save Button
         Button saveButton =  v.findViewById(R.id.homeSaveButton);

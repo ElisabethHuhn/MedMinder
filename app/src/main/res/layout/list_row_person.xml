@@ -36,38 +36,10 @@
             />
 
         <!-- Email Address 15 -->
-        <EditText
-                android:id="@+id/personEmailAddrInput"
 
-                android:layout_height="wrap_content"
-                android:layout_width="0dp"
-                android:layout_weight="20"
-                android:gravity="center"
-
-                android:layout_marginEnd="@dimen/listrow_field_separator"
-
-                android:inputType="textEmailAddress"
-
-                android:textColor="@color/colorTextBlack"
-                android:background="@color/colorHistoryBackground"
-                />
 
         <!-- Text Address 15 -->
-        <EditText
-                android:id="@+id/personTextAddrInput"
 
-                android:layout_height="wrap_content"
-                android:layout_width= "0dp"
-                android:layout_weight="20"
-                android:gravity="center"
-
-                android:layout_marginEnd="@dimen/listrow_field_separator"
-
-                android:inputType="phone"
-                android:textColor="@color/colorTextBlack"
-                android:background="@color/colorHistoryBackground"
-
-                 />
 
 </LinearLayout>
 

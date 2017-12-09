@@ -125,6 +125,8 @@ public class MMMedicationAlertFragment extends Fragment  {
         initializeUI(v);
 
         ((MMMainActivity)getActivity()).isSMSPermissionGranted();
+        ((MMMainActivity) getActivity()).handleFabVisibility();
+
 
         return v;
     }
@@ -139,7 +141,7 @@ public class MMMedicationAlertFragment extends Fragment  {
         ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_medication_alert);
 
         //Set the FAB visible
-        ((MMMainActivity) getActivity()).showFAB();
+        ((MMMainActivity) getActivity()).handleFabVisibility();
 
 
         //hide the soft keyboard if it is visible

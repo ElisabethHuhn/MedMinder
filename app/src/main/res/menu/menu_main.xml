@@ -44,12 +44,7 @@
         android:title="@string/action_about"
         app:showAsAction="never"
         />
-    <item
-        android:id="@+id/action_alert"
-        android:orderInCategory="160"
-        android:title="@string/action_med_alert"
-        app:showAsAction="never"
-        />
+
     <item
         android:id="@+id/action_med_help"
         android:orderInCategory="170"

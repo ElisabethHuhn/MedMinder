@@ -92,6 +92,8 @@ public class MMHistoryTitleLineFragment extends Fragment {
         wireWidgets(v);
         initializeRecyclerView(v);
         initializeUI(v);
+        ((MMMainActivity) getActivity()).handleFabVisibility();
+
 
         return v;
     }

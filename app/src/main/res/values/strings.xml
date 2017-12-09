@@ -218,6 +218,7 @@
     <string name="settings_show_deleted_meds"   >Show Deleted Medications?</string>
     <string name="settings_notification_vibrate">Vibrate with Medication Notifications?</string>
     <string name="settings_notification_sound"  >Sound with Medication Notifications?</string>
+    <string name="settings_show_fab"            >Show Floating Action Button shortcut?</string>
 
     <!--      Medication Alert SCREEN                  -->
     <!--  -->

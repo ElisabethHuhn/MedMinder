@@ -67,8 +67,8 @@ public class MMScheduleListFragment extends Fragment {
         MMUtilities utilities = MMUtilities.getInstance();
         utilities.hideSoftKeyboard(getActivity());
 
+        ((MMMainActivity) getActivity()).handleFabVisibility();
 
-        //9) return the view
         return v;
     }
 

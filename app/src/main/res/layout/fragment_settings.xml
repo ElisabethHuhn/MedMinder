@@ -333,6 +333,22 @@
 
             </TableRow>
 
+            <!-- Show FAB? -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width ="match_parent"
+                android:paddingTop="10dp"
+                android:gravity="center"
+                >
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/switchFabVisible"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_show_fab"/>
+
+            </TableRow>
+
 
         </TableLayout>
 

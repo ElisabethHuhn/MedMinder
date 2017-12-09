@@ -25,7 +25,8 @@ import static android.R.attr.defaultValue;
     private static final String sMedDeleteTag           = "medDelete" ;
     private static final String sSoundNotificationTag   = "soundNotification" ;
     private static final String sVibrateNotificationTag = "vibrateNotification" ;
-    private static final String sLengthOfHistoryTag = "lengthHistory";
+    private static final String sLengthOfHistoryTag     = "lengthHistory";
+    private static final String sFabVisibleTag          = "fabVisible";
 
     //6:00 AM, minutes since Midnight local time
     static final int   sDefaultTimeDue         =  (6*60);
@@ -202,6 +203,18 @@ import static android.R.attr.defaultValue;
         editor.apply();
     }
 
+
+    boolean getFabVisible(MMMainActivity activity)  {
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        boolean defaultValue = true;
+        return sharedPref.getBoolean(MMSettings.sFabVisibleTag, defaultValue);
+    }
+    void    setFabVisible(MMMainActivity activity, boolean isFabVisible){
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(MMSettings.sFabVisibleTag, isFabVisible);
+        editor.apply();
+    }
 
 
 }

@@ -24,15 +24,14 @@ class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAdapter.M
     //implement the ViewHolder as an inner class
     class MyViewHolder extends RecyclerView.ViewHolder {
         //The views in each row to be displayed
-        TextView personNickName, personEmailAddr, personTextAddr;
+        TextView personNickName;
 
 
         MyViewHolder(View v) {
             super(v);
 
-            personNickName  = (TextView) v.findViewById(R.id.personNickNameInput);
-            personEmailAddr = (TextView) v.findViewById(R.id.personEmailAddrInput);
-            personTextAddr  = (TextView) v.findViewById(R.id.personTextAddrInput);
+            personNickName  = v.findViewById(R.id.personNickNameInput);
+
         }
 
     } //end inner class MyViewHolder
@@ -76,8 +75,7 @@ class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAdapter.M
             //if there aren't any people, just return
             if (mPersonCursor == null) {
                 holder.personNickName. setText(mContext.getString(R.string.no_persons_defined));
-                holder.personEmailAddr.setText("");
-                holder.personTextAddr. setText("");
+
 
                 setBackColor(holder, R.color.colorGray);
                 return;
@@ -90,8 +88,7 @@ class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAdapter.M
         MMPerson person = personManager.getPersonFromCursor(mPersonCursor, position);
 
         holder.personNickName. setText(person.getNickname());
-        holder.personEmailAddr.setText(person.getEmailAddress());
-        holder.personTextAddr. setText(person.getTextAddress());
+
 
         if (person.isCurrentlyExists()){
             setBackColor(holder, R.color.colorWhite);
@@ -103,8 +100,7 @@ class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAdapter.M
 
     private void setBackColor(MMPersonCursorAdapter.MyViewHolder holder, int newColor){
         holder.personNickName.   setBackgroundColor(ContextCompat.getColor(mContext, newColor));
-        holder.personEmailAddr.  setBackgroundColor(ContextCompat.getColor(mContext, newColor));
-        holder.personTextAddr.setBackgroundColor(ContextCompat.getColor(mContext, newColor));
+
     }
 
 

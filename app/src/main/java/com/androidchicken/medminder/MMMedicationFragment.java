@@ -182,6 +182,9 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             }
         }
 
+        ((MMMainActivity) getActivity()).handleFabVisibility();
+
+
         return v;
     }
 
@@ -206,7 +209,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_medication);
 
         //Set the FAB visible
-        ((MMMainActivity) getActivity()).showFAB();
+        ((MMMainActivity) getActivity()).handleFabVisibility();
 
 
         //hide the soft keyboard if it is visible
