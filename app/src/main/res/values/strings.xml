@@ -151,6 +151,7 @@
     <string name="about_privacy_output"         >Mobile Gurus Inc.</string>
     <string name="about_eula_label"             >End User License Agreement</string>
     <string name="about_eula_output"            >Mobile Gurus Inc.</string>
+    <string name="about_tips_label"             >Home Screen Tips</string>
 
 
 
@@ -219,6 +220,7 @@
     <string name="settings_notification_vibrate">Vibrate with Medication Notifications?</string>
     <string name="settings_notification_sound"  >Sound with Medication Notifications?</string>
     <string name="settings_show_fab"            >Show Floating Action Button shortcut?</string>
+    <string name="settings_home_shading"        >Show shading on Home Screen Historical Data?</string>
 
     <!--      Medication Alert SCREEN                  -->
     <!--  -->

@@ -2,6 +2,7 @@ package com.androidchicken.medminder;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
@@ -59,7 +60,7 @@ public class MMSettingsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater,
+    public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
         MMMainActivity activity = (MMMainActivity)getActivity();
@@ -105,7 +106,7 @@ public class MMSettingsFragment extends Fragment {
             //get rid of the soft keyboard if it is visible
             View v = getView();
             if (v != null) {
-                EditText personNickNameInput = (EditText) (v.findViewById(settingPersonNickNameInput));
+                EditText personNickNameInput = v.findViewById(settingPersonNickNameInput);
                 MMUtilities.getInstance().showSoftKeyboard(getActivity(), personNickNameInput);
             }
         } else {
@@ -178,7 +179,7 @@ public class MMSettingsFragment extends Fragment {
         };
 
         //Save Button
-        Button saveButton = (Button) v.findViewById(R.id.settingsSaveButton);
+        Button saveButton = v.findViewById(R.id.settingsSaveButton);
         saveButton.setText(R.string.save_label);
         //the order of images here is left, top, right, bottom
         //saveButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
@@ -250,7 +251,18 @@ public class MMSettingsFragment extends Fragment {
                         MMSettings.getInstance().setFabVisible(activity, isChecked);
                     }
                 });
-     }
+
+        SwitchCompat homeShading = v.findViewById(R.id.switchHomeShading);
+        homeShading.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                MMSettings.getInstance().setHomeShading(activity, isChecked);
+            }
+        });
+
+
+
+    }
 
 
     private void initializeUI(View v) {
@@ -261,7 +273,7 @@ public class MMSettingsFragment extends Fragment {
         //Initialize the Patient Name
         EditText personNickNameInput = v.findViewById(settingPersonNickNameInput);
         long patientId = activity.getPatientID();
-        CharSequence personName = null;
+        CharSequence personName = "";
         if (patientId != MMUtilities.ID_DOES_NOT_EXIST) {
             MMPerson person = MMPersonManager.getInstance().getPerson(patientId);
             personName = person.getNickname();
@@ -309,6 +321,9 @@ public class MMSettingsFragment extends Fragment {
 
         SwitchCompat showFAB = v.findViewById(R.id.switchFabVisible);
         showFAB.setChecked(settings.getFabVisible(activity));
+
+        SwitchCompat homeShading = v.findViewById(R.id.switchHomeShading);
+        homeShading.setChecked(settings.getHomeShading(activity));
         //setUISaved(v);
     }
 
@@ -319,7 +334,7 @@ public class MMSettingsFragment extends Fragment {
         if (v == null)return;
 
         //Save the default value for scheduling medications
-        EditText defaultTimeDueInput = (EditText) v.findViewById(R.id.settingDefaultTimeDueInput);
+        EditText defaultTimeDueInput = v.findViewById(R.id.settingDefaultTimeDueInput);
         CharSequence timeString = defaultTimeDueInput.getText();
 
         MMSettings settings = MMSettings.getInstance();
@@ -343,13 +358,12 @@ public class MMSettingsFragment extends Fragment {
         settings.setDefaultTimeDue(activity, minutesSinceMidnight);
 
         //Earliest date in home history
-        EditText earliestHistoryDateInput =
-                                    (EditText) v.findViewById(R.id.settingEarliestHistoryDateInput);
+        EditText earliestHistoryDateInput = v.findViewById(R.id.settingEarliestHistoryDateInput);
         String dateString = earliestHistoryDateInput.getText().toString();
 
-        boolean isTimeFlag = false; //We are converting to a date, not a time
+        //We are converting to a date, not a time
         long historyDateMilli = MMUtilitiesTime.
-                    convertStringToTimeMs(activity, dateString, isTimeFlag);
+                    convertStringToTimeMs(activity, dateString, false);
 
         if (historyDateMilli != 0) {
             settings.setHistoryDate((MMMainActivity) getActivity(), historyDateMilli);
@@ -395,7 +409,7 @@ public class MMSettingsFragment extends Fragment {
     private void saveButtonEnable(View v, boolean isEnabled){
         if (v == null)return; //onCreateView() hasn't run yet
 
-        Button saveButton = (Button) v.findViewById(R.id.settingsSaveButton);
+        Button saveButton = v.findViewById(R.id.settingsSaveButton);
 
         MMUtilities utilities = MMUtilities.getInstance();
         utilities.enableButton(getActivity(), saveButton, isEnabled);

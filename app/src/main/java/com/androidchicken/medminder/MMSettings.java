@@ -27,6 +27,7 @@ import static android.R.attr.defaultValue;
     private static final String sVibrateNotificationTag = "vibrateNotification" ;
     private static final String sLengthOfHistoryTag     = "lengthHistory";
     private static final String sFabVisibleTag          = "fabVisible";
+    private static final String sHomeShadingTag         = "homeShading";
 
     //6:00 AM, minutes since Midnight local time
     static final int   sDefaultTimeDue         =  (6*60);
@@ -79,55 +80,39 @@ import static android.R.attr.defaultValue;
     //*********************************************************/
 
     long getPatientID (MMMainActivity activity)  {
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        long defaultValue = MMUtilities.ID_DOES_NOT_EXIST;
-        return sharedPref.getLong(MMPerson.sPersonIDTag, defaultValue);
+        return getLongSetting(activity, MMPerson.sPersonIDTag, MMUtilities.ID_DOES_NOT_EXIST);
     }
-    long setPatientID (MMMainActivity activity, long patientID){
-
+    void setPatientID (MMMainActivity activity, long patientID){
         //Store the PersonID for the next time
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putLong(MMPerson.sPersonIDTag, patientID);
-        editor.apply();
-
-        return patientID;
+        setLongSetting(activity, MMPerson.sPersonIDTag, patientID);
     }
-
 
     //minutes since midnight
     long getDefaultTimeDue (MMMainActivity activity)  {
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+
         long defaultValue = 420;
-        long defaultTime = sharedPref.getLong(sDefaultTimeDueTag, defaultValue);
+        long defaultTime = getLongSetting(activity, sDefaultTimeDueTag, defaultValue);
         //If it wasn't in preferences, return the default
         if (defaultTime == defaultValue){
-
             MMSettings.getInstance().setDefaultTimeDue(activity, defaultTime);
         }
         return defaultTime;
     }
     void setDefaultTimeDue (MMMainActivity activity, long minutesSinceMidnight){
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putLong(MMSettings.sDefaultTimeDueTag, minutesSinceMidnight);
-        editor.apply();
+        setLongSetting(activity, MMSettings.sDefaultTimeDueTag, minutesSinceMidnight);
     }
 
-
     long getHistoryDate (MMMainActivity activity)  {
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+
         long historyDateDefault = 1;
-        long historyDateMilli = sharedPref.getLong(sLengthOfHistoryTag, defaultValue);
+        long historyDateMilli = getLongSetting(activity, sLengthOfHistoryTag, defaultValue);
         //If it wasn't in preferences, return the default
         if (historyDateMilli == historyDateDefault){
             //set default to today's date
             String historyDateString = MMUtilities.getInstance().getDateString();
-            boolean isTimeFlag = false;
-
             historyDateMilli = MMUtilitiesTime.convertStringToTimeMs(activity,
                                                                      historyDateString,
-                                                                     isTimeFlag);
+                                                                     false);
             if (historyDateMilli == 0){
                 historyDateMilli = historyDateDefault;
 
@@ -136,83 +121,80 @@ import static android.R.attr.defaultValue;
         return historyDateMilli;
     }
     void setHistoryDate (MMMainActivity activity, long minutesSinceMidnight){
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putLong(MMSettings.sLengthOfHistoryTag, minutesSinceMidnight);
-        editor.apply();
+        setLongSetting(activity, MMSettings.sLengthOfHistoryTag, minutesSinceMidnight);
     }
-
 
     boolean getClock24Format(MMMainActivity activity)  {
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        boolean defaultValue = false;
-        return sharedPref.getBoolean(MMSettings.sClock24FormatTag, defaultValue);
+        return getBooleanSetting(activity, MMSettings.sClock24FormatTag, false);
     }
     void    setClock24Format(MMMainActivity activity, boolean is24Format){
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(MMSettings.sClock24FormatTag, is24Format);
-        editor.apply();
+        setBooleanSetting(activity, MMSettings.sClock24FormatTag, is24Format);
     }
 
     boolean getShowDeletedPersons(MMMainActivity activity)  {
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        boolean defaultValue = true;
-        return sharedPref.getBoolean(MMSettings.sPersonDeleteTag, defaultValue);
+        return getBooleanSetting(activity, MMSettings.sPersonDeleteTag, true);
     }
     void    setShowDeletedPersons(MMMainActivity activity, boolean showDeletedPerson){
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(MMSettings.sPersonDeleteTag, showDeletedPerson);
-        editor.apply();
+        setBooleanSetting(activity, MMSettings.sPersonDeleteTag, showDeletedPerson);
     }
 
     boolean getShowDeletedMeds(MMMainActivity activity)  {
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        boolean defaultValue = true;
-        return sharedPref.getBoolean(MMSettings.sMedDeleteTag, defaultValue);
+        return getBooleanSetting(activity, MMSettings.sMedDeleteTag, true);
     }
     void    setShowDeletedMeds(MMMainActivity activity, boolean showDeletedMed){
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(MMSettings.sMedDeleteTag, showDeletedMed);
-        editor.apply();
+        setBooleanSetting(activity, MMSettings.sMedDeleteTag, showDeletedMed);
     }
 
     boolean getSoundNotification(MMMainActivity activity)  {
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        boolean defaultValue = true;
-        return sharedPref.getBoolean(MMSettings.sSoundNotificationTag, defaultValue);
+        return getBooleanSetting(activity, MMSettings.sSoundNotificationTag, true);
     }
     void    setSoundNotification(MMMainActivity activity, boolean isSoundNotif){
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(MMSettings.sSoundNotificationTag, isSoundNotif);
-        editor.apply();
+        setBooleanSetting(activity, MMSettings.sSoundNotificationTag, isSoundNotif);
     }
 
     boolean getVibrateNotification(MMMainActivity activity)  {
-        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        boolean defaultValue = true;
-        return sharedPref.getBoolean(MMSettings.sVibrateNotificationTag, defaultValue);
+        return getBooleanSetting(activity, MMSettings.sVibrateNotificationTag, true);
     }
     void    setVibrateNotification(MMMainActivity activity, boolean isVibrateNotif){
+        setBooleanSetting(activity, MMSettings.sVibrateNotificationTag, isVibrateNotif);
+    }
+
+    boolean getFabVisible(MMMainActivity activity)  {
+        return getBooleanSetting(activity, MMSettings.sFabVisibleTag, true);
+    }
+    void    setFabVisible(MMMainActivity activity, boolean isFabVisible){
+        setBooleanSetting(activity, MMSettings.sFabVisibleTag, isFabVisible);
+    }
+
+    boolean getHomeShading(MMMainActivity activity)  {
+        return getBooleanSetting(activity, MMSettings.sHomeShadingTag, true);
+    }
+    void    setHomeShading(MMMainActivity activity, boolean isHomeShading){
+        setBooleanSetting(activity, MMSettings.sHomeShadingTag, isHomeShading);
+     }
+
+
+
+
+    private long getLongSetting (MMMainActivity activity, String tag, long defaultValue){
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        return sharedPref.getLong(tag, defaultValue);
+    }
+    private void setLongSetting (MMMainActivity activity, String tag, long putValue){
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(MMSettings.sVibrateNotificationTag, isVibrateNotif);
+        editor.putLong(tag, putValue);
         editor.apply();
     }
 
-
-    boolean getFabVisible(MMMainActivity activity)  {
+    private boolean getBooleanSetting (MMMainActivity activity, String tag, boolean defaultValue){
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-        boolean defaultValue = true;
-        return sharedPref.getBoolean(MMSettings.sFabVisibleTag, defaultValue);
+        return sharedPref.getBoolean(tag, defaultValue);
     }
-    void    setFabVisible(MMMainActivity activity, boolean isFabVisible){
+    private void setBooleanSetting (MMMainActivity activity, String tag, boolean putValue){
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(MMSettings.sFabVisibleTag, isFabVisible);
+        editor.putBoolean(tag, putValue);
         editor.apply();
     }
 

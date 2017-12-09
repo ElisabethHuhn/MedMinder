@@ -2,6 +2,7 @@ package com.androidchicken.medminder;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,9 +62,7 @@ public class MMAboutFragment extends Fragment {
             "\"Personal information\" is information that can be linked to you as an individual, like your name, address, e-mail address, or phone number.\n" +
             "\n" +
             "2) INFORMATION YOU KNOWINGLY GIVE TO US \n" +
-            "We do store patient profile information such as a nick name, text and email addresses and prescribed medications on the user handset. We also collect and store a history of when such medications are taken. All information collected by MedMinder is stored in the private MedMinder directory on the handset. No information is ever transmitted to remote servers. \n" +
-            "\n" +
-            "Text and email address are used to generate alerts about missed doses. If they are not supplied when the patient is defined, such addresses will need to be supplied when an alert is generated. Such addresses are never used for any purposes outside MedMinder.\n" +
+            "We do store patient profile information such as a nick name, and prescribed medications on the user handset. We also collect and store a history of when such medications are taken. All information collected by MedMinder is stored in the private MedMinder directory on the handset. No information is ever transmitted to remote servers. \n" +
             "\n" +
             "3) NO PERSONAL INFORMATION IS AUTOMATICALLY COLLECTED BY OUR SYSTEM \n" +
             "We do not receive nor do we store any types of personal information when you interact with MedMinder. The only information we collect is requested explicitly through the user interface of MedMinder. We never collect any information without your explicit knowledge.\n" +
@@ -74,16 +73,12 @@ public class MMAboutFragment extends Fragment {
             "We never use third party vendors to perform any aspects of our services, such as identity verifications. So we never provide any information about you to any third parties. \n" +
             "\n" +
             "5) WHAT WE DO WITH INFORMATION \n" +
-            "We use the text and email addresses to send alerts about missed doses from MedMinder. If you do not supply this information when a person is defined, simply add it when the alert is sent. MedMinder will automatically generate a text or email to alert that medication doses have been missed, but they are only sent by the user explicitly pressing send. \n" +
-            " \n" +
             "You may explicitly choose to export dose history information to a file, a text message or to email. But this is under your direct control. \n" +
             "\n" +
-            "We do not rent, sell, or share your personal information with any other entity, ever, with the sole exception of when we legally are required to. Even so, such information is on your local handset and not ever on our servers. So we do not have access to information you provide to MedMinder.. \n" +
+            "We do not rent, sell, or share your personal information with any other entity, ever, with the sole exception of when we legally are required to. Even so, such information is on your local handset and not ever on our servers. So we do not have access to information you provide to MedMinder. \n" +
             "\n" +
             "\n" +
             "Even when we must respond to subpoenas, court orders, or other legal processes, we do not have access to the information on your local handset. \n" +
-            "\n" +
-            "Mobile Gurus Inc will never contact you at your email address as a result of using MedMinder. The email addresses you store in MedMinder are strictly use for convenience of sending alerts that a dose was missed. We never access this information. \n" +
             "\n" +
             "If you choose to uninstall MedMinder, any patient profiles and histories are permanently removed from the handset. If you reinstall, you must reenter all such information. \n" +
             "\n" +
@@ -150,7 +145,18 @@ public class MMAboutFragment extends Fragment {
             "This EULA agreement, and any dispute arising out of or in connection with this EULA agreement, shall be governed by and construed in accordance with the laws of the State of Georgia.  We each irrevocably consent to bring any action to enforce this Agreement in the federal or state courts located in Atlanta, Georgia. You consent to the exclusive jurisdiction of the federal or state courts located in Atlanta, Georgia for such purposes.\n" +
             "\n";
 
-
+    private static final String mTipsShortStmt = "Home Screen Tips" ;
+    private static final String mTipsStmt = "Home Screen Tips\n" +
+            "There are shortcuts to the patient profile screen and to the medication prescription screen. \n" +
+            "O Long press on patient name will take you to the Patient Profile Screen\n" +
+            "O Long press on a medication button will take you to the Medication Prescription Screen\n" +
+            "\n" +
+            "Because of the way Android works, if you bring up the MedMinder app from the recent apps list, the current time field may be old. (It is because the MedMinder app has resided in memory and is not brought up from scratch). Long press on the time field will result in an update of that field to the current time.\n" +
+            "\n" +
+            "Because of all the active areas on the Home screen, sometimes vertical scrolling is tricky. If you press, hesitate, then swipe up or down the screen will scroll through the historical dosage data.\n" +
+            "\n" +
+            "The shading of dates is purely aesthetic to allow you to tell the days apart more easily. The algorithm is not sophisticated: odd days are white, even days are shaded. Occasionally there are two successive days that aren’t distinguished, for example at the end of a month with 31 days. Both the 31st and the 1st are odd. Shading is controlled from the settings screen. \n" +
+            "\n";
 
     //**********************************************/
     //          Lifecycle Methods                  */
@@ -168,7 +174,7 @@ public class MMAboutFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater,
+    public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -183,8 +189,6 @@ public class MMAboutFragment extends Fragment {
         //set the title bar subtitle
         ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_about);
         ((MMMainActivity) getActivity()).handleFabVisibility();
-
-
 
         return v;
     }
@@ -201,7 +205,7 @@ public class MMAboutFragment extends Fragment {
             //get rid of the soft keyboard if it is visible
             View v = getView();
             if (v != null) {
-                EditText personNickNameInput = (EditText) (v.findViewById(settingPersonNickNameInput));
+                EditText personNickNameInput = v.findViewById(settingPersonNickNameInput);
                 MMUtilities.getInstance().showSoftKeyboard(getActivity(), personNickNameInput);
             }
         } else {
@@ -231,8 +235,6 @@ public class MMAboutFragment extends Fragment {
     public void onSaveInstanceState(Bundle savedInstanceState){
         // Save custom values into the bundle
 
-
-
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -246,14 +248,14 @@ public class MMAboutFragment extends Fragment {
 
     private void wireWidgets(View v){
         //Who Button
-        final Button whoButton = (Button) v.findViewById(R.id.about_who_Button);
+        final Button whoButton =  v.findViewById(R.id.about_who_Button);
         whoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 View view = getView();
                 if (view == null)return;
-                EditText whoLabel = (EditText)view.findViewById(R.id.about_who_output);
+                EditText whoLabel = view.findViewById(R.id.about_who_output);
                 String whoString = whoLabel.getText().toString();
                 if (whoString.equals(mWhoShortStmt)){
                     whoLabel.setText(mWhoStmt);
@@ -265,14 +267,14 @@ public class MMAboutFragment extends Fragment {
         });
 
         //Privacy Button
-        final Button privacyButton = (Button) v.findViewById(R.id.about_privacy_Button);
+        final Button privacyButton =  v.findViewById(R.id.about_privacy_Button);
         privacyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 View view = getView();
                 if (view == null)return;
-                EditText privacyLabel = (EditText)view.findViewById(R.id.about_privacy_output);
+                EditText privacyLabel = view.findViewById(R.id.about_privacy_output);
                 String privacyString = privacyLabel.getText().toString();
                 if (privacyString.equals(mPrivacyShortStmt)){
                     privacyLabel.setText(mPrivacyStmt);
@@ -284,19 +286,38 @@ public class MMAboutFragment extends Fragment {
         });
 
         //EULA Button
-        final Button eulaButton = (Button) v.findViewById(R.id.about_eula_Button);
+        final Button eulaButton = v.findViewById(R.id.about_eula_Button);
         eulaButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 View view = getView();
                 if (view == null)return;
-                EditText eulaLabel = (EditText)view.findViewById(R.id.about_eula_output);
+                EditText eulaLabel = view.findViewById(R.id.about_eula_output);
                 String eulaString = eulaLabel.getText().toString();
                 if (eulaString.equals(mEulaShortStmt)){
                     eulaLabel.setText(mEulaStmt);
                 } else {
                     eulaLabel.setText(mEulaShortStmt);
+                }
+
+            }
+        });
+
+        //Tips Button
+        final Button tipsButton =  v.findViewById(R.id.about_tips_Button);
+        tipsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                View view = getView();
+                if (view == null)return;
+                EditText tipsLabel = view.findViewById(R.id.about_tips_output);
+                String tipsString = tipsLabel.getText().toString();
+                if (tipsString.equals(mTipsShortStmt)){
+                    tipsLabel.setText(mTipsStmt);
+                } else {
+                    tipsLabel.setText(mTipsShortStmt);
                 }
 
             }
@@ -308,13 +329,15 @@ public class MMAboutFragment extends Fragment {
     private void initializeUI(View v) {
 
 
-        EditText whoOutput     = (EditText) v.findViewById(R.id.about_who_output) ;
-        EditText privacyOutput = (EditText) v.findViewById(R.id.about_privacy_output);
-        EditText eulaOutput    = (EditText) v.findViewById(R.id.about_eula_output);
+        EditText whoOutput     = v.findViewById(R.id.about_who_output) ;
+        EditText privacyOutput = v.findViewById(R.id.about_privacy_output);
+        EditText eulaOutput    = v.findViewById(R.id.about_eula_output);
+        EditText tipsOutput    = v.findViewById(R.id.about_tips_output);
 
-        whoOutput.setText(mWhoShortStmt);
+        whoOutput    .setText(mWhoShortStmt);
         privacyOutput.setText(mPrivacyShortStmt);
         eulaOutput   .setText(mEulaShortStmt);
+        tipsOutput   .setText(mTipsShortStmt);
     }
 
 

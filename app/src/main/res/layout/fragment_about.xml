@@ -43,7 +43,6 @@
             android:background="@color/colorScreenBackground"
             />
 
-
         <!-- Who Are We -->
         <Button
             style="?android:attr/buttonBarButtonStyle"
@@ -60,7 +59,6 @@
             android:background="@color/colorButton1Background"
             android:textColor="@color/colorTextBlack"
             />
-
         <EditText
             android:id="@+id/about_who_output"
             android:layout_width="match_parent"
@@ -93,8 +91,6 @@
             android:background="@color/colorButton1Background"
             android:textColor="@color/colorTextBlack"
             />
-
-
         <EditText
             android:id="@+id/about_privacy_output"
             android:layout_width="match_parent"
@@ -127,9 +123,40 @@
             android:background="@color/colorButton1Background"
             android:textColor="@color/colorTextBlack"
             />
-
         <EditText
             android:id="@+id/about_eula_output"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+
+            android:inputType="textMultiLine"
+            android:clickable="false"
+            android:focusable="false"
+            android:scrollbars="vertical"
+
+            android:text="@string/about_who_output"
+            android:textColor="@color/colorTextBlack"
+            android:background="@android:color/transparent"
+            />
+
+        <!-- Tips -->
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:id="@+id/about_tips_Button"
+            android:text="@string/about_tips_label"
+
+            android:enabled="true"
+
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+
+            android:background="@color/colorButton1Background"
+            android:textColor="@color/colorTextBlack"
+            />
+        <EditText
+            android:id="@+id/about_tips_output"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"

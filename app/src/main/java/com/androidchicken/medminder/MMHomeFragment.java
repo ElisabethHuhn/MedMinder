@@ -276,10 +276,10 @@ public class MMHomeFragment extends Fragment {
         RecyclerView recyclerView = getRecyclerView(v);
 
         //3) create and assign a layout manager to the recycler view
-        boolean reverseLayout = false;
+
         RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(activity,
                                                                        LinearLayoutManager.VERTICAL,
-                                                                       reverseLayout);
+                                                                       false);
 
         recyclerView.setLayoutManager(mLayoutManager);
 
@@ -499,7 +499,7 @@ public class MMHomeFragment extends Fragment {
     //**********************************************/
     /*   Initialization of Views                   */
     //**********************************************/
-    private void   addDateTimeFieldsToView(View v,  int sizeInDp){
+    private void addDateTimeFieldsToView(View v,  int sizeInDp){
 
         int padding = MMUtilities.getInstance().convertPixelsToDp(getActivity(), sizeInDp);
 
@@ -1051,23 +1051,23 @@ public class MMHomeFragment extends Fragment {
         // that define the ConcurrentDose and its contained Doses
         //
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View v = inflater.inflate(R.layout.list_row_dose_history_horz, null);
-        LinearLayout layout = (LinearLayout) v.findViewById(R.id.doseHistoryLine);
+        View v = inflater.inflate(R.layout.list_row_dose_history_horz_input, null);
+        LinearLayout layout = v.findViewById(R.id.doseHistoryLine);
 
 
         long dateMilli      = selectedConcurrentDose.getStartTime();
 
-        boolean isTimeFlag = false; //flag date to be returned
+        //flag date to be returned
         String dateStringLocal = MMUtilitiesTime.convertTimeMStoString((MMMainActivity)getActivity(),
                                                                         dateMilli,
-                                                                        isTimeFlag);
+                                                                        false);
         EditText doseDate      = getDoseDateInputView(layout);
         doseDate.setText(dateStringLocal);
 
 
-        isTimeFlag = true; //indicating time string to be returned
+        //indicating time string to be returned
         String timeStringLocal = MMUtilitiesTime.convertTimeMStoString((MMMainActivity)getActivity() ,
-                                                                        dateMilli, isTimeFlag);
+                                                                        dateMilli, true);
         EditText doseTime = getDoseTimeInputView(layout);
         doseTime.setText(timeStringLocal);
 
@@ -1148,8 +1148,7 @@ public class MMHomeFragment extends Fragment {
 
         //  copy the time/date from the Dialog views to the concurrent Dose
         //Get the pointers to the views in the Dialog
-        LinearLayout layout =
-                (LinearLayout) ((AlertDialog) dialog).findViewById(R.id.doseHistoryLine);
+        LinearLayout layout =((AlertDialog) dialog).findViewById(R.id.doseHistoryLine);
 
         EditText  doseDate        = getDoseDateInputView(layout);
         String    dateString = doseDate.getText().toString().trim();
@@ -1158,14 +1157,14 @@ public class MMHomeFragment extends Fragment {
         String   timeString =  doseTime.getText().toString().trim();
 
         //convert the local string to local ms
-        boolean isTimeFlag = false; //first convert the date
+        //first convert the date
         long dateMs = MMUtilitiesTime.convertStringToTimeMs((MMMainActivity)getActivity(),
                                                              dateString,
-                                                             isTimeFlag);
-        isTimeFlag = true; //set to convert time string
+                                                             false);
+         //set to convert time string
         long timeMs = MMUtilitiesTime.convertStringToTimeMs((MMMainActivity)getActivity(),
                                                               timeString,
-                                                              isTimeFlag);
+                                                              true);
 
         //if there was an error parsing either the date or the time, don't try save
         if ((dateMs == 0) || (timeMs == 0)){
@@ -1196,9 +1195,6 @@ public class MMHomeFragment extends Fragment {
         MMDose   dose;
         int      amt;
         String   amtString;
-        MMDoseManager doseManager = MMDoseManager.getInstance();
-
-
 
         //Update the doses from the concurrent dose with the amounts from the UI
         int lastDose = 0;
@@ -1230,8 +1226,8 @@ public class MMHomeFragment extends Fragment {
 
 
         //Update the concurrent Dose and it's contained doses in the DB
-        boolean addToDBToo = true;
-        MMConcurrentDoseManager.getInstance().addConcurrentDose(selectedConcurrentDose, addToDBToo);
+        MMConcurrentDoseManager.getInstance().
+                                        addConcurrentDose(selectedConcurrentDose, true);
 
 
         //reset the selected position so we'll know the dialog is finished
