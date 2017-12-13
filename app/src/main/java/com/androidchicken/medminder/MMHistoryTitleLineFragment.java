@@ -2,6 +2,7 @@ package com.androidchicken.medminder;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -12,7 +13,6 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -79,10 +79,13 @@ public class MMHistoryTitleLineFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater,
+    public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
 
+
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return null;
 
         //Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_history_title, container, false);
@@ -92,35 +95,40 @@ public class MMHistoryTitleLineFragment extends Fragment {
         wireWidgets(v);
         initializeRecyclerView(v);
         initializeUI(v);
-        ((MMMainActivity) getActivity()).handleFabVisibility();
-
+        activity.handleFabVisibility();
 
         return v;
     }
 
-
-
     @Override
     public void onResume(){
         super.onResume();
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
         //set the title bar subtitle
-       ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_history_title_line);
+        activity.setMMSubtitle(R.string.title_history_title_line);
 
         //Set the FAB invisible
-        ((MMMainActivity) getActivity()).hideFAB();
+        activity.hideFAB();
 
     }
-
-
 
     //*************************************************************/
     /*  Convenience Methods for accessing things on the Activity  */
     //*************************************************************/
 
-    private long     getPatientID(){return ((MMMainActivity)getActivity()).getPatientID();}
+    private long     getPatientID(){
 
-    private MMPerson getPerson()    {return ((MMMainActivity)getActivity()).getPerson();}
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return MMUtilities.ID_DOES_NOT_EXIST;
+
+        return activity.getPatientID();}
+    private MMPerson getPerson()    {
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return null;
+        return activity.getPerson();
+    }
 
 
     //**********************************************/
@@ -133,7 +141,10 @@ public class MMHistoryTitleLineFragment extends Fragment {
 
         if (getPerson() == null)return;
 
-        mMedications = getPerson().getMedications();
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
+        mMedications = getPerson().getMedications(currentOnly);
+
         int last = mMedications.size();
         if (last == 0)return;
 
@@ -153,10 +164,12 @@ public class MMHistoryTitleLineFragment extends Fragment {
     }
 
     private void addDateTimeFieldsToView(View v, int sizeInDp){
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
-        int padding = MMUtilities.getInstance().convertPixelsToDp(getActivity(), sizeInDp);
+        int padding = MMUtilities.getInstance().convertPixelsToDp(activity, sizeInDp);
 
-        LinearLayout layout = (LinearLayout) v.findViewById(R.id.medHistoryLayout);
+        LinearLayout layout = v.findViewById(R.id.medHistoryLayout);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 0,//width
                 ViewGroup.LayoutParams.WRAP_CONTENT);//height
@@ -164,30 +177,19 @@ public class MMHistoryTitleLineFragment extends Fragment {
         //lp.gravity = Gravity.CENTER;//set below too
         lp.setMarginEnd(padding);
 
-        EditText mTimeInput = new EditText(getActivity());
+        EditText mTimeInput = new EditText(activity);
 
         mTimeInput.setInputType(InputType.TYPE_CLASS_TEXT);
         mTimeInput.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         mTimeInput.setLayoutParams(lp);
         mTimeInput.setPadding(0,0,padding,0);
         mTimeInput.setGravity(Gravity.CENTER);
-        mTimeInput.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
-        mTimeInput.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorInputBackground));
+        mTimeInput.setTextColor      (ContextCompat.getColor(activity,R.color.colorTextBlack));
+        mTimeInput.setBackgroundColor(ContextCompat.getColor(activity,R.color.colorInputBackground));
         mTimeInput.setFocusable(false);
 
 
-        //Time input for this dose
-        //There is no label for this field
-        mTimeInput.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                return false;
-            }
-        });
-
-
-        String timeString = MMUtilitiesTime.getTimeString((MMMainActivity)getActivity());
+        String timeString = MMUtilitiesTime.getTimeString(activity);
 
         mTimeInput.setText(timeString);
 
@@ -199,12 +201,15 @@ public class MMHistoryTitleLineFragment extends Fragment {
 
         EditText edtView;
 
-        int padding = MMUtilities.getInstance().convertPixelsToDp(getActivity(), sizeInDp);
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        int padding = MMUtilities.getInstance().convertPixelsToDp(activity, sizeInDp);
 
         //
         //add EditText to the dose layout
         //
-        LinearLayout layout = (LinearLayout) v.findViewById(R.id.medHistoryLayout);
+        LinearLayout layout = v.findViewById(R.id.medHistoryLayout);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 0,//width
                 ViewGroup.LayoutParams.WRAP_CONTENT);//height
@@ -213,7 +218,7 @@ public class MMHistoryTitleLineFragment extends Fragment {
         lp.setMarginEnd(padding);
 
 
-        edtView = new EditText(getActivity());
+        edtView = new EditText(activity);
         edtView.setFreezesText(true);
         edtView.setHint("0");
         edtView.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -221,23 +226,14 @@ public class MMHistoryTitleLineFragment extends Fragment {
         edtView.setLayoutParams(lp);
         edtView.setPadding(0,0,padding,0);
         edtView.setGravity(Gravity.CENTER);
-        edtView.setTextColor      (ContextCompat.getColor(getActivity(),R.color.colorTextBlack));
+        edtView.setTextColor      (ContextCompat.getColor(activity,R.color.colorTextBlack));
         int color = R.color.colorInputBackground;
         if (isGrayed){
             color = R.color.colorGray;
         }
-        edtView.setBackgroundColor(ContextCompat.getColor(getActivity(), color));
+        edtView.setBackgroundColor(ContextCompat.getColor(activity, color));
 
         edtView.setFocusable(false);
-
-        //add listener
-        edtView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                return false;
-            }
-        });
 
         //users don't count from zero but programmers do. So increment the zero, etc.
         edtView.setText(String.valueOf(position+1));
@@ -266,6 +262,9 @@ public class MMHistoryTitleLineFragment extends Fragment {
         //      done in the caller
 
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         //2) find and remember the RecyclerView
         RecyclerView recyclerView = getRecyclerView(v);
 
@@ -273,11 +272,11 @@ public class MMHistoryTitleLineFragment extends Fragment {
 /*
         boolean reverseLayout = true;
 
-        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity(),
+        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(activity,
                                                                         LinearLayoutManager.VERTICAL,
                                                                         reverseLayout);
  */
-        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
+        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(mLayoutManager);
 
         //4) the list of Medication Instances was created in wireWidgets and is in mMedications
@@ -287,7 +286,7 @@ public class MMHistoryTitleLineFragment extends Fragment {
         //5) Use the data to Create and set out medicationTitle Adapter
         //     even though we're giving the Adapter the list,
         //     The list is not maintained. This fragment is write only
-        MMHistoryTitleAdapter adapter = new MMHistoryTitleAdapter(mMedications, getActivity());
+        MMHistoryTitleAdapter adapter = new MMHistoryTitleAdapter(mMedications, activity);
 
         recyclerView.setAdapter(adapter);
 
@@ -295,13 +294,13 @@ public class MMHistoryTitleLineFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         //7) create and add the item decorator
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+        recyclerView.addItemDecoration(new DividerItemDecoration(activity,
                                                                    DividerItemDecoration.VERTICAL));
 
 
         //8) add event listeners to the recycler view
         recyclerView.addOnItemTouchListener(
-            new MMHomeFragment.RecyclerTouchListener(getActivity(),
+            new MMHomeFragment.RecyclerTouchListener(activity,
                                                      recyclerView,
                                                      new MMHomeFragment.ClickListener() {
 
@@ -319,26 +318,28 @@ public class MMHistoryTitleLineFragment extends Fragment {
     }
 
     private void initializeUI(View v){
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
         //determine if a person is yet associated with the fragment
         if (getPatientID() != MMUtilities.ID_DOES_NOT_EXIST){
             //if there is a person corresponding to the patientID, put the name up on the screen
             MMPerson person = getPerson();
 
             if (person != null) {
-                TextView patientNickName = (TextView) v.findViewById(R.id.patientNickNameLabel);
+                TextView patientNickName = v.findViewById(R.id.patientNickNameLabel);
                 patientNickName.setText(person.getNickname().toString().trim());
 
                 if (person.isCurrentlyExists()){
                     v.setBackgroundColor(ContextCompat.
-                            getColor(getActivity(), R.color.colorScreenBackground));
+                                        getColor(activity, R.color.colorScreenBackground));
                 } else {
                     v.setBackgroundColor(ContextCompat.
-                            getColor(getActivity(), R.color.colorScreenDeletedBackground));
+                                        getColor(activity, R.color.colorScreenDeletedBackground));
                 }
             }
         } else {
             v.setBackgroundColor(ContextCompat.
-                    getColor(getActivity(), R.color.colorScreenDeletedBackground));
+                                        getColor(activity, R.color.colorScreenDeletedBackground));
         }
     }
 

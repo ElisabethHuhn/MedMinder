@@ -2,6 +2,7 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools=  "http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.androidchicken.medminder.MMMainActivityFragment"
 
     android:baselineAligned="false"
@@ -63,53 +64,6 @@
 
                     android:background="@color/colorButton1Background"
                     android:textColor="@color/colorTextBlack"
-                    />
-
-            </TableRow>
-
-            <!-- Person ID and Nickname -->
-            <TableRow
-                  android:layout_width=  "match_parent"
-                  android:layout_height= "wrap_content"
-                  android:layout_gravity="center_horizontal"
-                  android:paddingTop=    "10dp"
-                >
-                <TextView
-                    android:labelFor=     "@+id/settingPersonNickNameInput"
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="25"
-                    android:gravity=      "end"
-
-                    android:freezesText="true"
-
-                    android:focusable="false"
-
-                    android:text="@string/settings_current_patient"
-                    android:textColor=    "@color/colorTextBlack"
-                    android:background=   "@color/colorLabelBackground"
-                    />
-
-                <EditText
-                    android:id=           "@id/settingPersonNickNameInput"
-
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="75"
-                    android:gravity="center_horizontal"
-
-                    android:focusable="false"
-
-                    android:freezesText="true"
-
-                    android:inputType=    "text"
-                    android:imeOptions=   "flagNoExtractUi"
-
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="16dp"
-
-                    android:textColor=    "@color/colorTextBlack"
-                    android:background=   "@color/colorGray"
                     />
 
             </TableRow>
@@ -265,7 +219,11 @@
                     android:id="@+id/switch24Format"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_24format"/>
+                    android:text="@string/settings_24format"
+                    android:textOn="@string/settings_24_label"
+                    android:textOff="@string/settings_12_label"
+                    app:showText="true"
+                    />
 
             </TableRow>
 
@@ -278,10 +236,16 @@
                 >
 
                 <android.support.v7.widget.SwitchCompat
-                    android:id="@+id/switchShowDeletedPeople"
+                    android:id="@+id/switchShowOnlyCurrentPeople"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_show_deleted_people"/>
+                    android:text="@string/settings_show_deleted_people"
+
+                    android:textOn="@string/settings_curr_on_label"
+                    android:textOff="@string/settings_all_off_label"
+                    app:showText="true"
+
+                    />
 
             </TableRow>
 
@@ -294,42 +258,15 @@
                 >
 
                 <android.support.v7.widget.SwitchCompat
-                    android:id="@+id/switchShowDeletedMeds"
+                    android:id="@+id/switchShowOnlyCurrentMeds"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_show_deleted_meds"/>
+                    android:text="@string/settings_show_deleted_meds"
+                    android:textOn="@string/settings_curr_on_label"
+                    android:textOff="@string/settings_all_off_label"
+                    app:showText="true"
 
-            </TableRow>
-
-            <!-- Sound with medications? -->
-            <TableRow
-                android:layout_height="wrap_content"
-                android:layout_width ="match_parent"
-                android:paddingTop="10dp"
-                android:gravity="center"
-                >
-
-                <android.support.v7.widget.SwitchCompat
-                    android:id="@+id/switchSoundWithMedNotif"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_notification_sound"/>
-
-            </TableRow>
-
-            <!-- Vibration with Medications Notifications? -->
-            <TableRow
-                android:layout_height="wrap_content"
-                android:layout_width ="match_parent"
-                android:paddingTop="10dp"
-                android:gravity="center"
-                >
-
-                <android.support.v7.widget.SwitchCompat
-                    android:id="@+id/switchVibrateWithMedNotif"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_notification_vibrate"/>
+                    />
 
             </TableRow>
 
@@ -345,7 +282,11 @@
                     android:id="@+id/switchFabVisible"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_show_fab"/>
+                    android:text="@string/settings_show_fab"
+                    android:textOn="@string/settings_on_label"
+                    android:textOff="@string/settings_off_label"
+                    app:showText="true"
+                    />
 
             </TableRow>
 
@@ -361,9 +302,77 @@
                     android:id="@+id/switchHomeShading"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_home_shading"/>
+                    android:text="@string/settings_home_shading"
+                    android:textOn="@string/settings_on_label"
+                    android:textOff="@string/settings_off_label"
+                    app:showText="true"
+                    />
 
             </TableRow>
+
+
+            <!-- Sound with Notifications? -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width ="match_parent"
+                android:paddingTop="10dp"
+                android:gravity="center"
+                >
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/switchSoundWithMedNotif"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_notification_sound"
+                    android:textOn="@string/settings_on_label"
+                    android:textOff="@string/settings_off_label"
+                    app:showText="true"
+
+                    />
+
+            </TableRow>
+
+            <!-- Vibration with Medications Notifications? -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width ="match_parent"
+                android:paddingTop="10dp"
+                android:gravity="center"
+                >
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/switchVibrateWithMedNotif"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_notification_vibrate"
+                    android:textOn="@string/settings_on_label"
+                    android:textOff="@string/settings_off_label"
+                    app:showText="true"
+                    />
+
+            </TableRow>
+
+            <!-- Lights with Notifications? -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width ="match_parent"
+                android:paddingTop="10dp"
+                android:gravity="center"
+                >
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/switchLightWithMedNotif"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_notification_light"
+                    android:textOn="@string/settings_on_label"
+                    android:textOff="@string/settings_off_label"
+                    app:showText="true"
+
+                    />
+
+            </TableRow>
+
 
 
         </TableLayout>

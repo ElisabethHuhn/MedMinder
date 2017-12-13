@@ -731,14 +731,16 @@ public class MMMedicationAlertFragment extends Fragment  {
     //******************************/
     //There are three spinners in the dialog view: medication, person to notify, and notify type.
     private void loadSpinnerData(View v) {
-        mMedSpinner    = (Spinner) v.findViewById(R.id.dMedAlertMedNickNameSpinner) ;
-        mPersonSpinner = (Spinner) v.findViewById(R.id.dMedAlertPersonSpinner);
-        mTypeSpinner   = (Spinner) v.findViewById(R.id.dMedAlertTypeSpinner) ;
+        mMedSpinner    = v.findViewById(R.id.dMedAlertMedNickNameSpinner) ;
+        mPersonSpinner = v.findViewById(R.id.dMedAlertPersonSpinner);
+        mTypeSpinner   = v.findViewById(R.id.dMedAlertTypeSpinner) ;
 
         MMPerson patient = getPerson();
 
         //build spinner dropdown of medication names
-        mMedications = patient.getMedications();
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
+        mMedications = patient.getMedications(currentOnly);
 
         int lastMed = mMedications.size();
         int positionMed = 0;
@@ -754,7 +756,8 @@ public class MMMedicationAlertFragment extends Fragment  {
 
         //build spinner dropdown of person names
 
-        mPersons = MMPersonManager.getInstance().getPersonList();
+        // TODO: 12/11/2017 this needs to be fixed when Alerts added again
+        mPersons = MMPersonManager.getInstance().getPersonList(false);
         int lastPerson = mPersons.size();
         int positionPerson = 0;
         MMPerson person;

@@ -14,13 +14,11 @@ class MMPerson {
     //************************************/
 
     //Tags for attributes
-    static final String sPersonTag           = "PERSON_OBJECT";
-    static final String sPersonNicknameTag   = "PERSON_NAME";
+    //static final String sPersonTag           = "PERSON_OBJECT";
+    //static final String sPersonNicknameTag   = "PERSON_NAME";
     static final String sPersonIDTag         = "PERSON_ID";
-    static final String sPersonEmailTag      = "PERSON_EMAIL";
-    static final String sPersonTextTag       = "PERSON_TEXT";
-
-    static final int TEMP_PERSON = -1;
+   // static final String sPersonEmailTag      = "PERSON_EMAIL";
+   // static final String sPersonTextTag       = "PERSON_TEXT";
 
 
     static final String sPersonMedicationPositionTag = "PERSON_MED_POSITION";
@@ -40,6 +38,7 @@ class MMPerson {
     private CharSequence mTextAddress;
     private boolean      mCurrentlyExists;
     private ArrayList<MMMedication> mMedications;
+    private boolean      mCurrentOnlyFlag;
 
 
     //************************************/
@@ -108,18 +107,37 @@ class MMPerson {
     void         setCurrentlyExists(boolean isExistant) {mCurrentlyExists = isExistant;}
 
 
+    //Pay no mind to the DB, just return what is on the Person Object
     ArrayList<MMMedication> getMedications(){
-        if (!isMedicationsChanged()) {
+        return mMedications;
+    }
+
+    ArrayList<MMMedication> getMedications(boolean currentOnly){
+        if (!isMedListUpToDate(currentOnly)) {
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-            mMedications = databaseManager.getAllMedications(mPersonID);
+            mMedications = databaseManager.getAllMedications(mPersonID, currentOnly);
         }
+
         return mMedications;
     }
     void setMedications(ArrayList<MMMedication> medications) { mMedications = medications; }
-    boolean isMedicationsChanged(){
-        if ((mMedications == null) || (mMedications.size()==0)) return false;
+    boolean isMedListUpToDate(boolean currentOnly){
+        boolean oldCurrentOnly = mCurrentOnlyFlag;
+        mCurrentOnlyFlag = currentOnly;
+        if ((currentOnly != oldCurrentOnly) ||
+            (mMedications == null)          ||
+            (mMedications.size()==0)) {
+            return false;
+        }
         return true;
     }
+
+    //reset is needed whenever settings are changed to show deleted meds
+    void resetMedicationsChanged(){
+        mMedications = null;
+    }
+
+    void setCurrentOnly(boolean currentOnlyFlag){mCurrentOnlyFlag = currentOnlyFlag;}
 
     //************************************/
     /*          Member Methods           */

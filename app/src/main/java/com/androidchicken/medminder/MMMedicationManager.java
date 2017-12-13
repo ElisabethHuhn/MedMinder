@@ -80,7 +80,8 @@ class MMMedicationManager {
         if (medPersonID != personID) return false;
 
         //determine if the medication already is associated with this person
-        ArrayList<MMMedication> medicationList = person.getMedications();
+        //Get all the medications, deleted or not
+        ArrayList<MMMedication> medicationList = person.getMedications(false);
 
         //If this is the first, the list will be empty
         if (medicationList == null){
@@ -112,9 +113,9 @@ class MMMedicationManager {
     ///-*********************  READ **************************************
     //return the cursor containing all the Concurrent Doses in the DB
     //that pertain to this personID
-    Cursor getAllMedicationsCursor (long personID){
+    Cursor getAllMedicationsCursor (long personID, boolean currentOnly){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        return databaseManager.getAllMedicationsCursor(personID);
+        return databaseManager.getAllMedicationsCursor(personID, currentOnly);
     }
 
 

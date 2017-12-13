@@ -30,8 +30,8 @@ class MMHistoryTitleAdapter extends RecyclerView.Adapter<MMHistoryTitleAdapter.M
             super(v);
 
             //remember the views we know about at coding time
-            positionNumber = (TextView) v.findViewById(R.id.titlePositionalIndicator);
-            medicationName = (TextView) v.findViewById(R.id.titleMedicationName);
+            positionNumber = v.findViewById(R.id.titlePositionalIndicator);
+            medicationName = v.findViewById(R.id.titleMedicationName);
         }
 
     } //end inner class MyViewHolder

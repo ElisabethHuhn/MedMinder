@@ -211,16 +211,23 @@
     <string name="settings_default_time_due"    >Medications: Default Time Due for schedule</string>
     <string name="settings_default_time"        >Time</string>
     <string name="settings_earliest_history_date">Home: Earliest dose date shown in history</string>
-    <string name="settings_date_hint"         >MMM d, yyyy</string>
+    <string name="settings_date_hint"           >MMM d, yyyy</string>
     <string name="settings_history_date"        >Date</string>
     <string name="settings_incorrect_format"    >Time field incorrect, resetting....</string>
     <string name="settings_24format"            >Is Clock 24 hour format?</string>
-    <string name="settings_show_deleted_people" >Show Deleted Persons?</string>
-    <string name="settings_show_deleted_meds"   >Show Deleted Medications?</string>
+    <string name="settings_show_deleted_people" >Show Only Current Patients?</string>
+    <string name="settings_show_deleted_meds"   >Show Only Current Medications?</string>
     <string name="settings_notification_vibrate">Vibrate with Medication Notifications?</string>
     <string name="settings_notification_sound"  >Sound with Medication Notifications?</string>
+    <string name="settings_notification_light"  >Lights with Medication Notifications?</string>
     <string name="settings_show_fab"            >Show Floating Action Button shortcut?</string>
     <string name="settings_home_shading"        >Show shading on Home Screen Historical Data?</string>
+    <string name="settings_curr_on_label"       >current</string>
+    <string name="settings_all_off_label"       >all</string>
+    <string name="settings_on_label"            >on</string>
+    <string name="settings_off_label"           >off</string>
+    <string name="settings_24_label"            >24</string>
+    <string name="settings_12_label"            >12</string>
 
     <!--      Medication Alert SCREEN                  -->
     <!--  -->

@@ -66,7 +66,7 @@ class MMPersonManager {
 
     //The routine that actually adds the instance to in memory list and
     // potentially (third boolean parameter) to the DB
-    long addPerson(MMPerson newPerson, boolean addToDBToo){
+    long addPerson(MMPerson newPerson, boolean addToDBToo, boolean currentOnly){
         long returnCode = MMDatabaseManager.sDB_ERROR_CODE;
 
         //There may be more people in the DB than are in memory
@@ -83,21 +83,17 @@ class MMPersonManager {
             returnCode = databaseManager.addPerson(newPerson);
             if (returnCode == MMDatabaseManager.sDB_ERROR_CODE)return returnCode;
 
-            //we need to put this check in as getMedications() will read from the DB if
-            //there are no medications listed locally.
-            // So to stop the loop of reading from DB just to write to the DB, add this check
-            if (newPerson.isMedicationsChanged()) {
-                ArrayList<MMMedication> medications = newPerson.getMedications();
-                if (medications != null) {
-                    int position = 0;
-                    int last = medications.size();
-                    while (position < last) {
-                        returnCode = databaseManager.addMedication(medications.get(position));
 
-                        if (returnCode == MMDatabaseManager.sDB_ERROR_CODE) return returnCode;
-                        position++;
-                    }
+            //Get the medication list that is on the object, ignore the DB shadow for this call
+            ArrayList<MMMedication> medications = newPerson.getMedications();
+            if (medications != null) {
+                int position = 0;
+                int last = medications.size();
+                while (position < last) {
+                    returnCode = databaseManager.addMedication(medications.get(position));
 
+                    if (returnCode == MMDatabaseManager.sDB_ERROR_CODE) return returnCode;
+                    position++;
                 }
             }
         }
@@ -109,19 +105,19 @@ class MMPersonManager {
     /// ****************  READ *******************************************
     //return the cursor containing all the Concurrent Doses in the DB
     //that pertain to this personID
-    Cursor getAllPersonsCursor (){
+    Cursor getAllPersonsCursor (boolean currentOnly){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        return databaseManager.getAllPersonsCursor();
+        return databaseManager.getAllPersonsCursor(currentOnly);
     }
 
 
     //Return the list of all Persons
-    ArrayList<MMPerson> getPersonList() {
+    ArrayList<MMPerson> getPersonList(boolean currentOnly) {
         //Assumption is that if any person is already in the list, it must be up to date
         if ((mPersonList == null) || (mPersonList.size() == 0)){
             //get the Persons from the DB
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-            mPersonList = databaseManager.getAllPersons();
+            mPersonList = databaseManager.getAllPersons(currentOnly);
         }
         return mPersonList;
     }
@@ -133,7 +129,8 @@ class MMPersonManager {
         if (personID == MMUtilities.ID_DOES_NOT_EXIST)return null;
         //Assumption is that if any person is already in the list, it must be up to date
         if ((mPersonList == null) || (mPersonList.size() == 0)){
-            getPersonList();
+            //get all deleted people as well
+            getPersonList(false);
         }
         int atPosition = getPersonPosition(personID);
 
@@ -245,6 +242,12 @@ class MMPersonManager {
         boolean booleanValue = false;
         if (currentlyExists == 1)booleanValue = true;
         person.setCurrentlyExists(booleanValue);
+
+        //Really ought to set currentOnly flag from Settings, but need context to do that
+        //The first time in doesn't matter, as the meds field will be null and the DB will be
+        // read, regardless of the setting of the flag.
+        //so arbitrarilly, set to all meds, regardless of whether current or not
+        person.setCurrentOnly(false);
 
         return person;
     }

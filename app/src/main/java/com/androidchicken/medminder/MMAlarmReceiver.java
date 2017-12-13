@@ -57,6 +57,8 @@ public class MMAlarmReceiver extends BroadcastReceiver {
         // Get an instance of the NotificationManager service
         NotificationManager mNotifyMgr =
                             (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        if (mNotifyMgr == null)return;
+
         // Build the notification and issues it.
         mNotifyMgr.notify(notifID, notification);
     }
@@ -72,6 +74,7 @@ public class MMAlarmReceiver extends BroadcastReceiver {
 
         long medID = medAlert.getMedicationID();
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
+        // TODO: 12/13/2017 this doesn't look right. Why isn't medication ever used?
         MMMedication medication = medicationManager.getMedicationFromID(medID);
 
         MMDoseManager doseManager = MMDoseManager.getInstance();

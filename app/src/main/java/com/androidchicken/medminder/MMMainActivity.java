@@ -231,7 +231,7 @@ public class MMMainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (MMSettings.getInstance().getFabVisible(activity)) {
+                if (MMSettings.getInstance().isFabVisible(activity)) {
                     handleFAB(view);
                 }
             }
@@ -248,7 +248,7 @@ public class MMMainActivity extends AppCompatActivity {
      }
 
     void handleFabVisibility(){
-        if (MMSettings.getInstance().getFabVisible(this)){
+        if (MMSettings.getInstance().isFabVisible(this)){
             showFAB();
         } else {
             hideFAB();

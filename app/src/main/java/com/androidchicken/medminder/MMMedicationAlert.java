@@ -17,10 +17,10 @@ class MMMedicationAlert {
     static final String sNotifyTextString  = "Text";
 
     static final String sMedAlertID        = "med_alert_id";
-    static final String sPatientIDTag      = "patient_id";
+    //static final String sPatientIDTag      = "patient_id";
     static final String sMedicationIDTag   = "medication_id";
-    static final String sNotifyPersonIDTag = "notify_person_id";
-    static final String sNotifyTypeTag     = "notify_type";
+   // static final String sNotifyPersonIDTag = "notify_person_id";
+   // static final String sNotifyTypeTag     = "notify_type";
 
 
 
@@ -96,17 +96,17 @@ class MMMedicationAlert {
     //************************************/
     /*    Default Attribute Values       */
     //************************************/
-    static long getDefaultMedicationAlertID()   {  return MMUtilities.ID_DOES_NOT_EXIST; }
+    private static long getDefaultMedicationAlertID()   {  return MMUtilities.ID_DOES_NOT_EXIST; }
 
-    static long getDefaultMedicationID()   {  return MMUtilities.ID_DOES_NOT_EXIST; }
+    private static long getDefaultMedicationID()   {  return MMUtilities.ID_DOES_NOT_EXIST; }
 
-    static long getDefaultForPatientID()   { return MMUtilities.ID_DOES_NOT_EXIST; }
+    private static long getDefaultForPatientID()   { return MMUtilities.ID_DOES_NOT_EXIST; }
 
-    static long getDefaultNotifyPersonID() {  return MMUtilities.ID_DOES_NOT_EXIST;  }
+    private static long getDefaultNotifyPersonID() {  return MMUtilities.ID_DOES_NOT_EXIST;  }
 
-    static int  getDefaultTypeNotify()     { return sNOTIFY_BY_EMAIL; }
+    private static int  getDefaultTypeNotify()     { return sNOTIFY_BY_EMAIL; }
 
-    static int  getDefaultOverdueTime()    { return 60; }
+    private static int  getDefaultOverdueTime()    { return 60; }
 
 
 

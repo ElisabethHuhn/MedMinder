@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import static com.androidchicken.medminder.R.id.settingPersonNickNameInput;
+
 
 
 /**
@@ -39,7 +39,8 @@ public class MMAboutFragment extends Fragment {
     //**********************************************/
     private static final String mWhoShortStmt = "Mobile Gurus Inc.";
     private static final String mWhoStmt     = "Mobile Gurus Inc.\n" +
-            "mobilegurusinc@gmail.com\n";
+            "mobilegurusinc@gmail.com\n" +
+            "medminderfeedback@gmail.com\n";
 
     private static final String mPrivacyShortStmt = "Statement of Privacy";
     private static final String mPrivacyStmt = "Privacy Policy\n" +
@@ -51,7 +52,7 @@ public class MMAboutFragment extends Fragment {
             "\n" +
             "All MedMinder patient and medication information is stored on the user handset in the private MedMinder directory, ONLY. \n" +
             "We do not keep any user information on any remote servers, company or otherwise. \n" +
-            "Mobile Gurus Inc does not collect nor will we ever share your personal information, unless legally required to. \n" +
+            "Mobile Gurus Inc does not collect thus we can not ever share your personal information, unless legally required to. \n" +
             "\n" +
             "\n" +
             "1) WHAT THIS POLICY COVERS \n" +
@@ -147,15 +148,12 @@ public class MMAboutFragment extends Fragment {
 
     private static final String mTipsShortStmt = "Home Screen Tips" ;
     private static final String mTipsStmt = "Home Screen Tips\n" +
-            "There are shortcuts to the patient profile screen and to the medication prescription screen. \n" +
-            "O Long press on patient name will take you to the Patient Profile Screen\n" +
-            "O Long press on a medication button will take you to the Medication Prescription Screen\n" +
-            "\n" +
-            "Because of the way Android works, if you bring up the MedMinder app from the recent apps list, the current time field may be old. (It is because the MedMinder app has resided in memory and is not brought up from scratch). Long press on the time field will result in an update of that field to the current time.\n" +
-            "\n" +
-            "Because of all the active areas on the Home screen, sometimes vertical scrolling is tricky. If you press, hesitate, then swipe up or down the screen will scroll through the historical dosage data.\n" +
-            "\n" +
-            "The shading of dates is purely aesthetic to allow you to tell the days apart more easily. The algorithm is not sophisticated: odd days are white, even days are shaded. Occasionally there are two successive days that aren’t distinguished, for example at the end of a month with 31 days. Both the 31st and the 1st are odd. Shading is controlled from the settings screen. \n" +
+            "There are shortcuts activated by a long press. \n" +
+            "O Long press on patient name will take you to the Patient Profile Screen\n"                      +
+            "O Long press on a medication button will take you to the Medication Prescription Screen\n"       +
+            "O Long press on the time field will result in an update of that field to the current time.\n"    +
+            "O Press, hesitate, then swipe up or down the screen will scroll through the historical dosage data. The hesitate is needed sometimes.\n" +
+            "O Historical Date/Time Shading is turned on and off from the settings screen. The shading of dates is purely aesthetic to allow you to tell the days apart more easily. The algorithm is not sophisticated: odd days are white, even days are shaded. Occasionally there are two successive days that aren’t distinguished, for example at the end of a month with 31 days. Both the 31st and the 1st are odd. \n" +
             "\n";
 
     //**********************************************/
@@ -186,9 +184,12 @@ public class MMAboutFragment extends Fragment {
 
         initializeUI(v);
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return v;
+
         //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_about);
-        ((MMMainActivity) getActivity()).handleFabVisibility();
+        activity.setMMSubtitle(R.string.title_about);
+        activity.handleFabVisibility();
 
         return v;
     }
@@ -199,26 +200,28 @@ public class MMAboutFragment extends Fragment {
         super.onResume();
         //MMUtilities.clearFocus(getActivity());
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
         if (getOrientation() == Configuration.ORIENTATION_LANDSCAPE) {
 
             //get rid of the soft keyboard if it is visible
             View v = getView();
             if (v != null) {
-                EditText personNickNameInput = v.findViewById(settingPersonNickNameInput);
-                MMUtilities.getInstance().showSoftKeyboard(getActivity(), personNickNameInput);
+                EditText aboutWho = v.findViewById(R.id.about_who_output);
+                MMUtilities.getInstance().showSoftKeyboard(activity, aboutWho);
             }
         } else {
             //get rid of the soft keyboard if it is visible
-            MMUtilities.getInstance().hideSoftKeyboard(getActivity());
+            MMUtilities.getInstance().hideSoftKeyboard(activity);
         }
 
 
         //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_about);
+        activity.setMMSubtitle(R.string.title_about);
 
         //Set the FAB invisible
-        ((MMMainActivity) getActivity()).hideFAB();
+        activity.hideFAB();
     }
 
     public int getOrientation(){
@@ -232,7 +235,7 @@ public class MMAboutFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState){
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState){
         // Save custom values into the bundle
 
         // Always call the superclass so it can save the view hierarchy state

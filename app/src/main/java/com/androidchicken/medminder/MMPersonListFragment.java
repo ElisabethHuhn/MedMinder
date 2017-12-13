@@ -2,6 +2,7 @@ package com.androidchicken.medminder;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -93,7 +94,7 @@ public class MMPersonListFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.fragment_person_list, container, false);
@@ -104,13 +105,15 @@ public class MMPersonListFragment extends Fragment {
 
         initializeRecyclerView(v);
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return v;
+
         //get rid of soft keyboard if it is visible
-        MMUtilities utilities = MMUtilities.getInstance();
-        utilities.hideSoftKeyboard(getActivity());
+        MMUtilities.getInstance().hideSoftKeyboard(activity);
 
         //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person_list);
-        ((MMMainActivity) getActivity()).handleFabVisibility();
+        activity.setMMSubtitle(R.string.title_person_list);
+        activity.handleFabVisibility();
 
 
 
@@ -123,13 +126,14 @@ public class MMPersonListFragment extends Fragment {
 
         super.onResume();
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person_list);
+        activity.setMMSubtitle(R.string.title_person_list);
 
         //Set the FAB visible
-        ((MMMainActivity) getActivity()).handleFabVisibility();
-
-
+        activity.handleFabVisibility();
     }
 
     private void wireWidgets(View v){
@@ -181,6 +185,9 @@ public class MMPersonListFragment extends Fragment {
         //1) Inflate the layout for this fragment
         //      implemented in the caller: onCreateView()
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         //2) find and remember the RecyclerView
         RecyclerView recyclerView = getRecyclerView(v);
 
@@ -192,30 +199,30 @@ public class MMPersonListFragment extends Fragment {
         //4) Get the set of Person Instances from the Database
 
         MMPersonManager personManager = MMPersonManager.getInstance();
-        Cursor cursor = personManager.getAllPersonsCursor();
+        boolean currentOnly = (MMSettings.getInstance().showOnlyCurrentPersons(activity));
+        Cursor cursor = personManager.getAllPersonsCursor(currentOnly);
 
         //5) Use the data to Create and set out person Adapter
         //     even though we're giving the Adapter the list,
         //     Adapter uses the PersonManager to maintain the list and
         //     the items in the list.
-        MMPersonCursorAdapter adapter = new MMPersonCursorAdapter(getActivity(), cursor);
+        MMPersonCursorAdapter adapter = new MMPersonCursorAdapter(activity, cursor);
         recyclerView.setAdapter(adapter);
 
         //6) create and set the itemAnimator
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         //7) create and add the item decorator
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+        recyclerView.addItemDecoration(new DividerItemDecoration(activity,
                                                                DividerItemDecoration.VERTICAL));
 /*
-        recyclerView.addItemDecoration(new DividerItemDecoration(
-                                                                getActivity(),
+        recyclerView.addItemDecoration(new DividerItemDecoration(activity,
                                                                 LinearLayoutManager.VERTICAL));
 */
 
         //8) add event listeners to the recycler view
         recyclerView.addOnItemTouchListener(
-            new MMHomeFragment.RecyclerTouchListener(getActivity(),
+            new MMHomeFragment.RecyclerTouchListener(activity,
                                                      recyclerView,
                                                      new MMHomeFragment.ClickListener() {
 
@@ -235,14 +242,18 @@ public class MMPersonListFragment extends Fragment {
 
 
     public void onExit(){
-        //MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
+
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        //MMUtilities.getInstance().showStatus(activity, R.string.exit_label);
 
         MMPersonCursorAdapter adapter = getAdapter(getView());
         adapter.closeCursor();
 
         //switch to person screen
         // But the switching happens on the container Activity
-        ((MMMainActivity) getActivity()).switchToPersonListReturn(mReturnFragmentTag);
+        activity.switchToPersonListReturn(mReturnFragmentTag);
     }
 
 
@@ -269,18 +280,20 @@ public class MMPersonListFragment extends Fragment {
         View v = getView();
         if (v == null)return;
 
-        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.personList);
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        RecyclerView recyclerView =  getView().findViewById(R.id.personList);
         MMPersonCursorAdapter adapter = (MMPersonCursorAdapter) recyclerView.getAdapter();
 
         MMPersonManager personManager = MMPersonManager.getInstance();
-        MMPerson selectedPerson =
-                personManager.getPersonFromCursor(adapter.getCursor(), position);
+        MMPerson selectedPerson = personManager.getPersonFromCursor(adapter.getCursor(), position);
 
-        MMUtilities.getInstance().showStatus(getActivity(),
-                selectedPerson.getNickname() + " is selected!");
+        MMUtilities.getInstance().showStatus(activity,
+                                            selectedPerson.getNickname() + " is selected!");
 
         //Set the patient ID from the item selected
-        ((MMMainActivity)getActivity()).setPatientID(selectedPerson.getPersonID());
+        activity.setPatientID(selectedPerson.getPersonID());
 
         onExit();
 

@@ -48,8 +48,9 @@ class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcurrentDos
             int padding = MMUtilities.getInstance().convertPixelsToDp(mActivity, sizeInDp);
             int last = mNumberMeds;
             int position = 0;
+            MMUtilities utilities = MMUtilities.getInstance();
+
             while (position < last){
-                MMUtilities utilities = MMUtilities.getInstance();
                 textField = utilities.createDoseEditText(mActivity, padding);
                 doseMeds.add(textField);
                 layout.addView(textField);
@@ -116,11 +117,13 @@ class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcurrentDos
     public void onBindViewHolder(MyViewHolder holder, int position){
 
         if (mActivity == null)return;
+        boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(mActivity);
 
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
         if (mConcurrentDoseCursor == null){
             long earliestDate = MMSettings.getInstance().getHistoryDate(mActivity);
-            mConcurrentDoseCursor = concurrentDoseManager.getAllConcurrentDosesCursor(mPersonID, earliestDate);
+            mConcurrentDoseCursor =
+                    concurrentDoseManager.getAllConcurrentDosesCursor(mPersonID, earliestDate);
             //if there is no history for this person, just return
             if (mConcurrentDoseCursor == null)return;
         }
@@ -140,50 +143,50 @@ class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcurrentDos
                 //Convert Date from milliseconds to String
                 long startTime = concurrentDoses.getStartTime();
 
-                String startDateLocalString = MMUtilitiesTime.convertTimeMStoString(
-                                                                    mActivity,
-                                                                    startTime,
-                                                                    false);
+                String startDateLocalString = MMUtilitiesTime.convertTimeMStoString(mActivity,
+                                                                                    startTime,
+                                                                                    false);
                 holder.doseDate.setText(startDateLocalString);
 
-                boolean homeShading = MMSettings.getInstance().getHomeShading(mActivity);
+                boolean homeShading = MMSettings.getInstance().isHomeShading(mActivity);
 
                 if (homeShading){
                     if (MMUtilitiesTime.isDayOdd(startTime)){
-                        holder.doseDate.setBackgroundColor(ContextCompat.getColor(mActivity,
-                                                                            R.color.colorWhite));
+                        holder.doseDate.setBackgroundColor(
+                                ContextCompat.getColor(mActivity, R.color.colorWhite));
                     } else {
-                        holder.doseDate.setBackgroundColor(ContextCompat.getColor(mActivity,
+                        holder.doseDate.setBackgroundColor(
+                                ContextCompat.getColor(mActivity,
                                                             R.color.colorScreenDeletedBackground));
                     }
                 } else {
-                    holder.doseDate.setBackgroundColor(ContextCompat.getColor(mActivity,
-                                                                            R.color.colorWhite));
+                    holder.doseDate.setBackgroundColor(
+                                ContextCompat.getColor(mActivity, R.color.colorWhite));
                 }
 
-                String startTimeLocalString = MMUtilitiesTime.convertTimeMStoString(
-                                                                    mActivity,
-                                                                    startTime,
-                                                                    true);
+                String startTimeLocalString = MMUtilitiesTime.convertTimeMStoString(mActivity,
+                                                                                    startTime,
+                                                                                    true);
                 holder.doseTime.setText(startTimeLocalString);
                 if (homeShading) {
                     if (MMUtilitiesTime.isDayOdd(startTime)) {
 
-                        holder.doseTime.setBackgroundColor(ContextCompat.getColor(mActivity,
-                                                                            R.color.colorWhite));
+                        holder.doseTime.setBackgroundColor(
+                                ContextCompat.getColor(mActivity, R.color.colorWhite));
 
                     } else {
-                        holder.doseTime.setBackgroundColor(ContextCompat.getColor(mActivity,
+                        holder.doseTime.setBackgroundColor(
+                                ContextCompat.getColor(mActivity,
                                                            R.color.colorScreenDeletedBackground));
                     }
                 } else {
-                    holder.doseTime.setBackgroundColor(ContextCompat.getColor(mActivity,
-                                                                            R.color.colorWhite));
+                    holder.doseTime.setBackgroundColor(
+                                ContextCompat.getColor(mActivity, R.color.colorWhite));
                 }
 
                 MMPersonManager personManager = MMPersonManager.getInstance();
                 MMPerson person = personManager.getPerson(mPersonID);
-                ArrayList<MMMedication> medications = person.getMedications();
+                ArrayList<MMMedication> medications = person.getMedications(currentOnly);
 
                 MMDose dose= null;
                 int lastMedication  = medications.size();
@@ -217,6 +220,8 @@ class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcurrentDos
                         //There are no more doses to be taken, print zero's in the rest of the fields
                         medPosition = lastMedication+1;
                     }
+
+                    //-----------------------------------------
                     //print zeros in positions where no dose was taken,
                     // but don't exceed the number of total medications
                     // as medPosition may be used as flag (see above where it is set to last+1)
@@ -229,35 +234,35 @@ class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcurrentDos
                         if (medIsCurrent){
                             textField.setBackgroundColor(
                                     ContextCompat.getColor(mActivity, R.color.colorWhite));
-                                    //ContextCompat.getColor(mActivity, R.color.colorWhite));
                         } else {
+                            //Gray the background on non-current meds
                             textField.setBackgroundColor(
-                                    ContextCompat.getColor(mActivity,
-                                                           R.color.colorScreenDeletedBackground));
+                                    ContextCompat.getColor(mActivity,R.color.colorGray));
                         }
 
                         uiPosition++;
                     }
 
+                    //----------------------------------------------------------
                     if ((uiPosition == medPosition) && (dose != null)){
                         medication = medications.get(uiPosition);
                         medIsCurrent = medication.isCurrentlyTaken();
 
                         textField = holder.doseMeds.get(uiPosition);
-                        int amtTaken = dose.getAmountTaken();
-                        textField.setText(String.valueOf(amtTaken));
-
                         if (medIsCurrent){
-                            if (amtTaken > 0){
-                                textField.setBackgroundColor(ContextCompat.
-                                        getColor(mActivity, R.color.colorLightPink));
+                            int amtTaken = dose.getAmountTaken();
+                            textField.setText(String.valueOf(amtTaken));
+
+                             if (amtTaken > 0){
+                                textField.setBackgroundColor(
+                                        ContextCompat.getColor(mActivity, R.color.colorLightPink));
                             } else {
-                                textField.setBackgroundColor(ContextCompat.
-                                        getColor(mActivity, R.color.colorWhite));
+                                textField.setBackgroundColor(
+                                        ContextCompat.getColor(mActivity, R.color.colorWhite));
                             }
                         } else {
-                            textField.setBackgroundColor(ContextCompat.
-                                    getColor(mActivity, R.color.colorScreenDeletedBackground));
+                            textField.setBackgroundColor(
+                                        ContextCompat.getColor(mActivity, R.color.colorGray));
                         }
                     }
                     uiPosition++;

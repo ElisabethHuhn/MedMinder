@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -143,7 +144,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         if (savedInstanceState != null){
@@ -163,14 +164,6 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         initializeRecyclerView(v);
         initializeUI(v);
 
-        //hide the soft keyboard if it is visible
-        MMUtilities utilities = MMUtilities.getInstance();
-        utilities.hideSoftKeyboard(getActivity());
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-
-        //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_medication);
-
         if (savedInstanceState == null) {
             setUISaved(v);
         } else {
@@ -182,14 +175,25 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             }
         }
 
-        ((MMMainActivity) getActivity()).handleFabVisibility();
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null) return v;
+
+        //hide the soft keyboard if it is visible
+        MMUtilities utilities = MMUtilities.getInstance();
+        utilities.hideSoftKeyboard(activity);
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        //set the title bar subtitle
+        activity.setMMSubtitle(R.string.title_medication);
+
+         activity.handleFabVisibility();
 
 
         return v;
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState){
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState){
         // Save custom values into the bundle
         savedInstanceState.putInt(MMPerson.sPersonMedicationPositionTag, mPosition);
         savedInstanceState.putString(MMMainActivity.sFragmentTag, mReturnTag);
@@ -205,17 +209,20 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     public void onResume(){
         super.onResume();
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_medication);
+        activity.setMMSubtitle(R.string.title_medication);
 
         //Set the FAB visible
-        ((MMMainActivity) getActivity()).handleFabVisibility();
+        activity.handleFabVisibility();
 
 
         //hide the soft keyboard if it is visible
         MMUtilities utilities = MMUtilities.getInstance();
-        utilities.hideSoftKeyboard(getActivity());
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        utilities.hideSoftKeyboard(activity);
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         setUISaved();
     }
@@ -226,7 +233,10 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     //*************************************************************/
 
     private long     getPatientID(){
-        return ((MMMainActivity)getActivity()).getPatientID();
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return MMUtilities.ID_DOES_NOT_EXIST;
+
+        return activity.getPatientID();
     }
 
     private MMPerson getPerson(){
@@ -238,6 +248,9 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     //*******   Initialization Methods  **********/
     //********************************************/
     private void wireWidgets(View v){
+        final MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
@@ -262,7 +275,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             }
         };
 
-        Button medicationSaveButton = (Button) v.findViewById(R.id.medicationSaveButton);
+        Button medicationSaveButton = v.findViewById(R.id.medicationSaveButton);
         medicationSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -271,7 +284,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         });
 
 
-        final SwitchCompat existSwitch = (SwitchCompat) v.findViewById(R.id.switchExists);
+        final SwitchCompat existSwitch = v.findViewById(R.id.switchExists);
         existSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
@@ -280,41 +293,41 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
                 if (v != null) {
                     if (existSwitch.isChecked()) {
                         v.setBackgroundColor(ContextCompat.
-                                getColor(getActivity(), R.color.colorScreenBackground));
+                                        getColor(activity, R.color.colorScreenBackground));
                     } else {
                         v.setBackgroundColor(ContextCompat.
-                                getColor(getActivity(), R.color.colorScreenDeletedBackground));
+                                        getColor(activity, R.color.colorScreenDeletedBackground));
                     }
                 }
             }
         });
 
 
-        EditText medNickNameInput = (EditText) v.findViewById(R.id.medicationNickNameInput);
+        EditText medNickNameInput    = v.findViewById(R.id.medicationNickNameInput);
         medNickNameInput.addTextChangedListener(textWatcher);
 
-        EditText medBrandNameInput = (EditText) v.findViewById(R.id.medicationBrandNameInput);
+        EditText medBrandNameInput   = v.findViewById(R.id.medicationBrandNameInput);
         medBrandNameInput.addTextChangedListener(textWatcher);
 
-        EditText medGenericNameInput = (EditText) v.findViewById(R.id.medicationGenericNameInput);
+        EditText medGenericNameInput = v.findViewById(R.id.medicationGenericNameInput);
         medGenericNameInput.addTextChangedListener(textWatcher);
 
-        EditText medNotesInput = (EditText) v.findViewById(R.id.medicationNotesInput);
+        EditText medNotesInput       = v.findViewById(R.id.medicationNotesInput);
         medNotesInput.addTextChangedListener(textWatcher);
 
-        EditText medSideEffectsInput = (EditText) v.findViewById(R.id.medicationSideEffectsInput);
+        EditText medSideEffectsInput = v.findViewById(R.id.medicationSideEffectsInput);
         medSideEffectsInput.addTextChangedListener(textWatcher);
 
 
 
 
-        EditText medDoseAmountInput = (EditText) v.findViewById(medicationDoseAmountInput);
+        EditText medDoseAmountInput = v.findViewById(medicationDoseAmountInput);
         medDoseAmountInput.addTextChangedListener(textWatcher);
 
-        EditText medDoseUnitsInput = (EditText) v.findViewById(R.id.medicationDoseUnitsInput);
+        EditText medDoseUnitsInput  = v.findViewById(R.id.medicationDoseUnitsInput);
         medDoseUnitsInput.addTextChangedListener(textWatcher);
 
-        Button upDoseNumber = (Button) v.findViewById(R.id.medicationUpButton);
+        Button upDoseNumber         = v.findViewById(R.id.medicationUpButton);
         upDoseNumber.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -322,7 +335,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             }
         });
 
-        Button downDoseNumber = (Button) v.findViewById(R.id.medicationDownButton);
+        Button downDoseNumber       = v.findViewById(R.id.medicationDownButton);
         downDoseNumber.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -332,16 +345,18 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     }
 
     private void wireStrategySpinner(View v){
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
         //set the default
         mSelectedStrategyTypePosition = MMMedication.sSET_SCHEDULE_FOR_MEDICATION;
         mOldPosition = mSelectedStrategyTypePosition;
 
         //Then initialize the spinner itself
-        Spinner spinner = (Spinner) v.findViewById(R.id.strategy_type_spinner);
+        Spinner spinner = v.findViewById(R.id.strategy_type_spinner);
 
         // Create an ArrayAdapter using the Activities context AND
         // the string array and a default spinner layout
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,
                                                           android.R.layout.simple_spinner_item,
                                                           mStrategyTypes);
 
@@ -359,14 +374,15 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         View field_container;
         TextView label;
 
-        MMMainActivity myActivity = (MMMainActivity)getActivity();
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
         //set up the labels for the medication list
         field_container = v.findViewById(R.id.schedTitleRow);
 
-        label = (EditText) (field_container.findViewById(R.id.scheduleTimeOutput));
+        label = (field_container.findViewById(R.id.scheduleTimeOutput));
         label.setText(R.string.medication_dose_time);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
     }
 
     private void initializeRecyclerView(View v){
@@ -388,13 +404,15 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         //1) Inflate the layout for this fragment
         //      done in the caller
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
         //2) find and remember the RecyclerView
         RecyclerView recyclerView = getRecyclerView(v);
 
         //3) create and assign a layout manager to the recycler view
-        //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
-        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
+        //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(activity);
+        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(mLayoutManager);
 
         //4) Get the Cursor of ScheduleMedication DB rows from the DB.
@@ -405,30 +423,29 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         Cursor scheduleCursor = medication.getSchedulesCursor();
 
         //5) Use the data to Create and set out SchedMed Adapter
-        MMScheduleCursorAdapter adapter= new MMScheduleCursorAdapter((MMMainActivity)getActivity(),
+        MMScheduleCursorAdapter adapter= new MMScheduleCursorAdapter(activity,
                                                                     scheduleCursor,
                                                                     medication.getMedicationID());
         recyclerView.setAdapter(adapter);
 
         //initialize the UI for number per day equal to the number of existing schedules
-        TextView medDoseNumInput = (TextView) v.findViewById(medicationDoseNumInput);
+        TextView medDoseNumInput = v.findViewById(medicationDoseNumInput);
         medDoseNumInput.setText(String.valueOf(adapter.getItemCount()));
 
         //6) create and set the itemAnimator
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         //7) create and add the item decorator
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
-                DividerItemDecoration.VERTICAL));
+        recyclerView.addItemDecoration(new DividerItemDecoration(activity,
+                                                                DividerItemDecoration.VERTICAL));
  /*
-           recyclerView.addItemDecoration(new DividerItemDecoration(
-                getActivity(),
-                LinearLayoutManager.VERTICAL));
+           recyclerView.addItemDecoration(new DividerItemDecoration(activity,
+                                                                    LinearLayoutManager.VERTICAL));
 */
 
         //8) add event listeners to the recycler view
         recyclerView.addOnItemTouchListener(
-                new MMHomeFragment.RecyclerTouchListener(getActivity(),
+                new MMHomeFragment.RecyclerTouchListener(activity,
                                                          recyclerView,
                                                          new MMHomeFragment.ClickListener() {
 
@@ -452,27 +469,30 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             //throw new RuntimeException(getString(R.string.no_person_med));
         }
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         CharSequence nickname;
         if (getPerson() == null) {
             nickname = getString(R.string.no_person_med);
         } else {
             nickname = getPerson().getNickname().toString().trim();
         }
-        TextView medicationForPerson = (TextView) v.findViewById(R.id.medicationForPersonNickName);
+        TextView medicationForPerson = v.findViewById(R.id.medicationForPersonNickName);
         medicationForPerson.       setText(nickname);
         //mMedNickNameLastInput = nickname;
 
         MMMedication medication = getMedicationInstance(getPatientID(), mPosition);
 
 
-        EditText medBrandNameInput   = (EditText) v.findViewById(R.id.medicationBrandNameInput);
-        EditText medGenericNameInput = (EditText) v.findViewById(R.id.medicationGenericNameInput);
-        EditText medNickNameInput    = (EditText) v.findViewById(R.id.medicationNickNameInput);
-        EditText medNotesInput       = (EditText) v.findViewById(R.id.medicationNotesInput) ;
-        EditText medSideEffectsInput = (EditText) v.findViewById(R.id.medicationSideEffectsInput);
-        TextView medDoseAmountInput  = (TextView) v.findViewById(medicationDoseAmountInput);
-        EditText medDoseUnitsInput   = (EditText) v.findViewById(R.id.medicationDoseUnitsInput);
-        TextView medDoseNumInput     = (TextView) v.findViewById(medicationDoseNumInput);
+        EditText medBrandNameInput   = v.findViewById(R.id.medicationBrandNameInput);
+        EditText medGenericNameInput = v.findViewById(R.id.medicationGenericNameInput);
+        EditText medNickNameInput    = v.findViewById(R.id.medicationNickNameInput);
+        EditText medNotesInput       = v.findViewById(R.id.medicationNotesInput) ;
+        EditText medSideEffectsInput = v.findViewById(R.id.medicationSideEffectsInput);
+        TextView medDoseAmountInput  = v.findViewById(medicationDoseAmountInput);
+        EditText medDoseUnitsInput   = v.findViewById(R.id.medicationDoseUnitsInput);
+        TextView medDoseNumInput     = v.findViewById(medicationDoseNumInput);
 
 
 
@@ -541,31 +561,30 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
         }
 
-        Spinner spinner = (Spinner) v.findViewById(R.id.strategy_type_spinner);
+        Spinner spinner = v.findViewById(R.id.strategy_type_spinner);
         spinner.setSelection(mSelectedStrategyTypePosition);
 
         mOldPosition = mSelectedStrategyTypePosition;
 
 
         //set the switch to whether the Person exists
-        SwitchCompat existSwitch = (SwitchCompat) v.findViewById(R.id.switchExists) ;
+        SwitchCompat existSwitch = v.findViewById(R.id.switchExists) ;
 
         //This is certainly overkill, but it is explicit
         if (medication != null) {
             if (medication.isCurrentlyTaken()) {
                 existSwitch.setChecked(true);
-                v.setBackgroundColor(ContextCompat.
-                        getColor(getActivity(), R.color.colorScreenBackground));
+                v.setBackgroundColor(
+                        ContextCompat.getColor(activity, R.color.colorScreenBackground));
             } else {
                 existSwitch.setChecked(false);
-                v.setBackgroundColor(ContextCompat.
-                        getColor(getActivity(), R.color.colorScreenDeletedBackground));
+                v.setBackgroundColor(
+                        ContextCompat.getColor(activity, R.color.colorScreenDeletedBackground));
             }
         } else {
             //set the default to exists
             existSwitch.setChecked(true);
-            v.setBackgroundColor(ContextCompat.
-                    getColor(getActivity(), R.color.colorScreenBackground));
+            v.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorScreenBackground));
         }
         setUISaved(v);
     }
@@ -611,7 +630,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
         if (v == null)return; //onCreateView() hasn't run yet
 
-        Button medicationSaveButton = (Button) v.findViewById(R.id.medicationSaveButton);
+        Button medicationSaveButton = v.findViewById(R.id.medicationSaveButton);
 
         MMUtilities utilities = MMUtilities.getInstance();
         utilities.enableButton(getActivity(), medicationSaveButton, isEnabled);
@@ -621,25 +640,28 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         View v = getView();
         if (v == null)return;
 
-        Button upDoseNumber = (Button) v.findViewById(R.id.medicationUpButton);
-        Button downDoseNumber = (Button) v.findViewById(R.id.medicationDownButton);
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        Button upDoseNumber   = v.findViewById(R.id.medicationUpButton);
+        Button downDoseNumber = v.findViewById(R.id.medicationDownButton);
 
         if (isUpDownEnabled()){
             upDoseNumber.setEnabled(true);
             upDoseNumber.setBackgroundColor(
-                    ContextCompat.getColor(getActivity(),R.color.colorButton1Background));
+                    ContextCompat.getColor(activity,R.color.colorButton1Background));
 
             downDoseNumber.setEnabled(true);
             downDoseNumber.setBackgroundColor(
-                    ContextCompat.getColor(getActivity(),R.color.colorButton1Background));
+                    ContextCompat.getColor(activity,R.color.colorButton1Background));
         } else {
             //upDoseNumber.setEnabled(false);
             upDoseNumber.setBackgroundColor(
-                    ContextCompat.getColor(getActivity(),R.color.colorButton2Background));
+                    ContextCompat.getColor(activity,R.color.colorButton2Background));
 
             //downDoseNumber.setEnabled(false);
             downDoseNumber.setBackgroundColor(
-                    ContextCompat.getColor(getActivity(),R.color.colorButton2Background));
+                    ContextCompat.getColor(activity,R.color.colorButton2Background));
         }
     }
     private boolean isUpDownEnabled(){
@@ -721,7 +743,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
                         //issue an alarm for this new time
                         MMUtilities utilities = MMUtilities.getInstance();
-                        utilities.createScheduleNotification(getActivity(), timeOfDay);
+                        utilities.createScheduleNotification((MMMainActivity)getActivity(), timeOfDay);
 
                         //Now update the UI list
                         reinitializeCursor(scheduleMedication.getOfMedicationID());
@@ -791,7 +813,9 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         if (person == null)return null;
         if (position < 0)return null; //means we are adding the medication
 
-        ArrayList<MMMedication> medications = person.getMedications();
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
+        ArrayList<MMMedication> medications = person.getMedications(currentOnly);
         if (medications == null){
             medications = new ArrayList<>();
         }
@@ -803,7 +827,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             //return an error
            return null;
         } else {
-            medication = person.getMedications().get(mPosition);
+            medication = person.getMedications(currentOnly).get(mPosition);
         }
 
         return medication;
@@ -855,6 +879,8 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     private void onSave(){
         View v = getView();
         if (v == null)return;
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
         MMUtilities.getInstance().showStatus(getActivity(), R.string.save_label);
 
@@ -873,14 +899,14 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         }
 
         //get handles for the UI widgets
-        EditText medNickNameInput    = (EditText) v.findViewById(R.id.medicationNickNameInput);
-        EditText medBrandNameInput   = (EditText) v.findViewById(R.id.medicationBrandNameInput);
-        EditText medGenericNameInput = (EditText) v.findViewById(R.id.medicationGenericNameInput);
-        TextView medDoseNumInput     = (TextView) v.findViewById(medicationDoseNumInput);
-        EditText medDoseUnitsInput   = (EditText) v.findViewById(R.id.medicationDoseUnitsInput);
-        EditText medDoseAmountInput  = (EditText) v.findViewById(medicationDoseAmountInput);
-        EditText medNotesInput       = (EditText) v.findViewById(medicationNotesInput) ;
-        EditText medSideEffectsInput = (EditText) v.findViewById(medicationSideEffectsInput);
+        EditText medNickNameInput    = v.findViewById(R.id.medicationNickNameInput);
+        EditText medBrandNameInput   = v.findViewById(R.id.medicationBrandNameInput);
+        EditText medGenericNameInput = v.findViewById(R.id.medicationGenericNameInput);
+        TextView medDoseNumInput     = v.findViewById(medicationDoseNumInput);
+        EditText medDoseUnitsInput   = v.findViewById(R.id.medicationDoseUnitsInput);
+        EditText medDoseAmountInput  = v.findViewById(medicationDoseAmountInput);
+        EditText medNotesInput       = v.findViewById(medicationNotesInput) ;
+        EditText medSideEffectsInput = v.findViewById(medicationSideEffectsInput);
 
         //Set the medication as belonging to the person
         medication.setForPersonID       (getPatientID());
@@ -897,15 +923,13 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
         medication.setDoseNumPerDay(Integer.valueOf(medDoseNumInput. getText().toString().trim()));
 
-        SwitchCompat existSwitch = (SwitchCompat) v.findViewById(R.id.switchExists);
+        SwitchCompat existSwitch = v.findViewById(R.id.switchExists);
         if (existSwitch.isChecked()) {
             medication.setCurrentlyTaken(true);
-            v.setBackgroundColor(ContextCompat.
-                    getColor(getActivity(), R.color.colorScreenBackground));
+            v.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorScreenBackground));
         } else {
             medication.setCurrentlyTaken(false);
-            v.setBackgroundColor(ContextCompat.
-                    getColor(getActivity(), R.color.colorScreenDeletedBackground));
+            v.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorScreenDeletedBackground));
         }
 
         //Add the medication to the person if necessary, but definitely add to the DB
@@ -913,11 +937,11 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
 
         //Add the medication to the person, and to the DB
-        boolean addToDBToo = true;
+
         if (getPerson() == null) {
             MMUtilities.getInstance().errorHandler(getActivity(), R.string.exception_medication_not_added);
         } else {
-            if (!medicationManager.addToPerson(getPerson(), medication, addToDBToo)) {
+            if (!medicationManager.addToPerson(getPerson(), medication, true)) {
                 MMUtilities.getInstance().errorHandler(getActivity(), R.string.exception_medication_not_added);
             } else {
 
@@ -927,9 +951,8 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
                 //disable the save button because we just saved
                 saveButtonEnable(MMUtilities.BUTTON_DISABLE);
 
-
                 //update position with this medications position
-                ArrayList<MMMedication> medications = getPerson().getMedications();
+                ArrayList<MMMedication> medications = getPerson().getMedications(false);
                 MMMedication checkMed;
                 int last = medications.size();
                 int position = 0;
@@ -972,7 +995,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         if (v == null)return;
 
         //increment the value on the UI
-        TextView medDoseNumInput = (TextView) v.findViewById(medicationDoseNumInput);
+        TextView medDoseNumInput = v.findViewById(medicationDoseNumInput);
         int size = Integer.valueOf(medDoseNumInput.getText().toString());
         size++;
 
@@ -1001,7 +1024,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
             utilities.enableAlarmReceiver(getActivity());
 
             //create an Alarm to generate a notification for this scheduled dose
-            utilities.createScheduleNotification(getActivity(), schedule.getTimeDue());
+            utilities.createScheduleNotification((MMMainActivity)getActivity(), schedule.getTimeDue());
         }
     }
 
@@ -1016,7 +1039,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         if (v == null)return;
 
         //Decrement the value in the UI
-        TextView medDoseNumInput = (TextView) v.findViewById(medicationDoseNumInput);
+        TextView medDoseNumInput = v.findViewById(medicationDoseNumInput);
 
         //get rid of the last schedule
         int last = Integer.valueOf(medDoseNumInput.getText().toString());
@@ -1088,7 +1111,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
         int hours    = timeDue/(int)MMUtilities.minutesPerHour;
         int minutes  = timeDue - (hours * (int)MMUtilities.minutesPerHour);
-        boolean is24format = MMSettings.getInstance().getClock24Format((MMMainActivity)getActivity());
+        boolean is24format = MMSettings.getInstance().isClock24Format((MMMainActivity)getActivity());
         showPicker(schedule.getSchedMedID(), hours, minutes, is24format );
 
         //The schedule itself and its alarms are actually updated in the TimePicker callbacks
@@ -1100,7 +1123,10 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
     //***********************************/
     //Build and display the alert dialog
     private void areYouSureExit(){
-        new AlertDialog.Builder(getActivity())
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        new AlertDialog.Builder(activity)
                 .setTitle(R.string.abandon_title)
                 .setIcon(R.drawable.ic_mortar_black_24dp)
                 .setMessage(R.string.are_you_sure)
@@ -1128,7 +1154,10 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         MMScheduleCursorAdapter adapter = getAdapter(getView());
         if (adapter != null) adapter.closeCursor();
 
-        ((MMMainActivity) getActivity()).switchToMedicationReturn(mReturnTag);
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        activity.switchToMedicationReturn(mReturnTag);
 
     }
 
@@ -1149,7 +1178,7 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
         if (howManyMedsDue == 1) {
             //The alarm is based on when the dose is due
             MMUtilities utilities = MMUtilities.getInstance();
-            utilities.cancelNotificationAlarms(getActivity());
+            utilities.cancelNotificationAlarms((MMMainActivity)getActivity());
         }
     }
 

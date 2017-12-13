@@ -1,7 +1,5 @@
 package com.androidchicken.medminder;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -18,9 +16,6 @@ import static android.content.ContentValues.TAG;
  */
 
 public class MMBootAlarmService extends Service {
-    private static final int NOTIFICATION_ID = 1;
-    private NotificationManager notificationManager;
-    private PendingIntent pendingIntent;
 
     @Override
     public IBinder onBind(Intent arg0)
@@ -47,7 +42,7 @@ public class MMBootAlarmService extends Service {
 
         //Set alarms / notifications for all the currently active people in the DB
         MMPersonManager personManager = MMPersonManager.getInstance();
-        ArrayList<MMPerson> people = personManager.getPersonList();
+        ArrayList<MMPerson> people = personManager.getPersonList(true);
 
         //no people, no alarms to set
         if (people == null)return START_NOT_STICKY;
@@ -62,7 +57,7 @@ public class MMBootAlarmService extends Service {
 
             //loop through all the MEDICATIONs on the person
             //  and set an alarm for each schedule
-            ArrayList<MMMedication> medications = null;
+            ArrayList<MMMedication> medications = person.getMedications();
             if (medications != null) {
                 MMMedication medication;
                 int lastMedication = medications.size();
@@ -83,7 +78,8 @@ public class MMBootAlarmService extends Service {
                                 schedule = schedules.get(positionSchedule);
                                 //create an Alarm to generate a notification for this scheduled dose
                                 MMUtilities utilities = MMUtilities.getInstance();
-                                utilities.createScheduleNotification(context, schedule.getTimeDue());
+                                // TODO: 12/11/2017 this casting of context is WRONG!!!!!
+                                utilities.createScheduleNotification((MMMainActivity)context, schedule.getTimeDue());
                                 positionSchedule++;
                             }//end schedule while loop
                         }

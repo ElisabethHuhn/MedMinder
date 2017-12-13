@@ -29,10 +29,10 @@ class MMMedicationAlertCursorAdapter extends RecyclerView.Adapter<MMMedicationAl
         MyViewHolder(View v) {
             super(v);
 
-            medName     = (TextView) v.findViewById(R.id.medAlertMedNickNameInput);
-            personName  = (TextView) v.findViewById(R.id.medAlertPersonInput);
-            notifyType  = (TextView) v.findViewById(R.id.medAlertTypeInput);
-            notifyTime  = (TextView) v.findViewById(R.id.medAlertOverdueTimeInput);
+            medName     = v.findViewById(R.id.medAlertMedNickNameInput);
+            personName  = v.findViewById(R.id.medAlertPersonInput);
+            notifyType  = v.findViewById(R.id.medAlertTypeInput);
+            notifyTime  = v.findViewById(R.id.medAlertOverdueTimeInput);
 
             medName.setFocusable(false);
             personName.setFocusable(false);

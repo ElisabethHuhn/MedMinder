@@ -22,8 +22,9 @@ import static android.R.attr.defaultValue;
     private static final String sDefaultTimeDueTag      = "timeDue"; //in minutes since midnight
     private static final String sClock24FormatTag       = "clock24" ;
     private static final String sPersonDeleteTag        = "personDelete" ;
-    private static final String sMedDeleteTag           = "medDelete" ;
+    private static final String sMedOnlyCurrentTag      = "medDelete" ;
     private static final String sSoundNotificationTag   = "soundNotification" ;
+    private static final String sLightNotificationTag   = "lightNotification" ;
     private static final String sVibrateNotificationTag = "vibrateNotification" ;
     private static final String sLengthOfHistoryTag     = "lengthHistory";
     private static final String sFabVisibleTag          = "fabVisible";
@@ -124,49 +125,56 @@ import static android.R.attr.defaultValue;
         setLongSetting(activity, MMSettings.sLengthOfHistoryTag, minutesSinceMidnight);
     }
 
-    boolean getClock24Format(MMMainActivity activity)  {
+    boolean isClock24Format(MMMainActivity activity)  {
         return getBooleanSetting(activity, MMSettings.sClock24FormatTag, false);
     }
     void    setClock24Format(MMMainActivity activity, boolean is24Format){
         setBooleanSetting(activity, MMSettings.sClock24FormatTag, is24Format);
     }
 
-    boolean getShowDeletedPersons(MMMainActivity activity)  {
+    boolean showOnlyCurrentPersons(MMMainActivity activity)  {
         return getBooleanSetting(activity, MMSettings.sPersonDeleteTag, true);
     }
-    void    setShowDeletedPersons(MMMainActivity activity, boolean showDeletedPerson){
+    void setShowOnlyCurrentPersons(MMMainActivity activity, boolean showDeletedPerson){
         setBooleanSetting(activity, MMSettings.sPersonDeleteTag, showDeletedPerson);
     }
 
-    boolean getShowDeletedMeds(MMMainActivity activity)  {
-        return getBooleanSetting(activity, MMSettings.sMedDeleteTag, true);
+    boolean showOnlyCurrentMeds(MMMainActivity activity)  {
+        return getBooleanSetting(activity, MMSettings.sMedOnlyCurrentTag, true);
     }
-    void    setShowDeletedMeds(MMMainActivity activity, boolean showDeletedMed){
-        setBooleanSetting(activity, MMSettings.sMedDeleteTag, showDeletedMed);
+    void setShowOnlyCurrentMeds(MMMainActivity activity, boolean showOnlyCurrentMed){
+        setBooleanSetting(activity, MMSettings.sMedOnlyCurrentTag, showOnlyCurrentMed);
     }
 
-    boolean getSoundNotification(MMMainActivity activity)  {
+    boolean isSoundNotification(MMMainActivity activity)  {
         return getBooleanSetting(activity, MMSettings.sSoundNotificationTag, true);
     }
     void    setSoundNotification(MMMainActivity activity, boolean isSoundNotif){
         setBooleanSetting(activity, MMSettings.sSoundNotificationTag, isSoundNotif);
     }
 
-    boolean getVibrateNotification(MMMainActivity activity)  {
+    boolean isVibrateNotification(MMMainActivity activity)  {
         return getBooleanSetting(activity, MMSettings.sVibrateNotificationTag, true);
     }
     void    setVibrateNotification(MMMainActivity activity, boolean isVibrateNotif){
         setBooleanSetting(activity, MMSettings.sVibrateNotificationTag, isVibrateNotif);
     }
 
-    boolean getFabVisible(MMMainActivity activity)  {
+    boolean isLightNotification(MMMainActivity activity)  {
+        return getBooleanSetting(activity, MMSettings.sLightNotificationTag, true);
+    }
+    void    setLightNotification(MMMainActivity activity, boolean isLightNotif){
+        setBooleanSetting(activity, MMSettings.sLightNotificationTag, isLightNotif);
+    }
+
+    boolean isFabVisible(MMMainActivity activity)  {
         return getBooleanSetting(activity, MMSettings.sFabVisibleTag, true);
     }
     void    setFabVisible(MMMainActivity activity, boolean isFabVisible){
         setBooleanSetting(activity, MMSettings.sFabVisibleTag, isFabVisible);
     }
 
-    boolean getHomeShading(MMMainActivity activity)  {
+    boolean isHomeShading(MMMainActivity activity)  {
         return getBooleanSetting(activity, MMSettings.sHomeShadingTag, true);
     }
     void    setHomeShading(MMMainActivity activity, boolean isHomeShading){

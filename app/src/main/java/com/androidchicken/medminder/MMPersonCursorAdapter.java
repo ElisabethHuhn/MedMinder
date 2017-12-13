@@ -1,6 +1,5 @@
 package com.androidchicken.medminder;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -18,8 +17,8 @@ import android.widget.TextView;
  */
 
 class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAdapter.MyViewHolder>{
-    private Cursor  mPersonCursor;
-    private Context mContext;
+    private Cursor         mPersonCursor;
+    private MMMainActivity mActivity;
 
     //implement the ViewHolder as an inner class
     class MyViewHolder extends RecyclerView.ViewHolder {
@@ -37,8 +36,8 @@ class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAdapter.M
     } //end inner class MyViewHolder
 
     //Constructor for MMPersonAdapter
-    MMPersonCursorAdapter(Context context, Cursor personCursor){
-        this.mContext      = context;
+    MMPersonCursorAdapter(MMMainActivity activity, Cursor personCursor){
+        this.mActivity = activity;
         this.mPersonCursor = personCursor;
     }
 
@@ -56,7 +55,8 @@ class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAdapter.M
 
         MMPersonManager personManager = MMPersonManager.getInstance();
         //Create a new Cursor with the current contents of DB
-        mPersonCursor = personManager.getAllPersonsCursor();
+        boolean currentOnly = (MMSettings.getInstance().showOnlyCurrentPersons(mActivity));
+        mPersonCursor = personManager.getAllPersonsCursor(currentOnly);
 
         //Tell the RecyclerView to update the User Display
         notifyDataSetChanged();
@@ -71,11 +71,11 @@ class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAdapter.M
         MMPersonManager personManager = MMPersonManager.getInstance();
 
         if (mPersonCursor == null){
-            mPersonCursor = personManager.getAllPersonsCursor();
+            boolean currentOnly = (MMSettings.getInstance().showOnlyCurrentPersons(mActivity));
+            mPersonCursor = personManager.getAllPersonsCursor(currentOnly);
             //if there aren't any people, just return
             if (mPersonCursor == null) {
-                holder.personNickName. setText(mContext.getString(R.string.no_persons_defined));
-
+                holder.personNickName. setText(mActivity.getString(R.string.no_persons_defined));
 
                 setBackColor(holder, R.color.colorGray);
                 return;
@@ -86,9 +86,12 @@ class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAdapter.M
 
         //get the row indicated
         MMPerson person = personManager.getPersonFromCursor(mPersonCursor, position);
+        boolean currentOnly = (MMSettings.getInstance().showOnlyCurrentPersons(mActivity));
+
+        //Only show deleted persons when the user wants them
+        if (!person.isCurrentlyExists() && currentOnly)return;
 
         holder.personNickName. setText(person.getNickname());
-
 
         if (person.isCurrentlyExists()){
             setBackColor(holder, R.color.colorWhite);
@@ -99,7 +102,7 @@ class MMPersonCursorAdapter extends RecyclerView.Adapter<MMPersonCursorAdapter.M
 
 
     private void setBackColor(MMPersonCursorAdapter.MyViewHolder holder, int newColor){
-        holder.personNickName.   setBackgroundColor(ContextCompat.getColor(mContext, newColor));
+        holder.personNickName.   setBackgroundColor(ContextCompat.getColor(mActivity, newColor));
 
     }
 

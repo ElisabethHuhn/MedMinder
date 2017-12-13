@@ -122,7 +122,7 @@ class MMUtilitiesTime {
 
     static String convertMStoDateTimeString(MMMainActivity activity, long timeMs){
         //Get the clock format
-        boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
+        boolean is24Format = MMSettings.getInstance().isClock24Format(activity);
 
         Date date = new Date(timeMs);
         SimpleDateFormat dateTimeFormat = getDateTimeFormat(activity, is24Format);
@@ -147,7 +147,7 @@ class MMUtilitiesTime {
                                         long timeMs,
                                         boolean isTimeFlag){
         //Get the clock format
-        boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
+        boolean is24Format = MMSettings.getInstance().isClock24Format(activity);
 
         Date date = new Date(timeMs);
         SimpleDateFormat timeFormat;
@@ -209,7 +209,7 @@ class MMUtilitiesTime {
                                       String timeSinceMidnightString,
                                       boolean isTimeFlag){
         //Get the clock format
-        boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
+        boolean is24Format = MMSettings.getInstance().isClock24Format(activity);
 
         Date date = null;
 
@@ -330,7 +330,7 @@ class MMUtilitiesTime {
     // ****************************** //
 
     static String getTimeString(MMMainActivity activity){
-        boolean is24Format  = MMSettings.getInstance().getClock24Format(activity);
+        boolean is24Format  = MMSettings.getInstance().isClock24Format(activity);
         Calendar calendar   = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat(getTimeFormatString(activity, is24Format),
                                                     Locale.getDefault());

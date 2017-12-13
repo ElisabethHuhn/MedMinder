@@ -3,6 +3,7 @@ package com.androidchicken.medminder;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
@@ -106,7 +107,7 @@ public class MMExportHistoryFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater,
+    public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -128,8 +129,11 @@ public class MMExportHistoryFragment extends Fragment {
 
         setUIChanged();
 
-        ((MMMainActivity)getActivity()).isFilePermissionGranted();
-        ((MMMainActivity) getActivity()).handleFabVisibility();
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null) return v;
+
+        activity.isFilePermissionGranted();
+        activity.handleFabVisibility();
 
 
         return v;
@@ -137,7 +141,7 @@ public class MMExportHistoryFragment extends Fragment {
 
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState){
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState){
         // Save custom values into the bundle
         savedInstanceState.putString(sCDF_FILENAME_TAG,   mCDFileName.toString());
         savedInstanceState.putString(sCDF_PATH_TAG,       mCDFPath.toString());
@@ -152,17 +156,20 @@ public class MMExportHistoryFragment extends Fragment {
     public void onResume(){
         super.onResume();
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_export_history);
+        activity.setMMSubtitle(R.string.title_export_history);
 
         //Set the FAB invisible
-        ((MMMainActivity) getActivity()).hideFAB();
+        activity.hideFAB();
 
         //get rid of soft keyboard if it is visible
         MMUtilities utilities = MMUtilities.getInstance();
-        utilities.hideSoftKeyboard(getActivity());
+        utilities.hideSoftKeyboard(activity);
 
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
     }
 
@@ -172,7 +179,12 @@ public class MMExportHistoryFragment extends Fragment {
     /*  Convenience Methods for accessing things on the Activity  */
     //*************************************************************/
 
-    private long     getPatientID(){return ((MMMainActivity)getActivity()).getPatientID();}
+    private long     getPatientID(){
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return MMUtilities.ID_DOES_NOT_EXIST;
+
+        return activity.getPatientID();
+    }
 
 
     //**********************************************/
@@ -180,6 +192,9 @@ public class MMExportHistoryFragment extends Fragment {
     //**********************************************/
     private void   wireWidgets(View v) {
         TextView label;
+
+        final MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
         TextWatcher textWatcher = new TextWatcher() {
             @Override
@@ -206,7 +221,7 @@ public class MMExportHistoryFragment extends Fragment {
         };
 
         //export prescriptions
-        Button exportButton = (Button) v.findViewById(R.id.exportButton);
+        Button exportButton = v.findViewById(R.id.exportButton);
 
         exportButton.setText(R.string.export_label);
         //the order of images here is left, top, right, bottom
@@ -220,50 +235,50 @@ public class MMExportHistoryFragment extends Fragment {
         });
 
 
-        label = (TextView)v.findViewById(R.id.filterStartingDateLabel);
+        label = v.findViewById(R.id.filterStartingDateLabel);
         label.setText(R.string.start_date_label);
 
-        label = (TextView) (v.findViewById(R.id.filterEndingDateLabel));
+        label = v.findViewById(R.id.filterEndingDateLabel);
         label.setText(R.string.end_date_label);
 
-        final EditText filterEndingDateInput = (EditText) (v.findViewById(R.id.filterEndingDate));
+        final EditText filterEndingDateInput = v.findViewById(R.id.filterEndingDate);
         filterEndingDateInput.addTextChangedListener(textWatcher);
 
-        final EditText filterStartingDateInput = (EditText) (v.findViewById(R.id.filterStartingDate));
+        final EditText filterStartingDateInput = v.findViewById(R.id.filterStartingDate);
         filterStartingDateInput.addTextChangedListener(textWatcher);
 
 
-        label = (TextView) (v.findViewById(R.id.directoryPathLabel));
+        label = v.findViewById(R.id.directoryPathLabel);
         label.setText(R.string.directory_path_label);
 
-        final EditText directoryInput = (EditText) (v.findViewById(directoryPath));
+        final EditText directoryInput = v.findViewById(directoryPath);
         directoryInput.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
         //directoryInput.setHint(R.string.person_text_addr_hint);
         directoryInput.addTextChangedListener(textWatcher);
 
-        label = (TextView) (v.findViewById(R.id.fileNameLabel));
+        label = v.findViewById(R.id.fileNameLabel);
         label.setText(R.string.export_filename_label);
 
-        final EditText fileNameInput = (EditText) (v.findViewById(R.id.fileName));
+        final EditText fileNameInput = v.findViewById(R.id.fileName);
         //fileNameInput.setHint(R.string.person_order_hint);
         fileNameInput.addTextChangedListener(textWatcher);
 
-        label = (TextView) (v.findViewById(R.id.fileExtentLabel));
+        label = v.findViewById(R.id.fileExtentLabel);
         label.setText(R.string.filename_extent_label);
 
-        final EditText fileNameExtentInput = (EditText) (v.findViewById(R.id.fileExtent));
+        final EditText fileNameExtentInput = v.findViewById(R.id.fileExtent);
         fileNameExtentInput.setHint(R.string.extent_hint);
         fileNameExtentInput.addTextChangedListener(textWatcher);
 
 
-        RadioGroup destinationGroup = (RadioGroup) v.findViewById(R.id.radioDestination);
-        final RadioButton emailRadio         = (RadioButton) v.findViewById(R.id.radioEmail) ;
-        final RadioButton textRadio          = (RadioButton) v.findViewById(R.id.radioText) ;
-        final RadioButton fileRadio          = (RadioButton) v.findViewById(R.id.radioFile) ;
-        final RadioButton generalRadio       = (RadioButton) v.findViewById(R.id.radioGeneral);
-        RadioGroup contentGroup = (RadioGroup) v.findViewById(R.id.radioContent);
-        final RadioButton prescriptionRadio  = (RadioButton) v.findViewById(R.id.radioPrescription) ;
-        final RadioButton historyRadio       = (RadioButton) v.findViewById(R.id.radioHistory) ;
+        RadioGroup destinationGroup          = v.findViewById(R.id.radioDestination);
+        final RadioButton emailRadio         = v.findViewById(R.id.radioEmail) ;
+        final RadioButton textRadio          = v.findViewById(R.id.radioText) ;
+        final RadioButton fileRadio          = v.findViewById(R.id.radioFile) ;
+        final RadioButton generalRadio       = v.findViewById(R.id.radioGeneral);
+        RadioGroup contentGroup              = v.findViewById(R.id.radioContent);
+        final RadioButton prescriptionRadio  = v.findViewById(R.id.radioPrescription) ;
+        final RadioButton historyRadio       = v.findViewById(R.id.radioHistory) ;
 
         destinationGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
@@ -274,11 +289,11 @@ public class MMExportHistoryFragment extends Fragment {
                         (textRadio.isChecked())    ||
                         (generalRadio.isChecked()) ) {
                     directoryInput.setBackgroundColor(ContextCompat.
-                                                        getColor(getActivity(), R.color.colorGray));
+                                                        getColor(activity, R.color.colorGray));
                     fileNameInput.setBackgroundColor(ContextCompat.
-                                                        getColor(getActivity(), R.color.colorGray));
+                                                        getColor(activity, R.color.colorGray));
                     fileNameExtentInput.setBackgroundColor(ContextCompat.
-                                                        getColor(getActivity(), R.color.colorGray));
+                                                        getColor(activity, R.color.colorGray));
                    // directoryInput     .setFocusable(false);
                     directoryInput     .setEnabled  (false);
                     //fileNameInput      .setFocusable(false);
@@ -287,11 +302,11 @@ public class MMExportHistoryFragment extends Fragment {
                     fileNameExtentInput.setEnabled  (false);
                 } else if(fileRadio.isChecked()) {
                     directoryInput.setBackgroundColor(ContextCompat.
-                                                        getColor(getActivity(), R.color.colorWhite));
+                                                        getColor(activity, R.color.colorWhite));
                     fileNameInput.setBackgroundColor(ContextCompat.
-                                                        getColor(getActivity(), R.color.colorWhite));
+                                                        getColor(activity, R.color.colorWhite));
                     fileNameExtentInput.setBackgroundColor(ContextCompat.
-                                                        getColor(getActivity(), R.color.colorWhite));
+                                                        getColor(activity, R.color.colorWhite));
                     //directoryInput     .setFocusable(true);
                     directoryInput     .setEnabled  (true);
                     //fileNameInput      .setFocusable(true);
@@ -310,9 +325,9 @@ public class MMExportHistoryFragment extends Fragment {
             {
                 if((prescriptionRadio.isChecked())   ) {
                     filterStartingDateInput.setBackgroundColor(ContextCompat.
-                                                        getColor(getActivity(), R.color.colorGray));
+                                                        getColor(activity, R.color.colorGray));
                     filterEndingDateInput.setBackgroundColor(ContextCompat.
-                                                        getColor(getActivity(), R.color.colorGray));
+                                                        getColor(activity, R.color.colorGray));
 
                     //filterStartingDateInput.setFocusable(false);
                     filterStartingDateInput.setEnabled  (false);
@@ -320,9 +335,9 @@ public class MMExportHistoryFragment extends Fragment {
                     filterEndingDateInput  .setEnabled  (false);
                 } else if(historyRadio.isChecked()) {
                     filterStartingDateInput.setBackgroundColor(ContextCompat.
-                                                        getColor(getActivity(), R.color.colorWhite));
+                                                        getColor(activity, R.color.colorWhite));
                     filterEndingDateInput.setBackgroundColor(ContextCompat.
-                                                        getColor(getActivity(), R.color.colorWhite));
+                                                        getColor(activity, R.color.colorWhite));
 
                     //filterStartingDateInput.setFocusable(true);
                     filterStartingDateInput.setEnabled  (true);
@@ -334,14 +349,14 @@ public class MMExportHistoryFragment extends Fragment {
 
 
         //initialize
-        directoryInput.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGray));
-        fileNameInput.setBackgroundColor (ContextCompat.getColor(getActivity(), R.color.colorGray));
+        directoryInput.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorGray));
+        fileNameInput.setBackgroundColor (ContextCompat.getColor(activity, R.color.colorGray));
         fileNameExtentInput.setBackgroundColor(ContextCompat.
-                                                    getColor(getActivity(), R.color.colorGray));
+                                                    getColor(activity, R.color.colorGray));
         filterStartingDateInput.setBackgroundColor(ContextCompat.
-                                                    getColor(getActivity(), R.color.colorWhite));
+                                                    getColor(activity, R.color.colorWhite));
         filterEndingDateInput.setBackgroundColor(ContextCompat.
-                                                    getColor(getActivity(), R.color.colorWhite));
+                                                    getColor(activity, R.color.colorWhite));
 
         directoryInput         .setEnabled(false);
         fileNameInput          .setEnabled(false);
@@ -359,13 +374,13 @@ public class MMExportHistoryFragment extends Fragment {
             //if there is a person corresponding to the patientID, put the name up on the screen
             if (patient != null) {
                 //Patient Nick Name
-                TextView patientNickName = (TextView) v.findViewById(R.id.historyNickNameLabel);
+                TextView patientNickName = v.findViewById(R.id.historyNickNameLabel);
                 //There are no events associated with this field
                 patientNickName.setText(patient.getNickname().toString().trim());
             }
         }
 
-        EditText directoryPath = (EditText) v.findViewById(R.id.directoryPath);
+        EditText directoryPath = v.findViewById(R.id.directoryPath);
         mCDFPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString();
 
         File pathFile = new File(mCDFPath.toString(), getString(R.string.app_name));
@@ -375,34 +390,36 @@ public class MMExportHistoryFragment extends Fragment {
 
         if (!pathFile.isDirectory()){
             if (!pathFile.mkdirs()){
-                MMUtilities.getInstance().errorHandler(getActivity(), R.string.error_unable_to_access_storage);
+                MMUtilities.getInstance().errorHandler(activity, R.string.error_unable_to_access_storage);
             }
         }
 */
         directoryPath.setText(mCDFPath);
 
-        EditText fileName = (EditText) v.findViewById(R.id.fileName);
+        EditText fileName = v.findViewById(R.id.fileName);
         mCDFileName   = getFileName(getPatientID());
         fileName.setText(mCDFileName);
 
-        EditText fileExtent = (EditText) v.findViewById(R.id.fileExtent);
+        EditText fileExtent = v.findViewById(R.id.fileExtent);
         fileExtent.setText(R.string.export_file_extent);
      }
 
 
     private void onExport() {
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
         View v = getView();
         if (v == null)return;
 
-        RadioButton emailRadio         = (RadioButton) v.findViewById(R.id.radioEmail) ;
-        RadioButton textRadio          = (RadioButton) v.findViewById(R.id.radioText) ;
-        RadioButton fileRadio          = (RadioButton) v.findViewById(R.id.radioFile) ;
-        RadioButton generalRadio       = (RadioButton) v.findViewById(R.id.radioGeneral);
-        RadioButton prescriptionRadio  = (RadioButton) v.findViewById(R.id.radioPrescription) ;
-        RadioButton historyRadio       = (RadioButton) v.findViewById(R.id.radioHistory) ;
-        RadioButton cdfRadio           = (RadioButton) v.findViewById(R.id.radioCdf);
+        RadioButton emailRadio         = v.findViewById(R.id.radioEmail) ;
+        RadioButton textRadio          = v.findViewById(R.id.radioText) ;
+        RadioButton fileRadio          = v.findViewById(R.id.radioFile) ;
+        RadioButton generalRadio       = v.findViewById(R.id.radioGeneral);
+        RadioButton prescriptionRadio  = v.findViewById(R.id.radioPrescription) ;
+        RadioButton historyRadio       = v.findViewById(R.id.radioHistory) ;
+        RadioButton cdfRadio           = v.findViewById(R.id.radioCdf);
 
         //set Defaults
         int whatFlag  = EXPORT_EMAIL;
@@ -454,7 +471,7 @@ public class MMExportHistoryFragment extends Fragment {
                     patient.getNickname().toString());
             suffix = R.string.export_cdf;
         }
-        utilities.showStatus(getActivity(), statusMsg);
+        utilities.showStatus(activity, statusMsg);
 
 
 
@@ -462,22 +479,22 @@ public class MMExportHistoryFragment extends Fragment {
         if (whereFlag == EXPORT_EMAIL){
             String emailAddr = patient.getEmailAddress().toString();
             if (emailAddr.isEmpty()) {
-                utilities.errorHandler(getActivity(), R.string.email_not_defined);
+                utilities.errorHandler(activity, R.string.email_not_defined);
                 return;
             }
 
-            //MMUtilities.getInstance().sendEmail(getActivity(), subject, emailAddr, message);
+            //MMUtilities.getInstance().sendEmail(activity, subject, emailAddr, message);
             MMUtilities.getInstance()
-                           .exportEmail(getActivity(), subject, emailAddr, message, chooser_title );
+                           .exportEmail(activity, subject, emailAddr, message, chooser_title );
 
         } else if (whereFlag == EXPORT_FILE){
             writeFile(whatFlag, suffix);
-            MMUtilities.getInstance().showStatus(getActivity(), R.string.export_file_written);
+            MMUtilities.getInstance().showStatus(activity, R.string.export_file_written);
 
         } else if (whereFlag == EXPORT_SMS){
-            MMUtilities.getInstance().exportSMS(getActivity(), subject, message);
+            MMUtilities.getInstance().exportSMS(activity, subject, message);
         } else if (whereFlag == EXPORT_GENERAL){
-            MMUtilities.getInstance().exportText(getActivity(), subject, message, chooser_title);
+            MMUtilities.getInstance().exportText(activity, subject, message, chooser_title);
         }
 
     }
@@ -486,20 +503,22 @@ public class MMExportHistoryFragment extends Fragment {
     private long getDateFilter(int flag){
         EditText dateView;
         View v = getView();
-        if (v == null)return -1;
+        if (v == null)return MMUtilities.ID_DOES_NOT_EXIST;
+
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return MMUtilities.ID_DOES_NOT_EXIST;
 
         if (flag == START_FILTER){
-            dateView   = (EditText) v.findViewById(R.id.filterStartingDate);
+            dateView   = v.findViewById(R.id.filterStartingDate);
         } else {
-            dateView   = (EditText) v.findViewById(R.id.filterEndingDate);
+            dateView   = v.findViewById(R.id.filterEndingDate);
         }
 
         String dateString   = dateView  .getText().toString();
-        if (dateString.isEmpty())return -1;
+        if (dateString.isEmpty())return MMUtilities.ID_DOES_NOT_EXIST;
 
-        Date dateDate = MMUtilitiesTime.
-                                    convertStringToDate((MMMainActivity)getActivity(), dateString);
-        if (dateDate == null)return -1;
+        Date dateDate = MMUtilitiesTime.convertStringToDate(activity, dateString);
+        if (dateDate == null)return MMUtilities.ID_DOES_NOT_EXIST;
 
         return dateDate.getTime();
     }
@@ -524,10 +543,13 @@ public class MMExportHistoryFragment extends Fragment {
     private void exportButtonEnable(View v, boolean isEnabled){
         if (v == null)return; //onCreateView() hasn't run yet
 
-        Button exportButton = (Button) v.findViewById(R.id.exportButton);
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        Button exportButton = v.findViewById(R.id.exportButton);
 
         MMUtilities utilities = MMUtilities.getInstance();
-        utilities.enableButton(getActivity(),  exportButton, isEnabled);
+        utilities.enableButton(activity,  exportButton, isEnabled);
     }
 
 
@@ -560,13 +582,13 @@ public class MMExportHistoryFragment extends Fragment {
         View v = getView();
         if (v == null)return null;
 
-        EditText directoryPath = (EditText) v.findViewById(R.id.directoryPath);
+        EditText directoryPath = v.findViewById(R.id.directoryPath);
         mCDFPath = directoryPath.getText();
 
-        EditText fileName      = (EditText) v.findViewById(R.id.fileName);
+        EditText fileName      = v.findViewById(R.id.fileName);
         mCDFileName   = fileName.getText() + getString(suffix);
 
-        EditText fileExtent    = (EditText) v.findViewById(R.id.fileExtent);
+        EditText fileExtent    = v.findViewById(R.id.fileExtent);
         String fileExtentString = fileExtent.getText().toString();
 
 
@@ -610,9 +632,12 @@ public class MMExportHistoryFragment extends Fragment {
         View v = getView();
         if (v == null)return null;
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return null;
+
         if (!MMUtilities.getInstance().isExternalStorageWritable()){
             MMUtilities.getInstance()
-                    .errorHandler(getActivity(), R.string.error_unable_to_access_storage);
+                    .errorHandler(activity, R.string.error_unable_to_access_storage);
             return null;
         }
 
@@ -624,7 +649,7 @@ public class MMExportHistoryFragment extends Fragment {
             cdfFile = createPersonCDFile(suffix);
             if (cdfFile == null){
                 MMUtilities.getInstance()
-                        .errorHandler(getActivity(), R.string.error_unable_to_create_file);
+                        .errorHandler(activity, R.string.error_unable_to_create_file);
                 Log.e(TAG, getActivity().getString(R.string.error_unable_to_create_file));
 
                 return null;
@@ -647,7 +672,7 @@ public class MMExportHistoryFragment extends Fragment {
             writer.flush();
             writer.close();
         } catch (IOException e) {
-            MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
+            MMUtilities.getInstance().showStatus(activity,e.getMessage());
             Log.e(TAG, Log.getStackTraceString(e));
 
         }
@@ -659,6 +684,7 @@ public class MMExportHistoryFragment extends Fragment {
     //****     Export String Builders   *****/
     //***************************************/
     private StringBuilder getPrescript(MMPerson patient){
+        MMMainActivity activity = (MMMainActivity)getActivity();
         StringBuilder prescription = new StringBuilder();
         String ls = System.getProperty("line.separator");
 
@@ -669,7 +695,8 @@ public class MMExportHistoryFragment extends Fragment {
 
 
             //export the list of medications
-            ArrayList<MMMedication> medications = patient.getMedications();
+            boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
+            ArrayList<MMMedication> medications = patient.getMedications(currentOnly);
             MMMedication medication;
             int last = medications.size();
             int position = 0;
@@ -716,7 +743,7 @@ public class MMExportHistoryFragment extends Fragment {
 
 
         } catch (Exception e) {
-            MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
+            MMUtilities.getInstance().showStatus(activity,e.getMessage());
             Log.e(TAG, Log.getStackTraceString(e));
 
         }
@@ -724,6 +751,7 @@ public class MMExportHistoryFragment extends Fragment {
     }
 
     private StringBuilder getDoseHistoryTab(MMPerson patient, long startMilli, long endMilli){
+        MMMainActivity activity = (MMMainActivity)getActivity();
         String tab_as_string = String.valueOf(Character.toChars(9));
         String lf = System.getProperty("line.separator");
 
@@ -746,7 +774,8 @@ public class MMExportHistoryFragment extends Fragment {
             history.append(lf);
 
             //Doses on the concurrent dose are in the same order as medications on the patient
-            ArrayList<MMMedication> medications = patient.getMedications();
+            boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
+            ArrayList<MMMedication> medications = patient.getMedications(currentOnly);
             ArrayList<MMDose> doses;
             MMMedication medication;
             MMDose dose;
@@ -797,8 +826,7 @@ public class MMExportHistoryFragment extends Fragment {
                     (startMilli < timeTaken) && (timeTaken < endMilli)) {
 
                     history.append("<");
-                    history.append(MMUtilitiesTime.convertMStoDateTimeString(
-                                                        (MMMainActivity)getActivity(), timeTaken));
+                    history.append(MMUtilitiesTime.convertMStoDateTimeString(activity, timeTaken));
 
                     history.append(">");
                     history.append(tab_as_string);
@@ -832,7 +860,7 @@ public class MMExportHistoryFragment extends Fragment {
             }
 
         } catch (Exception e) {
-            MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
+            MMUtilities.getInstance().showStatus(activity,e.getMessage());
             Log.e(TAG, Log.getStackTraceString(e));
 
         }
@@ -845,6 +873,7 @@ public class MMExportHistoryFragment extends Fragment {
     }
 
     private StringBuilder getCdfHistoryTab(MMPerson patient, long startMilli, long endMilli){
+        MMMainActivity activity = (MMMainActivity)getActivity();
         String tab_as_string = String.valueOf(Character.toChars(9));
         String lf = System.getProperty("line.separator");
 
@@ -867,7 +896,8 @@ public class MMExportHistoryFragment extends Fragment {
             history.append(lf);
 
             //Doses on the concurrent dose are in the same order as medications on the patient
-            ArrayList<MMMedication> medications = patient.getMedications();
+            boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
+            ArrayList<MMMedication> medications = patient.getMedications(currentOnly);
             ArrayList<MMDose> doses;
             MMMedication medication;
             MMDose dose;
@@ -908,8 +938,7 @@ public class MMExportHistoryFragment extends Fragment {
                 if ((startMilli <= 0) || (endMilli <= 0) ||
                         (startMilli < timeTaken) && (timeTaken < endMilli)) {
 
-                    history.append(MMUtilitiesTime.convertMStoDateTimeString(
-                                                        (MMMainActivity)getActivity(), timeTaken));
+                    history.append(MMUtilitiesTime.convertMStoDateTimeString(activity, timeTaken));
                     history.append(",");
                     history.append(tab_as_string);
 
@@ -940,7 +969,7 @@ public class MMExportHistoryFragment extends Fragment {
             }
 
         } catch (Exception e) {
-            MMUtilities.getInstance().showStatus(getActivity(),e.getMessage());
+            MMUtilities.getInstance().showStatus(activity,e.getMessage());
             Log.e(TAG, Log.getStackTraceString(e));
 
         }

@@ -2,13 +2,17 @@ package com.androidchicken.medminder;
 
 import android.app.AlarmManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
@@ -191,7 +195,7 @@ public class MMUtilities {
 
     //This method is used to get the string corresponding to a value of milliseconds since 1970
      String getTimeString(MMMainActivity activity, long milliSeconds){
-        boolean is24Format = MMSettings.getInstance().getClock24Format(activity);
+        boolean is24Format = MMSettings.getInstance().isClock24Format(activity);
         return getTimeString(milliSeconds, is24Format);
     }
 
@@ -259,6 +263,8 @@ public class MMUtilities {
         textField.requestFocus();
         InputMethodManager imm =
                 (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm == null)return;
+
         //second parameter is flags. We don't need any of them
         imm.showSoftInput(textField, InputMethodManager.SHOW_FORCED);
 
@@ -271,6 +277,8 @@ public class MMUtilities {
             view.clearFocus();
             InputMethodManager imm =
                     (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm == null)return;
+
             //second parameter is flags. We don't need any of them
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
@@ -288,6 +296,8 @@ public class MMUtilities {
             view.clearFocus();
             InputMethodManager imm =
                     (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm == null)return;
+
             //second parameter is flags. We don't need any of them
             imm.toggleSoftInputFromWindow(view.getWindowToken(),0, 0);
         }
@@ -322,21 +332,23 @@ public class MMUtilities {
 
 
 
-    void createScheduleNotification(Context activity, long timeOfDayMillisec) {
+    void createScheduleNotification(MMMainActivity activity, long timeOfDayMillisec) {
         //start by building the Notification
         int requestCode = scheduleNotificationID;
         Notification notification = buildSchedNotification(activity, requestCode);
 
         //But we need to set an Alarm Intent to send to the Alarm Manager.
         PendingIntent alarmIntent = buildScheduleAlarmIntent(activity, requestCode, notification);
-        // When the Alarm fires, it will broadcast the PendingIntent
+        // When the Alarm fires, AlarmManager will broadcast the PendingIntent
         // that will be picked up by our AlarmReceiver
 
 
 
         AlarmManager alarmManager = (AlarmManager) activity.getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager == null)return;
 
         //set to repeat every 24 hours
+        //The Interval is expressed in milliseconds, so convert hours to milliseconds
         long repeatInterval = (24 * 60 * 60 * 1000); //hours * minutes * seconds * milli
 
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,  //alarm type, real time clock wake up device
@@ -344,6 +356,111 @@ public class MMUtilities {
                                   repeatInterval,           //interval between repeats
                                   alarmIntent);             //Action to perform when the alarm goes off
     }
+
+
+    private  Notification buildSchedNotification(MMMainActivity activity, int requestCode) {
+        return buildNotification(activity, requestCode, MMUtilities.ID_DOES_NOT_EXIST);
+    }
+
+    private  Notification buildNotification(MMMainActivity activity,
+                                                  int requestCode,
+                                                  long medAlertID){
+
+        //want the Notification to wake up the MMMainActivity
+        Intent activityIntent = new Intent(activity, MMMainActivity.class);
+
+
+        //insert the Intent that will be passed to the app Activity into a Pending Intent.
+        // This wrapper Pending Intent is consumed by the system (AlarmManager??)
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                                    activity,        //context
+                                    requestCode,     //requestCode
+                                    activityIntent,  //Intent to wake up our Activity
+                                    PendingIntent.FLAG_CANCEL_CURRENT); //override any existing
+
+        int textMessage;
+        if (requestCode == scheduleNotificationID){
+            textMessage = R.string.time_to_take;
+        } else {
+            textMessage = R.string.time_to_send_alert;
+            activityIntent.putExtra(MMAlarmReceiver.ALARM_TYPE,   MMAlarmReceiver.alertAlarmType);
+            activityIntent.putExtra(MMMedicationAlert.sMedAlertID, medAlertID);
+        }
+
+        MMSettings settings = MMSettings.getInstance();
+        boolean isLight   = settings.isLightNotification(activity);
+        boolean isSound   = settings.isSoundNotification(activity);
+        boolean isVibrate = settings.isVibrateNotification(activity);
+
+
+        NotificationManager notificationManager =
+                    (NotificationManager) activity.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager == null)return null;
+
+        String NOTIFICATION_CHANNEL_ID = "my_channel_id_01";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel =
+                                    new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+                                                            "My Notifications",
+                                                            NotificationManager.IMPORTANCE_DEFAULT);
+
+            // Configure the notification channel.
+            notificationChannel.setDescription("Channel description");
+            if (isLight) {
+                notificationChannel.enableLights(true);
+                notificationChannel.setLightColor(Color.RED);
+            } else {
+                notificationChannel.enableLights(false);
+            }
+            if (isVibrate) {
+                notificationChannel.enableVibration(true);
+                notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+            } else {
+                notificationChannel.enableVibration(false);
+            }
+
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
+
+        NotificationCompat.Builder notificationBuilder =
+                                new NotificationCompat.Builder(activity, NOTIFICATION_CHANNEL_ID);
+
+        notificationBuilder
+                //.setDefaults(Notification.DEFAULT_ALL)
+                //.setWhen(System.currentTimeMillis())
+                .setContentTitle(activity.getResources().getString(R.string.app_name))
+                .setContentText(activity.getResources().getString(textMessage))
+                .setSmallIcon(R.drawable.ic_mortar_white)
+                .setAutoCancel(true) //notification is canceled as soon as it is touched by the user
+                //.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setContentIntent(contentIntent)
+                ;
+        if (isSound){
+            notificationBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        }
+
+        //notificationManager.notify(/*notification id*/1, notificationBuilder.build());
+        /*
+
+        //  Create a Notification Builder that will do the actual creation of the Notification
+        //     and insert the PendingIntent into the Notification as it's ContentIntent
+        NotificationCompat.Builder builder =
+                (NotificationCompat.Builder) new NotificationCompat.Builder(activity)
+                        .setContentTitle(activity.getResources().getString(R.string.app_name))
+                        .setContentText(activity.getResources().getString(textMessage))
+                        .setSmallIcon(R.drawable.ic_mortar_white)
+                        // .setLargeIcon(((BitmapDrawable) activity.getResources().getDrawable(R.drawable.app_icon)).getBitmap())
+                        .setAutoCancel(true)//notification is canceled as soon as it is touched by the user
+                        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                        .setContentIntent(contentIntent);
+       */
+
+        //build and return the Notification
+        return notificationBuilder.build();
+    }
+
 
     private  PendingIntent buildScheduleAlarmIntent(Context activity,
                                                     int notificationRequestCode,
@@ -369,7 +486,8 @@ public class MMUtilities {
 
 
 
-    void cancelNotificationAlarms(Context activity){
+
+    void cancelNotificationAlarms(MMMainActivity activity){
         //get the PendingIntent that describes the action we desire,
         // so that it can be performed when the alarm goes off
         int notificationID = scheduleNotificationID;
@@ -377,56 +495,12 @@ public class MMUtilities {
         PendingIntent alarmIntent = buildScheduleAlarmIntent(activity, notificationID, notification);
 
         AlarmManager alarmManager = (AlarmManager) activity.getSystemService(ALARM_SERVICE);
+        if (alarmManager == null)return;
 
         //cancel any previous alarms
         alarmManager.cancel(alarmIntent);
     }
 
-
-    private  Notification buildSchedNotification(Context activity, int requestCode) {
-        return buildNotification(activity, requestCode, MMUtilities.ID_DOES_NOT_EXIST);
-    }
-
-    private  Notification buildNotification(Context activity,
-                                                  int requestCode,
-                                                  long medAlertID){
-
-        //want the Notification to wake up the MMMainActivity
-        Intent activityIntent = new Intent(activity, MMMainActivity.class);
-
-
-        //insert the Intent that will be passed to the app Activity into a Pending Intent.
-        // This wrapper Pending Intent is consumed by the system (AlarmManager??)
-        PendingIntent contentIntent = PendingIntent.getActivity(
-                                    activity,        //context
-                                    requestCode,     //requestCode
-                                    activityIntent,  //Intent to wake up our Activity
-                                    PendingIntent.FLAG_CANCEL_CURRENT); //override any existing
-
-        int textMessage;
-        if (requestCode == scheduleNotificationID){
-            textMessage = R.string.time_to_take;
-        } else {
-            textMessage = R.string.time_to_send_alert;
-            activityIntent.putExtra(MMAlarmReceiver.ALARM_TYPE,   MMAlarmReceiver.alertAlarmType);
-            activityIntent.putExtra(MMMedicationAlert.sMedAlertID, medAlertID);
-        }
-
-        //  Create a Notification Builder that will do the actual creation of the Notification
-        //     and insert the PendingIntent into the Notification as it's ContentIntent
-        NotificationCompat.Builder builder =
-                (NotificationCompat.Builder) new NotificationCompat.Builder(activity)
-                        .setContentTitle(activity.getResources().getString(R.string.app_name))
-                        .setContentText(activity.getResources().getString(textMessage))
-                        .setSmallIcon(R.drawable.ic_mortar_white)
-                        // .setLargeIcon(((BitmapDrawable) activity.getResources().getDrawable(R.drawable.app_icon)).getBitmap())
-                        .setAutoCancel(true)//notification is canceled as soon as it is touched by the user
-                        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                        .setContentIntent(contentIntent);
-
-        //build and return the Notification
-        return builder.build();
-    }
 
 
 
@@ -464,6 +538,8 @@ public class MMUtilities {
         PendingIntent alertIntent = buildAlertAlarmIntent(activity, medAlertID);
 
         AlarmManager alarmManager = (AlarmManager) activity.getSystemService((Context.ALARM_SERVICE));
+        if (alarmManager == null)return;
+
         alarmManager.set(AlarmManager.RTC_WAKEUP, timeOverdueMillisec, alertIntent);
     }
 
@@ -522,7 +598,7 @@ public class MMUtilities {
         int alertType = medicationAlert.getNotifyType();
 
         if (alertType == MMMedicationAlert.sNOTIFY_BY_TEXT) {
-            sendSMSviaAPI(context, notifyPerson.getTextAddress().toString(), msg);
+            sendSMSviaAPI(notifyPerson.getTextAddress().toString(), msg);
         } else if (alertType == MMMedicationAlert.sNOTIFY_BY_EMAIL){
             String subject = "Missed Medication Dose";
             sendEmail(context, subject, notifyPerson.getEmailAddress().toString(), msg);
@@ -539,6 +615,7 @@ public class MMUtilities {
 
     void exportEmail(Context context, String subject, String emailAddr, String body, String chooser_title){
 
+        // TODO: 12/13/2017 have to set the body to the input parameter
         Intent intent2 = new Intent();
         intent2.setAction(Intent.ACTION_SEND);
         intent2.setType("message/rfc822");
@@ -564,6 +641,7 @@ public class MMUtilities {
     }
 
     void exportSMS(Context context, String subject, String body){
+        // TODO: 12/13/2017 Should subject be removed from this method? It isn't used
         Intent sendIntent = new Intent(Intent.ACTION_VIEW);
         sendIntent.putExtra("sms_body", body);
         sendIntent.setType("vnd.android-dir/mms-sms");
@@ -604,7 +682,7 @@ public class MMUtilities {
     //************************************/
 
 
-    void sendSMSviaAPI(Context activity, String phoneNo, String msg){
+    void sendSMSviaAPI(String phoneNo, String msg){
         msg = "sendSMSviaAPI: " + msg;
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(phoneNo, null, msg, null, null);

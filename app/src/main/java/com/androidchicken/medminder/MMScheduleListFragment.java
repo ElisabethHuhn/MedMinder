@@ -189,7 +189,7 @@ public class MMScheduleListFragment extends Fragment {
         //     Adapter uses the ScheduleManager to maintain the list and
         //     the items in the list.
 
-        boolean is24Format = MMSettings.getInstance().getClock24Format((MMMainActivity)getActivity());
+        boolean is24Format = MMSettings.getInstance().isClock24Format((MMMainActivity)getActivity());
         MMScheduleListCursorAdapter adapter =
                                     new MMScheduleListCursorAdapter(getActivity(),
                                                                 cursor,

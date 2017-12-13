@@ -14,8 +14,10 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import java.util.ArrayList;
+
 import static com.androidchicken.medminder.MMUtilitiesTime.getDateString;
-import static com.androidchicken.medminder.R.id.settingPersonNickNameInput;
+
 
 
 /**
@@ -106,20 +108,22 @@ public class MMSettingsFragment extends Fragment {
             //get rid of the soft keyboard if it is visible
             View v = getView();
             if (v != null) {
-                EditText personNickNameInput = v.findViewById(settingPersonNickNameInput);
-                MMUtilities.getInstance().showSoftKeyboard(getActivity(), personNickNameInput);
+                EditText defaultTime = v.findViewById(R.id.settingDefaultTimeDueInput);
+                MMUtilities.getInstance().showSoftKeyboard(getActivity(), defaultTime);
             }
         } else {
             //get rid of the soft keyboard if it is visible
             MMUtilities.getInstance().hideSoftKeyboard(getActivity());
         }
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
         //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_settings);
+        activity.setMMSubtitle(R.string.title_settings);
 
         //Set the FAB invisible
-        ((MMMainActivity) getActivity()).hideFAB();
+        activity.hideFAB();
     }
 
     public int getOrientation(){
@@ -133,7 +137,7 @@ public class MMSettingsFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState){
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState){
         // Save custom values into the bundle
 
         //Save the isUIChanged flag
@@ -207,29 +211,60 @@ public class MMSettingsFragment extends Fragment {
         });
 
 
-        SwitchCompat showDelPersonSwitch = v.findViewById(R.id.switchShowDeletedPeople);
+        SwitchCompat showDelPersonSwitch = v.findViewById(R.id.switchShowOnlyCurrentPeople);
         showDelPersonSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                MMSettings.getInstance().setShowDeletedPersons(activity, isChecked);
+                MMSettings.getInstance().setShowOnlyCurrentPersons(activity, isChecked);
             }
         });
 
 
-        SwitchCompat showDelMedSwitch = v.findViewById(R.id.switchShowDeletedMeds);
-        showDelMedSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        SwitchCompat showOnlyCurrentMedSwitch = v.findViewById(R.id.switchShowOnlyCurrentMeds);
+        showOnlyCurrentMedSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                MMSettings.getInstance().setShowDeletedMeds(activity, isChecked);
+                MMSettings.getInstance().setShowOnlyCurrentMeds(activity, isChecked);
+                //Whenever this setting is changed, in either direction,
+                // need to reset the medications list on ALL the person objects
+                // regardless if they are current or not
+                ArrayList<MMPerson> allPeople =
+                        MMDatabaseManager.getInstance().getAllPersons(false);
+                int position = 0;
+                int last = allPeople.size();
+                MMPerson person;
+                while (position < last){
+                    person = allPeople.get(position);
+                    person.resetMedicationsChanged();
+                    position++;
+                }
             }
         });
 
 
-        SwitchCompat soundWithNotifSwitch = v.findViewById(R.id.switchSoundWithMedNotif);
-        soundWithNotifSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        SwitchCompat showFAB = v.findViewById(R.id.switchFabVisible);
+        showFAB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                MMSettings.getInstance().setSoundNotification(activity, isChecked);
+                MMSettings.getInstance().setFabVisible(activity, isChecked);
+            }
+        });
+
+        SwitchCompat homeShading = v.findViewById(R.id.switchHomeShading);
+        homeShading.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                MMSettings.getInstance().setHomeShading(activity, isChecked);
+            }
+        });
+
+
+
+        SwitchCompat lightWithNotifSwitch = v.findViewById(R.id.switchLightWithMedNotif);
+        lightWithNotifSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                MMSettings.getInstance().setLightNotification(activity, isChecked);
             }
         });
 
@@ -244,21 +279,14 @@ public class MMSettingsFragment extends Fragment {
         });
 
 
-        SwitchCompat showFAB = v.findViewById(R.id.switchFabVisible);
-        showFAB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                        MMSettings.getInstance().setFabVisible(activity, isChecked);
-                    }
-                });
-
-        SwitchCompat homeShading = v.findViewById(R.id.switchHomeShading);
-        homeShading.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        SwitchCompat soundWithNotifSwitch = v.findViewById(R.id.switchSoundWithMedNotif);
+        soundWithNotifSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                MMSettings.getInstance().setHomeShading(activity, isChecked);
+                MMSettings.getInstance().setSoundNotification(activity, isChecked);
             }
         });
+
 
 
 
@@ -269,18 +297,6 @@ public class MMSettingsFragment extends Fragment {
 
         MMSettings settings = MMSettings.getInstance();
         MMMainActivity activity = (MMMainActivity)getActivity();
-
-        //Initialize the Patient Name
-        EditText personNickNameInput = v.findViewById(settingPersonNickNameInput);
-        long patientId = activity.getPatientID();
-        CharSequence personName = "";
-        if (patientId != MMUtilities.ID_DOES_NOT_EXIST) {
-            MMPerson person = MMPersonManager.getInstance().getPerson(patientId);
-            personName = person.getNickname();
-        } else {
-            personName = getString(R.string.person_not_exist);
-        }
-        personNickNameInput.setText(personName);
 
 
         //Initialize the default time due for any created schedules
@@ -300,30 +316,30 @@ public class MMSettingsFragment extends Fragment {
 
         //Set all the switches from the stored Preferences
         SwitchCompat clock24Switch =  v.findViewById(R.id.switch24Format);
-        clock24Switch.setChecked(settings.getClock24Format(activity));
+        clock24Switch.setChecked(settings.isClock24Format(activity));
 
 
-        SwitchCompat showDelPersonSwitch = v.findViewById(R.id.switchShowDeletedPeople);
-        showDelPersonSwitch.setChecked(settings.getShowDeletedPersons(activity));
+        SwitchCompat showOnlyCurrentPersonSwitch = v.findViewById(R.id.switchShowOnlyCurrentPeople);
+        showOnlyCurrentPersonSwitch.setChecked(settings.showOnlyCurrentPersons(activity));
 
 
-        SwitchCompat showDelMedSwitch = v.findViewById(R.id.switchShowDeletedMeds);
-        showDelMedSwitch.setChecked(settings.getShowDeletedMeds(activity));
+        SwitchCompat showDelMedSwitch = v.findViewById(R.id.switchShowOnlyCurrentMeds);
+        showDelMedSwitch.setChecked(settings.showOnlyCurrentMeds(activity));
 
 
         SwitchCompat soundWithNotifSwitch = v.findViewById(R.id.switchSoundWithMedNotif);
-        soundWithNotifSwitch.setChecked(settings.getSoundNotification(activity));
+        soundWithNotifSwitch.setChecked(settings.isSoundNotification(activity));
 
 
         SwitchCompat vibrateWithNotifSwitch = v.findViewById(R.id.switchVibrateWithMedNotif);
-        vibrateWithNotifSwitch.setChecked(settings.getVibrateNotification(activity));
+        vibrateWithNotifSwitch.setChecked(settings.isVibrateNotification(activity));
 
 
         SwitchCompat showFAB = v.findViewById(R.id.switchFabVisible);
-        showFAB.setChecked(settings.getFabVisible(activity));
+        showFAB.setChecked(settings.isFabVisible(activity));
 
         SwitchCompat homeShading = v.findViewById(R.id.switchHomeShading);
-        homeShading.setChecked(settings.getHomeShading(activity));
+        homeShading.setChecked(settings.isHomeShading(activity));
         //setUISaved(v);
     }
 

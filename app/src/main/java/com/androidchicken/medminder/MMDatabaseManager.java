@@ -203,11 +203,17 @@ class MMDatabaseManager {
 
     ///**********************  Read **********************************
 
-    Cursor getAllPersonsCursor(){
+    Cursor getAllPersonsCursor(boolean currentOnly){
+        String whereClause;
+        if (currentOnly) {
+            whereClause = getCurrentPersonWhereClause();
+        } else {
+            whereClause = null;
+        }
         return mDatabaseHelper.getObject(  mDatabase,
                                         TABLE_PERSON,
                                         null,    //get the whole object
-                                        null,
+                                        whereClause,
                                         null, null, null, null);
 
     }
@@ -215,9 +221,9 @@ class MMDatabaseManager {
 
     //Reads the Persons into memory
     //Returns the number of persons read in
-    ArrayList<MMPerson>  getAllPersons(){
+    ArrayList<MMPerson>  getAllPersons(boolean currentOnly){
 
-        Cursor cursor = getAllPersonsCursor();
+        Cursor cursor = getAllPersonsCursor(currentOnly);
 
        //convert the cursor into a list of Person instances
 
@@ -273,6 +279,10 @@ class MMDatabaseManager {
         return MMDataBaseSqlHelper.PERSON_ID + " = " + String.valueOf(personID);
     }
 
+    private String getCurrentPersonWhereClause(){
+        return MMDataBaseSqlHelper.PERSON_EXISTS + " = 1" ;
+    }
+
 
 
     //***********************************************/
@@ -322,20 +332,24 @@ class MMDatabaseManager {
 
     //***********************  Read **********************************
 
-    Cursor getAllMedicationsCursor(long personID){
+    Cursor getAllMedicationsCursor(long personID, boolean currentOnly){
+        String whereClause = getMedicationWhereClause(personID);
+        if (currentOnly){
+            whereClause = getCurrentMedicationWhereClause(personID);
+        }
         return mDatabaseHelper.getObject(mDatabase,
                                         TABLE_MEDICATION,
                                         null,    //get the whole object
-                                        getMedicationWhereClause(personID),
+                                        whereClause,
                                         null, null, null, null);
 
     }
 
     //gets the Medications linked to this person
-    ArrayList<MMMedication> getAllMedications(long personID){
+    ArrayList<MMMedication> getAllMedications(long personID, boolean currentOnly){
         if (personID == 0) return null;
 
-        Cursor cursor = getAllMedicationsCursor(personID);
+        Cursor cursor = getAllMedicationsCursor(personID, currentOnly);
 
         //create a medication object from the Cursor object
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
@@ -349,7 +363,10 @@ class MMDatabaseManager {
             //translate the cursor into a medication object
             medication = medicationManager.getMedicationFromCursor(cursor, position);
             if (medication != null) {
-                medications.add(medication);
+                //ignore the currentOnly lint warning as clarity of the condition is more important
+                if ((!currentOnly) || (currentOnly && medication.isCurrentlyTaken())) {
+                    medications.add(medication);
+                }
             }
             position++;
         }
@@ -396,8 +413,14 @@ class MMDatabaseManager {
 
     //This gets all medications linked to this person
     private String getMedicationWhereClause(long personID){
-
         return MMDataBaseSqlHelper.MEDICATION_FOR_PERSON_ID + " = '" + String.valueOf(personID) + "'";
+    }
+
+    //This gets all current medications linked to this person
+    private String getCurrentMedicationWhereClause(long personID){
+        return MMDataBaseSqlHelper.MEDICATION_FOR_PERSON_ID + " = '" +
+                String.valueOf(personID) + "' AND " +
+                MMDataBaseSqlHelper.MEDICATION_CURRENTLY_TAKEN + " = '1'" ;
     }
 
 

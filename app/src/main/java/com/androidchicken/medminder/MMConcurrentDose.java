@@ -89,37 +89,42 @@ class MMConcurrentDose {
     /*          Member Methods           */
     //-************************************/
 
-    String cdfHeaders(){
+    String cdfHeaders(MMMainActivity activity){
         //Header from the concatenated doses object
-        String msg =
+        StringBuilder msg = new StringBuilder();
+        msg.append(
                     "ConcurrentDoseID, " +
                     "PersonID, "         +
-                    "Time"               ;
+                    "Time"               );
 
         //Names of the possible medications that this patient takes
         long personID = getForPerson();
         MMPersonManager personManager = MMPersonManager.getInstance();
         MMPerson person = personManager.getPerson(personID);
-        ArrayList<MMMedication> medications = person.getMedications();
+        boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
+        ArrayList<MMMedication> medications = person.getMedications(currentOnly);
         int last        = medications.size();
         int position = 0;
         MMMedication medication;
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
         while (position < last){
             medication = medications.get(position);
-            msg = msg + ", " + medication.getMedicationNickname();
+            msg.append(", ");
+            msg.append( medication.getMedicationNickname());
         }
-        msg = msg + System.getProperty("line.separator");
-        return msg;
+        msg.append( System.getProperty("line.separator"));
+        return msg.toString();
     }
 
     //Convert point to comma delimited file for exchange
-    String convertToCDF() {
+    String convertToCDF(MMMainActivity activity) {
         //values from the concurrent dose object
-        String msg =
-                       String.valueOf(this.getConcurrentDoseID()) + ", " +
-                       String.valueOf( this.getForPerson())       + ", " +
-                               MMUtilities.getInstance().getDateTimeString(getStartTime())     ;
+        StringBuilder msg = new StringBuilder();
+        msg.append(String.valueOf(this.getConcurrentDoseID()));
+        msg.append(", ");
+        msg.append(String.valueOf( this.getForPerson())) ;
+        msg.append(", ");
+        msg.append(MMUtilities.getInstance().getDateTimeString(getStartTime()) )    ;
 
         //concatenate dose values
 
@@ -127,13 +132,12 @@ class MMConcurrentDose {
         MMPersonManager personManager = MMPersonManager.getInstance();
         MMPerson person = personManager.getPerson(personID);
 
-        int lastDose       = mDoses.size();
-        int lastMedication = person.getMedications().size();
+        boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
+        int lastMedication = person.getMedications(currentOnly).size();
 
         int uiPosition   = 0;//The field within the UI ConcDose {0,1,2,3,4,5,6,...}
         int medPosition  = 0;//position within all medications the person takes, but read from the dose e.g.{1,3,5}
         int dosePosition = 0;//the position within doses taken at this time e.g.{0,1,2,3}
-        MMMedication medication;
         MMDose dose = null;
         //so in our example:
         // uiPosition 0 was not taken, so it has no dose. Put 0 in UI field
@@ -162,12 +166,13 @@ class MMConcurrentDose {
             // but don't exceed the number of total medications
             // as medPosition may be used as flag (see above where it is set to last+1)
             while ((uiPosition < medPosition) && (uiPosition < lastMedication)){
-                msg = msg + ", 0";
+                msg.append(", 0");
                 uiPosition++;
             }
 
             if ((uiPosition == medPosition) && (dose != null)){
-                msg = msg + ", " + String.valueOf(dose.getAmountTaken());
+                msg.append(", " );
+                msg.append(String.valueOf(dose.getAmountTaken()));
             }
             uiPosition++;
             dosePosition++;
@@ -185,9 +190,9 @@ class MMConcurrentDose {
             msg = msg + ", " + medication.get
         }
  */
-        msg = msg + System.getProperty("line.separator");
+        msg.append(System.getProperty("line.separator"));
 
-        return msg;
+        return msg.toString();
     }
 
 

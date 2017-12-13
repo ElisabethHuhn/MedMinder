@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -58,9 +59,13 @@ public class MMPersonFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater,
+    public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
+
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return null;
+
 
         //Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_person, container, false);
@@ -78,7 +83,7 @@ public class MMPersonFragment extends Fragment {
 
 
         //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person);
+        activity.setMMSubtitle(R.string.title_person);
 
         //Set the changed UI flag based on whether we are recreating the View
         if (savedInstanceState != null) {
@@ -92,8 +97,7 @@ public class MMPersonFragment extends Fragment {
             setUISaved(v);
         }
 
-        ((MMMainActivity) getActivity()).handleFabVisibility();
-
+        activity.handleFabVisibility();
 
         return v;
     }
@@ -102,7 +106,11 @@ public class MMPersonFragment extends Fragment {
     public void onResume(){
 
         super.onResume();
-        //MMUtilities.clearFocus(getActivity());
+
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return ;
+
+        //MMUtilities.clearFocus(activity);
 
         //The following kludge is necessary because the RecyclerView list
         // disappears in Landscape mode unless the soft keyboard is visible
@@ -113,22 +121,20 @@ public class MMPersonFragment extends Fragment {
             //get rid of the soft keyboard if it is visible
             View v = getView();
             if (v != null) {
-                EditText personNickNameInput = (EditText) (v.findViewById(R.id.personNickNameInput));
-                utilities.showSoftKeyboard(getActivity(), personNickNameInput);
+                EditText personNickNameInput = v.findViewById(R.id.personNickNameInput);
+                utilities.showSoftKeyboard(activity, personNickNameInput);
             }
         } else {
             //get rid of the soft keyboard if it is visible
-            utilities.hideSoftKeyboard(getActivity());
+            utilities.hideSoftKeyboard(activity);
         }
 
 
         //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_person);
+        activity.setMMSubtitle(R.string.title_person);
 
         //Set the FAB visible
-        ((MMMainActivity) getActivity()).handleFabVisibility();
-
-
+        activity.handleFabVisibility();
     }
 
     public int getOrientation(){
@@ -142,7 +148,7 @@ public class MMPersonFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState){
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState){
         // Save custom values into the bundle
 
         //Save the isUIChanged flag
@@ -158,10 +164,15 @@ public class MMPersonFragment extends Fragment {
     //*************************************************************/
 
     private long     getPatientID(){
-        return ((MMMainActivity)getActivity()).getPatientID();
+
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return MMUtilities.ID_DOES_NOT_EXIST ;
+        return activity.getPatientID();
     }
     private void     setPatientID(long patientID) {
-        ((MMMainActivity)getActivity()).setPatientID(patientID);
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return ;
+        activity.setPatientID(patientID);
     }
 
     private MMPerson getPerson(){
@@ -176,8 +187,11 @@ public class MMPersonFragment extends Fragment {
 
         TextView label;
 
+        final MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         //Save Button
-        Button saveButton = (Button) v.findViewById(R.id.personSaveButton);
+        Button saveButton = v.findViewById(R.id.personSaveButton);
         saveButton.setText(R.string.save_label);
         //the order of images here is left, top, right, bottom
         //saveButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_collect, 0, 0);
@@ -190,7 +204,7 @@ public class MMPersonFragment extends Fragment {
 
 
 
-        final SwitchCompat existSwitch = (SwitchCompat) v.findViewById(R.id.switchExists);
+        final SwitchCompat existSwitch = v.findViewById(R.id.switchExists);
         existSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
@@ -199,21 +213,21 @@ public class MMPersonFragment extends Fragment {
                 if (v != null) {
                     if (existSwitch.isChecked()) {
                         v.setBackgroundColor(ContextCompat.
-                                getColor(getActivity(), R.color.colorScreenBackground));
+                                        getColor(activity, R.color.colorScreenBackground));
                     } else {
                         v.setBackgroundColor(ContextCompat.
-                                getColor(getActivity(), R.color.colorScreenDeletedBackground));
+                                        getColor(activity, R.color.colorScreenDeletedBackground));
                     }
                 }
             }
         });
 
 
-        label = (TextView)(v.findViewById(R.id.personIDLabel));
+        label = v.findViewById(R.id.personIDLabel);
         label.setEnabled(false);
         label.setText(R.string.person_label);
 
-        EditText personNickNameInput = (EditText) (v.findViewById(R.id.personNickNameInput));
+        EditText personNickNameInput = (v.findViewById(R.id.personNickNameInput));
         personNickNameInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
@@ -238,77 +252,15 @@ public class MMPersonFragment extends Fragment {
             }
         });
 
-    /*  EMAIL and TEXT Addresses removed
-        label = (TextView)(v.findViewById(R.id.personEmailAddrLabel));
-        label.setText(R.string.person_email_addr_label);
-
-
-        EditText personEmailAddrInput = (EditText) (v.findViewById(R.id.personEmailAddrInput));
-        //personEmailAddrInput.setHint(R.string.person_email_addr_hint);
-        personEmailAddrInput.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        personEmailAddrInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                //This tells you that text is about to change.
-                // Starting at character "start", the next "count" characters
-                // will be changed with "after" number of characters
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                //This tells you where the text has changed
-                //Starting at character "start", the "before" number of characters
-                // has been replaced with "count" number of characters
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                //This tells you that somewhere within editable, it's text has changed
-                setUIChanged();
-            }
-        });
-
-
-
-        label = (TextView)(v.findViewById(R.id.personTextAddrLabel));
-        label.setText(R.string.person_text_addr_label);
-
-        EditText personTextAddrInput = (EditText)(v.findViewById(R.id.personTextAddrInput));
-        personTextAddrInput.setInputType(InputType.TYPE_CLASS_PHONE);
-        //personTextAddrInput.setHint(R.string.person_text_addr_hint);
-        personTextAddrInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                //This tells you that text is about to change.
-                // Starting at character "start", the next "count" characters
-                // will be changed with "after" number of characters
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                //This tells you where the text has changed
-                //Starting at character "start", the "before" number of characters
-                // has been replaced with "count" number of characters
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                //This tells you that somewhere within editable, it's text has changed
-                setUIChanged();
-            }
-        });
-     */
     }
 
     private void wireListTitleWidgets(View v){
         View field_container;
         TextView label;
 
-        MMMainActivity myActivity = (MMMainActivity)getActivity();
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
 
         //set up the labels for the medication list
         field_container = v.findViewById(R.id.medicationTitleRow);
@@ -316,32 +268,32 @@ public class MMPersonFragment extends Fragment {
         label = (EditText) (field_container.findViewById(R.id.medicationNickNameInput));
         label.setText(R.string.medication_nick_name_label);
         label.setEnabled(false);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.medicationDoseNumInput));
         label.setText(R.string.number_hash_tag);
         label.setEnabled(false);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.medicationDoseAmountInput));
         label.setText(R.string.medication_dose_amount_label);
         label.setEnabled(false);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.medicationDoseUnitsInput));
         label.setText(R.string.medication_dose_units_label);
         label.setEnabled(false);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.medicationBrandNameInput));
         label.setText(R.string.medication_brand_name_label);
         label.setEnabled(false);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.medicationGenericNameInput));
         label.setText(R.string.medication_generic_name_label);
         label.setEnabled(false);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
 
 
     }
@@ -374,13 +326,14 @@ public class MMPersonFragment extends Fragment {
         RecyclerView recyclerView = getRecyclerView(v);
 
         //3) create and assign a layout manager to the recycler view
-        //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
-        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
+        //RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(activity);
+        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(mLayoutManager);
 
         //4) Get the Cursor of Medication Instances for this Person from the DB
         MMMedicationManager medicationManager = MMMedicationManager.getInstance();
-        Cursor cursor = medicationManager.getAllMedicationsCursor(getPatientID());
+        boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
+        Cursor cursor = medicationManager.getAllMedicationsCursor(getPatientID(), currentOnly);
 
         //5) Use the data to Create and set out medication Adapter
         MMMedicationCursorAdapter adapter =
@@ -436,7 +389,7 @@ public class MMPersonFragment extends Fragment {
 
             if (person == null){
                 String message = getString(R.string.person_does_not_exist) + getPatientID();
-                MMUtilities.getInstance().errorHandler(getActivity(), message);
+                MMUtilities.getInstance().errorHandler(activity, message);
                 setPatientID( MMUtilities.ID_DOES_NOT_EXIST);
                 person = new MMPerson(getPatientID());
             }
@@ -475,10 +428,7 @@ public class MMPersonFragment extends Fragment {
         if (v == null)return;
 
         EditText personNickNameInput  = v.findViewById(R.id.personNickNameInput);
-        /*
-        EditText personEmailAddrInput = v.findViewById(R.id.personEmailAddrInput);
-        EditText personTextAddrInput  = v.findViewById(R.id.personTextAddrInput);
-        */
+
 
         CharSequence nickname = personNickNameInput.getText();
         if (nickname.toString().isEmpty()){
@@ -510,27 +460,14 @@ public class MMPersonFragment extends Fragment {
 
         person.setNickname(nickname);
 
-        /*
-        //strings are set to "" in the constructor, so the empty case can be ignored
-        //but do need to know if legal input has been made
-        String temp = personEmailAddrInput.getText().toString().trim();
-        if (!(temp.isEmpty())){
-            person.setEmailAddress(temp);
-        }
-
-        temp = personTextAddrInput.getText().toString().trim();
-        if (!(temp.isEmpty())){
-            person.setTextAddress(temp);
-        }
-        */
 
         //done in constructor
         // person.setMedications(new ArrayList<MMMedication>());
 
         //so add/update the person to/in permanent storage
         //This adds/updates any medications that are recorded on the Person to the DB
-        boolean addToDBToo = true;
-        long returnCode = MMPersonManager.getInstance().addPerson(person, addToDBToo);
+        boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
+        long returnCode = MMPersonManager.getInstance().addPerson(person, true, currentOnly);
         if (returnCode != MMDatabaseManager.sDB_ERROR_CODE) {
             MMUtilities.getInstance().errorHandler(activity, R.string.save_successful);
             //if the person is newly created, the ID is assigned on DB add
@@ -619,11 +556,6 @@ public class MMPersonFragment extends Fragment {
     private MMMedicationCursorAdapter getAdapter(View v){
         return (MMMedicationCursorAdapter)  getRecyclerView(v).getAdapter();
     }
-/*
-    private Button getAddMedButton(View v){
-        return (Button) v.findViewById(R.id.personAddMedicationButton);
-    }
-*/
 
     //*********************************************************/
     //      Methods dealing with whether the UI has changed   //
