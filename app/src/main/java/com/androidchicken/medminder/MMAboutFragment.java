@@ -259,11 +259,13 @@ public class MMAboutFragment extends Fragment {
                 View view = getView();
                 if (view == null)return;
                 EditText whoLabel = view.findViewById(R.id.about_who_output);
-                String whoString = whoLabel.getText().toString();
-                if (whoString.equals(mWhoShortStmt)){
-                    whoLabel.setText(mWhoStmt);
-                } else {
-                    whoLabel.setText(mWhoShortStmt);
+                if (whoLabel != null) {
+                    String whoString = whoLabel.getText().toString();
+                    if (whoString.equals(mWhoShortStmt)) {
+                        whoLabel.setText(mWhoStmt);
+                    } else {
+                        whoLabel.setText(mWhoShortStmt);
+                    }
                 }
 
             }
@@ -278,11 +280,13 @@ public class MMAboutFragment extends Fragment {
                 View view = getView();
                 if (view == null)return;
                 EditText privacyLabel = view.findViewById(R.id.about_privacy_output);
-                String privacyString = privacyLabel.getText().toString();
-                if (privacyString.equals(mPrivacyShortStmt)){
-                    privacyLabel.setText(mPrivacyStmt);
-                } else {
-                    privacyLabel.setText(mPrivacyShortStmt);
+                if (privacyLabel != null) {
+                    String privacyString = privacyLabel.getText().toString();
+                    if (privacyString.equals(mPrivacyShortStmt)) {
+                        privacyLabel.setText(mPrivacyStmt);
+                    } else {
+                        privacyLabel.setText(mPrivacyShortStmt);
+                    }
                 }
 
             }
@@ -297,13 +301,14 @@ public class MMAboutFragment extends Fragment {
                 View view = getView();
                 if (view == null)return;
                 EditText eulaLabel = view.findViewById(R.id.about_eula_output);
-                String eulaString = eulaLabel.getText().toString();
-                if (eulaString.equals(mEulaShortStmt)){
-                    eulaLabel.setText(mEulaStmt);
-                } else {
-                    eulaLabel.setText(mEulaShortStmt);
+                if (eulaLabel != null) {
+                    String eulaString = eulaLabel.getText().toString();
+                    if (eulaString.equals(mEulaShortStmt)) {
+                        eulaLabel.setText(mEulaStmt);
+                    } else {
+                        eulaLabel.setText(mEulaShortStmt);
+                    }
                 }
-
             }
         });
 
@@ -316,13 +321,14 @@ public class MMAboutFragment extends Fragment {
                 View view = getView();
                 if (view == null)return;
                 EditText tipsLabel = view.findViewById(R.id.about_tips_output);
-                String tipsString = tipsLabel.getText().toString();
-                if (tipsString.equals(mTipsShortStmt)){
-                    tipsLabel.setText(mTipsStmt);
-                } else {
-                    tipsLabel.setText(mTipsShortStmt);
+                if (tipsLabel != null) {
+                    String tipsString = tipsLabel.getText().toString();
+                    if (tipsString.equals(mTipsShortStmt)) {
+                        tipsLabel.setText(mTipsStmt);
+                    } else {
+                        tipsLabel.setText(mTipsShortStmt);
+                    }
                 }
-
             }
         });
 
@@ -337,10 +343,10 @@ public class MMAboutFragment extends Fragment {
         EditText eulaOutput    = v.findViewById(R.id.about_eula_output);
         EditText tipsOutput    = v.findViewById(R.id.about_tips_output);
 
-        whoOutput    .setText(mWhoShortStmt);
-        privacyOutput.setText(mPrivacyShortStmt);
-        eulaOutput   .setText(mEulaShortStmt);
-        tipsOutput   .setText(mTipsShortStmt);
+        if (whoOutput != null)     whoOutput    .setText(mWhoShortStmt);
+        if (privacyOutput != null) privacyOutput.setText(mPrivacyShortStmt);
+        if (eulaOutput != null)    eulaOutput   .setText(mEulaShortStmt);
+        if (tipsOutput != null)    tipsOutput   .setText(mTipsShortStmt);
     }
 
 

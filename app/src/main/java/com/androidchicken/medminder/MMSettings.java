@@ -29,6 +29,8 @@ import static android.R.attr.defaultValue;
     private static final String sLengthOfHistoryTag     = "lengthHistory";
     private static final String sFabVisibleTag          = "fabVisible";
     private static final String sHomeShadingTag         = "homeShading";
+    private static final String sUserInputTag           = "userInput" ;
+    private static final String sSelectedPositionTag    = "selectedPosition";
 
     //6:00 AM, minutes since Midnight local time
     static final int   sDefaultTimeDue         =  (6*60);
@@ -181,8 +183,33 @@ import static android.R.attr.defaultValue;
         setBooleanSetting(activity, MMSettings.sHomeShadingTag, isHomeShading);
      }
 
+    boolean isUserInput(MMMainActivity activity)  {
+        return getBooleanSetting(activity, MMSettings.sUserInputTag, false);
+    }
+    void    setUserInput(MMMainActivity activity, boolean isUserInput){
+        setBooleanSetting(activity, MMSettings.sUserInputTag, isUserInput);
+    }
+
+    int  getSelectedPosition (MMMainActivity activity)  {
+        return getIntSetting(activity, sSelectedPositionTag, (int)MMUtilities.ID_DOES_NOT_EXIST);
+    }
+    void setSelectedPosition (MMMainActivity activity, int selectedPosition){
+        setIntSetting(activity, sSelectedPositionTag, selectedPosition);
+    }
 
 
+
+
+    private int  getIntSetting (MMMainActivity activity, String tag, int defaultValue){
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        return sharedPref.getInt(tag, defaultValue);
+    }
+    private void setIntSetting (MMMainActivity activity, String tag, int putValue){
+        SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(tag, putValue);
+        editor.apply();
+    }
 
     private long getLongSetting (MMMainActivity activity, String tag, long defaultValue){
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);

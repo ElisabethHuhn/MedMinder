@@ -280,6 +280,7 @@ class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int OldVersion, int newVersion){
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PERSON);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEDICATION);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEDICATION_ALERT);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DOSE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONCURRENT_DOSE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SCHED_MED);

@@ -103,8 +103,6 @@ public class MMUtilities {
     /*          Member Methods           */
     //************************************/
 
-
-
     //convert pixels to dp
      int convertPixelsToDp(Context context, int sizeInDp) {
         //int sizeInDp = 10; //padding between buttons
@@ -141,32 +139,25 @@ public class MMUtilities {
 
      android.support.v7.widget.AppCompatEditText createDoseEditText(Context context,
                                                                            int padding){
-        android.support.v7.widget.AppCompatEditText edtView;
-        LinearLayout.LayoutParams lp =
+
+         android.support.v7.widget.AppCompatEditText edtView;
+         LinearLayout.LayoutParams lp =
                 new LinearLayout.LayoutParams(0,//width
                         ViewGroup.LayoutParams.WRAP_CONTENT);//height
-        lp.weight = 3f;
-        //lp.gravity = Gravity.CENTER;
-        lp.setMarginEnd(padding);
+         lp.weight = 3f;
+         //lp.gravity = Gravity.CENTER;
+         lp.setMarginEnd(padding);
 
-        edtView = new android.support.v7.widget.AppCompatEditText(context);
-        edtView.setHint("0");
-        edtView.setInputType(InputType.TYPE_CLASS_NUMBER);
-        edtView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-        edtView.setLayoutParams(lp);
-        edtView.setPadding(0,0,padding,0);
-        edtView.setGravity(Gravity.CENTER);
-        edtView.setTextColor      (ContextCompat.getColor(context,R.color.colorTextBlack));
-        edtView.setBackgroundColor(ContextCompat.getColor(context,R.color.colorInputBackground));
-/*
-        //add listener
-        edtView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return false;
-            }
-        });
-*/
+         edtView = new android.support.v7.widget.AppCompatEditText(context);
+         edtView.setHint("0");
+         edtView.setInputType(InputType.TYPE_CLASS_NUMBER);
+         edtView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+         edtView.setLayoutParams(lp);
+         edtView.setPadding(0,0,padding,0);
+         edtView.setGravity(Gravity.CENTER);
+         edtView.setTextColor      (ContextCompat.getColor(context,R.color.colorTextBlack));
+         edtView.setBackgroundColor(ContextCompat.getColor(context,R.color.colorInputBackground));
+
         return edtView;
     }
 
@@ -174,11 +165,6 @@ public class MMUtilities {
     //************************************/
     /*         Date / Time Utilities     */
     //************************************/
-
-
-
-
-
 
      String getDateTimeString(long milliSeconds){
         Date date = new Date(milliSeconds);
@@ -212,12 +198,6 @@ public class MMUtilities {
     }
 
 
-
-
-
-
-
-
     private String getTimeFormatString(boolean is24format){
         CharSequence timeFormat = "h:mm a";
         if (is24format){
@@ -225,18 +205,6 @@ public class MMUtilities {
         }
         return timeFormat.toString();
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

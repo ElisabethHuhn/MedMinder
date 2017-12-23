@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -27,37 +28,51 @@ class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcurrentDos
 
     //implement the ViewHolder as an inner class
     class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView  doseTime;
-        TextView  doseDate;
+        EditText  doseTime;
+        EditText  doseDate;
         ArrayList<TextView> doseMeds = new ArrayList<>();
-
+        TextView  doseID;
 
         MyViewHolder(View v) {
             super(v);
 
             //remember the views we know about at coding time
-            doseDate =  v.findViewById(R.id.doseDateLabel);
-            doseTime =  v.findViewById(R.id.doseTimeInput);
+            doseDate = v.findViewById(R.id.doseDateLabel);
+            if (doseDate != null){
+                doseDate.addTextChangedListener(new MMConDoseTextWatcher(mActivity, doseDate));
+            }
+            doseTime = v.findViewById(R.id.doseTimeInput);
+            if (doseTime != null){
+                doseTime.addTextChangedListener(new MMConDoseTextWatcher(mActivity, doseTime));
+            }
+            doseID   = v.findViewById(R.id.doseIDInvisible);
+
+            doseID.setVisibility(View.GONE);
 
             //Add views for the medications that are contained in this concurrent dose:
-            if (mActivity == null)return;
+            if (mActivity == null) return;
 
             LinearLayout layout = v.findViewById(R.id.doseHistoryLine);
-            TextView textField;
+            EditText medField;
             int sizeInDp = 2;
             int padding = MMUtilities.getInstance().convertPixelsToDp(mActivity, sizeInDp);
             int last = mNumberMeds;
             int position = 0;
             MMUtilities utilities = MMUtilities.getInstance();
 
-            while (position < last){
-                textField = utilities.createDoseEditText(mActivity, padding);
-                doseMeds.add(textField);
-                layout.addView(textField);
+            while (position < last) {
+                medField = utilities.createDoseEditText(mActivity, padding);
+                if (medField != null) {
+                    medField.addTextChangedListener(new MMConDoseTextWatcher(mActivity, medField));
+
+                    doseMeds.add(medField);
+                    layout.addView(medField);
+                }
                 position++;
 
             }
-        }
+
+         }
 
     } //end inner class MyViewHolder
 
@@ -117,6 +132,9 @@ class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcurrentDos
     public void onBindViewHolder(MyViewHolder holder, int position){
 
         if (mActivity == null)return;
+        //set flag so we will know that it is not the user changing the med amounts
+        MMSettings.getInstance().setUserInput(mActivity, false);
+
         boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(mActivity);
 
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
@@ -136,6 +154,10 @@ class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcurrentDos
         concurrentDoses = concurrentDoseManager.getDosesForCDFromDB(concurrentDoses);
 
         if (concurrentDoses != null) {
+            //Put ID in the invisible text view to hold the DB ID
+            holder.doseID.setText(String.valueOf(concurrentDoses.getConcurrentDoseID()));
+
+
             //Get the individual doses in the row
             ArrayList<MMDose> doses = concurrentDoses.getDoses();
 
@@ -268,7 +290,7 @@ class MMConcurrentDoseCursorAdapter extends RecyclerView.Adapter<MMConcurrentDos
                     uiPosition++;
                     dosePosition++;
                     medPosition++;
-                 }
+                }
             }
         }
     }

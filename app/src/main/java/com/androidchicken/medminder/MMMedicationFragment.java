@@ -815,22 +815,8 @@ public class MMMedicationFragment extends Fragment implements AdapterView.OnItem
 
         MMMainActivity activity = (MMMainActivity)getActivity();
         boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
-        ArrayList<MMMedication> medications = person.getMedications(currentOnly);
-        if (medications == null){
-            medications = new ArrayList<>();
-        }
-        MMMedication medication;
 
-        //flag assumes the medication is already there, but if not......
-        if ((position == (int)MMUtilities.ID_DOES_NOT_EXIST) ||
-            (medications.size() < mPosition)) {
-            //return an error
-           return null;
-        } else {
-            medication = person.getMedications(currentOnly).get(mPosition);
-        }
-
-        return medication;
+        return person.getMedicationAt(currentOnly, position);
     }
 
     private ArrayList<MMSchedule> getSchedules(long personID, int position){

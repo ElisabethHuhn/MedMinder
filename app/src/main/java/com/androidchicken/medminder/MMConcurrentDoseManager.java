@@ -69,8 +69,7 @@ class MMConcurrentDoseManager {
         }
 
         //update or insert the concurrentDose
-        boolean addToDBToo = true;
-        returnCode = addConcurrentDose (newConcurrentDose,addToDBToo);
+        returnCode = addConcurrentDose (newConcurrentDose,true);
         return returnCode;
 
     }//end add()
@@ -99,6 +98,13 @@ class MMConcurrentDoseManager {
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
         String orderClause = getCcDoseOrderClause();
         return databaseManager.getAllConcurrentDosesCursor(personID, earliestDate, latestDate, orderClause);
+    }
+
+    MMConcurrentDose getConcurrentDose(long cDoseID){
+        Cursor cDoseCursor = MMDatabaseManager.getInstance().getConcurrentDose(cDoseID);
+        if (cDoseCursor == null)return null;
+        if (cDoseCursor.getCount() == 0)return null;
+        return getConcurrentDoseFromCursor(cDoseCursor, 0);
     }
 
     boolean removeConcurrentDoesFromDB(long concurrentDoseID){

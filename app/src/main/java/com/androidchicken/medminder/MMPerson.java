@@ -112,6 +112,16 @@ class MMPerson {
         return mMedications;
     }
 
+    MMMedication getMedicationAt(boolean currentOnly, int position){
+        if (position  == (int)MMUtilities.ID_DOES_NOT_EXIST) return null;
+
+        ArrayList<MMMedication> medications = getMedications(currentOnly);
+        if (medications == null)return null;
+
+        if ((medications.size() <  position)) return null;
+
+        return medications.get(position);
+    }
     ArrayList<MMMedication> getMedications(boolean currentOnly){
         if (!isMedListUpToDate(currentOnly)) {
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();

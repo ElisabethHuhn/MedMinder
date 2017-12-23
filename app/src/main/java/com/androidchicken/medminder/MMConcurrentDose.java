@@ -72,6 +72,7 @@ class MMConcurrentDose {
     long getStartTime()              { return mStartTime;  }
     void setStartTime(long startTime) { mStartTime = startTime; }
 
+
     ArrayList<MMDose> getDoses()                        {
         if (!isDosesChanged()) {
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
@@ -83,6 +84,10 @@ class MMConcurrentDose {
     private boolean isDosesChanged(){
         if ((mDoses == null) || (mDoses.size() == 0))return false;
         return true;
+    }
+    //The doses have changed, force next read to pull doses from the DB
+    void setDosesChanged(){
+        mDoses = null;
     }
 
     //-***********************************/

@@ -136,8 +136,11 @@
     <string name="patient_no_med_but"           >No Med Button Pushed</string>
     <string name="dose_default_date"            >00/00/0000</string>
     <string name="dose_default_time"            >00:00 am</string>
+    <string name="dose_default_id"              >-1</string>
+    <string name="dose_id_tag"                  >ID_Tag</string>
     <string name="reselect_dose"                >Re-select Dose to edit</string>
     <string name="error_parsing_date_time"      >Error parsing Date and / or Time</string>
+    <string name="error_updating_cdose"         >Error Updating Dosage Information. No update</string>
 
     <string name="change_not_saved"             >Change not saved</string>
 

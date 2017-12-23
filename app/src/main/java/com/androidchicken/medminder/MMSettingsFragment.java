@@ -77,7 +77,7 @@ public class MMSettingsFragment extends Fragment {
         initializeUI(v);
 
         //set the title bar subtitle
-        activity.setMMSubtitle(R.string.title_person);
+        activity.setMMSubtitle(R.string.title_settings);
 
         //Set the changed UI flag based on whether we are recreating the View
         if (savedInstanceState != null) {

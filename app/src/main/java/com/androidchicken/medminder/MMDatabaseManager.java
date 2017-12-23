@@ -638,6 +638,18 @@ class MMDatabaseManager {
         return returnCode;
     }
 
+    //gets the ConcurrentDoses linked to this person
+    Cursor getConcurrentDose(long cDoseID){
+
+        return mDatabaseHelper.getObject(   mDatabase,
+                                            TABLE_CONCURRENT_DOSE,
+                                            null,    //get the whole object
+                                            getConcurrentDosesIDWhereClause(cDoseID),
+                                            null, null, null,
+                                            null);   //order by clause
+    }
+
+
 
     //The return code indicates how many rows affected
     int removeConcurrentDose(long concurrentDoseID){

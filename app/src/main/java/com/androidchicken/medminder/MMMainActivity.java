@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -67,8 +68,6 @@ public class MMMainActivity extends AppCompatActivity {
         //Don't have to check savedInstanceState for mPatientID
         // as it is always saved in the preferences
     }
-
-
 
 
     @Override
@@ -416,11 +415,13 @@ public class MMMainActivity extends AppCompatActivity {
     private void clearBackStack(){
         //Need the Fragment Manager to do the swap for us
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-        //clear the back stack
 
-        while (fm.getBackStackEntryCount() > 0){
-            fm.popBackStackImmediate();
+        //clear the back stack
+        int backStackEntries = fm.getBackStackEntryCount();
+        if (backStackEntries > 0){
+            fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
+
     }
 
     //***** Routine to actually switch the screens *******/
@@ -486,7 +487,6 @@ public class MMMainActivity extends AppCompatActivity {
      */
     public void switchToHomeScreen(){
         //replace the fragment with the Home UI
-
 
         Fragment fragment    = new MMHomeFragment();
         String   tag         = sHomeTag;

@@ -35,7 +35,7 @@ import java.util.Locale;
 
 
 /**
- * A placeholder fragment containing a simple view.
+ * The main fragment for MedMinder. Shows current dose, and dosage history
  */
 public class MMHomeFragment extends Fragment {
 
@@ -367,14 +367,16 @@ public class MMHomeFragment extends Fragment {
 
             if (person != null) {
                 TextView patientNickName =  v.findViewById(R.id.patientNickNameLabel);
-                patientNickName.setText(person.getNickname().toString().trim());
+                if (patientNickName != null) {
+                    patientNickName.setText(person.getNickname().toString().trim());
 
-                if (person.isCurrentlyExists()){
-                    v.setBackgroundColor(ContextCompat.
-                            getColor(activity, R.color.colorScreenBackground));
-                } else {
-                    v.setBackgroundColor(ContextCompat.
-                            getColor(activity, R.color.colorScreenDeletedBackground));
+                    if (person.isCurrentlyExists()) {
+                        v.setBackgroundColor(ContextCompat.
+                                getColor(activity, R.color.colorScreenBackground));
+                    } else {
+                        v.setBackgroundColor(ContextCompat.
+                                getColor(activity, R.color.colorScreenDeletedBackground));
+                    }
                 }
             }
         } else {
@@ -596,6 +598,7 @@ public class MMHomeFragment extends Fragment {
 
     private void setCurrentTime(EditText timeInputView){
         String timeString;
+        if (timeInputView == null)return;
 
         //put the local time up on the UI
         timeString = MMUtilitiesTime.getTimeString((MMMainActivity)getActivity());
@@ -609,7 +612,7 @@ public class MMHomeFragment extends Fragment {
 
         EditText timeInputView =   (EditText)medDoseLayout.getChildAt(0);
 
-        setCurrentTime(timeInputView);
+        if (timeInputView != null)setCurrentTime(timeInputView);
 
     }
 
@@ -926,6 +929,9 @@ public class MMHomeFragment extends Fragment {
     private void    setDose(EditText medField, int doseAmt){
         MMMainActivity activity = (MMMainActivity)getActivity();
         if (activity == null)return;
+
+        if (medField == null)return;
+
         //show the user
         medField.setText(String.valueOf(doseAmt));
         if (doseAmt > 0) {
@@ -1173,7 +1179,7 @@ public class MMHomeFragment extends Fragment {
         int last = medications.size();
         MMMedication medication;
         int positionMed = 0;
-        //only have buttons for active meds
+
         int positionButton = 0;
 
         EditText doseView;
@@ -1181,14 +1187,18 @@ public class MMHomeFragment extends Fragment {
         String amtTakenString;
         while (positionMed < last) {
             medication = medications.get(positionMed);
-            if (medication.isCurrentlyTaken()) {//There are no buttons and no views for old meds
+
+            // TODO: 12/22/2017 This dosen't look right, fix it. Showing current meds is a global setting
+            //Depending on Settings, there may be no buttons or views for non-current meds
+            if (medication.isCurrentlyTaken()) {
                 try {
                     doseView = (EditText) medDoseLayout.getChildAt(positionButton + 1);
-                    amtTakenString = doseView.getText().toString().trim();
-                    if (!amtTakenString.isEmpty()) {
-                        amtTaken = Integer.valueOf(amtTakenString);
-                    } else {
-                        amtTaken = 0;
+                    amtTaken = 0;
+                    if (doseView != null) {
+                        amtTakenString = doseView.getText().toString().trim();
+                        if (!amtTakenString.isEmpty()) {
+                            amtTaken = Integer.valueOf(amtTakenString);
+                        }
                     }
                 } catch (NullPointerException e){
                     amtTaken = 0;
@@ -1201,6 +1211,8 @@ public class MMHomeFragment extends Fragment {
                                             timeTaken,
                                             amtTaken);
                 doses.add(dose);
+
+                /*    Remove alerts
 
                 //for each medAlert for this medication:
                 MMMedicationAlertManager medAlertManager = MMMedicationAlertManager.getInstance();
@@ -1216,6 +1228,7 @@ public class MMHomeFragment extends Fragment {
                     MMUtilities.getInstance().createAlertAlarm(getActivity(), medAlertID);
                     positionMedAlert++;
                 }
+                */
                 positionButton++;
             }
             positionMed++;
@@ -1225,17 +1238,14 @@ public class MMHomeFragment extends Fragment {
         long cDoseID = concurrentDoseManager.add(concurrentDoses);
 
         reinitializeCursor(getPersonID());
-        /*
-        */
+
         MMConcurrentDoseCursorAdapter adapter = getAdapter(getView());
         last = adapter.getItemCount();
         adapter.notifyItemChanged(last);
 
         adapter.notifyDataSetChanged();
 
-
         setUISaved();
-        return ;
     }
 
     public void onExit(){
@@ -1251,8 +1261,22 @@ public class MMHomeFragment extends Fragment {
     private void onSelect(int position){
         mSelectedPosition = position;
 
+        // TODO: 12/21/2017 this might be helpful for changing a value in a dose
+        //Get the view holder for a given position
+        //holder = myRecyclerView.findViewHolderForAdapterPosition(pos);
+        //returns null if the viewholder has been recycled
+
+        //https://stackoverflow.com/questions/33784369/recyclerview-get-view-at-particular-position
+
         //allow user to change the dose amount and date, then save the changes
-        onSelectDoseDialog();
+        //onSelectDoseDialog();
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        //set flag so we will know that it is the user changing the med amounts
+        MMSettings.getInstance().setUserInput(activity, true);
+        //remember the selected Position
+        MMSettings.getInstance().setSelectedPosition(activity, mSelectedPosition);
 
     }
 
@@ -1286,6 +1310,7 @@ public class MMHomeFragment extends Fragment {
                                                                         dateMilli,
                                                                         false);
         EditText doseDate      = getDoseDateInputView(layout);
+        if (doseDate == null)return;
         doseDate.setText(dateStringLocal);
 
 
@@ -1293,6 +1318,7 @@ public class MMHomeFragment extends Fragment {
         String timeStringLocal = MMUtilitiesTime.convertTimeMStoString((MMMainActivity)getActivity() ,
                                                                         dateMilli, true);
         EditText doseTime = getDoseTimeInputView(layout);
+        if (doseTime== null)return;
         doseTime.setText(timeStringLocal);
 
 
@@ -1315,12 +1341,14 @@ public class MMHomeFragment extends Fragment {
 
             //actually create the EditText view in the utility
             edtView = MMUtilities.getInstance().createDoseEditText(getActivity(), padding);
+            if (edtView != null) {
 
-            //show the amount of this dose in the View
-            edtView.setText(String.valueOf(amount));
+                //show the amount of this dose in the View
+                edtView.setText(String.valueOf(amount));
 
-            //Add the EditText view to the layout
-            layout.addView(edtView);
+                //Add the EditText view to the layout
+                layout.addView(edtView);
+            }
             dosePosition++;
         }
 
@@ -1379,6 +1407,7 @@ public class MMHomeFragment extends Fragment {
         String    dateString = doseDate.getText().toString().trim();
 
         EditText doseTime   = getDoseTimeInputView(layout);
+        if (doseTime == null)return;
         String   timeString =  doseTime.getText().toString().trim();
 
         //convert the local string to local ms
@@ -1431,8 +1460,11 @@ public class MMHomeFragment extends Fragment {
                 dose = doses.get(dosePosition);
 
                 //update the dose with the new amount
+                amtString = "";
                 medicationDoseInput = (EditText) layout.getChildAt(dosePosition+2);
-                amtString = medicationDoseInput.getText().toString().trim();
+                if (medicationDoseInput != null) {
+                    amtString = medicationDoseInput.getText().toString().trim();
+                }
 
                 amt = 0;
                 if (!amtString.isEmpty()){
@@ -1481,8 +1513,8 @@ public class MMHomeFragment extends Fragment {
         private MMHomeFragment.ClickListener clickListener;
 
         RecyclerTouchListener(Context context,
-                                     final RecyclerView recyclerView,
-                                     final MMHomeFragment.ClickListener clickListener) {
+                             final RecyclerView recyclerView,
+                             final MMHomeFragment.ClickListener clickListener) {
 
             this.clickListener = clickListener;
             gestureDetector = new GestureDetector(context,
@@ -1509,6 +1541,7 @@ public class MMHomeFragment extends Fragment {
             View child = rv.findChildViewUnder(e.getX(), e.getY());
             if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
                 clickListener.onClick(child, rv.getChildLayoutPosition(child));
+
             }
             return false;
         }

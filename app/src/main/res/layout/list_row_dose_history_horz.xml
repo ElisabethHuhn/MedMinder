@@ -17,21 +17,22 @@
     <!-- Layout for concurrent dose history -->
 
     <!-- Date -->
-    <TextView
+    <EditText
         android:id="@+id/doseDateLabel"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
 
-        android:text="@string/dose_default_date"
+        android:inputType="date"
+        android:hint="@string/dose_default_date"
         android:layout_marginEnd="1dp"
 
         android:background="@color/colorGrayest"
         />
 
     <!-- Time -->
-    <TextView
+    <EditText
         android:id="@+id/doseTimeInput"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
@@ -40,12 +41,29 @@
 
         android:hint="@string/dose_default_time"
 
+        android:inputType="text"
+        android:imeOptions="flagNoExtractUi"
         android:layout_marginEnd="1dp"
 
         android:textColor="@color/colorTextBlack"
         android:background="@color/colorHistoryBackground"
         />
 
+    <!-- conc dose ID - now visible -->
+    <TextView
+        android:id="@+id/doseIDInvisible"
+
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+
+
+        android:text="@string/dose_default_id"
+        android:layout_marginEnd="1dp"
+
+        android:background="@color/colorGrayest"
+        />
 
 
 </LinearLayout>
