@@ -23,11 +23,11 @@ public class MMSchedule {
     // ***********************************/
     /*    Member (instance) Variables    */
     // ***********************************/
-    private long mSchedMedID;
+    private long mScheduleID;
     private long mOfMedicationID;
     private long mForPersonID;
     private int  mTimeDue;  //number of minutes from midnight in GMT time zone
-    private int  mStrategy; //whether as needed or scheduled
+    private int  mStrategy; //whether as needed or scheduled or in x hours
 
 
 
@@ -40,7 +40,7 @@ public class MMSchedule {
     /*         CONSTRUCTOR               */
     // ***********************************/
     MMSchedule() {
-        mSchedMedID     = MMUtilities.ID_DOES_NOT_EXIST;
+        mScheduleID = MMUtilities.ID_DOES_NOT_EXIST;
         mOfMedicationID = 0;
         mForPersonID    = 0;
         mTimeDue        = 0;
@@ -51,7 +51,7 @@ public class MMSchedule {
                       long  forPersonID,
                       int   timeDue,
                       int   strategy) {
-        mSchedMedID     = MMUtilities.ID_DOES_NOT_EXIST;
+        mScheduleID = MMUtilities.ID_DOES_NOT_EXIST;
         mOfMedicationID = ofMedicationID;
         mForPersonID    = forPersonID;
         mTimeDue        = timeDue;
@@ -62,8 +62,8 @@ public class MMSchedule {
     /*    Member setter/getter Methods   */
     // ***********************************/
 
-    long getSchedMedID()              {return mSchedMedID;  }
-    void setSchedMedID(long schedMedID){ mSchedMedID = schedMedID;}
+    long getScheduleID()              {return mScheduleID;  }
+    void setScheduleID(long scheduleID){ mScheduleID = scheduleID;}
 
     long getOfMedicationID()                   {   return mOfMedicationID;   }
     void setOfMedicationID(long ofMedicationID) { mOfMedicationID = ofMedicationID; }
@@ -95,7 +95,7 @@ public class MMSchedule {
 
     //Convert point to comma delimited file for exchange
     String convertToCDF() {
-        return String.valueOf(this.getSchedMedID())      + ", " +
+        return String.valueOf(this.getScheduleID())      + ", " +
                String.valueOf(this.getOfMedicationID())  + ", " +
                String.valueOf(this.getForPersonID())     + ", " +
                String.valueOf(this.getTimeDue())         + ", " +
@@ -107,7 +107,7 @@ public class MMSchedule {
         //convert to milliseconds
         long timeDue = MMUtilitiesTime.convertMinutesToMs(getTimeDue());
 
-        String clockTime = MMUtilities.getInstance().getTimeString(activity, timeDue);
+        String clockTime = MMUtilitiesTime.getTimeString(activity, timeDue);
 
         MMPerson person = MMPersonManager.getInstance().getPerson(mForPersonID);
 
@@ -132,12 +132,19 @@ public class MMSchedule {
     String getTimeDueString(MMMainActivity activity){
         int timeMinutes = getTimeDue();
 
-        long timeMilliseconds = MMUtilitiesTime.convertMinutesToMs(timeMinutes);
-        timeMilliseconds = MMUtilitiesTime.convertLocaltoGMT(timeMilliseconds);
-        //set flag to time
-        boolean isTimeFlag = true;
-        return MMUtilitiesTime.convertTimeMStoString(activity, timeMilliseconds, isTimeFlag);
+        if (getStrategy() == MMMedication.sSET_SCHEDULE_FOR_MEDICATION){
 
+            long timeMilliseconds = MMUtilitiesTime.convertMinutesToMs(timeMinutes);
+            timeMilliseconds = MMUtilitiesTime.convertLocaltoGMT(timeMilliseconds);
+            //set flag to time
+            boolean isTimeFlag = true;
+            return MMUtilitiesTime.convertTimeMStoString(activity, timeMilliseconds, true);
+        }
+        //otherwise, just put hours:minutes
+        int hours = timeMinutes / (int)MMUtilities.minutesPerHour;
+        int minutes = timeMinutes - (hours * (int) MMUtilities.minutesPerHour);
+
+        return String.format("%d:%02d", hours, minutes);
     }
 
 

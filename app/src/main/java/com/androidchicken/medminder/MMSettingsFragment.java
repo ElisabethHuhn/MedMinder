@@ -304,8 +304,7 @@ public class MMSettingsFragment extends Fragment {
         long timeMinutes   = settings.getDefaultTimeDue(activity);
         long timeMilliseconds = (timeMinutes * 60000);
 
-        CharSequence timeString = MMUtilities.getInstance().
-                                    getTimeString(activity, timeMilliseconds);
+        CharSequence timeString = MMUtilitiesTime.getTimeString(activity, timeMilliseconds);
         defaultTimeDueInput.setText(timeString);
 
 
@@ -367,8 +366,8 @@ public class MMSettingsFragment extends Fragment {
             minutesSinceMidnight = MMSettings.sDefaultTimeDue;
             long msSinceMidnight = MMUtilitiesTime.convertMinutesToMs(minutesSinceMidnight);
             //and put it back on the screen
-            timeString = MMUtilities.getInstance().
-                    getTimeString((MMMainActivity) getActivity(), msSinceMidnight);
+            timeString =
+                    MMUtilitiesTime.getTimeString((MMMainActivity) getActivity(), msSinceMidnight);
             defaultTimeDueInput.setText(timeString);
         }
         settings.setDefaultTimeDue(activity, minutesSinceMidnight);

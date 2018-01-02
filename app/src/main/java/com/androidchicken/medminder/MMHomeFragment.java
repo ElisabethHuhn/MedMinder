@@ -523,9 +523,12 @@ public class MMHomeFragment extends Fragment {
 
     private MMMedication getMedicationFromPerson(MMPerson person, int position){
         MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return null;
+
         boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
         return person.getMedications(currentOnly).get(position);
     }
+
 
     private int getNumberOfMedications(){
         MMMainActivity activity = (MMMainActivity)getActivity();
@@ -616,7 +619,7 @@ public class MMHomeFragment extends Fragment {
 
     }
 
-    private void addMedButtonToView(View         v,
+    private void addMedButtonToView(  View         v,
                                       Bundle       savedInstanceState,
                                       int          viewNumber,
                                       MMMedication medication,
@@ -712,7 +715,7 @@ public class MMHomeFragment extends Fragment {
         medDoseLayout.addView(amountView);
     }
 
-    private void   addMedButtonListener(Button medButton){
+    private void addMedButtonListener(Button medButton){
 
         //first define the listeners for the buttons
         View.OnClickListener medButtonListener = new View.OnClickListener() {
@@ -806,7 +809,7 @@ public class MMHomeFragment extends Fragment {
 
     }
 
-    private void   startMedButtonBlink(View v){
+    private void startMedButtonBlink(View v){
         MMMainActivity activity = (MMMainActivity)getActivity();
         if (activity == null)return;
 
@@ -816,11 +819,6 @@ public class MMHomeFragment extends Fragment {
         MMPerson person = getPerson();
         if (person == null)return;
 
-        LinearLayout medButtonsLayout = getMedButtonsLayout(v);
-        if (medButtonsLayout == null)return;
-
-        //Get current GMT time in MS
-        long currentGmtMs    = MMUtilitiesTime.getGmtNow();
 
         boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
         ArrayList<MMMedication> medications = person.getMedications(currentOnly);
@@ -829,63 +827,26 @@ public class MMHomeFragment extends Fragment {
         //corresponds to the position of medButton for this medication
         int positionMed = 0;
         int positionButton = 0;
-        Button medButton;
 
         //If the dose is overdue, blink the button
         while (positionMed < lastMed){
             //Get the most recent dose taken for this medication
             MMMedication medication = medications.get(positionMed);
             if (medication.isCurrentlyTaken()) {
-                if (medication.getDoseStrategy() != MMMedication.sAS_NEEDED) {
+                if (medication.getDoseStrategy() == MMMedication.sSET_SCHEDULE_FOR_MEDICATION) {
                     //There are only medButtons for medications that are currently taken
 
-                    long mostRecentDoseTimeGMT = getMostRecentDoseTimeGMT(v, medication);
-
-                    //so we have the time the dose was taken. When is/was the next dose due?
-
-                    //The schedule of the medication gives us
-                    // how many minutes since midnight that the dose is due
-                    MMSchedule schedule;
-                    ArrayList<MMSchedule> schedules = medication.getSchedules();
-
-                    long schedTimeDueMs;
-
-
-                    int lastSched = schedules.size();
-                    int positionSched = 0;
-
-                    int localMinutesDue;
-                    while (positionSched < lastSched) {
-                        schedule = schedules.get(positionSched);
-
-                        //Minues since Midnight
-                        localMinutesDue = schedule.getTimeDue();
-
-                        //Convert to a MS time
-                        schedTimeDueMs = MMUtilitiesTime.getCurrentMilli(localMinutesDue);
-
-
-                        if ((mostRecentDoseTimeGMT < schedTimeDueMs) &&
-                            (schedTimeDueMs        < currentGmtMs)){
-
-                            //it is (past) time to take the dose, so blink the proper button
-                            medButton = (Button) medButtonsLayout.getChildAt(positionButton);
-                            animateButton(medButton);
-
-                            //no need to loop through the rest of the schedules
-                            positionSched = lastSched;
-                        }
-                        positionSched++;
-                    }//end while schedule loop
-
-                }//End !As Needed
+                    blinkScheduleMedButton(v, medication, positionButton);
+                }else if (medication.getDoseStrategy() == MMMedication.sIN_X_HOURS){
+                    blinkInXMedButton(v, medication, positionButton);
+                }
                 positionButton++;
             }//End currently taken (must be currently taken to get a button)
             positionMed++;
         }//end while medication loop
     }
 
-    private void   animateButton(Button medButton){
+    private void animateButton(Button medButton){
         // Change alpha from fully visible to invisible
         final Animation animation = new AlphaAnimation(1.0f, 0.0f);
 
@@ -899,6 +860,88 @@ public class MMHomeFragment extends Fragment {
         animation.setRepeatMode(Animation.REVERSE);
 
         medButton.startAnimation(animation);
+    }
+
+    private void blinkScheduleMedButton(View v, MMMedication medication, int positionButton){
+        LinearLayout medButtonsLayout = getMedButtonsLayout(v);
+        if (medButtonsLayout == null)return;
+
+        //Get current time in MS
+        long currentTimeMs    = MMUtilitiesTime.getTimeNow();
+
+        //get the time the most recent dose was taken
+        long mostRecentDoseTimeGMT = getMostRecentDoseTimeGMT(v, medication);
+
+        //so we have the time the dose was taken. When is/was the next dose due?
+
+        //The schedule of the medication gives us
+        // how many minutes since midnight that the dose is due
+        MMSchedule schedule;
+        ArrayList<MMSchedule> schedules = medication.getSchedules();
+
+        long schedTimeDueMs;
+
+        int lastSched = schedules.size();
+        int positionSched = 0;
+
+        Button medButton;
+        int localMinutesDue;
+        while (positionSched < lastSched) {
+            schedule = schedules.get(positionSched);
+
+            //Minutes since Midnight
+            localMinutesDue = schedule.getTimeDue();
+
+            //Convert to a MS time
+            schedTimeDueMs = MMUtilitiesTime.getCurrentMilli(localMinutesDue);
+
+
+            if ((mostRecentDoseTimeGMT < schedTimeDueMs) &&
+                    (schedTimeDueMs        < currentTimeMs)){
+
+                //it is (past) time to take the dose, so blink the proper button
+                medButton = (Button) medButtonsLayout.getChildAt(positionButton);
+                animateButton(medButton);
+
+                //no need to loop through the rest of the schedules
+                positionSched = lastSched;
+            }
+            positionSched++;
+        }//end while schedule loop
+    }
+    private void blinkInXMedButton     (View v, MMMedication medication, int positionButton){
+        LinearLayout medButtonsLayout = getMedButtonsLayout(v);
+        if (medButtonsLayout == null)return;
+
+        //Get current time in MS
+        long currentTimeMs    = MMUtilitiesTime.getTimeNow();
+
+        //get the time the most recent dose was taken
+        long mostRecentDoseTimeGMT = getMostRecentDoseTimeGMT(v, medication);
+
+        //so we have the time the dose was taken. When is/was the next dose due?
+
+        //The schedule of the medication gives us
+        // how many minutes from now that the next dose is due
+
+        ArrayList<MMSchedule> schedules = medication.getSchedules();
+        if ((schedules == null) || (schedules.size() <= 0)) return;
+
+        MMSchedule schedule = schedules.get(0);
+        if (schedule == null)return;
+
+        //Determine when the next dose is due
+        int minutesUntilDue = schedule.getTimeDue();
+        long milliDue = MMUtilitiesTime.convertMinutesToMs(minutesUntilDue);
+        milliDue = milliDue + mostRecentDoseTimeGMT;
+
+        if ((milliDue < currentTimeMs)){
+
+            //it is (past) time to take the dose, so blink the proper button
+            Button medButton = (Button) medButtonsLayout.getChildAt(positionButton);
+            if (medButton != null) animateButton(medButton);
+
+        }
     }
 
     //******************************************************************/
@@ -1152,19 +1195,23 @@ public class MMHomeFragment extends Fragment {
     //**********************************************/
     private void onSave(){
 
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
         //Creates in memory structure to save all the doses taken concurrently
         if (getPersonID() == MMUtilities.ID_DOES_NOT_EXIST)return ;
 
         MMPerson person = getPerson();
-
         if (person == null) return ;
 
         LinearLayout medDoseLayout = getDoseLayout(null); //parameter is for initialization view
         if (medDoseLayout == null)return ;
 
         //Get the time input by the user for this dose
-        long timeTaken = MMUtilitiesTime.getTodayTime((MMMainActivity) getActivity(),
-                                                          getTimeInputView(null));
+        EditText timeInputView = getTimeInputView(null); //look up the UI view
+        if (timeInputView == null)return;
+
+        long timeTaken = MMUtilitiesTime.getTodayTime((MMMainActivity)getActivity(),timeInputView);
 
 
         //create the concurrent dose with the time from the UI
@@ -1172,7 +1219,6 @@ public class MMHomeFragment extends Fragment {
         MMConcurrentDose concurrentDoses = new MMConcurrentDose(getPersonID(), timeTaken);
         ArrayList<MMDose> doses = concurrentDoses.getDoses();//just an empty list
 
-        MMMainActivity activity = (MMMainActivity)getActivity();
         boolean currentOnly = MMSettings.getInstance().showOnlyCurrentMeds(activity);
         ArrayList<MMMedication> medications = person.getMedications(currentOnly);
 
@@ -1188,10 +1234,11 @@ public class MMHomeFragment extends Fragment {
         while (positionMed < last) {
             medication = medications.get(positionMed);
 
-            // TODO: 12/22/2017 This dosen't look right, fix it. Showing current meds is a global setting
             //Depending on Settings, there may be no buttons or views for non-current meds
+            // But regardless, can only take current meds
             if (medication.isCurrentlyTaken()) {
                 try {
+                    //Plus one is to skip over time field
                     doseView = (EditText) medDoseLayout.getChildAt(positionButton + 1);
                     amtTaken = 0;
                     if (doseView != null) {
@@ -1203,7 +1250,8 @@ public class MMHomeFragment extends Fragment {
                 } catch (NullPointerException e){
                     amtTaken = 0;
                 }
-
+                //Save a dose object regardless of whether anything was actually taken.
+                // As the user may change the amount later
                 MMDose dose = new MMDose(   medications.get(positionMed).getMedicationID(),
                                             getPersonID(),
                                             concurrentDoses.getConcurrentDoseID(),
@@ -1212,23 +1260,20 @@ public class MMHomeFragment extends Fragment {
                                             amtTaken);
                 doses.add(dose);
 
-                /*    Remove alerts
+                if (amtTaken > 0){
+                    //If the user actually took some of the medication,
 
-                //for each medAlert for this medication:
-                MMMedicationAlertManager medAlertManager = MMMedicationAlertManager.getInstance();
-                ArrayList<MMMedicationAlert> medAlerts = medAlertManager.
-                                getMedicationAlerts(getPersonID(), medication.getMedicationID());
-                int lastMedAlert = medAlerts.size();
-                int positionMedAlert = 0;
-                MMMedicationAlert medAlert;
-                while (positionMedAlert < lastMedAlert) {
-                    medAlert = medAlerts.get(positionMedAlert);
-                    long medAlertID = medAlert.getMedicationAlertID();
+                    // set notification for next dose Based on Strategy
+                    int strategy = medication.getDoseStrategy();
+                    if (strategy == MMMedication.sSET_SCHEDULE_FOR_MEDICATION){
+                        setScheduleNotification(medication);
 
-                    MMUtilities.getInstance().createAlertAlarm(getActivity(), medAlertID);
-                    positionMedAlert++;
+                    } else if (strategy == MMMedication.sIN_X_HOURS){
+                        setInXNotification(medication, timeTaken);
+                    } // else strategy = as needed, do noting
                 }
-                */
+
+
                 positionButton++;
             }
             positionMed++;
@@ -1246,6 +1291,97 @@ public class MMHomeFragment extends Fragment {
         adapter.notifyDataSetChanged();
 
         setUISaved();
+    }
+
+    void setScheduleNotification(MMMedication medication){
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        //delete any existing notifications
+        MMUtilities.getInstance().cancelNotificationAlarms(
+                                                    activity,
+                                                    MMAlarmReceiver.schedNotifAlarmType,
+                                                    MMAlarmReceiver.scheduleNotificationID,
+                                                    medication.getMedicationID(),
+                                                    medication.getMedicationNickname().toString());
+
+        //calculate the time the notification is due
+
+        //of all the schedules on this medication,
+        // find one that is > than now, but the least greater
+        ArrayList<MMSchedule> schedules = medication.getSchedules();
+        int schedulePosition          = 0;
+        int scheduleLast              = schedules.size();
+        MMSchedule schedule           = null;
+
+        int  currentMinutes           = MMUtilitiesTime.getMinutesSinceMidnight();
+        int  scheduleTime             = -1;
+        int  foundScheduleTime        = -1;
+
+
+        while (schedulePosition < scheduleLast){
+            schedule = schedules.get(schedulePosition);
+            scheduleTime = schedule.getTimeDue();
+
+            //is schedule greater than now?
+            if (scheduleTime > currentMinutes){
+                if ( (foundScheduleTime > scheduleTime) ||(foundScheduleTime < 0) ) {
+                    foundScheduleTime = scheduleTime;
+                }
+            }
+
+            schedulePosition++;
+        }
+
+        // set the notification for the time found
+        if (foundScheduleTime >= 0){
+            MMUtilities.getInstance().createScheduleNotification(
+                                                    activity,
+                                                    foundScheduleTime,
+                                                    medication.getMedicationID(),
+                                                    medication.getMedicationNickname().toString());
+        }
+
+
+    }
+
+    void setInXNotification(MMMedication medication, long timeTaken){
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
+
+        //delete any existing notifications
+        MMUtilities.getInstance().cancelNotificationAlarms(
+                                                    activity,
+                                                    MMAlarmReceiver.inXNotifAlarmType,
+                                                    MMAlarmReceiver.inXNotificationID,
+                                                    medication.getMedicationID(),
+                                                    medication.getMedicationNickname().toString());
+
+        //calculate the time the notification is due
+
+        //of all the schedules on this medication,
+        // find one that is > than now, but the least greater
+        ArrayList<MMSchedule> schedules = medication.getSchedules();
+
+        MMSchedule schedule  = schedules.get(0);
+        if (schedule == null)return;
+
+        int scheduleTime  = schedule.getTimeDue();
+
+        if (scheduleTime >= 0){
+
+            long todayDoseTimeMS      = timeTaken - MMUtilitiesTime.getMidnightInMS();
+            int  todayDoseTimeMinutes = (int)MMUtilitiesTime.convertMsToMin(todayDoseTimeMS);
+            int  notificationTime     = todayDoseTimeMinutes + scheduleTime;
+
+            MMUtilities.getInstance().createInXNotification(
+                                                    activity,
+                                                    notificationTime,
+                                                    medication.getMedicationID(),
+                                                    medication.getMedicationNickname().toString());
+        }
+
+
     }
 
     public void onExit(){
@@ -1494,10 +1630,11 @@ public class MMHomeFragment extends Fragment {
         adapter.reinitializeCursor();
     }
 
-    //***********************************/
-    //****  Delete Button Dialogue    *****/
-    //***********************************/
 
+
+    //***********************************/
+    //****  Stuff for RecyclerView  *****/
+    //***********************************/
 
     //Add some code to improve the recycler view
     //Here is the interface for event handlers for Click and LongClick

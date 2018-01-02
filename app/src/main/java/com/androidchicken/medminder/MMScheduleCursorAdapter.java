@@ -30,7 +30,7 @@ class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCursorAdapt
         MyViewHolder(View v) {
             super(v);
 
-            medicationTime   = (EditText) v.findViewById(R.id.scheduleTimeOutput);
+            medicationTime   = v.findViewById(R.id.scheduleTimeOutput);
 
         }
 
@@ -65,12 +65,12 @@ class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCursorAdapt
 
         //get the row indicated which is the person to be removed
         MMSchedule schedMed =
-                schedMedManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
+                schedMedManager.getScheduleFromCursor(mSchedMedCursor, position);
         if (schedMed == null)return;
 
         //remove the person from the DB
-        long schedMedID = schedMed.getSchedMedID();
-        schedMedManager.removeSchedMedFromDB(schedMedID);
+        long schedMedID = schedMed.getScheduleID();
+        schedMedManager.removeScheduleFromDB(schedMedID);
         //update the cursor for the adapter
         reinitializeCursor(schedMed.getOfMedicationID());
      }
@@ -89,7 +89,7 @@ class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCursorAdapt
             scheduleID = schedMedManager.getScheduleIDFromCursor(mSchedMedCursor, position);
             if (scheduleID != MMUtilities.ID_DOES_NOT_EXIST) {
                 //remove the schedule from the DB
-                schedMedManager.removeSchedMedFromDB(scheduleID);
+                schedMedManager.removeScheduleFromDB(scheduleID);
             }
             position++;
         }
@@ -106,19 +106,24 @@ class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCursorAdapt
         MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
 
         //Create a new Cursor with the current contents of DB
-        mSchedMedCursor = schedMedManager.getAllSchedMedsCursor(medicationID);
+        mSchedMedCursor = schedMedManager.getAllSchedulesCursor(medicationID);
 
         //Tell the adapter to update the User Display
         notifyDataSetChanged();
 
         notifyItemRangeChanged(0, getItemCount());
 
-
         return mSchedMedCursor;
     }
 
     void   resetStrategy(int strategy){
+
         mStrategy = strategy;
+        //close the cursor
+        closeCursor();
+
+        reinitializeCursor(mMedicationID);
+
     }
 
     @Override
@@ -128,17 +133,16 @@ class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCursorAdapt
 
         if (mSchedMedCursor == null ) {
 
-            mSchedMedCursor = schedMedManager.getAllSchedMedsCursor(mMedicationID);
+            mSchedMedCursor = schedMedManager.getAllSchedulesCursor(mMedicationID);
             if (mSchedMedCursor == null) {
                 holder.medicationTime.setText(mActivity.getString(R.string.default_hour));
                 return;
             }
         }
         //get the medication indicated
-        MMSchedule schedMed =
-                schedMedManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
+        MMSchedule schedule = schedMedManager.getScheduleFromCursor(mSchedMedCursor, position);
 
-        String timeString = schedMed.getTimeDueString(mActivity);
+        String timeString = schedule.getTimeDueString(mActivity);
         if (mStrategy == MMMedication.sAS_NEEDED){
             timeString = MMMedicationFragment.AS_NEEDED_STRATEGY;
         }
@@ -161,9 +165,8 @@ class MMScheduleCursorAdapter extends RecyclerView.Adapter<MMScheduleCursorAdapt
 
     MMSchedule getScheduleAt(int position){
         MMScheduleManager scheduleManager = MMScheduleManager.getInstance();
-        return scheduleManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
+        return scheduleManager.getScheduleFromCursor(mSchedMedCursor, position);
     }
-
 
     void closeCursor(){
         if (mSchedMedCursor != null)mSchedMedCursor.close();

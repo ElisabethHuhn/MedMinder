@@ -31,10 +31,10 @@ class MMScheduleListCursorAdapter extends RecyclerView.Adapter<MMScheduleListCur
         MyViewHolder(View v) {
             super(v);
 
-            medicationTime           = (EditText) v.findViewById(R.id.scheduleTimeOutput);
-            medicationNickNameOutput = (EditText) v.findViewById(R.id.scheduleMedNameOutput);
-            medicationAmt            = (EditText) v.findViewById(R.id.scheduleMedAmtOutput);
-            medicationUnits          = (EditText) v.findViewById(R.id.scheduleUnitsOutput);
+            medicationTime           = v.findViewById(R.id.scheduleTimeOutput);
+            medicationNickNameOutput = v.findViewById(R.id.scheduleMedNameOutput);
+            medicationAmt            = v.findViewById(R.id.scheduleMedAmtOutput);
+            medicationUnits          = v.findViewById(R.id.scheduleUnitsOutput);
         }
 
     } //end inner class MyViewHolder
@@ -68,9 +68,9 @@ class MMScheduleListCursorAdapter extends RecyclerView.Adapter<MMScheduleListCur
         //Create a new Cursor with the current contents of DB
         if (mPersonID == MMUtilities.ID_DOES_NOT_EXIST){
             //get all schedules for all meds for all people
-            mSchedMedCursor = schedMedManager.getAllSchedMedsCursor();
+            mSchedMedCursor = schedMedManager.getAllSchedulesCursor();
         } else {
-            mSchedMedCursor = schedMedManager.getAllSchedMedsForPersonCursor(personID);
+            mSchedMedCursor = schedMedManager.getAllSchedulesForPersonCursor(personID);
         }
 
         //Tell the adapter to update the User Display
@@ -89,7 +89,7 @@ class MMScheduleListCursorAdapter extends RecyclerView.Adapter<MMScheduleListCur
 
         if (mSchedMedCursor == null ) {
 
-            mSchedMedCursor = schedMedManager.getAllSchedMedsForPersonCursor(mPersonID);
+            mSchedMedCursor = schedMedManager.getAllSchedulesForPersonCursor(mPersonID);
             if (mSchedMedCursor == null) {
                 holder.medicationTime          .setText(mActivity.getString(R.string.default_hour));
                 holder.medicationNickNameOutput.setText("");
@@ -98,7 +98,7 @@ class MMScheduleListCursorAdapter extends RecyclerView.Adapter<MMScheduleListCur
         }
         //get the medication indicated
         MMSchedule schedMed =
-                schedMedManager.getScheduleMedicationFromCursor(mSchedMedCursor, position);
+                schedMedManager.getScheduleFromCursor(mSchedMedCursor, position);
 
         String timeString = schedMed.getTimeDueString((MMMainActivity)mActivity);
         holder.medicationTime    .setText(timeString);

@@ -129,7 +129,7 @@ class MMConcurrentDose {
         msg.append(", ");
         msg.append(String.valueOf( this.getForPerson())) ;
         msg.append(", ");
-        msg.append(MMUtilities.getInstance().getDateTimeString(getStartTime()) )    ;
+        msg.append(MMUtilitiesTime.getDateTimeString(getStartTime()) )    ;
 
         //concatenate dose values
 

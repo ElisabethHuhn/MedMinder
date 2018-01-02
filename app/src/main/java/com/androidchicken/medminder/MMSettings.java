@@ -112,7 +112,7 @@ import static android.R.attr.defaultValue;
         //If it wasn't in preferences, return the default
         if (historyDateMilli == historyDateDefault){
             //set default to today's date
-            String historyDateString = MMUtilities.getInstance().getDateString();
+            String historyDateString = MMUtilitiesTime.getDateString();
             historyDateMilli = MMUtilitiesTime.convertStringToTimeMs(activity,
                                                                      historyDateString,
                                                                      false);

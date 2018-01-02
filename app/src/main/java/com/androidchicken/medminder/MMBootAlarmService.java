@@ -69,6 +69,7 @@ public class MMBootAlarmService extends Service {
                         (medication.getDoseStrategy() != MMMedication.sAS_NEEDED)){
 
                         //loop through all SCHEDULEs, setting an alarm for each
+                        // TODO: 12/31/2017 This needs to happen by strategy
                         ArrayList<MMSchedule> schedules = medication.getSchedules();
                         if (schedules != null){
                             MMSchedule schedule;
@@ -79,7 +80,13 @@ public class MMBootAlarmService extends Service {
                                 //create an Alarm to generate a notification for this scheduled dose
                                 MMUtilities utilities = MMUtilities.getInstance();
                                 // TODO: 12/11/2017 this casting of context is WRONG!!!!!
-                                utilities.createScheduleNotification((MMMainActivity)context, schedule.getTimeDue());
+                                // Mostly it just needs context,
+                                // but to check settings it needs MMMainActivity
+                                utilities.createScheduleNotification(
+                                                    (MMMainActivity)context,
+                                                    schedule.getTimeDue(),
+                                                    medication.getMedicationID(),
+                                                    medication.getMedicationNickname().toString());
                                 positionSchedule++;
                             }//end schedule while loop
                         }

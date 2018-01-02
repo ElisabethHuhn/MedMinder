@@ -109,6 +109,11 @@ class MMMedicationManager {
         return true;
     }
 
+    //just add to the DB. Assume already on person
+    long addMedicationToDB(MMMedication medication){
+        return MMDatabaseManager.getInstance().addMedication(medication);
+    }
+
 
     ///-*********************  READ **************************************
     //return the cursor containing all the Concurrent Doses in the DB

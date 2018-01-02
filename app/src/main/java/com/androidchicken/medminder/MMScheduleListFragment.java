@@ -2,6 +2,7 @@ package com.androidchicken.medminder;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -50,7 +51,7 @@ public class MMScheduleListFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater,
+    public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -64,11 +65,13 @@ public class MMScheduleListFragment extends Fragment {
         initializeRecyclerView(v);
 
         //get rid of soft keyboard if it is visible
-        MMUtilities utilities = MMUtilities.getInstance();
-        utilities.hideSoftKeyboard(getActivity());
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity != null) {
+            MMUtilities utilities = MMUtilities.getInstance();
+            utilities.hideSoftKeyboard(activity);
 
-        ((MMMainActivity) getActivity()).handleFabVisibility();
-
+            activity.handleFabVisibility();
+        }
         return v;
     }
 
@@ -80,10 +83,13 @@ public class MMScheduleListFragment extends Fragment {
         utilities.clearFocus(getActivity());
 
         //set the title bar subtitle
-        ((MMMainActivity) getActivity()).setMMSubtitle(R.string.title_schedule_list);
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity != null) {
+            activity.setMMSubtitle(R.string.title_schedule_list);
 
-        //Set the FAB visible
-        ((MMMainActivity) getActivity()).hideFAB();
+            //Set the FAB visible
+            activity.hideFAB();
+        }
     }
 
 
@@ -91,9 +97,19 @@ public class MMScheduleListFragment extends Fragment {
     /*  Convenience Methods for accessing things on the Activity  */
     //*************************************************************/
 
-    private long     getPatientID(){return ((MMMainActivity)getActivity()).getPatientID();}
+    private long     getPatientID(){
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null) return MMUtilities.ID_DOES_NOT_EXIST;
 
-    private MMPerson getPerson()    {return ((MMMainActivity)getActivity()).getPerson();}
+        return activity.getPatientID();
+    }
+
+    private MMPerson getPerson()    {
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null) return null;
+
+        return activity.getPerson();
+    }
 
 
     //****************************/
@@ -102,9 +118,9 @@ public class MMScheduleListFragment extends Fragment {
     private void wireWidgets(View v){
 
         //Person ID and name
-        TextView personLabel      = (TextView) v.findViewById(R.id.personIDLabel);
-        //EditText personIDOutput   = (EditText) v.findViewById(R.id.personIdInput);
-        EditText personNameOutput = (EditText) v.findViewById(R.id.personNickNameInput);
+        TextView personLabel      = v.findViewById(R.id.personIDLabel);
+        //EditText personIDOutput   = v.findViewById(R.id.personIdInput);
+        EditText personNameOutput = v.findViewById(R.id.personNickNameInput);
 
         personLabel.setText(R.string.person_label);
         MMPerson person = null;
@@ -126,26 +142,27 @@ public class MMScheduleListFragment extends Fragment {
         View field_container;
         TextView label;
 
-        MMMainActivity myActivity = (MMMainActivity)getActivity();
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
         //set up the labels for the medication list
         field_container = v.findViewById(R.id.scheduleTitleRow);
 
         label = (EditText) (field_container.findViewById(R.id.scheduleTimeOutput));
         label.setText(R.string.medication_dose_time);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.scheduleMedNameOutput));
         label.setText(R.string.medication_nick_name_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.scheduleMedAmtOutput));
         label.setText(R.string.medication_dose_amount_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
 
         label = (EditText) (field_container.findViewById(R.id.scheduleUnitsOutput));
         label.setText(R.string.medication_dose_units_label);
-        label.setBackgroundColor(ContextCompat.getColor(myActivity, R.color.colorHistoryLabelBackground));
+        label.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorHistoryLabelBackground));
     }
 
     private void initializeRecyclerView(View v){
@@ -167,11 +184,14 @@ public class MMScheduleListFragment extends Fragment {
         //1) Inflate the layout for this fragment
         //      implemented in the caller: onCreateView()
 
-        //2) find and remember the RecyclerView
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null) return;
+
+            //2) find and remember the RecyclerView
         RecyclerView recyclerView = getRecyclerView(v);
 
         //3) create and assign a layout manager to the recycler view
-        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(getActivity());
+        RecyclerView.LayoutManager mLayoutManager  = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(mLayoutManager);
 
         //4) Get the set of Schedule Instances from the Database
@@ -179,9 +199,9 @@ public class MMScheduleListFragment extends Fragment {
         Cursor cursor;
         if (getPatientID() == MMUtilities.ID_DOES_NOT_EXIST){
             //no particular person, get all schedules
-            cursor = schedMedManager.getAllSchedMedsCursor();
+            cursor = schedMedManager.getAllSchedulesCursor();
         } else {
-            cursor = schedMedManager.getAllSchedMedsForPersonCursor(getPatientID());
+            cursor = schedMedManager.getAllSchedulesForPersonCursor(getPatientID());
         }
 
         //5) Use the data to Create and set out schedule Adapter
@@ -189,9 +209,9 @@ public class MMScheduleListFragment extends Fragment {
         //     Adapter uses the ScheduleManager to maintain the list and
         //     the items in the list.
 
-        boolean is24Format = MMSettings.getInstance().isClock24Format((MMMainActivity)getActivity());
+        boolean is24Format = MMSettings.getInstance().isClock24Format((MMMainActivity)activity);
         MMScheduleListCursorAdapter adapter =
-                                    new MMScheduleListCursorAdapter(getActivity(),
+                                    new MMScheduleListCursorAdapter(activity,
                                                                 cursor,
                                                                 getPatientID());
         recyclerView.setAdapter(adapter);
@@ -200,17 +220,17 @@ public class MMScheduleListFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         //7) create and add the item decorator
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+        recyclerView.addItemDecoration(new DividerItemDecoration(activity,
                                                                DividerItemDecoration.VERTICAL));
 /*
         recyclerView.addItemDecoration(new DividerItemDecoration(
-                                                                getActivity(),
+                                                                activity,
                                                                 LinearLayoutManager.VERTICAL));
 */
 
         //8) add event listeners to the recycler view
         recyclerView.addOnItemTouchListener(
-            new MMHomeFragment.RecyclerTouchListener(getActivity(),
+            new MMHomeFragment.RecyclerTouchListener(activity,
                                                      recyclerView,
                                                      new MMHomeFragment.ClickListener() {
 
@@ -231,16 +251,17 @@ public class MMScheduleListFragment extends Fragment {
 
 
     public void onExit(){
+        MMMainActivity activity = (MMMainActivity)getActivity();
+        if (activity == null)return;
 
-        //MMUtilities.getInstance().showStatus(getActivity(), R.string.exit_label);
+        //MMUtilities.getInstance().showStatus(activity, R.string.exit_label);
 
         MMScheduleListCursorAdapter adapter = getAdapter(getView());
         adapter.closeCursor();
 
         //switch to person screen
         // But the switching happens on the container Activity
-       // ((MainActivity) getActivity()).switchToPopBackstack();
-        ((MMMainActivity) getActivity()).switchToHomeScreen();
+        activity.switchToHomeScreen();
     }
 
     private RecyclerView getRecyclerView(View v){
@@ -262,13 +283,13 @@ public class MMScheduleListFragment extends Fragment {
         View v = getView();
         if (v == null)return;
 
-        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.scheduleList);
+        RecyclerView recyclerView = v.findViewById(R.id.scheduleList);
         MMScheduleListCursorAdapter adapter = (MMScheduleListCursorAdapter) recyclerView.getAdapter();
         adapter.notifyItemChanged(position);
 
         MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
         MMSchedule selectedSchedule =
-                schedMedManager.getScheduleMedicationFromCursor(adapter.getSchedMedCursor(), position);
+                schedMedManager.getScheduleFromCursor(adapter.getSchedMedCursor(), position);
 
         // TODO: 3/10/2017 allow the user to change the value of the schedule
     }

@@ -20,13 +20,18 @@ public class MMAlarmReceiver extends BroadcastReceiver {
     public static String NOTIFICATION    = "notification";
     public static String ALARM_TYPE      = "alarm_type";
     public static String MED_ALERT_ID    = "medAlertID";
+    public static String MEDICATION_ID   = "medicationID";
+    public static String MEDICATION_NAME = "medicationName";
+
 
     public static int scheduleNotificationID = 1;
-    public static int alertRequestCode = 2;
+    public static int inXNotificationID      = 2;
+    public static int alertRequestCode       = 3;
 
     public static int noTypeSpecified     = 0;
     public static int schedNotifAlarmType = 1;
-    public static int alertAlarmType      = 2;
+    public static int inXNotifAlarmType   = 2;
+    public static int alertAlarmType      = 3;
 
 
 
@@ -36,6 +41,9 @@ public class MMAlarmReceiver extends BroadcastReceiver {
         if (action == null){
             int type = intent.getIntExtra(ALARM_TYPE, noTypeSpecified);
             if (type == schedNotifAlarmType) {
+                scheduleNotification(context, intent);
+            } else if (type == inXNotifAlarmType){
+                // TODO: 12/31/2017 fix this for in X
                 scheduleNotification(context, intent);
             } else if (type == alertAlarmType){
                 //It is time to send an alert via email or text
@@ -50,6 +58,7 @@ public class MMAlarmReceiver extends BroadcastReceiver {
         }
     }
 
+    //Post notification that medication is due
     private void scheduleNotification(Context context, Intent intent) {
         //A single alarm has gone off, send the notification
         Notification notification = intent.getParcelableExtra(NOTIFICATION);
@@ -63,10 +72,11 @@ public class MMAlarmReceiver extends BroadcastReceiver {
         mNotifyMgr.notify(notifID, notification);
     }
 
+    //Send Email or Text Alert about Medication
     private void sendAlert(Context context, Intent intent){
         //The intent will tell us which Alert needs to be sent:
         long medAlertID = intent.getLongExtra(MMMedicationAlert.sMedicationIDTag,
-                                                                    MMUtilities.ID_DOES_NOT_EXIST);
+                                              MMUtilities.ID_DOES_NOT_EXIST);
 
         MMMedicationAlertManager medicationAlertManager = MMMedicationAlertManager.getInstance();
         MMMedicationAlert medAlert = medicationAlertManager.getMedicationAlert(medAlertID);

@@ -12,7 +12,7 @@ import static com.androidchicken.medminder.MMDataBaseSqlHelper.TABLE_DOSE;
 import static com.androidchicken.medminder.MMDataBaseSqlHelper.TABLE_MEDICATION;
 import static com.androidchicken.medminder.MMDataBaseSqlHelper.TABLE_MEDICATION_ALERT;
 import static com.androidchicken.medminder.MMDataBaseSqlHelper.TABLE_PERSON;
-import static com.androidchicken.medminder.MMDataBaseSqlHelper.TABLE_SCHED_MED;
+import static com.androidchicken.medminder.MMDataBaseSqlHelper.TABLE_SCHEDULE;
 
 
 /**
@@ -318,10 +318,10 @@ class MMDatabaseManager {
             int last = schedules.size();
             int position = 0;
             while (position < last) {
-                MMSchedule scheduleMed =  schedules.get(position);
-                returnCode = addSchedMed(scheduleMed);
+                MMSchedule schedule =  schedules.get(position);
+                returnCode = addSchedule(schedule);
                 if (returnCode == sDB_ERROR_CODE) return returnCode;
-                //scheduleMed.setSchedMedID(returnCode);
+                //schedule.setScheduleID(returnCode);
                 position++;
             }
         }
@@ -788,47 +788,47 @@ class MMDatabaseManager {
     //CRUD routines for a Schedule Medication
 
     //This method is for debug. If you see it, delete it and fix the errors
-    Cursor getAllSchedMedsCursor(){
-        return mDatabaseHelper.getObject(  mDatabase,
-                TABLE_SCHED_MED,
-                null,    //get the whole object
-                null,
-                null, null, null, null);
+    Cursor getAllSchedulesCursor(){
+        return mDatabaseHelper.getObject(mDatabase,
+                                        TABLE_SCHEDULE,
+                                        null,    //get the whole object
+                                        null,
+                                        null, null, null, null);
 
 
 
     }
 
-    Cursor getAllSchedMedsCursor(long medicationID){
+    Cursor getAllSchedulesCursor(long medicationID){
         return mDatabaseHelper.getObject(  mDatabase,
-                                            TABLE_SCHED_MED,
+                                            TABLE_SCHEDULE,
                                             null,    //get the whole object
-                                            getSchedMedWhereClause(medicationID),
+                                            getScheduleWhereClause(medicationID),
                                             null, null, null, null);
     }
 
-    Cursor getAllSchedMedsForPersonCursor(long personID, String orderClause){
+    Cursor getAllSchedulesForPersonCursor(long personID, String orderClause){
         return mDatabaseHelper.getObject(   mDatabase,
-                                            TABLE_SCHED_MED,
+                                            TABLE_SCHEDULE,
                                             null,    //get the whole object
-                                            getSchedMedForPersonWhereClause(personID),
+                                            getScheduleForPersonWhereClause(personID),
                                             null, null, null, orderClause);
 
     }
 
-    ArrayList<MMSchedule> getAllSchedMeds(long medicationID){
+    ArrayList<MMSchedule> getAllSchedules(long medicationID){
         ArrayList<MMSchedule> times = new ArrayList<>();
 
-        Cursor cursor = getAllSchedMedsCursor(medicationID);
+        Cursor cursor = getAllSchedulesCursor(medicationID);
 
         if (cursor != null) {
-            MMSchedule scheduleMedication;
-            MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
+            MMSchedule schedule;
+            MMScheduleManager scheduleManager = MMScheduleManager.getInstance();
             int last = cursor.getCount();
             int position = 0;
             while (position < last){
-                scheduleMedication = schedMedManager.getScheduleMedicationFromCursor(cursor, position);
-                times.add(scheduleMedication);
+                schedule = scheduleManager.getScheduleFromCursor(cursor, position);
+                times.add(schedule);
                 position++;
             }
             cursor.close();
@@ -839,16 +839,16 @@ class MMDatabaseManager {
 
 
 
-    long addSchedMed(MMSchedule schedMed){
+    long addSchedule(MMSchedule schedule){
         long returnCode = sDB_ERROR_CODE;
         MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
         returnCode = mDatabaseHelper.add( mDatabase,
-                                         TABLE_SCHED_MED,
-                                         schedMedManager.getCVFromScheduleMedication(schedMed),
-                                         getSchedMedIDWhereClause(schedMed.getSchedMedID()),
+                                         TABLE_SCHEDULE,
+                                         schedMedManager.getCVFromSchedule(schedule),
+                                         getSchedMedIDWhereClause(schedule.getScheduleID()),
                                          MMDataBaseSqlHelper.SCHED_MED_ID);
         if (returnCode == sDB_ERROR_CODE)return returnCode;
-        schedMed.setSchedMedID(returnCode);
+        schedule.setScheduleID(returnCode);
 
         return returnCode;
     }
@@ -856,10 +856,10 @@ class MMDatabaseManager {
 
 
     //The return code indicates how many rows affected
-    int removeSchedMed(long schedMedID){
+    int removeSchedule(long scheduleID){
         return mDatabaseHelper.remove(  mDatabase,
-                                        TABLE_SCHED_MED,
-                                        getSchedMedIDWhereClause(schedMedID),
+                TABLE_SCHEDULE,
+                                        getSchedMedIDWhereClause(scheduleID),
                                         null);  //values that replace ? in where clause
     }
 
@@ -869,12 +869,12 @@ class MMDatabaseManager {
     /*    Concurrent Dose specific CRUD  utility    */
     //***********************************************/
 
-    private String getSchedMedWhereClause(long medicationID){
+    private String getScheduleWhereClause(long medicationID){
         return MMDataBaseSqlHelper.SCHED_MED_OF_MEDICATION_ID + " = '" +
                 String.valueOf(medicationID) + "'";
     }
 
-    private String getSchedMedForPersonWhereClause(long personID){
+    private String getScheduleForPersonWhereClause(long personID){
         return
               MMDataBaseSqlHelper.SCHED_MED_FOR_PERSON_ID + " = '" + String.valueOf(personID) + "'";
     }

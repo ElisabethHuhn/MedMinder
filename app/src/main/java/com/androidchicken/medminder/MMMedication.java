@@ -24,8 +24,9 @@ class MMMedication {
 
     static final String MEDICATION_ID = "medication_id";
 
-    static final int sAS_NEEDED = 0;
+    static final int sAS_NEEDED                   = 0;
     static final int sSET_SCHEDULE_FOR_MEDICATION = 1;
+    static final int sIN_X_HOURS                  = 2;
 
 
     //************************************/
@@ -107,6 +108,8 @@ class MMMedication {
     void         setDoseStrategy(int doseStrategy) {  mDoseStrategy = doseStrategy;  }
 
     int          getDoseNumPerDay()                  { return mDoseNumPerDay;   }
+    void         incrDoseNumPerDay()                 {mDoseNumPerDay++;}
+    void         decrDoseNumPerDay()                 {mDoseNumPerDay--;}
     void         setDoseNumPerDay(int doseNumPerDay) { mDoseNumPerDay = doseNumPerDay; }
 
     int          getDoseAmount()               { return mDoseAmount; }
@@ -132,21 +135,20 @@ class MMMedication {
     boolean      isCurrentlyTaken() {return mCurrentlyTaken;}
     void         setCurrentlyTaken(boolean isTaken) {mCurrentlyTaken = isTaken;}
 
-    boolean isSchedulesChanged() {
-        if ((mSchedules == null) ||
-                (mSchedules.size() == 0)) {
+    boolean      isSchedulesChanged() {
+        if ((mSchedules == null) || (mSchedules.size() == 0)) {
             return false;
         }
         return true;
     }
-    void     setSchedules(ArrayList<MMSchedule> schedules){mSchedules = schedules;}
+    void         setSchedules(ArrayList<MMSchedule> schedules){mSchedules = schedules;}
     ArrayList<MMSchedule> getSchedules(){
         if (!isSchedulesChanged()) {
             MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-            mSchedules = databaseManager.getAllSchedMeds(mMedicationID);
+            mSchedules = databaseManager.getAllSchedules(mMedicationID);
 
             MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
-            mSchedules = schedMedManager.getAllSchedMeds(mMedicationID);
+            mSchedules = schedMedManager.getAllSchedules(mMedicationID);
         }
         return mSchedules;
     }
@@ -187,11 +189,33 @@ class MMMedication {
     //************************************/
     Cursor getSchedulesCursor(){
         MMScheduleManager schedMedManager = MMScheduleManager.getInstance();
-        return schedMedManager.getAllSchedMedsCursor(mMedicationID);
+        return schedMedManager.getAllSchedulesCursor(mMedicationID);
     }
 
+    //Note that the DB is not updataed with this method!!
     boolean addSchedule(MMSchedule schedule){
        return mSchedules.add(schedule);
+    }
+
+    void removeSchedules(MMMainActivity activity){
+        ArrayList<MMSchedule> schedules = getSchedules();
+        MMSchedule schedule;
+        if ((schedules != null) && (schedules.size() > 0)){
+            int last = schedules.size();
+            int position = 0;
+
+            while (position < last) {
+                schedule = schedules.get(position);
+                if (!(MMScheduleManager.getInstance()
+                        .removeScheduleFromDB(schedule.getScheduleID()))){
+
+                    MMUtilities.getInstance().errorHandler(activity, R.string.error_removing_schedule);
+                }
+                position++;
+            }
+        }
+        //remove the schedules from the medication
+        setSchedules(getDefaultSchedules());
     }
 
 
@@ -201,8 +225,7 @@ class MMMedication {
     //************************************/
 
     String cdfHeaders(){
-        String msg =
-                "PersonID, "      +
+        return  "PersonID, "      +
                 "MedicationID, "  +
                 "Nickname, "      +
                 "Strategy, "      +
@@ -215,7 +238,7 @@ class MMMedication {
                 "SideEffects, "   +
                 "Current"         +
                 System.getProperty("line.separator");
-        return msg;
+
     }
 
     private String getStrategyString() {

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusable="true"
+    android:clickable="true"
+
+    android:background="?android:attr/selectableItemBackground"
+
+    >
+
+    <!-- This layout asks user for time between doses -->
+
+    <!-- hour -->
+    <LinearLayout
+        android:layout_width=  "match_parent"
+        android:layout_height= "wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop=    "4dp"
+        >
+
+        <TextView
+            android:labelFor=     "@+id/dNotifyInHourInput"
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="25"
+            android:gravity=      "end"
+
+            android:freezesText="true"
+
+            android:focusable="false"
+
+            android:text="@string/notify_hour_label"
+            android:textColor=    "@color/colorTextBlack"
+            android:background=   "@color/colorLabelBackground"
+            />
+        <EditText
+            android:id="@id/dNotifyInHourInput"
+
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="75"
+
+            android:gravity="center_horizontal"
+
+            android:freezesText="true"
+
+            android:inputType=    "number"
+            android:imeOptions=   "flagNoExtractUi"
+
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorHistoryBackground"
+            />
+    </LinearLayout>
+
+    <!-- minute -->
+    <LinearLayout
+        android:layout_width  = "match_parent"
+        android:layout_height = "wrap_content"
+        android:orientation   = "horizontal"
+        android:layout_gravity= "center_horizontal"
+        android:paddingTop    = "4dp"
+        >
+
+        <TextView
+            android:labelFor=     "@+id/dNotifyInMinuteInput"
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="25"
+            android:gravity=      "end"
+
+            android:freezesText  ="true"
+
+            android:focusable   ="false"
+
+            android:text        ="@string/notify_minute_label"
+            android:textColor=    "@color/colorTextBlack"
+            android:background=   "@color/colorLabelBackground"
+            />
+        <EditText
+            android:id="@id/dNotifyInMinuteInput"
+
+            android:layout_height="wrap_content"
+            android:layout_width= "0dp"
+            android:layout_weight="75"
+
+            android:gravity="center_horizontal"
+
+            android:freezesText="true"
+
+            android:inputType=    "number"
+            android:imeOptions=   "flagNoExtractUi"
+
+            android:textColor="@color/colorTextBlack"
+            android:background="@color/colorHistoryBackground"
+            />
+    </LinearLayout>
+
+</LinearLayout>

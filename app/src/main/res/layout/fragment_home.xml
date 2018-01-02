@@ -20,7 +20,7 @@
 
     <!-- Row 1: Patient Name, save button-->
     <LinearLayout
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_width ="match_parent"
         android:gravity="center"
         android:orientation="horizontal"
@@ -46,7 +46,7 @@
         <TextView
             android:id="@id/patientNickNameLabel"
             android:text="@string/patient_nick_name_label"
-            android:textSize="20sp"
+
             android:layout_height= "wrap_content"
             android:layout_width = "0dp"
             android:layout_weight="10"
@@ -88,7 +88,7 @@
     <!-- Row 2: Medication Buttons -->
     <LinearLayout
         android:id="@+id/medButtonLayout"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_gravity="center_horizontal"
         android:paddingBottom="5dp"
@@ -98,6 +98,7 @@
         <!--  Medication Buttons are added programmatically by the fragment -->
 
     </LinearLayout>
+
 
     <!-- Row 3: Dose Taken fields added programmatically -->
     <LinearLayout
@@ -115,6 +116,7 @@
 
         </LinearLayout>
 
+
     <!-- Rows: DDose Taken History -->
     <HorizontalScrollView
         android:layout_height="wrap_content"
@@ -127,7 +129,7 @@
         <!-- Row 4: DDose Taken History -->
         <LinearLayout
            android:layout_height="wrap_content"
-           android:layout_width= "match_parent"
+           android:layout_width= "wrap_content"
            android:orientation="vertical"
             >
             <!-- Title Row: Goes here with the same include file as the RecyclerView -->

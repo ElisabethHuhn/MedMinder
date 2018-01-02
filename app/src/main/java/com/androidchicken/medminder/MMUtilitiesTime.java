@@ -49,8 +49,7 @@ class MMUtilitiesTime {
         //This is local time
         String timeString = timeInputView.getText().toString();
 
-        boolean isTimeFlag = true; //as opposed to date
-        long msSinceMidnight = convertStringToTimeMs(activity, timeString, isTimeFlag);
+        long msSinceMidnight = convertStringToTimeMs(activity, timeString, true);
 
         //get midnight
         long timeAtMidnightMs = getMidnightInMS();
@@ -86,7 +85,7 @@ class MMUtilitiesTime {
 
     //returns the number of MS at midnight today (i.e. previous midnight)
     // parameter determines whether the time is local or GMT
-    private static long getMidnightInMS() {
+    static long getMidnightInMS() {
 
         // get a calendar instance for midnight time
         Calendar midnightCalendar = Calendar.getInstance();
@@ -242,10 +241,9 @@ class MMUtilitiesTime {
     //Time string is since midnight
     static long convertStringToMinutesSinceMidnight(MMMainActivity activity,
                                              String timeSinceMidnightString){
-        boolean isTimeFlag = true;
         long msSinceMidnight = MMUtilitiesTime.convertStringToTimeMs(activity,
                                                                     timeSinceMidnightString,
-                                                                    isTimeFlag);
+                                                                    true);
         return MMUtilitiesTime.convertMsToMin(msSinceMidnight) ;
     }
 
@@ -258,6 +256,7 @@ class MMUtilitiesTime {
     //                                //
     // ****************************** //
 
+    //convert minutes since midnight to today's millisecond epoc
     static long getCurrentMilli(int minutesSinceMidnight){
         //get calendar in local time zone
         int hours = minutesSinceMidnight / (int)MinPerHour;
@@ -281,15 +280,26 @@ class MMUtilitiesTime {
     }
 
 
-    static long getGmtNow(){
+    static long getTimeNow(){
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("gmt"));
         return calendar.getTimeInMillis();
+    }
+
+    static int  getMinutesSinceMidnight(){
+        //get calendar in local time zone
+        Calendar c = Calendar.getInstance();
+
+        int hours = c.get(Calendar.HOUR_OF_DAY);
+        int minutes = c.get(Calendar.MINUTE);
+
+        minutes = minutes + (hours * (int)MinPerHour);
+        return minutes;
     }
 
 
 
     static long convertMsToMin (long milliSeconds){
-        return milliSeconds * MsPerSec * SecPerMin;
+        return ( milliSeconds / (MsPerSec * SecPerMin));
     }
 
     static long convertMinutesToMs (long minutes){
@@ -337,11 +347,49 @@ class MMUtilitiesTime {
         return df.format(calendar.getTimeInMillis());
     }
 
+    //This method is used to get the string corresponding to a value of milliseconds since 1970
+    static String getTimeString(MMMainActivity activity, long milliSeconds){
+        boolean is24Format = MMSettings.getInstance().isClock24Format(activity);
+        return getTimeString(milliSeconds, is24Format);
+    }
+
+    static private String getTimeString(long milliSeconds, boolean is24format){
+        String timeFormat = getTimeFormatString(is24format);
+        Date dateFromMilli = new Date(milliSeconds);
+        return getTimeString(timeFormat, dateFromMilli);
+    }
+
+    static String getTimeString(String timeFormat, Date date){
+        SimpleDateFormat dateFormat = new SimpleDateFormat(timeFormat, Locale.getDefault());
+
+        return dateFormat.format(date);
+    }
+
+
+    static private String getTimeFormatString(boolean is24format){
+        CharSequence timeFormat = "h:mm a";
+        if (is24format){
+            timeFormat = "H:mm a";
+        }
+        return timeFormat.toString();
+    }
+
+
     static  String getDateString(long milliSeconds){
         Date date = new Date(milliSeconds);
         return DateFormat.getDateInstance().format(date);
     }
 
+
+    static String getDateTimeString(long milliSeconds){
+        Date date = new Date(milliSeconds);
+        return DateFormat.getDateTimeInstance().format(date);
+    }
+
+
+    static String getDateString(){
+        return  DateFormat.getDateInstance().format(new Date());
+    }
 
 
 

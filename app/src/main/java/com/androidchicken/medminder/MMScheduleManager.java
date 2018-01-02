@@ -59,11 +59,10 @@ class MMScheduleManager {
 
 
     //The routine that actually adds the instance to DB
-    long addScheduleMedication(MMSchedule scheduleMedication){
-
+    long addSchedule(MMSchedule schedule){
 
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        return databaseManager.addSchedMed(scheduleMedication);
+        return databaseManager.addSchedule(schedule);
 
     }
 
@@ -71,47 +70,44 @@ class MMScheduleManager {
 
 
     //return the cursor containing all the Schedules in the DB
-    Cursor getAllSchedMedsCursor(){
+    Cursor getAllSchedulesCursor(){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        return databaseManager.getAllSchedMedsCursor();
+        return databaseManager.getAllSchedulesCursor();
     }
 
 
     //return the cursor containing all the Schedules in the DB
     //that pertain to this medicationID
-    Cursor getAllSchedMedsCursor(long medicationID){
+    Cursor getAllSchedulesCursor(long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        return databaseManager.getAllSchedMedsCursor(medicationID);
+        return databaseManager.getAllSchedulesCursor(medicationID);
     }
 
     //return the cursor containing all the Schedules in the DB
     // ordered by time dose is taken
     //that pertain to this personID
-    Cursor getAllSchedMedsForPersonCursor(long personID){
+    Cursor getAllSchedulesForPersonCursor(long personID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        String orderClause = getSchedMedOrderClause();
-        return databaseManager.getAllSchedMedsForPersonCursor(personID, orderClause);
+        String orderClause = getScheduleOrderClause();
+        return databaseManager.getAllSchedulesForPersonCursor(personID, orderClause);
     }
 
-    private String getSchedMedOrderClause(){
+    private String getScheduleOrderClause(){
         return MMDataBaseSqlHelper.SCHED_MED_STRATEGY + " ASC, " +
                MMDataBaseSqlHelper.SCHED_MED_TIME_DUE + " ASC";
 
     }
 
-
-
-
-    ArrayList<MMSchedule> getAllSchedMeds(long medicationID){
+    ArrayList<MMSchedule> getAllSchedules(long medicationID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        return databaseManager.getAllSchedMeds(medicationID);
+        return databaseManager.getAllSchedules(medicationID);
     }
 
 
 
-    boolean removeSchedMedFromDB(long schedMedID){
+    boolean removeScheduleFromDB(long scheduleID){
         MMDatabaseManager databaseManager = MMDatabaseManager.getInstance();
-        long returnCode = databaseManager.removeSchedMed(schedMedID);
+        long returnCode = databaseManager.removeSchedule(scheduleID);
         //I know lint is complaining about simplifying this if stmt.
         //I'd rather make it explicit rather than cryptic
         return ! (returnCode == MMDatabaseManager.sDB_ERROR_CODE);
@@ -124,7 +120,7 @@ class MMScheduleManager {
     //********       Utility methods       ******/
     //*******************************************/
     int howManyDueAt(int minutesSinceMidnight){
-        Cursor cursor = getAllSchedMedsCursor();
+        Cursor cursor = getAllSchedulesCursor();
         if (cursor == null) return 0;
 
         int last = cursor.getCount();
@@ -146,13 +142,13 @@ class MMScheduleManager {
     //******** Object to/from DB methods   ******/
     //*******************************************/
 
-    ContentValues getCVFromScheduleMedication(MMSchedule schedMed){
+    ContentValues getCVFromSchedule(MMSchedule schedule){
         ContentValues values = new ContentValues();
-        values.put(MMDataBaseSqlHelper.SCHED_MED_ID,             schedMed.getSchedMedID());
-        values.put(MMDataBaseSqlHelper.SCHED_MED_FOR_PERSON_ID,  schedMed.getForPersonID());
-        values.put(MMDataBaseSqlHelper.SCHED_MED_OF_MEDICATION_ID,  schedMed.getOfMedicationID());
-        values.put(MMDataBaseSqlHelper.SCHED_MED_TIME_DUE,       schedMed.getTimeDue());
-        values.put(SCHED_MED_STRATEGY,       schedMed.getStrategy());
+        values.put(MMDataBaseSqlHelper.SCHED_MED_ID,               schedule.getScheduleID());
+        values.put(MMDataBaseSqlHelper.SCHED_MED_FOR_PERSON_ID,    schedule.getForPersonID());
+        values.put(MMDataBaseSqlHelper.SCHED_MED_OF_MEDICATION_ID, schedule.getOfMedicationID());
+        values.put(MMDataBaseSqlHelper.SCHED_MED_TIME_DUE,         schedule.getTimeDue());
+        values.put(SCHED_MED_STRATEGY,                             schedule.getStrategy());
 
         return values;
     }
@@ -166,32 +162,32 @@ class MMScheduleManager {
     //        If the app becomes multi-threaded, this routine must be made thread safe
     //WARNING The cursor is NOT closed by this routine. It assumes the caller will close the
     //         cursor when it is done with it
-    MMSchedule getScheduleMedicationFromCursor(Cursor cursor, int position){
+    MMSchedule getScheduleFromCursor(Cursor cursor, int position){
 
         int last = cursor.getCount();
         if (position >= last) return null;
 
-        MMSchedule scheduleMedications = new MMSchedule(); //filled with defaults
+        MMSchedule schedule = new MMSchedule(); //filled with defaults
 
         cursor.moveToPosition(position);
 
-        scheduleMedications.setSchedMedID
+        schedule.setScheduleID
                 (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_ID)));
 
-        scheduleMedications.setForPersonID
+        schedule.setForPersonID
                 (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_FOR_PERSON_ID)));
 
-        scheduleMedications.setOfMedicationID
+        schedule.setOfMedicationID
                 (cursor.getLong(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_OF_MEDICATION_ID)));
 
-        scheduleMedications.setTimeDue
+        schedule.setTimeDue
                 (cursor.getInt(cursor.getColumnIndex(MMDataBaseSqlHelper.SCHED_MED_TIME_DUE)));
 
-        scheduleMedications.setStrategy(
+        schedule.setStrategy(
                 (cursor.getInt(cursor.getColumnIndex(SCHED_MED_STRATEGY))));
 
 
-        return scheduleMedications;
+        return schedule;
     }
 
     long getScheduleIDFromCursor(Cursor cursor, int position){

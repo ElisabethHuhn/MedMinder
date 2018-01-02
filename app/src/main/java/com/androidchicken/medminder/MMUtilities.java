@@ -31,9 +31,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 import static android.content.Context.ALARM_SERVICE;
@@ -162,56 +159,6 @@ public class MMUtilities {
     }
 
 
-    //************************************/
-    /*         Date / Time Utilities     */
-    //************************************/
-
-     String getDateTimeString(long milliSeconds){
-        Date date = new Date(milliSeconds);
-        return DateFormat.getDateTimeInstance().format(date);
-    }
-
-
-     String getDateString(){
-        return  DateFormat.getDateInstance().format(new Date());
-    }
-
-
-// TODO: 10/13/2017 move these out of utilities and into utilitiestime
-
-    //This method is used to get the string corresponding to a value of milliseconds since 1970
-     String getTimeString(MMMainActivity activity, long milliSeconds){
-        boolean is24Format = MMSettings.getInstance().isClock24Format(activity);
-        return getTimeString(milliSeconds, is24Format);
-    }
-
-     private String getTimeString(long milliSeconds, boolean is24format){
-        String timeFormat = getTimeFormatString(is24format);
-        Date dateFromMilli = new Date(milliSeconds);
-        return getTimeString(timeFormat, dateFromMilli);
-    }
-
-    private String getTimeString(String timeFormat, Date date){
-        SimpleDateFormat dateFormat = new SimpleDateFormat(timeFormat, Locale.getDefault());
-
-        return dateFormat.format(date);
-    }
-
-
-    private String getTimeFormatString(boolean is24format){
-        CharSequence timeFormat = "h:mm a";
-        if (is24format){
-            timeFormat = "H:mm a";
-        }
-        return timeFormat.toString();
-    }
-
-
-
-    //************************************/
-    /*    get Data Object instances      */
-    //************************************/
-
 
     //************************************/
     /*         Widget Utilities          */
@@ -300,78 +247,172 @@ public class MMUtilities {
 
 
 
-    void createScheduleNotification(MMMainActivity activity, long timeOfDayMillisec) {
-        //start by building the Notification
-        int requestCode = scheduleNotificationID;
-        Notification notification = buildSchedNotification(activity, requestCode);
+    void createInXNotification( MMMainActivity activity,
+                                int timeOfDayMinutes, long medicationID, String medicationName) {
 
-        //But we need to set an Alarm Intent to send to the Alarm Manager.
-        PendingIntent alarmIntent = buildScheduleAlarmIntent(activity, requestCode, notification);
+        int requestCode = MMAlarmReceiver.inXNotificationID;
+        PendingIntent alarmIntent = buildNotificationStructure( activity,
+                                                                MMAlarmReceiver.schedNotifAlarmType,
+                                                                requestCode,
+                                                                medicationID,
+                                                                medicationName);
+
+
         // When the Alarm fires, AlarmManager will broadcast the PendingIntent
         // that will be picked up by our AlarmReceiver
+        // Then our AlarmReceiver will post the notification to the NotificationManager
+        // When the user touches the notification, the system fires up MedMinder
+        // MedMinder home then blinks any medications that are currently due
 
 
-
-        AlarmManager alarmManager = (AlarmManager) activity.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager alarmManager = (AlarmManager) activity.getSystemService(ALARM_SERVICE);
         if (alarmManager == null)return;
 
-        //set to repeat every 24 hours
+        long timeForAlarm = MMUtilitiesTime.getCurrentMilli(timeOfDayMinutes);
+        alarmManager.set(AlarmManager.RTC_WAKEUP,  //alarm type, real time clock wake up device
+                            timeForAlarm,          //time to first trigger alarm
+                            alarmIntent);             //Action to perform when the alarm goes off
+    }
+
+    void createScheduleNotification(MMMainActivity  activity,
+                                    int             timeOfDayMinutes,
+                                    long            medicationID,
+                                    String          medicationName) {
+        //Build the entire data structure (i.e. the notification is embedded in the alarm)
+        int requestCode = MMAlarmReceiver.scheduleNotificationID;
+
+        PendingIntent alarmIntent = buildNotificationStructure( activity,
+                                                                MMAlarmReceiver.schedNotifAlarmType,
+                                                                requestCode,
+                                                                medicationID,
+                                                                medicationName);
+
+
+        // When the Alarm fires, AlarmManager will broadcast the PendingIntent
+        // that will be picked up by our AlarmReceiver
+        // Then our AlarmReceiver will post the notification to the NotificationManager
+        // When the user touches the notification, the system fires up MedMinder
+        // MedMinder home then blinks any medications that are currently due
+
+
+
+        AlarmManager alarmManager = (AlarmManager) activity.getSystemService(ALARM_SERVICE);
+        if (alarmManager == null)return;
+
+        //Schedule strategy notifications are set to repeat every 24 hours
         //The Interval is expressed in milliseconds, so convert hours to milliseconds
         long repeatInterval = (24 * 60 * 60 * 1000); //hours * minutes * seconds * milli
 
+        long timeForAlarm = MMUtilitiesTime.getCurrentMilli(timeOfDayMinutes);
+
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,  //alarm type, real time clock wake up device
-                                  timeOfDayMillisec,        //time to first trigger alarm
+                                  timeForAlarm,            //time to first trigger alarm
                                   repeatInterval,           //interval between repeats
                                   alarmIntent);             //Action to perform when the alarm goes off
     }
 
 
-    private  Notification buildSchedNotification(MMMainActivity activity, int requestCode) {
-        return buildNotification(activity, requestCode, MMUtilities.ID_DOES_NOT_EXIST);
+
+    void cancelNotificationAlarms(MMMainActivity activity,
+                                  int            alarmType,
+                                  int            notificationID,
+                                  long           medicationID,
+                                  String         medicationName){
+        //rebuild the data structure that matches the action we want to cancel,
+        PendingIntent alarmIntent = buildNotificationStructure(activity,
+                                                                alarmType,
+                                                                notificationID,
+                                                                medicationID,
+                                                                medicationName);
+
+        AlarmManager alarmManager = (AlarmManager) activity.getSystemService(ALARM_SERVICE);
+        if (alarmManager == null)return;
+
+        //cancel any previous alarms
+        alarmManager.cancel(alarmIntent);
     }
 
+    private PendingIntent buildNotificationStructure(MMMainActivity activity,
+                                                     int            alarmType,
+                                                     int            notificationID,
+                                                     long           medicationID,
+                                                     String         medicationName){
+        //start by building the Notification
+
+        Notification notification = buildNotification(  activity,
+                                                        notificationID,
+                                                        medicationID,
+                                                        medicationName);
+
+        //But the notification doesn't get sent to the user Immediately.
+        //We need to delay to the proper time to schedule the notification.
+        //Use the Alarm mechanism to build in this delay
+
+        //But we need to set an Alarm Intent to send to the Alarm Manager.
+        return buildAlarmIntent(activity,
+                                notificationID,
+                                notification,
+                                alarmType,
+                                medicationID,
+                                medicationName);
+
+
+    }
+
+
+
     private  Notification buildNotification(MMMainActivity activity,
-                                                  int requestCode,
-                                                  long medAlertID){
+                                            int      requestCode,
+                                            long     medicationID,
+                                            String   medicationName){
 
-        //want the Notification to wake up the MMMainActivity
+        //Need a structure 5 layers deep. Start from the inside out
+        //At the deepest level is the Intent that will wake up MedMinder, which is MMMainActivity
         Intent activityIntent = new Intent(activity, MMMainActivity.class);
+        activityIntent.putExtra(MMAlarmReceiver.MEDICATION_ID,   medicationID);
+        activityIntent.putExtra(MMAlarmReceiver.MEDICATION_NAME, medicationName);
 
 
-        //insert the Intent that will be passed to the app Activity into a Pending Intent.
-        // This wrapper Pending Intent is consumed by the system (AlarmManager??)
-        PendingIntent contentIntent = PendingIntent.getActivity(
-                                    activity,        //context
-                                    requestCode,     //requestCode
-                                    activityIntent,  //Intent to wake up our Activity
-                                    PendingIntent.FLAG_CANCEL_CURRENT); //override any existing
+        //insert the Intent (that will wake up MedMinder) into a Pending Intent.
+        // This wrapper Pending Intent is consumed by Notification System
+        PendingIntent contentIntent =
+                PendingIntent.getActivity(  activity,        //context
+                        requestCode,     //requestCode
+                        activityIntent,  //Intent to wake up our Activity
+                        PendingIntent.FLAG_CANCEL_CURRENT); //override any existing
 
-        int textMessage;
+
+
+
+        String textMessage = "";
         if (requestCode == scheduleNotificationID){
-            textMessage = R.string.time_to_take;
+            textMessage = activity.getString(R.string.time_to_take) ;
+
+            /* get rid of Alerts
         } else {
             textMessage = R.string.time_to_send_alert;
             activityIntent.putExtra(MMAlarmReceiver.ALARM_TYPE,   MMAlarmReceiver.alertAlarmType);
             activityIntent.putExtra(MMMedicationAlert.sMedAlertID, medAlertID);
+            */
         }
 
         MMSettings settings = MMSettings.getInstance();
-        boolean isLight   = settings.isLightNotification(activity);
-        boolean isSound   = settings.isSoundNotification(activity);
-        boolean isVibrate = settings.isVibrateNotification(activity);
+        boolean isLight     = settings.isLightNotification(activity);
+        boolean isSound     = settings.isSoundNotification(activity);
+        boolean isVibrate   = settings.isVibrateNotification(activity);
 
 
         NotificationManager notificationManager =
-                    (NotificationManager) activity.getSystemService(Context.NOTIFICATION_SERVICE);
+                (NotificationManager) activity.getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager == null)return null;
 
         String NOTIFICATION_CHANNEL_ID = "my_channel_id_01";
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel =
-                                    new NotificationChannel(NOTIFICATION_CHANNEL_ID,
-                                                            "My Notifications",
-                                                            NotificationManager.IMPORTANCE_DEFAULT);
+                    new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+                            "My Notifications",
+                            NotificationManager.IMPORTANCE_DEFAULT);
 
             // Configure the notification channel.
             notificationChannel.setDescription("Channel description");
@@ -393,53 +434,44 @@ public class MMUtilities {
 
 
         NotificationCompat.Builder notificationBuilder =
-                                new NotificationCompat.Builder(activity, NOTIFICATION_CHANNEL_ID);
+                new NotificationCompat.Builder(activity, NOTIFICATION_CHANNEL_ID);
 
         notificationBuilder
                 //.setDefaults(Notification.DEFAULT_ALL)
                 //.setWhen(System.currentTimeMillis())
                 .setContentTitle(activity.getResources().getString(R.string.app_name))
-                .setContentText(activity.getResources().getString(textMessage))
+                .setContentText(textMessage)
                 .setSmallIcon(R.drawable.ic_mortar_white)
                 .setAutoCancel(true) //notification is canceled as soon as it is touched by the user
                 //.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setContentIntent(contentIntent)
-                ;
+        ;
         if (isSound){
             notificationBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         }
 
-        //notificationManager.notify(/*notification id*/1, notificationBuilder.build());
-        /*
-
-        //  Create a Notification Builder that will do the actual creation of the Notification
-        //     and insert the PendingIntent into the Notification as it's ContentIntent
-        NotificationCompat.Builder builder =
-                (NotificationCompat.Builder) new NotificationCompat.Builder(activity)
-                        .setContentTitle(activity.getResources().getString(R.string.app_name))
-                        .setContentText(activity.getResources().getString(textMessage))
-                        .setSmallIcon(R.drawable.ic_mortar_white)
-                        // .setLargeIcon(((BitmapDrawable) activity.getResources().getDrawable(R.drawable.app_icon)).getBitmap())
-                        .setAutoCancel(true)//notification is canceled as soon as it is touched by the user
-                        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                        .setContentIntent(contentIntent);
-       */
 
         //build and return the Notification
         return notificationBuilder.build();
     }
 
 
-    private  PendingIntent buildScheduleAlarmIntent(Context activity,
-                                                    int notificationRequestCode,
-                                                    Notification notification){
+    private  PendingIntent buildAlarmIntent(Context activity,
+                                            int     notificationRequestCode,
+                                            Notification notification,
+                                            int     alarmType,
+                                            long     medicationID,
+                                            String   medicationName){
 
-        //Start by building an Intent targeting our AlarmReceiver,
-        // and insert the ID and notification into this Intent
+        //Start by building an Intent targeting the MedMinder AlarmReceiver,
+        //(It is this AlarmReceiver that will ultimately issue the notification)
+        //  insert the ID and notification into this Intent
         Intent notificationIntent = new Intent(activity, MMAlarmReceiver.class);
         notificationIntent.putExtra(MMAlarmReceiver.NOTIFICATION_ID, notificationRequestCode);
-        notificationIntent.putExtra(MMAlarmReceiver.NOTIFICATION, notification);
-        notificationIntent.putExtra(MMAlarmReceiver.ALARM_TYPE, MMAlarmReceiver.schedNotifAlarmType);
+        notificationIntent.putExtra(MMAlarmReceiver.NOTIFICATION,    notification);
+        notificationIntent.putExtra(MMAlarmReceiver.ALARM_TYPE,      alarmType);
+        notificationIntent.putExtra(MMAlarmReceiver.MEDICATION_ID,   medicationID);
+        notificationIntent.putExtra(MMAlarmReceiver.MEDICATION_NAME, medicationName);
 
 
         //Insert this intent into a wrapper that is used to schedule an Alarm
@@ -450,26 +482,6 @@ public class MMUtilities {
                 notificationIntent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
-
-
-
-
-
-    void cancelNotificationAlarms(MMMainActivity activity){
-        //get the PendingIntent that describes the action we desire,
-        // so that it can be performed when the alarm goes off
-        int notificationID = scheduleNotificationID;
-        Notification notification = buildSchedNotification(activity, notificationID);
-        PendingIntent alarmIntent = buildScheduleAlarmIntent(activity, notificationID, notification);
-
-        AlarmManager alarmManager = (AlarmManager) activity.getSystemService(ALARM_SERVICE);
-        if (alarmManager == null)return;
-
-        //cancel any previous alarms
-        alarmManager.cancel(alarmIntent);
-    }
-
-
 
 
     //*****************************************************/
@@ -505,7 +517,7 @@ public class MMUtilities {
         //Note that the same requestCode is used here as for the Notification above
         PendingIntent alertIntent = buildAlertAlarmIntent(activity, medAlertID);
 
-        AlarmManager alarmManager = (AlarmManager) activity.getSystemService((Context.ALARM_SERVICE));
+        AlarmManager alarmManager = (AlarmManager) activity.getSystemService((ALARM_SERVICE));
         if (alarmManager == null)return;
 
         alarmManager.set(AlarmManager.RTC_WAKEUP, timeOverdueMillisec, alertIntent);
@@ -540,7 +552,7 @@ public class MMUtilities {
         MMMedicationAlertManager medicationAlertManager = MMMedicationAlertManager.getInstance();
         MMMedicationAlert medicationAlert = medicationAlertManager.getMedicationAlert(medAlertID);
 
-        String timeTakenString   = getDateTimeString(timeTakenMilliseconds);
+        String timeTakenString   = MMUtilitiesTime.getDateTimeString(timeTakenMilliseconds);
 
         MMPersonManager personManager = MMPersonManager.getInstance();
         MMPerson notifyPerson = personManager.getPerson(medicationAlert.getForPatientID());
@@ -619,7 +631,7 @@ public class MMUtilities {
     //************************************/
     /*         Send Email using Intent   */
     //************************************/
-    void sendEmail(Context context, String subject, String toAddress, String msg) {
+    private void sendEmail(Context context, String subject, String toAddress, String msg) {
 
         String[] TO = {toAddress};     //{"someone@gmail.com"};
         //String[] CC = {"elisabethhuhn@gmail.com"};
@@ -650,7 +662,7 @@ public class MMUtilities {
     //************************************/
 
 
-    void sendSMSviaAPI(String phoneNo, String msg){
+    private void sendSMSviaAPI(String phoneNo, String msg){
         msg = "sendSMSviaAPI: " + msg;
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(phoneNo, null, msg, null, null);

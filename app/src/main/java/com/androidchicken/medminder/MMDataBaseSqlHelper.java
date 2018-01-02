@@ -194,7 +194,7 @@ class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     //****    Schedule Medication Table    ***************/
     //****************************************************/
     //Table Name
-    static final String TABLE_SCHED_MED            = "SchedMed";
+    static final String TABLE_SCHEDULE = "SchedMed";
 
     //Dose Column Names
     static final String SCHED_MED_ID               = "sched_med_id";
@@ -205,7 +205,7 @@ class MMDataBaseSqlHelper extends SQLiteOpenHelper {
 
 
     //create sched_med table
-    private static final String CREATE_TABLE_SCHED_MED = "CREATE TABLE " + TABLE_SCHED_MED +"(" +
+    private static final String CREATE_TABLE_SCHED_MED = "CREATE TABLE " + TABLE_SCHEDULE +"(" +
             KEY_ID                      + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             SCHED_MED_ID                + " INTEGER, " +
             SCHED_MED_OF_MEDICATION_ID  + " INTEGER, " +
@@ -283,7 +283,7 @@ class MMDataBaseSqlHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEDICATION_ALERT);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DOSE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONCURRENT_DOSE);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SCHED_MED);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SCHEDULE);
 
         //Create new tables
         onCreate(db);
@@ -392,9 +392,9 @@ class MMDataBaseSqlHelper extends SQLiteOpenHelper {
     //***************** DELETE ***************************************
     //returns the number of rows affected
     int remove (SQLiteDatabase  db,
-                       String         table,
-                       String         where_clause,//null updates all rows
-                       String[]       where_args ){ //values that replace ? in where clause
+                String         table,
+                String         where_clause,//null updates all rows
+                String[]       where_args ){ //values that replace ? in where clause
 
         return (delete(db, table, where_clause, where_args));
     }
@@ -402,9 +402,9 @@ class MMDataBaseSqlHelper extends SQLiteOpenHelper {
 
     //returns the number of rows affected
     int delete (SQLiteDatabase  db,
-                       String         table,
-                       String         where_clause,//null updates all rows
-                       String[]       where_args ){ //values that replace ? in where clause
+                String         table,
+                String         where_clause,//null updates all rows
+                String[]       where_args ){ //values that replace ? in where clause
 
         return (db.delete(table, where_clause, where_args));
     }

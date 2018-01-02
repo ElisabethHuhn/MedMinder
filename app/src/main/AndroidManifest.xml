@@ -38,6 +38,20 @@
             </intent-filter>
         </receiver>
 
+        <service
+            android:description="@string/boot_service_definition"
+
+            android:enabled="true"
+            android:exported="false"
+
+            android:isolatedProcess= "false"
+            android:label="@string/boot_service_label"
+            android:name= ".MMBootAlarmService"
+
+            >
+
+        </service>
+
     </application>
 
 </manifest>
