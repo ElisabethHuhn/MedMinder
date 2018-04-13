@@ -32,6 +32,7 @@ class MMUtilitiesTime {
     private static long SecPerMin  = 60;
     private static long MinPerHour = 60;
     private static long HourPerDay = 24;
+    private static long DayPerWeek = 7;
 
     private static long MsPerHour  = (MinPerHour * SecPerMin * MsPerSec);
     private static long MsPerMin   = (SecPerMin * MsPerSec);
@@ -88,11 +89,28 @@ class MMUtilitiesTime {
     static long getMidnightInMS() {
 
         // get a calendar instance for midnight time
+        Calendar midnightCalendar = getMidnightCalendar();
+        return midnightCalendar.getTimeInMillis();
+    }
+
+    static Calendar getMidnightCalendar() {
+
+        // get a calendar instance for midnight time
         Calendar midnightCalendar = Calendar.getInstance();
         midnightCalendar.set(Calendar.HOUR_OF_DAY, 0);
         midnightCalendar.set(Calendar.MINUTE, 0);
         midnightCalendar.set(Calendar.SECOND, 0);
-        return midnightCalendar.getTimeInMillis();
+        return midnightCalendar;
+    }
+
+
+    static long getTwoWeeksAgo() {
+
+        // get a calendar instance for midnight time
+        Calendar nowCalendar = getMidnightCalendar();
+        long now = nowCalendar.getTimeInMillis();
+        long twoWeeks = MsPerHour * HourPerDay * DayPerWeek * 2;
+        return now - twoWeeks;
     }
 
 
@@ -138,6 +156,21 @@ class MMUtilitiesTime {
         if (returnString == null)return " ";
         return returnString;
 
+    }
+
+    static String convertMStoDateString(MMMainActivity activity, long timeMs){
+        Date date = new Date(timeMs);
+        SimpleDateFormat dateFormat = getDateFormat(activity);
+        String returnString = null;
+
+        try {
+            returnString = dateFormat.format(date);
+        } catch (Exception e) {
+            MMUtilities.getInstance().errorHandler(activity, R.string.error_parsing_date_time);
+        }
+
+        if (returnString == null)return " ";
+        return returnString;
     }
 
 
@@ -335,7 +368,7 @@ class MMUtilitiesTime {
 
     // ****************************** //
     //                                //
-    //   Time/Date string Utilities   //
+    //      Time string Utilities     //
     //                                //
     // ****************************** //
 
@@ -373,6 +406,17 @@ class MMUtilitiesTime {
         }
         return timeFormat.toString();
     }
+
+
+
+
+
+
+    // ****************************** //
+    //                                //
+    //        Date string Utilities   //
+    //                                //
+    // ****************************** //
 
 
     static  String getDateString(long milliSeconds){

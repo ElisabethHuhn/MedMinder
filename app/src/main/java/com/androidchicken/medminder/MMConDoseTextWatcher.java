@@ -1,5 +1,6 @@
 package com.androidchicken.medminder;
 
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ViewParent;
@@ -107,6 +108,7 @@ public class MMConDoseTextWatcher implements TextWatcher {
             ArrayList<MMDose> doses = cDose.getDoses();
 
             int medPosition;
+            int backgroundColor;
 
             while (viewPosition < last){
                 medPosition = viewPosition - 3;//3 extra fields for date, time, id
@@ -121,6 +123,12 @@ public class MMConDoseTextWatcher implements TextWatcher {
                 if ((amtString != null) && (!amtString.isEmpty())){
                     amt = Integer.valueOf(amtString);
                 }
+                //set screen color according to dose amount
+                backgroundColor = ContextCompat.getColor(mActivity, R.color.colorInputBackground);
+                if (amt > 0){
+                    backgroundColor = ContextCompat.getColor(mActivity, R.color.colorLightPink);
+                }
+                medAmtView.setBackgroundColor(backgroundColor);
 
                 //Now, update the dose object corresponding to this medication, if one exists
                 //  if the original amount was zero, it might not exist
@@ -128,13 +136,13 @@ public class MMConDoseTextWatcher implements TextWatcher {
 
                 if (dose.getPositionWithinConcDose() > medPosition){
                     //if here, there was not a dose for this medication
-                    //But only need to create one if the amount is not greater than zero
+                    //But only need to create one if the amount is greater than zero
                     if (amt > 0){
                         MMPerson patient = mActivity.getPerson();
                         if (patient == null)return;
 
                         MMMedication medication =
-                                patient.getMedicationAt(false, medPosition);
+                                              patient.getMedicationAt(false, medPosition);
                         long medID = medication.getMedicationID();
 
                         dose = new MMDose(  medID,
@@ -158,9 +166,10 @@ public class MMConDoseTextWatcher implements TextWatcher {
                     dose.setAmountTaken(amt);
                     //  assure the time at the concurrent dose level matches the time at the dose level
                     dose.setTimeTaken(cdTimeMs);
-                    //write out the new dose to the DB
+
                     //DB update happens when concurrent doses instance written out to DB
-                    //MMDatabaseManager.getInstance().addDose(dose);
+
+
 
                     dosePosition++;
                 }

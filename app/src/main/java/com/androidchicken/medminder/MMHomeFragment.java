@@ -304,7 +304,15 @@ public class MMHomeFragment extends Fragment {
 
         MMConcurrentDoseManager concurrentDoseManager = MMConcurrentDoseManager.getInstance();
         //      get  list of concurrentDoses
-        long earliestDate = MMSettings.getInstance().getHistoryDate(activity);
+        MMSettings settings = MMSettings.getInstance();
+        long earliestDate = settings.getHistoryDate(activity);
+
+        boolean isTwoWeeks = settings.showOnlyTwoWeeks(activity);
+        if (isTwoWeeks){
+            //calculate the milliseconds date two weeks prior to the current date
+            earliestDate = MMUtilitiesTime.getTwoWeeksAgo();
+        }
+
 
         Cursor concurrentDoseCursor =
                 concurrentDoseManager.getAllConcurrentDosesCursor(getPersonID(), earliestDate);

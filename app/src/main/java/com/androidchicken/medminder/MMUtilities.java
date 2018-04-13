@@ -398,7 +398,9 @@ public class MMUtilities {
 
         MMSettings settings = MMSettings.getInstance();
         boolean isLight     = settings.isLightNotification(activity);
-        boolean isSound     = settings.isSoundNotification(activity);
+        // TODO: 1/3/2018 don't forget to come back to do this correctly
+        //boolean isSound     = settings.isSoundNotification(activity);
+        boolean isSound     = true;
         boolean isVibrate   = settings.isVibrateNotification(activity);
 
 

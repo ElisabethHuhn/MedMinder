@@ -8,6 +8,7 @@
     <color name="colorWhite"           >#ffffff</color>
     <color name="colorGray"            >#dcdcdc</color>
     <color name="colorGrayest"         >#cac9c9</color>
+    <color name="colorError"           >#f7dfdf</color>
 
 
     <color name="colorLightPink"       >#ffb6c1</color>

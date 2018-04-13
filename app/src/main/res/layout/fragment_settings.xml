@@ -68,6 +68,97 @@
 
             </TableRow>
 
+             <!-- Show only Two Weeks of History -->
+            <TableRow
+                android:layout_height="wrap_content"
+                android:layout_width ="match_parent"
+                android:paddingTop="10dp"
+                android:gravity="center"
+                >
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/switchShowOnlyTwoWeeks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_show_two_weeks"
+                    android:textOn="@string/settings_two_weeks_label"
+                    android:textOff="@string/settings_all_off_label"
+                    app:showText="true"
+
+                    />
+
+            </TableRow>
+
+            <!-- Earliest Date to show in history list -->
+            <TableRow
+                android:layout_width=  "match_parent"
+                android:layout_height= "wrap_content"
+                android:layout_gravity="end"
+
+                >
+                <TextView
+
+                    android:layout_height="wrap_content"
+                    android:layout_width= "0dp"
+                    android:layout_weight="25"
+                    android:gravity=      "end"
+
+                    android:freezesText="true"
+
+                    android:focusable="false"
+
+                    android:text="@string/settings_earliest_history_date"
+                    android:layout_marginEnd="16dp"
+                    android:textColor=    "@color/colorTextBlack"
+                    android:background=   "@color/colorLabelBackground"
+                    />
+            </TableRow>
+            <TableRow
+                android:layout_width=  "match_parent"
+                android:layout_height= "wrap_content"
+                android:layout_gravity="center_horizontal"
+
+                >
+
+                <TextView
+                    android:labelFor=     "@+id/settingEarliestHistoryDateInput"
+                    android:layout_height="wrap_content"
+                    android:layout_width= "0dp"
+                    android:layout_weight="25"
+                    android:gravity=      "end"
+
+                    android:freezesText="true"
+
+                    android:focusable="false"
+
+                    android:text="@string/settings_history_date"
+                    android:textColor=    "@color/colorTextBlack"
+                    android:background=   "@color/colorLabelBackground"
+                    />
+
+                <EditText
+                    android:id=           "@id/settingEarliestHistoryDateInput"
+
+                    android:layout_height="wrap_content"
+                    android:layout_width= "0dp"
+                    android:layout_weight="75"
+                    android:gravity="center_horizontal"
+
+                    android:freezesText="true"
+
+                    android:inputType=    "date"
+                    android:imeOptions=   "flagNoExtractUi"
+
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="16dp"
+
+                    android:hint="@string/settings_date_hint"
+                    android:textColor=    "@color/colorTextBlack"
+                    android:background=   "@color/colorInputBackground"
+                    />
+
+            </TableRow>
+
             <!-- Default time due for schedule objects -->
             <TableRow
                 android:layout_width=  "match_parent"
@@ -137,75 +228,6 @@
 
             </TableRow>
 
-            <!-- Earliest Date to show in history list -->
-            <TableRow
-                android:layout_width=  "match_parent"
-                android:layout_height= "wrap_content"
-                android:layout_gravity="end"
-                android:paddingTop=    "10dp"
-                >
-                <TextView
-
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="25"
-                    android:gravity=      "end"
-
-                    android:freezesText="true"
-
-                    android:focusable="false"
-
-                    android:text="@string/settings_earliest_history_date"
-                    android:layout_marginEnd="16dp"
-                    android:textColor=    "@color/colorTextBlack"
-                    android:background=   "@color/colorLabelBackground"
-                    />
-            </TableRow>
-            <TableRow
-                android:layout_width=  "match_parent"
-                android:layout_height= "wrap_content"
-                android:layout_gravity="center_horizontal"
-
-                >
-
-                <TextView
-                    android:labelFor=     "@+id/settingEarliestHistoryDateInput"
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="25"
-                    android:gravity=      "end"
-
-                    android:freezesText="true"
-
-                    android:focusable="false"
-
-                    android:text="@string/settings_history_date"
-                    android:textColor=    "@color/colorTextBlack"
-                    android:background=   "@color/colorLabelBackground"
-                    />
-
-                <EditText
-                    android:id=           "@id/settingEarliestHistoryDateInput"
-
-                    android:layout_height="wrap_content"
-                    android:layout_width= "0dp"
-                    android:layout_weight="75"
-                    android:gravity="center_horizontal"
-
-                    android:freezesText="true"
-
-                    android:inputType=    "date"
-                    android:imeOptions=   "flagNoExtractUi"
-
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="16dp"
-
-                    android:hint="@string/settings_date_hint"
-                    android:textColor=    "@color/colorTextBlack"
-                    android:background=   "@color/colorInputBackground"
-                    />
-
-            </TableRow>
 
             <!-- Clock format: 24hour? -->
             <TableRow
@@ -249,7 +271,7 @@
 
             </TableRow>
 
-            <!-- Show deleted Medications? -->
+            <!-- Show deleted Meds? -->
             <TableRow
                 android:layout_height="wrap_content"
                 android:layout_width ="match_parent"
@@ -262,6 +284,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/settings_show_deleted_meds"
+
                     android:textOn="@string/settings_curr_on_label"
                     android:textOff="@string/settings_all_off_label"
                     app:showText="true"
@@ -270,7 +293,7 @@
 
             </TableRow>
 
-            <!-- Show FAB? -->
+             <!-- Show FAB? -->
             <TableRow
                 android:layout_height="wrap_content"
                 android:layout_width ="match_parent"
@@ -372,8 +395,6 @@
                     />
 
             </TableRow>
-
-
 
         </TableLayout>
 

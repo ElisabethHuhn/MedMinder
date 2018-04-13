@@ -23,6 +23,7 @@ import static android.R.attr.defaultValue;
     private static final String sClock24FormatTag       = "clock24" ;
     private static final String sPersonDeleteTag        = "personDelete" ;
     private static final String sMedOnlyCurrentTag      = "medDelete" ;
+    private static final String sShowOnlyTwoWeeksTag    = "showOnlyTwoWeeks";
     private static final String sSoundNotificationTag   = "soundNotification" ;
     private static final String sLightNotificationTag   = "lightNotification" ;
     private static final String sVibrateNotificationTag = "vibrateNotification" ;
@@ -146,6 +147,13 @@ import static android.R.attr.defaultValue;
     }
     void setShowOnlyCurrentMeds(MMMainActivity activity, boolean showOnlyCurrentMed){
         setBooleanSetting(activity, MMSettings.sMedOnlyCurrentTag, showOnlyCurrentMed);
+    }
+
+    boolean showOnlyTwoWeeks(MMMainActivity activity)  {
+        return getBooleanSetting(activity, MMSettings.sShowOnlyTwoWeeksTag, true);
+    }
+    void setShowOnlyTwoWeeks(MMMainActivity activity, boolean showOnlyTwoWeeks){
+        setBooleanSetting(activity, MMSettings.sShowOnlyTwoWeeksTag, showOnlyTwoWeeks);
     }
 
     boolean isSoundNotification(MMMainActivity activity)  {
